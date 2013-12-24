@@ -14,6 +14,9 @@ namespace VelocityExpressionTree.Binders
         {
         }
 
+        //TODO: Should we allow binding to static members?
+        private static readonly BindingFlags _bindingFlags = BindingFlags.Public | BindingFlags.Instance;
+
         public override DynamicMetaObject FallbackGetMember(DynamicMetaObject target, DynamicMetaObject errorSuggestion)
         {
             //If the target doesn't have a value, defer until it does
@@ -29,29 +32,33 @@ namespace VelocityExpressionTree.Binders
             }
 
             Expression result;
-            //TODO: Should we allow binding to static methods?
-            var members = target.LimitType.GetMember(Name, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
+
+            var members = Enumerable.Union<MemberInfo>(
+                    target.LimitType.GetProperties(_bindingFlags),
+                    target.LimitType.GetFields(_bindingFlags)
+                 )
+                 .Where(x => x.Name.Equals(Name, System.StringComparison.OrdinalIgnoreCase));
 
             //If we have more than one match, try a case sensitive match
-            if (members.Length > 1)
+            if (members.Count() > 1)
             {
                 //TODO: Log ambiguity
                 Debug.WriteLine(string.Format("Multiple properties found with name '{0}' - looking for exact match", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
-                members = members.Where(x => x.Name == Name).ToArray();
+                members = members.Where(x => x.Name == Name);
             }
-            if (members.Length == 0)
+            if (!members.Any())
             {
                 Debug.WriteLine(string.Format("Unable to resolve Property '{0}' on type '{1}' - Not Found", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
                 result = Constants.VelocityUnresolvableResult;
             }
-            else if (members.Length > 1)
+            else if (members.Count() > 1)
             {
                 Debug.WriteLine(string.Format("Unable to resolve Property '{0}' on type '{1}' - Multiple matches found", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
                 result = Constants.VelocityAmbigiousMatchResult;
             }
             else
             {
-                var member = members[0];
+                var member = members.Single();
 
                 result = Expression.MakeMemberAccess(
                         Expression.Convert(target.Expression, member.DeclaringType),
