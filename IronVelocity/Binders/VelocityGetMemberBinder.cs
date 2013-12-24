@@ -1,39 +1,34 @@
-﻿using System;
+﻿using IronVelocity;
+using System.Diagnostics;
 using System.Dynamic;
-using System.Reflection;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Diagnostics;
+using System.Reflection;
 
-namespace IronVelocity.Binders
+namespace VelocityExpressionTree.Binders
 {
-    public class VelocityInvokeMemberBinder : InvokeMemberBinder
+    public class VelocityGetMemberBinder : GetMemberBinder
     {
-        public VelocityInvokeMemberBinder(String name, CallInfo callInfo)
-            : base(name, true, callInfo)
+        public VelocityGetMemberBinder(string name)
+            : base(name, ignoreCase: true)
         {
         }
 
-        public override DynamicMetaObject FallbackInvoke(DynamicMetaObject target, DynamicMetaObject[] args, DynamicMetaObject errorSuggestion)
+        public override DynamicMetaObject FallbackGetMember(DynamicMetaObject target, DynamicMetaObject errorSuggestion)
         {
-            throw new NotImplementedException();
-        }
-
-        public override DynamicMetaObject FallbackInvokeMember(DynamicMetaObject target, DynamicMetaObject[] args, DynamicMetaObject errorSuggestion)
-        {
-            if (!target.HasValue || args.Any(x => !x.HasValue))
-                Defer(target, args);
-
-            var paramCount = args.Length;
+            //If the target doesn't have a value, defer until it does
+            if (!target.HasValue)
+                return Defer(target);
 
             //TODO: Should we allow binding to static methods?
-            var members = target.LimitType.GetMethods(BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance)
-                .Where(x => x.Name.Equals(Name, StringComparison.OrdinalIgnoreCase))
-                .Where(x => x.GetParameters().Length == paramCount)
-                .ToArray();
+            var members = target.LimitType.GetMember(Name, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
 
-            //throw new NotImplementedException();
-
+            //If we have more than one match, try a case sensitive match
+            if (members.Length > 1)
+            {
+                //TODO: Log ambiguity
+                members = members.Where(x => x.Name == Name).ToArray();
+            }
             Expression result;
             if (members.Length == 0)
             {
@@ -50,7 +45,7 @@ namespace IronVelocity.Binders
                 var member = members[0];
 
                 result = Expression.TypeAs(
-                    Expression.Call(
+                    Expression.MakeMemberAccess(
                         Expression.Convert(target.Expression, member.DeclaringType),
                         member
                     ),
@@ -61,7 +56,7 @@ namespace IronVelocity.Binders
                 result,
                 BindingRestrictions.GetTypeRestriction(target.Expression, target.LimitType)
             );
-
         }
     }
+
 }

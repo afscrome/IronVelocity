@@ -1,6 +1,8 @@
-﻿using NVelocity.Runtime.Parser.Node;
+﻿using IronVelocity.Binders;
+using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -21,6 +23,19 @@ namespace IronVelocity
 
         private static readonly Expression TrueExpression = Expression.Constant(true);
         private static readonly Expression FalseExpression = Expression.Constant(false);
+
+
+        private IDictionary<string, VelocityGetMemberBinder> _binders = new Dictionary<string, VelocityGetMemberBinder>(StringComparer.OrdinalIgnoreCase);
+        private VelocityGetMemberBinder GetGetMemberBinder(string propertyName)
+        {
+            VelocityGetMemberBinder binder;
+            if (!_binders.TryGetValue(propertyName, out binder))
+            {
+                binder = new VelocityGetMemberBinder(propertyName);
+                _binders[propertyName] = binder;
+            }
+            return binder;
+        }
 
         public Expression BuildExpressionTree(ASTprocess ast)
         {
@@ -60,7 +75,7 @@ namespace IronVelocity
             if (node == null)
                 throw new ArgumentNullException("node");
 
-            //ASTprocess is a special case for the root, otherwise it behaves exactlyu like ASTBlock
+            //ASTprocess is a special case for the root, otherwise it behaves exactly like ASTBlock
             if (!(node is ASTBlock || node is ASTprocess))
                 throw new ArgumentOutOfRangeException("node");
 
@@ -143,6 +158,8 @@ namespace IronVelocity
                 var child = node.GetChild(i);
                 if (child is ASTIdentifier)
                     expr = Identifier(child, expr);
+                else if (child is ASTMethod)
+                    expr = Method(child, expr);
                 else
                     throw new NotSupportedException("Node type not supported in a Reference: " + child.GetType().Name);
             }
@@ -150,20 +167,33 @@ namespace IronVelocity
             return expr;
         }
 
-        private IDictionary<string, VelocityGetMemberBinder> _binders = new Dictionary<string, VelocityGetMemberBinder>(StringComparer.OrdinalIgnoreCase);
-        private VelocityGetMemberBinder GetGetMemberBinder(string propertyName)
+
+        private Expression Method(INode node, Expression parent)
         {
-            VelocityGetMemberBinder binder;
-            if (!_binders.TryGetValue(propertyName, out binder))
-            {
-                binder = new VelocityGetMemberBinder(propertyName);
-                _binders[propertyName] = binder;
-            }
-            return binder;
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTMethod))
+                throw new ArgumentOutOfRangeException("node");
+
+            var paramBoundary = node.Literal.IndexOf('(');
+            var methodName = node.Literal.Substring(0, paramBoundary);
+
+            return Expression.Dynamic(
+                new VelocityInvokeMemberBinder(methodName, new CallInfo(0)),
+                typeof(object),
+                parent
+            );
         }
 
         private Expression Identifier(INode node, Expression parent)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTIdentifier))
+                throw new ArgumentOutOfRangeException("node");
+
             var propertyName = node.Literal;
 
             return Expression.Dynamic(
