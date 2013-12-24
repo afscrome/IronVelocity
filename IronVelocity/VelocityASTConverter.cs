@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using VelocityExpressionTree.Binders;
 
 namespace IronVelocity
 {
@@ -15,11 +16,11 @@ namespace IronVelocity
         private static readonly MethodInfo _subtractionMethodInfo = typeof(VelocityOperators).GetMethod("Subtraction", new[] { typeof(object), typeof(object) });
         private static readonly MethodInfo _multiplicationMethodInfo = typeof(VelocityOperators).GetMethod("Multiplication", new[] { typeof(object), typeof(object) });
         private static readonly MethodInfo _divisionMethodInfo = typeof(VelocityOperators).GetMethod("Division", new[] { typeof(object), typeof(object) });
+        private static readonly MethodInfo _coerceObjectToBooleanMethodInfo = typeof(VelocityCoercion).GetMethod("CoerceObjectToBoolean", new[] { typeof(object) });
 
 
         private static readonly Expression TrueExpression = Expression.Constant(true);
         private static readonly Expression FalseExpression = Expression.Constant(false);
-        private static readonly Expression NullValueExpression = Expression.Constant(null);
 
         public Expression BuildExpressionTree(ASTprocess ast)
         {
@@ -32,7 +33,7 @@ namespace IronVelocity
             var expressions = GetBlockExpressions(ast);
 
             if (!expressions.Any())
-                expressions = new[] { Expression.Empty()};
+                expressions = new[] { Expression.Empty() };
 
             return Expression.Block(_locals.Values, expressions);
         }
@@ -128,14 +129,50 @@ namespace IronVelocity
                 throw new ArgumentOutOfRangeException("node");
 
             //Remove $ or $! prefix to get just the variable name
-            var name = node.Literal.TrimStart('$', '!');
-            var expr = GetLocal(name);
+            var reference = (ASTReference)node;
 
-            if (node.ChildrenCount > 0)
-                throw new NotImplementedException();
+            var name = node.Literal.TrimStart('$', '!');
+            var dotIndex = name.IndexOf('.');
+            if (dotIndex > 0)
+                name = name.Substring(0, dotIndex);
+
+            Expression expr = GetLocal(name);
+
+            for (int i = 0; i < node.ChildrenCount; i++)
+            {
+                var child = node.GetChild(i);
+                if (child is ASTIdentifier)
+                    expr = Identifier(child, expr);
+                else
+                    throw new NotSupportedException("Node type not supported in a Reference: " + child.GetType().Name);
+            }
 
             return expr;
         }
+
+        private IDictionary<string, VelocityGetMemberBinder> _binders = new Dictionary<string, VelocityGetMemberBinder>(StringComparer.OrdinalIgnoreCase);
+        private VelocityGetMemberBinder GetGetMemberBinder(string propertyName)
+        {
+            VelocityGetMemberBinder binder;
+            if (!_binders.TryGetValue(propertyName, out binder))
+            {
+                binder = new VelocityGetMemberBinder(propertyName);
+                _binders[propertyName] = binder;
+            }
+            return binder;
+        }
+
+        private Expression Identifier(INode node, Expression parent)
+        {
+            var propertyName = node.Literal;
+
+            return Expression.Dynamic(
+                GetGetMemberBinder(propertyName),
+                typeof(object),
+                parent
+            );
+        }
+
 
         private Expression NumberLiteral(INode node)
         {
@@ -190,16 +227,22 @@ namespace IronVelocity
         }
 
         /// <summary>
-        /// Helper to build an If or an IfElse statement based on whether we hvae the falseContent block is not null
+        /// Helper to build an If or an IfElse statement based on whether we have the falseContent block is not null
         /// </summary>
         /// <returns></returns>
         private Expression If(Expression condition, Expression trueContent, Expression falseContent)
         {
+            if (condition.Type != typeof(bool))
+                condition = Expression.Call(_coerceObjectToBooleanMethodInfo, condition);
+
             return falseContent != null
                 ? Expression.IfThenElse(condition, trueContent, falseContent)
                 : Expression.IfThen(condition, trueContent);
 
         }
+
+
+
 
         private Expression Expr(INode node)
         {
@@ -246,7 +289,7 @@ namespace IronVelocity
             if (node.ChildrenCount > 0)
                 throw new NotImplementedException("Not supporting interpolated strings yet");
 
-            return Expression.Constant(node.Literal.Substring(1, node.Literal.Length -2));
+            return Expression.Constant(node.Literal.Substring(1, node.Literal.Length - 2));
         }
 
         public Expression Markup(INode node)
@@ -257,7 +300,6 @@ namespace IronVelocity
             return Output(Expression.Constant(node.Literal));
         }
 
-        [Obsolete("Not entirely keen on this", false)]
         public Expression Output(Expression expression)
         {
             if (expression == null)
@@ -379,10 +421,10 @@ namespace IronVelocity
             // The expression tree will fail if the types don't *exactly* match the types on the method signature
             // So ensure everyting is converted to object
             if (left.Type != typeof(object))
-                left = Expression.Convert(left, typeof(object));
+                left = Expression.TypeAs(left, typeof(object));
 
             if (right.Type != typeof(object))
-                right = Expression.Convert(right, typeof(object));
+                right = Expression.TypeAs(right, typeof(object));
 
             return generator(left, right, implementation);
         }
@@ -409,7 +451,7 @@ namespace IronVelocity
                 throw new InvalidOperationException("Cannot assign from type '{0}' to '{1}'");
 
             if (left.Type != right.Type && right.Type.IsPrimitive)
-                right = Expression.Convert(right, typeof(object));
+                right = Expression.TypeAs(right, typeof(object));
 
             var tempResult = Expression.Parameter(typeof(object));
 
@@ -421,13 +463,13 @@ namespace IronVelocity
              *         Assign(left, right)
              *     }
              */
-            return Expression.Block(new[] { tempResult},
+            return Expression.Block(new[] { tempResult },
                 //Store the result of the right hand side in to a temporary variable
                 Expression.Assign(tempResult, right),
                 Expression.IfThen(
-                    //If the temporary variable is not equal to null
-                    Expression.NotEqual(tempResult, NullValueExpression),
-                    //Make the assignment
+                //If the temporary variable is not equal to null
+                    Expression.NotEqual(tempResult, Constants.NullExpression),
+                //Make the assignment
                     Expression.Assign(left, right)
                 )
             );

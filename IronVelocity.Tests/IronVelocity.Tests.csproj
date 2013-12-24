@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="OutputTests\Identifer.cs" />
     <Compile Include="OutputTests\If.cs" />
     <Compile Include="OutputTests\Numeric\AdditionTests.cs" />
     <Compile Include="OutputTests\Numeric\SubtractionTests.cs" />

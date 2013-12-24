@@ -6,14 +6,6 @@ namespace Tests
     public class TextAndCommentTests
     {
 
-        [Test]
-        public void Method()
-        {
-            var input = "#set($x = \"hello\")$x.ToString()";
-            var expected = "llo";
-
-            Utility.TestExpectedMarkupGenerated(input, expected);
-        }
 
 
         [Test]

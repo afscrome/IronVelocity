@@ -74,6 +74,23 @@ namespace Tests
             Utility.TestExpectedMarkupGenerated(input, expected);
         }
 
+
+        [Test]
+        public void IfWithCoercionTrue()
+        {
+            var input = "#if('hello')foo#end";
+            var expected = "foo";
+
+            Utility.TestExpectedMarkupGenerated(input, expected);
+        }
+        [Test]
+        public void IfWithCoercionFalse()
+        {
+            var input = "#if($null)foo#end";
+            var expected = "";
+
+            Utility.TestExpectedMarkupGenerated(input, expected);
+        }
     }
 
   
