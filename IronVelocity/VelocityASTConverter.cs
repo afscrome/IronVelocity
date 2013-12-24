@@ -17,7 +17,7 @@ namespace IronVelocity
         private static readonly MethodInfo _multiplicationMethodInfo = typeof(VelocityOperators).GetMethod("Multiplication", new[] { typeof(object), typeof(object) });
         private static readonly MethodInfo _divisionMethodInfo = typeof(VelocityOperators).GetMethod("Division", new[] { typeof(object), typeof(object) });
         private static readonly MethodInfo _coerceObjectToBooleanMethodInfo = typeof(VelocityCoercion).GetMethod("CoerceObjectToBoolean", new[] { typeof(object) });
-
+         
 
         private static readonly Expression TrueExpression = Expression.Constant(true);
         private static readonly Expression FalseExpression = Expression.Constant(false);

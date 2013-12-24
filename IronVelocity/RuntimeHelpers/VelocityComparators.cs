@@ -2,7 +2,7 @@
 
 namespace IronVelocity
 {
-    public static class VelocityComparators
+    public static class Comparators
     {
 
 
