@@ -35,7 +35,7 @@ namespace IronVelocity.Tests.OutputTests
 
 
         [Test]
-        public void RenderPopertyDifferentTypes()
+        public void RenderPropertyDifferentTypes()
         {
             var input = "#set($x = 'foo')$x.Length #set($x= 123)$x.Length #set($x = 'foobar')";
             var expected = "3";

@@ -449,12 +449,12 @@ namespace IronVelocity
         private Expression BinaryMathematicalExpression(Func<Expression, Expression, MethodInfo, Expression> generator, Expression left, Expression right, MethodInfo implementation)
         {
             // The expression tree will fail if the types don't *exactly* match the types on the method signature
-            // So ensure everyting is converted to object
+            // So ensure everything is converted to object
             if (left.Type != typeof(object))
-                left = Expression.TypeAs(left, typeof(object));
+                left = Expression.Convert(left, typeof(object));
 
             if (right.Type != typeof(object))
-                right = Expression.TypeAs(right, typeof(object));
+                right = Expression.Convert(right, typeof(object));
 
             return generator(left, right, implementation);
         }
@@ -481,7 +481,7 @@ namespace IronVelocity
                 throw new InvalidOperationException("Cannot assign from type '{0}' to '{1}'");
 
             if (left.Type != right.Type && right.Type.IsPrimitive)
-                right = Expression.TypeAs(right, typeof(object));
+                right = Expression.Convert(right, typeof(object));
 
             var tempResult = Expression.Parameter(typeof(object));
 

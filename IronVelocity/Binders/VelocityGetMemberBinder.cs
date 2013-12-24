@@ -20,49 +20,54 @@ namespace VelocityExpressionTree.Binders
             if (!target.HasValue)
                 return Defer(target);
 
-            Expression result;
             if (target.Value == null)
-                //TODO: Ideally we wouldn't need this as we would short circuit earlier on so we never even enter the DLR for a null input...
-                result = Constants.NullExpression;
+            {
+                return new DynamicMetaObject(
+                    Constants.NullExpression,
+                    BindingRestrictions.GetInstanceRestriction(target.Expression, null)
+                );
+            }
+
+            Expression result;
+            //TODO: Should we allow binding to static methods?
+            var members = target.LimitType.GetMember(Name, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
+
+            //If we have more than one match, try a case sensitive match
+            if (members.Length > 1)
+            {
+                //TODO: Log ambiguity
+                Debug.WriteLine(string.Format("Multiple properties found with name '{0}' - looking for exact match", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
+                members = members.Where(x => x.Name == Name).ToArray();
+            }
+            if (members.Length == 0)
+            {
+                Debug.WriteLine(string.Format("Unable to resolve Property '{0}' on type '{1}' - Not Found", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
+                result = Constants.VelocityUnresolvableResult;
+            }
+            else if (members.Length > 1)
+            {
+                Debug.WriteLine(string.Format("Unable to resolve Property '{0}' on type '{1}' - Multiple matches found", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
+                result = Constants.VelocityAmbigiousMatchResult;
+            }
             else
             {
-                //TODO: Should we allow binding to static methods?
-                var members = target.LimitType.GetMember(Name, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
+                var member = members[0];
 
-                //If we have more than one match, try a case sensitive match
-                if (members.Length > 1)
-                {
-                    //TODO: Log ambiguity
-                    Debug.WriteLine(string.Format("Multiple properties found with name '{0}' - looking for exact match", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
-                    members = members.Where(x => x.Name == Name).ToArray();
-                }
-                if (members.Length == 0)
-                {
-                    Debug.WriteLine(string.Format("Unable to resolve Property '{0}' on type '{1}' - Not Found", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
-                    result = Constants.VelocityUnresolvableResult;
-                }
-                else if (members.Length > 1)
-                {
-                    Debug.WriteLine(string.Format("Unable to resolve Property '{0}' on type '{1}' - Multiple matches found", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
-                    result = Constants.VelocityAmbigiousMatchResult;
-                }
-                else
-                {
-                    var member = members[0];
-
-                    result = Expression.TypeAs(
-                        Expression.MakeMemberAccess(
-                            Expression.Convert(target.Expression, member.DeclaringType),
-                            member
-                        ),
-                        typeof(object)
+                result = Expression.MakeMemberAccess(
+                        Expression.Convert(target.Expression, member.DeclaringType),
+                        member
                     );
-                }
 
+                //DLR doesn't like value types, so box if it's a value type
+                if (result.Type.IsValueType)
+                    result = Expression.TypeAs(result, typeof(object));
+                //var expressionType = memberType.IsValueType ? ExpressionType.Convert : ExpressionType.TypeAs;
+                //result = Expression.MakeUnary(expressionType, memberExpression, memberType);
             }
+
             return new DynamicMetaObject(
                 result,
-                BindingRestrictions.GetTypeRestriction(target.Expression, target.RuntimeType)
+                BindingRestrictions.GetTypeRestriction(target.Expression, target.LimitType)
             );
         }
     }

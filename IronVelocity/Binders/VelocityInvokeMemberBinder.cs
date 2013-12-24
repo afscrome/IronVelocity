@@ -1,9 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Dynamic;
-using System.Reflection;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Diagnostics;
+using System.Reflection;
 
 namespace IronVelocity.Binders
 {
@@ -32,7 +32,6 @@ namespace IronVelocity.Binders
                 .Where(x => x.GetParameters().Length == paramCount)
                 .ToArray();
 
-            //throw new NotImplementedException();
 
             Expression result;
             if (members.Length == 0)
@@ -49,12 +48,9 @@ namespace IronVelocity.Binders
             {
                 var member = members[0];
 
-                result = Expression.TypeAs(
-                    Expression.Call(
-                        Expression.Convert(target.Expression, member.DeclaringType),
-                        member
-                    ),
-                typeof(object)
+                result = Expression.Call(
+                    Expression.Convert(target.Expression, member.DeclaringType),
+                    member
                 );
             }
             return new DynamicMetaObject(

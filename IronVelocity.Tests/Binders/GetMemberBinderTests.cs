@@ -226,6 +226,15 @@ namespace IronVelocity.Tests.Binders
         #endregion
 
 
+        [Test]
+        public void NullInput()
+        {
+            object input = null;
+            var result = test(input, "Field");
+            Assert.Null(result);
+        }
+
+
         private object test(object input, string memberName)
         {
             var binder = new VelocityGetMemberBinder(memberName);
