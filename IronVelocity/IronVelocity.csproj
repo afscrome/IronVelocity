@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E12C6EAD-D5AF-4128-A1E5-59D0408028CD}</ProjectGuid>
+    <ProjectGuid>{726B0C17-F16B-4761-88DF-17EDABE5C534}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>IronVelocity.Tests</RootNamespace>
-    <AssemblyName>IronVelocity.Tests</AssemblyName>
+    <RootNamespace>IronVelocity</RootNamespace>
+    <AssemblyName>IronVelocity</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
@@ -32,8 +32,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
     </Reference>
     <Reference Include="NVelocity, Version=1.0.3.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
@@ -49,22 +48,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OutputTests\If.cs" />
-    <Compile Include="OutputTests\Numeric\AdditionTests.cs" />
-    <Compile Include="OutputTests\Numeric\SubtractionTests.cs" />
-    <Compile Include="OutputTests\OutputTests.cs" />
-    <Compile Include="OutputTests\Set.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="Extensions\INodeExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utility.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\IronVelocity\IronVelocity.csproj">
-      <Project>{726b0c17-f16b-4761-88df-17edabe5c534}</Project>
-      <Name>IronVelocity</Name>
-    </ProjectReference>
+    <Compile Include="VelocityASTConverter.cs" />
+    <Compile Include="VelocityComparators.cs" />
+    <Compile Include="VelocityExpressionTreeBuilder.cs" />
+    <Compile Include="VelocityOperators.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

@@ -8,7 +8,7 @@ namespace Tests
     {
         public static void TestExpectedMarkupGenerated(string input, string expectedOutput)
         {
-            var action = IronVelocityBuilder.BuildExpressionTree(input).Compile();
+            var action = VelocityExpressionTreeBuilder.BuildExpressionTree(input).Compile();
 
             var builder = new StringBuilder();
             action(builder);
