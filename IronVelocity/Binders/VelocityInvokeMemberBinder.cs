@@ -21,15 +21,27 @@ namespace IronVelocity.Binders
 
         public override DynamicMetaObject FallbackInvokeMember(DynamicMetaObject target, DynamicMetaObject[] args, DynamicMetaObject errorSuggestion)
         {
+            //If any of the Dynamic Meta Objects don't yet have a value, defer until they have values.  Failure to do this may result in an infinite loop
             if (!target.HasValue || args.Any(x => !x.HasValue))
                 Defer(target, args);
+
+            // If the target has a null value, then we won't be able to invoke any methods, so escape early
+            // Failure to escape early like this do this results in an infinite loop
+            if (target.Value == null)
+            {
+                return new DynamicMetaObject(
+                    Constants.NullExpression,
+                    BindingRestrictions.GetInstanceRestriction(target.Expression, null)
+                );
+
+            }
 
             var paramCount = args.Length;
 
             //TODO: Should we allow binding to static methods?
             var members = target.LimitType.GetMethods(BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance)
                 .Where(x => x.Name.Equals(Name, StringComparison.OrdinalIgnoreCase))
-                .Where(x => x.GetParameters().Length == paramCount)
+                .Where(x => x.GetParameters().Length == paramCount) //TODO: Doesn't support params arguments
                 .ToArray();
 
 

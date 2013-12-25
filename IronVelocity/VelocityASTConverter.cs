@@ -357,7 +357,6 @@ namespace IronVelocity
         }
 
 
-
         private Expression Operand(INode node)
         {
             if (node is ASTNumberLiteral)
@@ -372,6 +371,59 @@ namespace IronVelocity
                 throw new NotSupportedException("Node type not supported in an expression: " + node.GetType().Name);
         }
 
+
+        /// <summary>
+        /// Builds the expression tree from an ASTAssignment
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        private Expression Assign(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTAssignment))
+                throw new ArgumentOutOfRangeException("node");
+
+            Expression left, right;
+            GetBinaryExpressionOperands(node, out left, out right);
+
+           
+            if (left.Type != right.Type)
+            {
+                //This shouldn't really be happening as we should only be assigning to objects, but just in case...
+                if (!left.Type.IsAssignableFrom(right.Type))
+                    throw new InvalidOperationException("Cannot assign from type '{0}' to '{1}'");
+
+                right = Expression.Convert(right, left.Type);
+            }
+
+            var tempResult = Expression.Parameter(typeof(object));
+
+            /* One of the nucanses of velocity is that if the right evaluates to null,
+             * Thus we can't simply return an assignment expression.
+             * The resulting expression looks as follows:P
+             *     .set $tempResult = right;
+             *     .if ($tempResult != null){
+             *         Assign(left, right)
+             *     }
+             */
+            return Expression.Block(new[] { tempResult },
+                //Store the result of the right hand side in to a temporary variable
+                Expression.Assign(tempResult, right),
+                Expression.IfThen(
+                //If the temporary variable is not equal to null
+                    Expression.NotEqual(tempResult, Constants.NullExpression),
+                //Make the assignment
+                    Expression.Assign(left, right)
+                )
+            );
+            //return Expression.Assign(left, right);
+        }
+        #endregion
+
+
+        #region Numeric Operators
 
         /// <summary>
         /// Builds an addition expression from an ASTAddNode
@@ -459,52 +511,7 @@ namespace IronVelocity
             return generator(left, right, implementation);
         }
 
-        /// <summary>
-        /// Builds the expression tree from an ASTAssignment
-        /// </summary>
-        /// <param name="node"></param>
-        /// <returns></returns>
-        private Expression Assign(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTAssignment))
-                throw new ArgumentOutOfRangeException("node");
-
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-
-
-            //This shouldn't really be happening as we should only be assigning to objects, but just in case...
-            if (!left.Type.IsAssignableFrom(right.Type))
-                throw new InvalidOperationException("Cannot assign from type '{0}' to '{1}'");
-
-            if (left.Type != right.Type && right.Type.IsPrimitive)
-                right = Expression.Convert(right, typeof(object));
-
-            var tempResult = Expression.Parameter(typeof(object));
-
-            /* One of the nucanses of velocity is that if the right evaluates to null,
-             * Thus we can't simply return an assignment expression.
-             * The resulting expression looks as follows:P
-             *     .set $tempResult = right;
-             *     .if ($tempResult != null){
-             *         Assign(left, right)
-             *     }
-             */
-            return Expression.Block(new[] { tempResult },
-                //Store the result of the right hand side in to a temporary variable
-                Expression.Assign(tempResult, right),
-                Expression.IfThen(
-                //If the temporary variable is not equal to null
-                    Expression.NotEqual(tempResult, Constants.NullExpression),
-                //Make the assignment
-                    Expression.Assign(left, right)
-                )
-            );
-            //return Expression.Assign(left, right);
-        }
         #endregion
+
     }
 }
