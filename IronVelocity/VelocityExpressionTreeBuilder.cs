@@ -10,10 +10,11 @@ namespace IronVelocity
 {
     public static class VelocityExpressionTreeBuilder
     {
-        private static RuntimeInstance _runtimeService = new RuntimeInstance();
+        private static RuntimeInstance _runtimeService;
 
         static VelocityExpressionTreeBuilder()
         {
+            _runtimeService = new RuntimeInstance();
             _runtimeService.Init();
         }
 

@@ -1,7 +1,7 @@
 ﻿
 namespace IronVelocity
 {
-    public class VelocityCoercion
+    public static class VelocityCoercion
     {
         public static bool CoerceObjectToBoolean(object obj)
         {

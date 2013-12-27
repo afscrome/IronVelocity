@@ -3,10 +3,9 @@ using System.Collections.Generic;
 
 namespace IronVelocity
 {
-    public static class INodeExtensions
-    {
-  
-        public static IEnumerable<INode> GetChildren(this INode node)
+    internal static class INodeExtensions
+    {  
+        internal static IEnumerable<INode> GetChildren(this INode node)
         {
             for (int i = 0; i < node.ChildrenCount; i++)
             {
