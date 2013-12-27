@@ -24,19 +24,19 @@ namespace IronVelocity
             catch (RuntimeBinderException) { return null; }
         }
 
-        public static dynamic GreaterThanOrEqualTo(dynamic left, dynamic right)
+        public static dynamic GreaterThanOrEqual(dynamic left, dynamic right)
         {
             try { return left >= right; }
             catch (RuntimeBinderException) { return null; }
         }
 
-        public static dynamic EqualTo(dynamic left, dynamic right)
+        public static dynamic Equal(dynamic left, dynamic right)
         {
             try { return left == right; }
             catch (RuntimeBinderException) { return null; }
         }
 
-        public static dynamic NotEqualTo(dynamic left, dynamic right)
+        public static dynamic NotEqual(dynamic left, dynamic right)
         {
             try { return left != right; }
             catch (RuntimeBinderException) { return null; }

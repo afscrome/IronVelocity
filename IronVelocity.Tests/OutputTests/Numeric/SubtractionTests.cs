@@ -18,7 +18,7 @@ namespace Tests.Numeric
         public void Subtraction_Null_LeftHandSide()
         {
             var input = "#set($x = $null - 2)$x";
-            var expected = "";
+            var expected = "$x";
 
             Utility.TestExpectedMarkupGenerated(input, expected);
         }
@@ -27,7 +27,7 @@ namespace Tests.Numeric
         public void Subtraction_Null_RightHandSide()
         {
             var input = "#set($x = 1 - $null)$x";
-            var expected = "";
+            var expected = "$x";
 
             Utility.TestExpectedMarkupGenerated(input, expected);
         }
@@ -36,7 +36,7 @@ namespace Tests.Numeric
         public void Subtraction_Null_BothSides()
         {
             var input = "#set($x = $null - $null)$x";
-            var expected = "";
+            var expected = "$x";
 
             Utility.TestExpectedMarkupGenerated(input, expected);
         }

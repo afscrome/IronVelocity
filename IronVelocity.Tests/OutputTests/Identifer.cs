@@ -37,8 +37,8 @@ namespace IronVelocity.Tests.OutputTests
         [Test]
         public void RenderPropertyDifferentTypes()
         {
-            var input = "#set($x = 'foo')$x.Length #set($x= 123)$x.Length #set($x = 'foobar')";
-            var expected = "3";
+            var input = "#set($x = 'foo')$x.Length #set($x= 123)$x.Length #set($x = 'foobar')$x.length";
+            var expected = "3$x.Length6";
 
             Utility.TestExpectedMarkupGenerated(input, expected);
         }
@@ -48,7 +48,7 @@ namespace IronVelocity.Tests.OutputTests
         public void NonExistantProperty()
         {
             var input = "#set($x = 'hello world')$x.IDontExist";
-            var expected = "";
+            var expected = "$x.IDontExist";
 
             Utility.TestExpectedMarkupGenerated(input, expected);
         }

@@ -13,7 +13,12 @@ namespace Tests
             var builder = new StringBuilder();
             action(builder);
 
-            Assert.AreEqual(expectedOutput, builder.ToString());
+            Assert.AreEqual(NormaliseLineEndings(expectedOutput), NormaliseLineEndings(builder.ToString()));
+        }
+
+        public static string NormaliseLineEndings(string text)
+        {
+            return text.Replace("\r\n", "\n").Replace("\r", "\n");
         }
     }
 }

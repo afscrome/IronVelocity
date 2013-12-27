@@ -15,12 +15,22 @@ namespace IronVelocity
     public class VelocityASTConverter
     {
         private static readonly MethodInfo _appendMethodInfo = typeof(StringBuilder).GetMethod("Append", new[] { typeof(object) });
+        private static readonly MethodInfo _coerceObjectToBooleanMethodInfo = typeof(VelocityCoercion).GetMethod("CoerceObjectToBoolean", new[] { typeof(object) });
+        private static readonly ConstructorInfo _listConstructorInfo = typeof(List<object>).GetConstructor(new[] {typeof(IEnumerable<object>)});
+
         private static readonly MethodInfo _additionMethodInfo = typeof(VelocityOperators).GetMethod("Addition", new[] { typeof(object), typeof(object) });
         private static readonly MethodInfo _subtractionMethodInfo = typeof(VelocityOperators).GetMethod("Subtraction", new[] { typeof(object), typeof(object) });
         private static readonly MethodInfo _multiplicationMethodInfo = typeof(VelocityOperators).GetMethod("Multiplication", new[] { typeof(object), typeof(object) });
         private static readonly MethodInfo _divisionMethodInfo = typeof(VelocityOperators).GetMethod("Division", new[] { typeof(object), typeof(object) });
         private static readonly MethodInfo _moduloMethodInfo = typeof(VelocityOperators).GetMethod("Modulo", new[] { typeof(object), typeof(object) });
-        private static readonly MethodInfo _coerceObjectToBooleanMethodInfo = typeof(VelocityCoercion).GetMethod("CoerceObjectToBoolean", new[] { typeof(object) });
+
+        private static readonly MethodInfo _lessThanMethodInfo = typeof(Comparators).GetMethod("LessThan", new[] { typeof(object), typeof(object) });
+        private static readonly MethodInfo _lessThanOrEqualMethodInfo = typeof(Comparators).GetMethod("LessThanOrEqual", new[] { typeof(object), typeof(object) });
+        private static readonly MethodInfo _greaterThanMethodInfo = typeof(Comparators).GetMethod("GreaterThan", new[] { typeof(object), typeof(object) });
+        private static readonly MethodInfo _greaterThanOrEqualMethodInfo = typeof(Comparators).GetMethod("GreaterThanOrEqual", new[] { typeof(object), typeof(object) });
+        private static readonly MethodInfo _equalMethodInfo = typeof(Comparators).GetMethod("Equal", new[] { typeof(object), typeof(object) });
+        private static readonly MethodInfo _notEqualMethodInfo = typeof(Comparators).GetMethod("NotEqual", new[] { typeof(object), typeof(object) });
+
          
 
         private static readonly Expression TrueExpression = Expression.Constant(true);
@@ -90,19 +100,32 @@ namespace IronVelocity
                 if (child is ASTText)
                     expressions.Add(Markup(child));
                 else if (child is ASTReference)
-                    expressions.Add(Output(Reference(child)));
+                    expressions.Add(Output(Reference(child, true)));
                 else if (child is ASTIfStatement)
                     expressions.Add(IfStatement(child));
                 else if (child is ASTSetDirective)
                     expressions.Add(Set(child));
                 else if (child is ASTComment)
                     continue;
+                else if (child is ASTEscapedDirective)
+                    expressions.Add(Output(Escaped(child)));
                 else
                     throw new NotSupportedException("Node type not supported in a block: " + child.GetType().Name);
 
             }
 
             return expressions;
+        }
+
+        private Expression Escaped(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTEscapedDirective))
+                throw new ArgumentOutOfRangeException("node");
+
+            return Expression.Constant(node.Literal);
         }
 
         private Expression Block(INode node)
@@ -139,7 +162,7 @@ namespace IronVelocity
 
 
 
-        private Expression Reference(INode node)
+        private Expression Reference(INode node, bool returnLiteralIfNull)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -149,7 +172,15 @@ namespace IronVelocity
 
             //Remove $ or $! prefix to get just the variable name
 
-            var name = node.Literal.TrimStart('$', '!');
+            var reference = (ASTReference)node;
+            string name = node.Literal;
+
+            var varIndex = node.Literal.LastIndexOf('$');
+
+            if(varIndex > 0)
+                name = name.Substring(varIndex);
+
+            name = node.Literal.TrimStart('$', '!');
             var dotIndex = name.IndexOf('.');
             if (dotIndex > 0)
                 name = name.Substring(0, dotIndex);
@@ -167,7 +198,18 @@ namespace IronVelocity
                     throw new NotSupportedException("Node type not supported in a Reference: " + child.GetType().Name);
             }
 
-            return expr;
+
+            //Hack: Velocity prints the identifer literal if it can't be resolved
+            // Following is a hack for an initial implementation, but it's far from perfect
+            if (!returnLiteralIfNull)
+                return expr;
+            else
+                return Expression.Condition(
+                    Expression.NotEqual(expr, Expression.Constant(null, expr.Type)),
+                    expr,
+                    Expression.Constant(node.Literal, typeof(object)),
+                    typeof(object)
+                );
         }
 
 
@@ -275,7 +317,50 @@ namespace IronVelocity
         }
 
 
-
+        private Expression Statement(INode node)
+        {
+            if (node is ASTTrue)
+                return TrueExpression;
+            else if (node is ASTFalse)
+                return FalseExpression;
+            else if (node is ASTNumberLiteral)
+                return NumberLiteral(node);
+            else if (node is ASTStringLiteral)
+                return String(node);
+            //Logical
+            else if (node is ASTLTNode)
+                return LessThan(node);
+            else if (node is ASTLENode)
+                return LessThanOrEqual(node);
+            else if (node is ASTGTNode)
+                return GreaterThan(node);
+            else if (node is ASTGENode)
+                return GreaterThanOrEqual(node);
+            else if (node is ASTEQNode)
+                return Equal(node);
+            else if (node is ASTNENode)
+                return NotEqual(node);
+            //Mathematical Operations
+            else if (node is ASTAddNode)
+                return Addition(node);
+            else if (node is ASTSubtractNode)
+                return Subtraction(node);
+            else if (node is ASTMulNode)
+                return Multiplication(node);
+            else if (node is ASTDivNode)
+                return Division(node);
+            else if (node is ASTModNode)
+                return Modulo(node);
+            //Code
+            else if (node is ASTAssignment)
+                return Assign(node);
+            else if (node is ASTReference)
+                return Reference(node, false);
+            else if (node is ASTObjectArray)
+                return Array(node);
+            else
+                throw new NotSupportedException("Node type not supported in an expression: " + node.GetType().Name);
+        }
 
         private Expression Expr(INode node)
         {
@@ -289,33 +374,21 @@ namespace IronVelocity
                 throw new ArgumentOutOfRangeException("node", "Only expected one child");
 
             var child = node.GetChild(0);
-            //Literals
-            if (child is ASTTrue)
-                return TrueExpression;
-            else if (child is ASTFalse)
-                return FalseExpression;
-            else if (child is ASTNumberLiteral)
-                return NumberLiteral(child);
-            else if (child is ASTStringLiteral)
-                return String(child);
-            //Code
-            else if (child is ASTAssignment)
-                return Assign(child);
-            else if (child is ASTReference)
-                return Reference(child);
-            //Mathematical Operations
-            else if (child is ASTAddNode)
-                return Addition(child);
-            else if (child is ASTSubtractNode)
-                return Subtraction(child);
-            else if (child is ASTMulNode)
-                return Multiplication(child);
-            else if (child is ASTDivNode)
-                return Division(child);
-            else if (child is ASTModNode)
-                return Modulo(child);
-            else
-                throw new NotSupportedException("Node type not supported in an expression: " + child.GetType().Name);
+            return Statement(child);
+        }
+
+        private Expression Array(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTObjectArray))
+                throw new ArgumentOutOfRangeException("node");
+
+            var elements = node.GetChildren()
+                .Select(Statement);
+
+            return Expression.New(_listConstructorInfo, Expression.NewArrayInit(typeof(object), elements));
         }
 
         private Expression String(INode node)
@@ -369,12 +442,16 @@ namespace IronVelocity
 
         private Expression Operand(INode node)
         {
-            if (node is ASTNumberLiteral)
+            if (node is ASTTrue)
+                return TrueExpression;
+            else if (node is ASTFalse)
+                return FalseExpression;
+            else if (node is ASTNumberLiteral)
                 return NumberLiteral(node);
             else if (node is ASTStringLiteral)
                 return String(node);
             else if (node is ASTReference)
-                return Reference(node);
+                return Reference(node, false);
             else if (node is ASTExpression)
                 return Expr(node);
             else
@@ -539,7 +616,126 @@ namespace IronVelocity
             return generator(left, right, implementation);
         }
 
+        private static Expression BinaryLogicalExpression(Func<Expression, Expression,bool, MethodInfo, Expression> generator, Expression left, Expression right, MethodInfo implementation)
+        {
+            // The expression tree will fail if the types don't *exactly* match the types on the method signature
+            // So ensure everything is converted to object
+            if (left.Type != typeof(object))
+                left = Expression.Convert(left, typeof(object));
+
+            if (right.Type != typeof(object))
+                right = Expression.Convert(right, typeof(object));
+
+            return generator(left, right, false, implementation);
+        }
+
         #endregion
 
+        #region Logical Operators
+
+        /// <summary>
+        /// Builds an equals expression from an ASTLTNode
+        /// </summary>
+        /// <param name="node">The ASTLTNode to build the less than Expression from</param>
+        /// <returns>An expression representing the less than operation</returns>
+        private Expression LessThan(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTLTNode))
+                throw new ArgumentOutOfRangeException("node");
+
+            Expression left, right;
+            GetBinaryExpressionOperands(node, out left, out right);
+            return BinaryLogicalExpression(Expression.LessThan, left, right, _lessThanMethodInfo);
+        }
+
+
+        private Expression LessThanOrEqual(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTLENode))
+                throw new ArgumentOutOfRangeException("node");
+
+            Expression left, right;
+            GetBinaryExpressionOperands(node, out left, out right);
+            return BinaryLogicalExpression(Expression.LessThanOrEqual, left, right, _lessThanOrEqualMethodInfo);
+        }
+
+        /// <summary>
+        /// Builds a greater than expression from an ASTGTNode
+        /// </summary>
+        /// <param name="node">The ASTGTNode to build the greater than Expression from</param>
+        /// <returns>An expression representing the greater than operation</returns>
+        private Expression GreaterThan(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTGTNode))
+                throw new ArgumentOutOfRangeException("node");
+
+            Expression left, right;
+            GetBinaryExpressionOperands(node, out left, out right);
+            return BinaryLogicalExpression(Expression.GreaterThan, left, right, _greaterThanMethodInfo);
+        }
+        /// <summary>
+        /// Builds a greater than or equal to expression from an ASTGENode
+        /// </summary>
+        /// <param name="node">The ASTGENode to build the equals Expression from</param>
+        /// <returns>An expression representing the greater than or equal to operation</returns>
+        private Expression GreaterThanOrEqual(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTGENode))
+                throw new ArgumentOutOfRangeException("node");
+
+            Expression left, right;
+            GetBinaryExpressionOperands(node, out left, out right);
+            return BinaryLogicalExpression(Expression.GreaterThanOrEqual, left, right, _greaterThanOrEqualMethodInfo);
+        }
+
+        /// <summary>
+        /// Builds an equals expression from an ASTEQNode
+        /// </summary>
+        /// <param name="node">The ASTEQNode to build the equals Expression from</param>
+        /// <returns>An expression representing the equals operation</returns>
+        private Expression Equal(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTEQNode))
+                throw new ArgumentOutOfRangeException("node");
+
+            Expression left, right;
+            GetBinaryExpressionOperands(node, out left, out right);
+            return BinaryLogicalExpression(Expression.Equal, left, right, _equalMethodInfo);
+        }
+
+        /// <summary>
+        /// Builds a not equal expression from an ASTNENode
+        /// </summary>
+        /// <param name="node">The ASTNENode to build the not equal Expression from</param>
+        /// <returns>An expression representing the not equal  operation</returns>
+        private Expression NotEqual(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTNENode))
+                throw new ArgumentOutOfRangeException("node");
+
+            Expression left, right;
+            GetBinaryExpressionOperands(node, out left, out right);
+            return BinaryLogicalExpression(Expression.NotEqual, left, right, _notEqualMethodInfo);
+        }
+
+        #endregion
     }
 }

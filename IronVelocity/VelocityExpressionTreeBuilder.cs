@@ -24,6 +24,8 @@ namespace IronVelocity
             using (var reader = new StringReader(input))
             {
                 var ast = parser.Parse(reader, null) as ASTprocess;
+                if (ast == null)
+                    throw new InvalidProgramException("Unable to parse ast");
 
                 var converter = new VelocityASTConverter();
                 var expr = converter.BuildExpressionTree(ast);
