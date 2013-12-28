@@ -71,7 +71,7 @@ namespace IronVelocity.Binders
                 result = Expression.Call(
                     Expression.Convert(target.Expression, method.DeclaringType),
                     method,
-                    args.Select(x => x.Expression)
+                    args.Select(x => Expression.Convert(x.Expression, x.LimitType))
                 );
 
                 //Dynamic return type is object, but primitives are not objects
