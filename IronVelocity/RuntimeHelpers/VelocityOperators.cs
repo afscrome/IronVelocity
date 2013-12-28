@@ -1,4 +1,6 @@
 ﻿using Microsoft.CSharp.RuntimeBinder;
+using System;
+using System.Diagnostics;
 
 namespace IronVelocity
 {
@@ -31,12 +33,22 @@ namespace IronVelocity
         {
             try { return left / right; }
             catch (RuntimeBinderException) { return null; }
+            catch (DivideByZeroException)
+            {
+                Debug.WriteLine("Attempt to divide by zero");
+                return null;
+            }
         }
 
         public static dynamic Modulo(dynamic left, dynamic right)
         {
             try { return left % right; }
             catch (RuntimeBinderException) { return null; }
+            catch (DivideByZeroException)
+            {
+                Debug.WriteLine("Attempt to divide by zero");
+                return null;
+            }
         }
 
     }
