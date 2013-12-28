@@ -147,7 +147,7 @@ namespace IronVelocity
                 throw new NotImplementedException();
             else
 
-                throw new ArgumentOutOfRangeException("node", String.Format("Unable to handle directive type '{0}'", directive.DirectiveName));
+                throw new NotSupportedException(String.Format("Unable to handle directive type '{0}'", directive.DirectiveName));
 
 
         }

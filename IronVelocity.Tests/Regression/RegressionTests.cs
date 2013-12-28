@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,22 +13,20 @@ namespace IronVelocity.Tests.Regression
     [TestFixture]
     public class RegressionTests
     {
-        string _base = "c:\\Projects\\IronVelocity\\IronVelocity.Tests\\Regression\\templates\\";
-        [TestCase("arithmetic")]
-        [TestCase("array")]
-        [TestCase("block")]
-        [TestCase("comment")]
-        [TestCase("equality")]
-        [TestCase("escape")]
-        [TestCase("foreach-array")]
-        [TestCase("foreach-method")]
-        [TestCase("foreach-variable")]
-        [TestCase("formal")]
-        [TestCase("if")]
-        public void RegressionTest(string testName)
+        private static readonly string _base = "c:\\Projects\\IronVelocity\\IronVelocity.Tests\\Regression\\templates\\";
+
+        [Test]
+        [TestCaseSource("TestsCases",Category = "Regression")]
+        public void RegressionTest(string inputFile, string expectedOutputFile)
         {
-            var input = File.ReadAllText(Path.Combine(_base, testName + ".vm"));
-            var expectedOutput = File.ReadAllText(Path.Combine(_base, "expected", testName + ".cmp"));
+            if (!File.Exists(inputFile))
+                Assert.Inconclusive("File '{0}' does not exist", inputFile);
+
+            if (!File.Exists(expectedOutputFile))
+                Assert.Inconclusive("File '{0}' does not exist", expectedOutputFile);
+
+            var input = File.ReadAllText(inputFile);
+            var expectedOutput = File.ReadAllText(expectedOutputFile);
 
             var provider = new NVelocity.Test.Provider.TestProvider();
 
@@ -42,14 +41,30 @@ namespace IronVelocity.Tests.Regression
             {
                 Assert.AreEqual(expectedOutput, output);
             }
-            catch(AssertionException ex)
+            catch (AssertionException ex)
             {
-                if (!Directory.Exists("ActualResults"))
-                    Directory.CreateDirectory("ActualResults");
-
-                File.WriteAllText(Path.Combine("ActualResults", testName + ".txt"), output);
+                //TODO: save results for further investigation.
                 throw;
             }
         }
+
+
+        public static IEnumerable<TestCaseData> TestsCases
+        {
+            get
+            {
+                foreach (var file in Directory.GetFiles(_base, "*.vm"))
+                {
+                    var name = Path.GetFileNameWithoutExtension(file);
+                    yield return new TestCaseData(
+                            file,
+                            Path.Combine(_base, "Expected", name + ".cmp")
+                        )
+                        .SetName("Regression Test: " + name + ".vm");
+
+                }
+            }
+        }
     }
+
 }
