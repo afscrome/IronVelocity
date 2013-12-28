@@ -24,7 +24,7 @@ namespace VelocityExpressionTree.Binders
                 : BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase;
 
             var property = type.GetProperty(Name, flags);
-            
+
             if (caseSensitive && property != null)
                 return property;
 
@@ -37,6 +37,7 @@ namespace VelocityExpressionTree.Binders
                 return property;
             else
                 return field;
+
         }
 
         public override DynamicMetaObject FallbackGetMember(DynamicMetaObject target, DynamicMetaObject errorSuggestion)
@@ -72,25 +73,54 @@ namespace VelocityExpressionTree.Binders
 
                 }
             }
-
+ 
             Expression result;
 
             if (member == null)
             {
-                Debug.WriteLine(string.Format("Unable to resolve Property '{0}' on type '{1}'", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
-                result = Constants.VelocityUnresolvableResult;
+               //If no matching property or field, fall back to indexer with string param
+                var indexer = target.LimitType.GetProperty("Item", BindingFlags.Public | BindingFlags.Instance, null, null, new[] { typeof(string) }, null);
+                if (indexer == null)
+                {
+                    Debug.WriteLine(string.Format("Unable to resolve Property '{0}' on type '{1}'", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
+                    result = Constants.VelocityUnresolvableResult;
+                }
+                else
+                {
+                    result = Expression.MakeIndex(
+                            Expression.Convert(target.Expression, indexer.DeclaringType),
+                            (PropertyInfo)indexer,
+                            new[] { Expression.Constant(Name) }
+                        );
+                }
             }
             else
             {
-                result = Expression.MakeMemberAccess(
-                        Expression.Convert(target.Expression, member.DeclaringType),
-                        member
-                    );
+                var targetExpression = Expression.Convert(target.Expression, member.DeclaringType);
+                if (member is PropertyInfo)
+                {
+                    result = Expression.Property(
+                            targetExpression,
+                            (PropertyInfo)member
+                        );
+                }
+                else if (member is FieldInfo)
+                {
+                    result = Expression.Field(
+                            targetExpression,
+                            (FieldInfo)member
+                        );
+                }
+                else {
+                    throw new InvalidProgramException();
+                }
 
-                //Dynamic return type is object, but primitives are not objects
-                // DLR does not handle boxing to make primitives objects, so do it ourselves
-                result = VelocityExpressions.BoxIfNeeded(result);
+
             }
+
+            //Dynamic return type is object, but primitives are not objects
+            // DLR does not handle boxing to make primitives objects, so do it ourselves
+            result = VelocityExpressions.BoxIfNeeded(result);
 
             return new DynamicMetaObject(
                 result,
