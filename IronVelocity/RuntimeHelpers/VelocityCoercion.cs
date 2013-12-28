@@ -1,17 +1,26 @@
 ﻿
+using Microsoft.CSharp.RuntimeBinder;
 namespace IronVelocity
 {
     public static class VelocityCoercion
     {
-        public static bool CoerceObjectToBoolean(object obj)
+        public static bool CoerceObjectToBoolean(dynamic obj)
         {
-            return obj is bool
-                ? (bool)obj
-                : obj != null;
+            if (obj is bool)
+                return (bool)obj;
 
-            // Strictly speaking we're missing a case here for a type with custom coercion to bool defined:
-            // public static implicit operator bool(MyType) { ... }
-            // However this is an edge case we'll ignore for now
+            try
+            {
+                //Special case if the object has overridden the true or false operator
+                if (obj)
+                    return true;
+                else
+                    return false;
+            }
+            catch(RuntimeBinderException)
+            {
+                return obj != null;
+            }
         }
     }
 }
