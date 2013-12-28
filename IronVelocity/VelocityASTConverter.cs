@@ -571,7 +571,7 @@ namespace IronVelocity
                 right = Expression.Convert(right, left.Type);
             }
 
-            var tempResult = Expression.Parameter(typeof(object));
+            var tempResult = Expression.Parameter(right.Type);
 
             /* One of the nucanses of velocity is that if the right evaluates to null,
              * Thus we can't simply return an assignment expression.
@@ -585,9 +585,9 @@ namespace IronVelocity
                 //Store the result of the right hand side in to a temporary variable
                 Expression.Assign(tempResult, right),
                 Expression.IfThen(
-                //If the temporary variable is not equal to null
-                    Expression.NotEqual(tempResult, Constants.NullExpression),
-                //Make the assignment
+                    //If the temporary variable is not equal to null
+                    Expression.NotEqual(tempResult, Expression.Constant(null, right.Type)),
+                    //Make the assignment
                     Expression.Assign(left, right)
                 )
             );
@@ -693,11 +693,8 @@ namespace IronVelocity
         {
             // The expression tree will fail if the types don't *exactly* match the types on the method signature
             // So ensure everything is converted to object
-            if (left.Type != typeof(object))
-                left = Expression.Convert(left, typeof(object));
-
-            if (right.Type != typeof(object))
-                right = Expression.Convert(right, typeof(object));
+            left = VelocityExpressions.ConvertIfNeeded(left, typeof(object));
+            right = VelocityExpressions.ConvertIfNeeded(right, typeof(object));
 
             return generator(left, right, implementation);
         }
@@ -706,11 +703,8 @@ namespace IronVelocity
         {
             // The expression tree will fail if the types don't *exactly* match the types on the method signature
             // So ensure everything is converted to object
-            if (left.Type != typeof(object))
-                left = Expression.Convert(left, typeof(object));
-
-            if (right.Type != typeof(object))
-                right = Expression.Convert(right, typeof(object));
+            left = VelocityExpressions.ConvertIfNeeded(left, typeof(object));
+            right = VelocityExpressions.ConvertIfNeeded(right, typeof(object));
 
             return generator(left, right, false, implementation);
         }

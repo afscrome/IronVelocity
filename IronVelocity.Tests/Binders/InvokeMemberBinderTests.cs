@@ -103,7 +103,7 @@ namespace IronVelocity.Tests.Binders
                 .Concat(paramaters.Select(x => Expression.Constant(x)));
 
             var value = Expression.Constant(input);
-            var expression = Expression.Convert(Expression.Dynamic(binder, typeof(object), argExpressions), typeof(object));
+            var expression = Expression.Dynamic(binder, typeof(object), argExpressions);
 
             var action = Expression.Lambda<Func<object>>(expression)
                 .Compile();

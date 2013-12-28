@@ -73,12 +73,12 @@ namespace VelocityExpressionTree.Binders
 
                 }
             }
- 
+
             Expression result;
 
             if (member == null)
             {
-               //If no matching property or field, fall back to indexer with string param
+                //If no matching property or field, fall back to indexer with string param
                 var indexer = target.LimitType.GetProperty("Item", BindingFlags.Public | BindingFlags.Instance, null, null, new[] { typeof(string) }, null);
                 if (indexer == null)
                 {
@@ -88,7 +88,7 @@ namespace VelocityExpressionTree.Binders
                 else
                 {
                     result = Expression.MakeIndex(
-                            Expression.Convert(target.Expression, indexer.DeclaringType),
+                            VelocityExpressions.ConvertIfNeeded(target, indexer),
                             (PropertyInfo)indexer,
                             new[] { Expression.Constant(Name) }
                         );
@@ -96,22 +96,23 @@ namespace VelocityExpressionTree.Binders
             }
             else
             {
-                var targetExpression = Expression.Convert(target.Expression, member.DeclaringType);
+
                 if (member is PropertyInfo)
                 {
                     result = Expression.Property(
-                            targetExpression,
+                            VelocityExpressions.ConvertIfNeeded(target, member),
                             (PropertyInfo)member
                         );
                 }
                 else if (member is FieldInfo)
                 {
                     result = Expression.Field(
-                            targetExpression,
+                            VelocityExpressions.ConvertIfNeeded(target, member),
                             (FieldInfo)member
                         );
                 }
-                else {
+                else
+                {
                     throw new InvalidProgramException();
                 }
 
