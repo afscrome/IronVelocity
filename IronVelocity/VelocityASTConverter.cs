@@ -16,7 +16,7 @@ namespace IronVelocity
     {
         private static readonly MethodInfo _appendMethodInfo = typeof(StringBuilder).GetMethod("Append", new[] { typeof(object) });
         private static readonly MethodInfo _coerceObjectToBooleanMethodInfo = typeof(VelocityCoercion).GetMethod("CoerceObjectToBoolean", new[] { typeof(object) });
-        private static readonly ConstructorInfo _listConstructorInfo = typeof(List<object>).GetConstructor(new[] {typeof(IEnumerable<object>)});
+        private static readonly ConstructorInfo _listConstructorInfo = typeof(List<object>).GetConstructor(new[] { typeof(IEnumerable<object>) });
 
         private static readonly MethodInfo _additionMethodInfo = typeof(VelocityOperators).GetMethod("Addition", new[] { typeof(object), typeof(object) });
         private static readonly MethodInfo _subtractionMethodInfo = typeof(VelocityOperators).GetMethod("Subtraction", new[] { typeof(object), typeof(object) });
@@ -31,7 +31,7 @@ namespace IronVelocity
         private static readonly MethodInfo _equalMethodInfo = typeof(Comparators).GetMethod("Equal", new[] { typeof(object), typeof(object) });
         private static readonly MethodInfo _notEqualMethodInfo = typeof(Comparators).GetMethod("NotEqual", new[] { typeof(object), typeof(object) });
 
-         
+
 
         private static readonly Expression TrueExpression = Expression.Constant(true);
         private static readonly Expression FalseExpression = Expression.Constant(false);
@@ -51,7 +51,7 @@ namespace IronVelocity
 
         [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
         [CLSCompliant(false)]
-        public Expression BuildExpressionTree(ASTprocess ast)
+        public Expression BuildExpressionTree(ASTprocess ast, IDictionary<string, object> context)
         {
             if (ast == null)
                 throw new ArgumentNullException("ast");
@@ -59,12 +59,25 @@ namespace IronVelocity
             if (!(ast is ASTprocess))
                 throw new ArgumentOutOfRangeException("ast");
 
-            var expressions = GetBlockExpressions(ast);
+            List<Expression> expressions = new List<Expression>();
+
+            if (context != null)
+                expressions.AddRange(InitialiseEnvironment(context));
+
+            expressions.AddRange(GetBlockExpressions(ast));
 
             if (!expressions.Any())
-                expressions = new[] { Expression.Empty() };
+                expressions.Add(Expression.Empty());
 
             return Expression.Block(_locals.Values, expressions);
+        }
+
+        private IEnumerable<Expression> InitialiseEnvironment(IDictionary<string, object> context)
+        {
+            return context.Select(x => Expression.Assign(
+                    GetLocal(x.Key),
+                    Expression.Constant(x.Value, typeof(object)))
+            );
         }
 
 
@@ -98,7 +111,7 @@ namespace IronVelocity
             foreach (var child in node.GetChildren())
             {
                 if (child is ASTText)
-                    expressions.Add(Markup(child));
+                    expressions.Add(Text(child));
                 else if (child is ASTReference)
                     expressions.Add(Output(Reference(child, true)));
                 else if (child is ASTIfStatement)
@@ -109,12 +122,34 @@ namespace IronVelocity
                     continue;
                 else if (child is ASTEscapedDirective)
                     expressions.Add(Output(Escaped(child)));
+                else if (child is ASTDirective)
+                    expressions.Add(Directive(child));
                 else
                     throw new NotSupportedException("Node type not supported in a block: " + child.GetType().Name);
 
             }
 
             return expressions;
+        }
+
+
+        private static IDictionary<string, object> _directiveHandlers = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        private Expression Directive(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            var directive = node as ASTDirective;
+            if (directive == null)
+                throw new ArgumentOutOfRangeException("node");
+
+            if (_directiveHandlers.ContainsKey(directive.DirectiveName))
+                throw new NotImplementedException();
+            else
+
+                throw new ArgumentOutOfRangeException("node", String.Format("Unable to handle directive type '{0}'", directive.DirectiveName));
+
+
         }
 
         private Expression Escaped(INode node)
@@ -162,7 +197,7 @@ namespace IronVelocity
 
 
 
-        private Expression Reference(INode node, bool returnLiteralIfNull)
+        private Expression Reference(INode node, bool renderable)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -172,15 +207,16 @@ namespace IronVelocity
 
             //Remove $ or $! prefix to get just the variable name
 
-            var reference = (ASTReference)node;
-            string name = node.Literal;
+            var metaData = new IronVelocity.INodeExtensions.ASTReferenceMetaData((ASTReference)node);
 
-            var varIndex = node.Literal.LastIndexOf('$');
+            if (metaData.Type == INodeExtensions.ASTReferenceMetaData.ReferenceType.Runt)
+            {
+                return Expression.Constant(metaData.RootString);
+            }
 
-            if(varIndex > 0)
-                name = name.Substring(varIndex);
 
-            name = node.Literal.TrimStart('$', '!');
+            string name = metaData.RootString;
+
             var dotIndex = name.IndexOf('.');
             if (dotIndex > 0)
                 name = name.Substring(0, dotIndex);
@@ -199,21 +235,46 @@ namespace IronVelocity
             }
 
 
-            //Hack: Velocity prints the identifer literal if it can't be resolved
-            // Following is a hack for an initial implementation, but it's far from perfect
-            if (!returnLiteralIfNull)
+            //If we're not rendering, we can return null form this
+            if (!renderable)
                 return expr;
-            else
+
+
+
+            //If we're rendering this, we need to do funky stuff to the output, including rendering prefixes, suffixes etc.
+            var notNullExpression = Expression.NotEqual(expr, Expression.Constant(null, expr.Type));
+            if (metaData.Escaped)
+            {
                 return Expression.Condition(
-                    Expression.NotEqual(expr, Expression.Constant(null, expr.Type)),
-                    expr,
-                    Expression.Constant(node.Literal, typeof(object)),
-                    typeof(object)
+                    notNullExpression,
+                    Expression.Constant(metaData.EscapePrefix + metaData.NullString),
+                    Expression.Constant(metaData.EscapePrefix + "\\" + metaData.NullString)
                 );
+            }
+            else
+            {
+                return Expression.Condition(
+                    notNullExpression,
+                    Expression.Block(
+                        Output(Expression.Constant(metaData.EscapePrefix + metaData.MoreString)),
+                        expr
+                    ),
+                    Expression.Constant(metaData.EscapePrefix + metaData.EscapePrefix + metaData.MoreString + metaData.NullString, typeof(object))
+                );
+
+
+            }
+
+
+
         }
 
 
-        private static Expression Method(INode node, Expression parent)
+
+
+
+
+        private Expression Method(INode node, Expression parent)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -221,14 +282,34 @@ namespace IronVelocity
             if (!(node is ASTMethod))
                 throw new ArgumentOutOfRangeException("node");
 
-            var paramBoundary = node.Literal.IndexOf('(');
-            var methodName = node.Literal.Substring(0, paramBoundary);
+            var methodName = node.FirstToken.Image;
+
+            var arguments = new Expression[node.ChildrenCount];
+            //First argument is the object to invoke the expression on
+            arguments[0] = parent;
+
+            //Subsequent arguments are the parameters
+            for (int i = 1; i < node.ChildrenCount; i++)
+            {
+                arguments[i] = Statement(node.GetChild(i));
+            }
 
             return Expression.Dynamic(
                 new VelocityInvokeMemberBinder(methodName, new CallInfo(0)),
                 typeof(object),
-                parent
+                arguments
             );
+        }
+
+        private static Expression Parameter(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTParameters))
+                throw new ArgumentOutOfRangeException("node");
+
+            throw new NotImplementedException();
         }
 
         private Expression Identifier(INode node, Expression parent)
@@ -326,7 +407,7 @@ namespace IronVelocity
             else if (node is ASTNumberLiteral)
                 return NumberLiteral(node);
             else if (node is ASTStringLiteral)
-                return String(node);
+                return StringLiteral(node);
             //Logical
             else if (node is ASTLTNode)
                 return LessThan(node);
@@ -391,7 +472,7 @@ namespace IronVelocity
             return Expression.New(_listConstructorInfo, Expression.NewArrayInit(typeof(object), elements));
         }
 
-        private Expression String(INode node)
+        private Expression StringLiteral(INode node)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -405,12 +486,17 @@ namespace IronVelocity
             return Expression.Constant(node.Literal.Substring(1, node.Literal.Length - 2));
         }
 
-        private Expression Markup(INode node)
+        private Expression Text(INode node)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
 
-            return Output(Expression.Constant(node.Literal));
+            var text = NodeUtils.tokenLiteral(node.FirstToken);
+            if (text != node.Literal)
+            {
+                var x = "";
+            }
+            return Output(Expression.Constant(text));
         }
 
         private static Expression Output(Expression expression)
@@ -449,7 +535,7 @@ namespace IronVelocity
             else if (node is ASTNumberLiteral)
                 return NumberLiteral(node);
             else if (node is ASTStringLiteral)
-                return String(node);
+                return StringLiteral(node);
             else if (node is ASTReference)
                 return Reference(node, false);
             else if (node is ASTExpression)
@@ -475,7 +561,7 @@ namespace IronVelocity
             Expression left, right;
             GetBinaryExpressionOperands(node, out left, out right);
 
-           
+
             if (left.Type != right.Type)
             {
                 //This shouldn't really be happening as we should only be assigning to objects, but just in case...
@@ -616,7 +702,7 @@ namespace IronVelocity
             return generator(left, right, implementation);
         }
 
-        private static Expression BinaryLogicalExpression(Func<Expression, Expression,bool, MethodInfo, Expression> generator, Expression left, Expression right, MethodInfo implementation)
+        private static Expression BinaryLogicalExpression(Func<Expression, Expression, bool, MethodInfo, Expression> generator, Expression left, Expression right, MethodInfo implementation)
         {
             // The expression tree will fail if the types don't *exactly* match the types on the method signature
             // So ensure everything is converted to object

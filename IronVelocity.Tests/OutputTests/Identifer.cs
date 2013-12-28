@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System.Collections.Generic;
 using Tests;
 
 namespace IronVelocity.Tests.OutputTests
@@ -17,10 +18,14 @@ namespace IronVelocity.Tests.OutputTests
         [Test]
         public void RenderPropertyWrongCase()
         {
-            var input = "#set($x = 'hello world')$x.LeNgTh";
+            var input = "$x.LeNgTh";
             var expected = "11";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            var context = new Dictionary<string, object>{
+                { "x", "hello world"}
+            };
+
+            Utility.TestExpectedMarkupGenerated(input, expected, context);
         }
 
         [Test]

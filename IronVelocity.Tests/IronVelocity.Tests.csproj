@@ -59,7 +59,11 @@
     <Compile Include="OutputTests\OutputTests.cs" />
     <Compile Include="OutputTests\Set.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Regression\BoolObj.cs" />
+    <Compile Include="Regression\Child.cs" />
+    <Compile Include="Regression\Person.cs" />
     <Compile Include="Regression\RegressionTests.cs" />
+    <Compile Include="Regression\TestProvider.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -78,23 +82,23 @@
     <None Include="Regression\templates\comment.vm" />
     <None Include="Regression\templates\equality.vm" />
     <None Include="Regression\templates\escape.vm" />
+    <None Include="Regression\templates\Expected\arithmetic.cmp" />
+    <None Include="Regression\templates\Expected\array.cmp" />
+    <None Include="Regression\templates\Expected\block.cmp" />
+    <None Include="Regression\templates\Expected\comment.cmp" />
+    <None Include="Regression\templates\Expected\equality.cmp" />
+    <None Include="Regression\templates\Expected\escape.cmp" />
+    <None Include="Regression\templates\Expected\foreach-array.cmp" />
+    <None Include="Regression\templates\Expected\foreach-method.cmp" />
+    <None Include="Regression\templates\Expected\foreach-variable.cmp" />
+    <None Include="Regression\templates\Expected\formal.cmp" />
+    <None Include="Regression\templates\Expected\if.cmp" />
     <None Include="Regression\templates\foreach-array.vm" />
     <None Include="Regression\templates\foreach-method.vm" />
     <None Include="Regression\templates\foreach-variable.vm" />
     <None Include="Regression\templates\formal.vm" />
     <None Include="Regression\templates\if.vm" />
-    <None Include="Regression\templates\results\arithmetic.res" />
     <None Include="Regression\templates\arithmetic.vm" />
-    <None Include="Regression\templates\results\array.res" />
-    <None Include="Regression\templates\results\block.res" />
-    <None Include="Regression\templates\results\comment.res" />
-    <None Include="Regression\templates\results\equality.res" />
-    <None Include="Regression\templates\results\escape.res" />
-    <None Include="Regression\templates\results\foreach-array.res" />
-    <None Include="Regression\templates\results\foreach-method.res" />
-    <None Include="Regression\templates\results\foreach-variable.res" />
-    <None Include="Regression\templates\results\formal.res" />
-    <None Include="Regression\templates\results\if.res" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

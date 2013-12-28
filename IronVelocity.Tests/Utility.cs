@@ -1,24 +1,39 @@
 ﻿using IronVelocity;
 using NUnit.Framework;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Tests
 {
     public static class Utility
     {
-        public static void TestExpectedMarkupGenerated(string input, string expectedOutput)
+        public static Action<StringBuilder> BuildGenerator(string input, IDictionary<string,object> environment = null)
         {
-            var action = VelocityExpressionTreeBuilder.BuildExpressionTree(input).Compile();
+            return VelocityExpressionTreeBuilder.BuildExpressionTree(input, environment).Compile();
+        }
 
+        public static String GetNormalisedOutput(string input, IDictionary<string,object> environment)
+        {
+            var action = BuildGenerator(input, environment);
             var builder = new StringBuilder();
             action(builder);
 
-            Assert.AreEqual(NormaliseLineEndings(expectedOutput), NormaliseLineEndings(builder.ToString()));
+            return NormaliseLineEndings(builder.ToString());
+        }
+
+        public static void TestExpectedMarkupGenerated(string input, string expectedOutput, IDictionary<string,object> environment = null)
+        {
+            expectedOutput = NormaliseLineEndings(expectedOutput);
+            var generatedOutput = GetNormalisedOutput(input, environment);
+
+            Assert.AreEqual(expectedOutput, generatedOutput);
         }
 
         public static string NormaliseLineEndings(string text)
         {
-            return text.Replace("\r\n", "\n").Replace("\r", "\n");
+            return text.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
         }
     }
 }

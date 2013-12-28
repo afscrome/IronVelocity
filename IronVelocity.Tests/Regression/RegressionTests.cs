@@ -13,7 +13,6 @@ namespace IronVelocity.Tests.Regression
     public class RegressionTests
     {
         string _base = "c:\\Projects\\IronVelocity\\IronVelocity.Tests\\Regression\\templates\\";
-
         [TestCase("arithmetic")]
         [TestCase("array")]
         [TestCase("block")]
@@ -28,9 +27,29 @@ namespace IronVelocity.Tests.Regression
         public void RegressionTest(string testName)
         {
             var input = File.ReadAllText(Path.Combine(_base, testName + ".vm"));
-            var expectedOutput = File.ReadAllText(Path.Combine(_base, "results", testName + ".res"));
+            var expectedOutput = File.ReadAllText(Path.Combine(_base, "expected", testName + ".cmp"));
 
-            Utility.TestExpectedMarkupGenerated(input, expectedOutput);
+            var provider = new NVelocity.Test.Provider.TestProvider();
+
+            var context = new Dictionary<string, object>{
+                {"provider", provider}
+            };
+
+            var output = Utility.GetNormalisedOutput(input, context);
+            expectedOutput = Utility.NormaliseLineEndings(expectedOutput);
+
+            try
+            {
+                Assert.AreEqual(expectedOutput, output);
+            }
+            catch(AssertionException ex)
+            {
+                if (!Directory.Exists("ActualResults"))
+                    Directory.CreateDirectory("ActualResults");
+
+                File.WriteAllText(Path.Combine("ActualResults", testName + ".txt"), output);
+                throw;
+            }
         }
     }
 }
