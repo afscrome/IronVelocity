@@ -16,7 +16,8 @@ namespace IronVelocity
     public class VelocityASTConverter
     {
         private static readonly MethodInfo _appendMethodInfo = typeof(StringBuilder).GetMethod("Append", new[] { typeof(object) });
-        private static readonly MethodInfo _coerceObjectToBooleanMethodInfo = typeof(VelocityCoercion).GetMethod("CoerceObjectToBoolean", new[] { typeof(object) });
+        private static readonly MethodInfo _trueBooleanCoercionMethodInfo = typeof(VelocityCoercion).GetMethod("IsTrue", new[] { typeof(object) });
+        private static readonly MethodInfo _falseBooleanCoercionMethodInfo = typeof(VelocityCoercion).GetMethod("IsFalse", new[] { typeof(object) });
         private static readonly ConstructorInfo _listConstructorInfo = typeof(List<object>).GetConstructor(new[] { typeof(IEnumerable<object>) });
         private static readonly MethodInfo _integerRangeMethodInfo = typeof(IntegerRange).GetMethod("Range", new[] { typeof(int), typeof(int) });
 
@@ -386,7 +387,7 @@ namespace IronVelocity
         private static Expression If(Expression condition, Expression trueContent, Expression falseContent)
         {
             if (condition.Type != typeof(bool))
-                condition = Expression.Call(_coerceObjectToBooleanMethodInfo, condition);
+                condition = Expression.Call(_trueBooleanCoercionMethodInfo, condition);
 
             return falseContent != null
                 ? Expression.IfThenElse(condition, trueContent, falseContent)
@@ -418,6 +419,8 @@ namespace IronVelocity
                 return Equal(node);
             else if (node is ASTNENode)
                 return NotEqual(node);
+            else if (node is ASTNotNode)
+                return Not(node);
             //Mathematical Operations
             else if (node is ASTAddNode)
                 return Addition(node);
@@ -559,8 +562,10 @@ namespace IronVelocity
                 return Reference(node, false);
             else if (node is ASTExpression)
                 return Expr(node);
+            else if (node is ASTNotNode)
+                return Not(node);
             else
-                throw new NotSupportedException("Node type not supported in an expression: " + node.GetType().Name);
+                throw new NotSupportedException("Node type not supported in an operand: " + node.GetType().Name);
         }
 
 
@@ -835,6 +840,21 @@ namespace IronVelocity
             Expression left, right;
             GetBinaryExpressionOperands(node, out left, out right);
             return BinaryLogicalExpression(Expression.NotEqual, left, right, _notEqualMethodInfo);
+        }
+
+        private Expression Not(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTNotNode))
+                throw new ArgumentNullException("node");
+
+            if (node.ChildrenCount != 1) ;
+
+            var expr = VelocityExpressions.ConvertIfNeeded(Operand(node.GetChild(0)), typeof(object));
+
+            return Expression.Not(expr, _falseBooleanCoercionMethodInfo);
         }
 
         #endregion
