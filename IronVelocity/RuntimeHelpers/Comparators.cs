@@ -1,11 +1,9 @@
 ﻿using Microsoft.CSharp.RuntimeBinder;
 
-namespace IronVelocity
+namespace IronVelocity.RuntimeHelpers
 {
     public static class Comparators
     {
-
-
         public static dynamic LessThan(dynamic left, dynamic right)
         {
             try { return left < right; }

@@ -1,8 +1,8 @@
 ﻿
 using Microsoft.CSharp.RuntimeBinder;
-namespace IronVelocity
+namespace IronVelocity.RuntimeHelpers
 {
-    public static class VelocityCoercion
+    public static class BooleanCoercion
     {
         /// <summary>
         ///   Coerces the provided object as a boolean and returns True if the value is boolean true.

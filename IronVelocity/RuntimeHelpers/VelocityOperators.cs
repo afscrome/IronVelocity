@@ -2,9 +2,9 @@
 using System;
 using System.Diagnostics;
 
-namespace IronVelocity
+namespace IronVelocity.RuntimeHelpers
 {
-    public static class VelocityOperators
+    public static class Operators
     {
 
         public static dynamic Addition(dynamic left, dynamic right)
@@ -29,6 +29,7 @@ namespace IronVelocity
             try { return left * right; }
             catch (RuntimeBinderException) { return null; }
         }
+
         public static dynamic Division(dynamic left, dynamic right)
         {
             try { return left / right; }
@@ -49,6 +50,18 @@ namespace IronVelocity
                 Debug.WriteLine("Attempt to divide by zero");
                 return null;
             }
+        }
+
+        public static dynamic And(dynamic left, dynamic right)
+        {
+            //TODO: Currently does not support cases where the & operator has been overloaded
+            return BooleanCoercion.IsTrue(left) && BooleanCoercion.IsTrue(right);
+        }
+
+        public static dynamic Or(dynamic left, dynamic right)
+        {
+            //TODO: Currently does not support cases where the | operator has been overloaded
+            return BooleanCoercion.IsTrue(left) || BooleanCoercion.IsTrue(right);
         }
 
     }

@@ -16,17 +16,20 @@ namespace IronVelocity
     public class VelocityASTConverter
     {
         private static readonly MethodInfo _appendMethodInfo = typeof(StringBuilder).GetMethod("Append", new[] { typeof(object) });
-        private static readonly MethodInfo _trueBooleanCoercionMethodInfo = typeof(VelocityCoercion).GetMethod("IsTrue", new[] { typeof(object) });
-        private static readonly MethodInfo _falseBooleanCoercionMethodInfo = typeof(VelocityCoercion).GetMethod("IsFalse", new[] { typeof(object) });
+        private static readonly MethodInfo _trueBooleanCoercionMethodInfo = typeof(BooleanCoercion).GetMethod("IsTrue", new[] { typeof(object) });
+        private static readonly MethodInfo _falseBooleanCoercionMethodInfo = typeof(BooleanCoercion).GetMethod("IsFalse", new[] { typeof(object) });
         private static readonly ConstructorInfo _listConstructorInfo = typeof(List<object>).GetConstructor(new[] { typeof(IEnumerable<object>) });
         private static readonly MethodInfo _integerRangeMethodInfo = typeof(IntegerRange).GetMethod("Range", new[] { typeof(int), typeof(int) });
 
 
-        private static readonly MethodInfo _additionMethodInfo = typeof(VelocityOperators).GetMethod("Addition", new[] { typeof(object), typeof(object) });
-        private static readonly MethodInfo _subtractionMethodInfo = typeof(VelocityOperators).GetMethod("Subtraction", new[] { typeof(object), typeof(object) });
-        private static readonly MethodInfo _multiplicationMethodInfo = typeof(VelocityOperators).GetMethod("Multiplication", new[] { typeof(object), typeof(object) });
-        private static readonly MethodInfo _divisionMethodInfo = typeof(VelocityOperators).GetMethod("Division", new[] { typeof(object), typeof(object) });
-        private static readonly MethodInfo _moduloMethodInfo = typeof(VelocityOperators).GetMethod("Modulo", new[] { typeof(object), typeof(object) });
+        private static readonly MethodInfo _additionMethodInfo = typeof(Operators).GetMethod("Addition", new[] { typeof(object), typeof(object) });
+        private static readonly MethodInfo _subtractionMethodInfo = typeof(Operators).GetMethod("Subtraction", new[] { typeof(object), typeof(object) });
+        private static readonly MethodInfo _multiplicationMethodInfo = typeof(Operators).GetMethod("Multiplication", new[] { typeof(object), typeof(object) });
+        private static readonly MethodInfo _divisionMethodInfo = typeof(Operators).GetMethod("Division", new[] { typeof(object), typeof(object) });
+        private static readonly MethodInfo _moduloMethodInfo = typeof(Operators).GetMethod("Modulo", new[] { typeof(object), typeof(object) });
+
+        private static readonly MethodInfo _andMethodInfo = typeof(Operators).GetMethod("And", new[] { typeof(object), typeof(object) });
+        private static readonly MethodInfo _orMethodInfo = typeof(Operators).GetMethod("Or", new[] { typeof(object), typeof(object) });
 
         private static readonly MethodInfo _lessThanMethodInfo = typeof(Comparators).GetMethod("LessThan", new[] { typeof(object), typeof(object) });
         private static readonly MethodInfo _lessThanOrEqualMethodInfo = typeof(Comparators).GetMethod("LessThanOrEqual", new[] { typeof(object), typeof(object) });
@@ -398,6 +401,7 @@ namespace IronVelocity
 
         private Expression Statement(INode node)
         {
+            //Literal
             if (node is ASTTrue)
                 return TrueExpression;
             else if (node is ASTFalse)
@@ -407,6 +411,13 @@ namespace IronVelocity
             else if (node is ASTStringLiteral)
                 return StringLiteral(node);
             //Logical
+            else if (node is ASTAndNode)
+                return And(node);
+            else if (node is ASTOrNode)
+                return Or(node);
+            else if (node is ASTNotNode)
+                return Not(node);
+            //Comparison
             else if (node is ASTLTNode)
                 return LessThan(node);
             else if (node is ASTLENode)
@@ -419,8 +430,6 @@ namespace IronVelocity
                 return Equal(node);
             else if (node is ASTNENode)
                 return NotEqual(node);
-            else if (node is ASTNotNode)
-                return Not(node);
             //Mathematical Operations
             else if (node is ASTAddNode)
                 return Addition(node);
@@ -441,6 +450,8 @@ namespace IronVelocity
                 return Array(node);
             else if (node is ASTIntegerRange)
                 return IntegerRange(node);
+            else if (node is ASTExpression)
+                return Expr(node);
             else
                 throw new NotSupportedException("Node type not supported in an expression: " + node.GetType().Name);
         }
@@ -842,20 +853,53 @@ namespace IronVelocity
             return BinaryLogicalExpression(Expression.NotEqual, left, right, _notEqualMethodInfo);
         }
 
+        #endregion
+
+        #region Logical
+
         private Expression Not(INode node)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
 
             if (!(node is ASTNotNode))
-                throw new ArgumentNullException("node");
+                throw new ArgumentOutOfRangeException("node");
 
-            if (node.ChildrenCount != 1) ;
+            if (node.ChildrenCount != 1)
+                throw new ArgumentOutOfRangeException("node");
+
 
             var expr = VelocityExpressions.ConvertIfNeeded(Operand(node.GetChild(0)), typeof(object));
 
             return Expression.Not(expr, _falseBooleanCoercionMethodInfo);
         }
+
+        private Expression And(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTAndNode))
+                throw new ArgumentOutOfRangeException("node");
+
+            Expression left, right;
+            GetBinaryExpressionOperands(node, out left, out right);
+            return BinaryMathematicalExpression(Expression.And, left, right, _andMethodInfo);
+        }
+
+        private Expression Or(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTOrNode))
+                throw new ArgumentOutOfRangeException("node");
+
+            Expression left, right;
+            GetBinaryExpressionOperands(node, out left, out right);
+            return BinaryMathematicalExpression(Expression.Or, left, right, _orMethodInfo);
+        }
+
 
         #endregion
     }
