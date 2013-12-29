@@ -54,14 +54,20 @@ namespace IronVelocity.RuntimeHelpers
 
         public static dynamic And(dynamic left, dynamic right)
         {
-            //TODO: Currently does not support cases where the & operator has been overloaded
-            return BooleanCoercion.IsTrue(left) && BooleanCoercion.IsTrue(right);
+            try { return left && right; }
+            catch (RuntimeBinderException)
+            {
+                return BooleanCoercion.IsTrue(left) && BooleanCoercion.IsTrue(right);
+            }
         }
 
         public static dynamic Or(dynamic left, dynamic right)
         {
-            //TODO: Currently does not support cases where the | operator has been overloaded
-            return BooleanCoercion.IsTrue(left) || BooleanCoercion.IsTrue(right);
+            try { return left || right; }
+            catch (RuntimeBinderException)
+            {
+                return BooleanCoercion.IsTrue(left) || BooleanCoercion.IsTrue(right);
+            }
         }
 
     }
