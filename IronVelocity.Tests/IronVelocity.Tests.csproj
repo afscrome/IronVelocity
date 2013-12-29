@@ -51,6 +51,7 @@
   <ItemGroup>
     <Compile Include="Binders\InvokeMemberBinderTests.cs" />
     <Compile Include="Binders\GetMemberBinderTests.cs" />
+    <Compile Include="IntegerRangeTests.cs" />
     <Compile Include="OutputTests\Method.cs" />
     <Compile Include="OutputTests\Identifer.cs" />
     <Compile Include="OutputTests\If.cs" />

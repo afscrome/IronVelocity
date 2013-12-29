@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Binders;
+using IronVelocity.RuntimeHelpers;
 using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections.Generic;
@@ -17,6 +18,8 @@ namespace IronVelocity
         private static readonly MethodInfo _appendMethodInfo = typeof(StringBuilder).GetMethod("Append", new[] { typeof(object) });
         private static readonly MethodInfo _coerceObjectToBooleanMethodInfo = typeof(VelocityCoercion).GetMethod("CoerceObjectToBoolean", new[] { typeof(object) });
         private static readonly ConstructorInfo _listConstructorInfo = typeof(List<object>).GetConstructor(new[] { typeof(IEnumerable<object>) });
+        private static readonly MethodInfo _integerRangeMethodInfo = typeof(IntegerRange).GetMethod("Range", new[] { typeof(int), typeof(int) });
+
 
         private static readonly MethodInfo _additionMethodInfo = typeof(VelocityOperators).GetMethod("Addition", new[] { typeof(object), typeof(object) });
         private static readonly MethodInfo _subtractionMethodInfo = typeof(VelocityOperators).GetMethod("Subtraction", new[] { typeof(object), typeof(object) });
@@ -110,7 +113,7 @@ namespace IronVelocity
 
             foreach (var child in node.GetChildren())
             {
-                if (child is ASTText)
+                if (child is ASTText || child is ASTEscape)
                     expressions.Add(Text(child));
                 else if (child is ASTReference)
                     expressions.Add(Output(Reference(child, true)));
@@ -118,12 +121,12 @@ namespace IronVelocity
                     expressions.Add(IfStatement(child));
                 else if (child is ASTSetDirective)
                     expressions.Add(Set(child));
-                else if (child is ASTComment)
-                    continue;
                 else if (child is ASTEscapedDirective)
                     expressions.Add(Output(Escaped(child)));
                 else if (child is ASTDirective)
                     expressions.Add(Directive(child));
+                else if (child is ASTComment)
+                    continue;
                 else
                     throw new NotSupportedException("Node type not supported in a block: " + child.GetType().Name);
 
@@ -433,6 +436,8 @@ namespace IronVelocity
                 return Reference(node, false);
             else if (node is ASTObjectArray)
                 return Array(node);
+            else if (node is ASTIntegerRange)
+                return IntegerRange(node);
             else
                 throw new NotSupportedException("Node type not supported in an expression: " + node.GetType().Name);
         }
@@ -464,6 +469,26 @@ namespace IronVelocity
                 .Select(Statement);
 
             return Expression.New(_listConstructorInfo, Expression.NewArrayInit(typeof(object), elements));
+        }
+
+        private Expression IntegerRange(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTIntegerRange))
+                throw new ArgumentOutOfRangeException("node");
+
+            Expression left, right;
+            GetBinaryExpressionOperands(node, out left, out right);
+
+            if (left.Type != typeof(int) || right.Type != typeof(int))
+                throw new ArgumentOutOfRangeException("node");
+
+            return Expression.Call(null, _integerRangeMethodInfo,
+                VelocityExpressions.ConvertIfNeeded(left, typeof(object)),
+                VelocityExpressions.ConvertIfNeeded(right, typeof(object))
+                );
         }
 
         private Expression StringLiteral(INode node)
@@ -565,9 +590,10 @@ namespace IronVelocity
                 right = Expression.Convert(right, left.Type);
             }
 
-            var tempResult = Expression.Parameter(right.Type);
+            if (left.NodeType == ExpressionType.Dynamic)
+                throw new NotSupportedException("Don't currently support assignment to dotted properties");
 
-            /* One of the nucanses of velocity is that if the right evaluates to null,
+            /* One of the nuances of velocity is that if the right evaluates to null,
              * Thus we can't simply return an assignment expression.
              * The resulting expression looks as follows:P
              *     .set $tempResult = right;
@@ -575,6 +601,7 @@ namespace IronVelocity
              *         Assign(left, right)
              *     }
              */
+            var tempResult = Expression.Parameter(right.Type);
             return Expression.Block(new[] { tempResult },
                 //Store the result of the right hand side in to a temporary variable
                 Expression.Assign(tempResult, right),

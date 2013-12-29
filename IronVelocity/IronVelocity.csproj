@@ -48,6 +48,7 @@
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="RuntimeHelpers\IntegerRange.cs" />
     <Compile Include="VelocityExpressions.cs" />
     <Compile Include="Extensions\INodeExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
