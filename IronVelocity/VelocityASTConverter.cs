@@ -215,13 +215,7 @@ namespace IronVelocity
             }
 
 
-            string name = metaData.RootString;
-
-            var dotIndex = name.IndexOf('.');
-            if (dotIndex > 0)
-                name = name.Substring(0, dotIndex);
-
-            Expression expr = GetLocal(name);
+            Expression expr = GetLocal(metaData.RootString);
 
             for (int i = 0; i < node.ChildrenCount; i++)
             {
@@ -235,13 +229,13 @@ namespace IronVelocity
             }
 
 
-            //If we're not rendering, we can return null form this
+            //If we're not rendering, we can return null here
             if (!renderable)
                 return expr;
 
 
 
-            //If we're rendering this, we need to do funky stuff to the output, including rendering prefixes, suffixes etc.
+            //If however we're rendering, we need to do funky stuff to the output, including rendering prefixes, suffixes etc.
             var notNullExpression = Expression.NotEqual(expr, Expression.Constant(null, expr.Type));
             if (metaData.Escaped)
             {
