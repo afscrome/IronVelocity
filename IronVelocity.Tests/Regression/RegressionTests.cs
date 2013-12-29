@@ -15,6 +15,24 @@ namespace IronVelocity.Tests.Regression
     {
         private static readonly string _base = "c:\\Projects\\IronVelocity\\IronVelocity.Tests\\Regression\\templates\\";
 
+        private IDictionary<string, object> _environment;
+
+        [SetUp]
+        public void SetUp()
+        {
+            var provider = new NVelocity.Test.Provider.TestProvider();
+
+            var hashTable = new Hashtable();
+            hashTable.Add("Bar", "this is from a hashtable!");
+            hashTable.Add("Foo", "this is from a hashtable too!");
+
+            _environment = new Dictionary<string, object>{
+                {"provider", provider},
+                {"hashtable", hashTable},
+                {"name", "jason"}
+            };
+        }
+
         [Test]
         [TestCaseSource("TestsCases",Category = "Regression")]
         public void RegressionTest(string inputFile, string expectedOutputFile)
@@ -28,13 +46,8 @@ namespace IronVelocity.Tests.Regression
             var input = File.ReadAllText(inputFile);
             var expectedOutput = File.ReadAllText(expectedOutputFile);
 
-            var provider = new NVelocity.Test.Provider.TestProvider();
 
-            var context = new Dictionary<string, object>{
-                {"provider", provider}
-            };
-
-            var output = Utility.GetNormalisedOutput(input, context);
+            var output = Utility.GetNormalisedOutput(input, _environment);
             expectedOutput = Utility.NormaliseLineEndings(expectedOutput);
 
             try
