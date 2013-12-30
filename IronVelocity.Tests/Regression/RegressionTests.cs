@@ -35,13 +35,19 @@ namespace IronVelocity.Tests.Regression
 
         [Test]
         [TestCaseSource("TestsCases",Category = "Regression")]
-        public void RegressionTest(string inputFile, string expectedOutputFile)
+        public void RegressionTest(string testName)
         {
+            if (testName == "vm_test1")
+                Assert.Inconclusive("Do not yet support global velocimacros");
+
+            var inputFile = Path.Combine(_base, testName + ".vm");
+            var expectedOutputFile = Path.Combine(_base, "Expected", testName + ".cmp");
+
             if (!File.Exists(inputFile))
-                Assert.Inconclusive("File '{0}' does not exist", inputFile);
+                Assert.Ignore("File '{0}' does not exist", inputFile);
 
             if (!File.Exists(expectedOutputFile))
-                Assert.Inconclusive("File '{0}' does not exist", expectedOutputFile);
+                Assert.Ignore("File '{0}' does not exist", expectedOutputFile);
 
             var input = File.ReadAllText(inputFile);
             var expectedOutput = File.ReadAllText(expectedOutputFile);
@@ -54,7 +60,7 @@ namespace IronVelocity.Tests.Regression
             {
                 Assert.AreEqual(expectedOutput, output);
             }
-            catch (AssertionException ex)
+            catch (AssertionException)
             {
                 //TODO: save results for further investigation.
                 throw;
@@ -70,8 +76,7 @@ namespace IronVelocity.Tests.Regression
                 {
                     var name = Path.GetFileNameWithoutExtension(file);
                     yield return new TestCaseData(
-                            file,
-                            Path.Combine(_base, "Expected", name + ".cmp")
+                        name
                         )
                         .SetName("Regression Test: " + name + ".vm");
 

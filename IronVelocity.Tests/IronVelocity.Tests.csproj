@@ -51,7 +51,12 @@
   <ItemGroup>
     <Compile Include="Binders\InvokeMemberBinderTests.cs" />
     <Compile Include="Binders\GetMemberBinderTests.cs" />
-    <Compile Include="IntegerRangeTests.cs" />
+    <Compile Include="RuntimeHelpers\ModuloTests.cs" />
+    <Compile Include="RuntimeHelpers\DivisionTests.cs" />
+    <Compile Include="RuntimeHelpers\MultiplicationTests.cs" />
+    <Compile Include="RuntimeHelpers\SubtractionTests.cs" />
+    <Compile Include="RuntimeHelpers\AdditionTests.cs" />
+    <Compile Include="RuntimeHelpers\IntegerRangeTests.cs" />
     <Compile Include="OutputTests\Method.cs" />
     <Compile Include="OutputTests\Identifer.cs" />
     <Compile Include="OutputTests\If.cs" />
