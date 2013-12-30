@@ -21,8 +21,6 @@ namespace IronVelocity.Tests.RuntimeHelpers
         [TestCase(5, 0, null, TestName = "Division By Integer 0")]
         [TestCase(1.5f, 0f, float.PositiveInfinity, TestName = "Division float by positive 0")]
         [TestCase(1.5f, -0f, float.NegativeInfinity, TestName = "Division float by negative 0")]
-        //[TestCase(2147483647, 1, 2147483648, TestName = "Division Integer Overflow")]
-        //[TestCase(-2147483648, -1, -2147483649, TestName = "Division Integer Underflow")]
         public void BasicTest(object left, object right, object expected)
         {
             var result = Operators.Division(left, right);
