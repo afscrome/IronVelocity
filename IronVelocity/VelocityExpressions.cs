@@ -26,7 +26,11 @@ namespace IronVelocity
 
         public static Expression ConvertIfNeeded(DynamicMetaObject target, MemberInfo member)
         {
-            return ConvertIfNeeded(target.Expression, member.DeclaringType);
+            var expr = target.Expression;
+            if (member.DeclaringType.IsValueType && !expr.Type.IsValueType)
+                return Expression.Unbox(expr, member.DeclaringType);
+
+            return ConvertIfNeeded(expr, member.DeclaringType);
         }
 
     }

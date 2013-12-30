@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Binders;
+using IronVelocity.Directivces;
 using IronVelocity.RuntimeHelpers;
 using NVelocity.Runtime.Parser.Node;
 using System;
@@ -90,7 +91,7 @@ namespace IronVelocity
 
         private IDictionary<string, ParameterExpression> _locals = new Dictionary<string, ParameterExpression>(StringComparer.OrdinalIgnoreCase);
 
-        private ParameterExpression GetLocal(string name)
+        public ParameterExpression GetLocal(string name)
         {
             ParameterExpression local;
             if (!_locals.TryGetValue(name, out local))
@@ -140,7 +141,11 @@ namespace IronVelocity
         }
 
 
-        private static IDictionary<string, object> _directiveHandlers = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+        private static IDictionary<string, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<string, DirectiveExpressionBuilder>(StringComparer.OrdinalIgnoreCase)
+        {
+            {"foreach", new ForeachDirectiveExpressionBuilder()}
+        };
+
         private Expression Directive(INode node)
         {
             if (node == null)
@@ -150,13 +155,15 @@ namespace IronVelocity
             if (directive == null)
                 throw new ArgumentOutOfRangeException("node");
 
-            if (_directiveHandlers.ContainsKey(directive.DirectiveName))
-                throw new NotImplementedException();
+            if (directive.Directive == null)
+                return Text(node);
+
+            DirectiveExpressionBuilder builder;
+
+            if (_directiveHandlers.TryGetValue(directive.DirectiveName, out builder))
+                return builder.Build(directive, this);
             else
-
                 throw new NotSupportedException(String.Format("Unable to handle directive type '{0}'", directive.DirectiveName));
-
-
         }
 
         private Expression Escaped(INode node)
@@ -170,7 +177,7 @@ namespace IronVelocity
             return Expression.Constant(node.Literal);
         }
 
-        private Expression Block(INode node)
+        public Expression Block(INode node)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -204,7 +211,7 @@ namespace IronVelocity
 
 
 
-        private Expression Reference(INode node, bool renderable)
+        public Expression Reference(INode node, bool renderable)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -243,24 +250,28 @@ namespace IronVelocity
 
 
             //If however we're rendering, we need to do funky stuff to the output, including rendering prefixes, suffixes etc.
-            var notNullExpression = Expression.NotEqual(expr, Expression.Constant(null, expr.Type));
             if (metaData.Escaped)
             {
                 return Expression.Condition(
-                    notNullExpression,
+                    Expression.NotEqual(expr, Expression.Constant(null, expr.Type)),
                     Expression.Constant(metaData.EscapePrefix + metaData.NullString),
                     Expression.Constant(metaData.EscapePrefix + "\\" + metaData.NullString)
                 );
             }
             else
             {
-                return Expression.Condition(
-                    notNullExpression,
-                    Expression.Block(
-                        Output(Expression.Constant(metaData.EscapePrefix + metaData.MoreString)),
-                        expr
-                    ),
-                    Expression.Constant(metaData.EscapePrefix + metaData.EscapePrefix + metaData.MoreString + metaData.NullString, typeof(object))
+                var evaulatedResult = Expression.Parameter(expr.Type, "evaulatedResult");
+                return Expression.Block(
+                    new[] { evaulatedResult },
+                    Expression.Assign(evaulatedResult, expr),
+                    Expression.Condition(
+                        Expression.NotEqual(evaulatedResult, Expression.Constant(null, evaulatedResult.Type)),
+                        Expression.Block(
+                            Output(Expression.Constant(metaData.EscapePrefix + metaData.MoreString)),
+                            evaulatedResult
+                        ),
+                        Expression.Constant(metaData.EscapePrefix + metaData.EscapePrefix + metaData.MoreString + metaData.NullString, typeof(object))
+                    )
                 );
 
 
@@ -399,7 +410,7 @@ namespace IronVelocity
         }
 
 
-        private Expression Statement(INode node)
+        public Expression Statement(INode node)
         {
             //Literal
             if (node is ASTTrue)
@@ -496,9 +507,6 @@ namespace IronVelocity
             Expression left, right;
             GetBinaryExpressionOperands(node, out left, out right);
 
-            if (left.Type != typeof(int) || right.Type != typeof(int))
-                throw new ArgumentOutOfRangeException("node");
-
             return Expression.Call(null, _integerRangeMethodInfo,
                 VelocityExpressions.ConvertIfNeeded(left, typeof(object)),
                 VelocityExpressions.ConvertIfNeeded(right, typeof(object))
@@ -527,7 +535,6 @@ namespace IronVelocity
             var text = NodeUtils.tokenLiteral(node.FirstToken);
             if (text != node.Literal)
             {
-                var x = "";
             }
             return Output(Expression.Constant(text));
         }
@@ -625,7 +632,7 @@ namespace IronVelocity
                     //If the temporary variable is not equal to null
                     Expression.NotEqual(tempResult, Expression.Constant(null, right.Type)),
                     //Make the assignment
-                    Expression.Assign(left, right)
+                    Expression.Assign(left, tempResult)
                 )
             );
             //return Expression.Assign(left, right);

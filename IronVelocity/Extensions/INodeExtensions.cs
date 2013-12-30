@@ -39,6 +39,7 @@ namespace IronVelocity
             public string EscapePrefix { get { return escPrefix; } }
             public string NullString { get { return nullString;  } }
             public string MoreString { get { return morePrefix; } }
+            private bool ComputableReference { get { return computableReference; } }
 
             public ASTReferenceMetaData(ASTReference node)
             {

@@ -40,9 +40,14 @@ namespace Tests
             Assert.AreEqual(expectedOutput, generatedOutput);
         }
 
+        /// <summary>
+        /// Normalises line endings for the current platform
+        /// </summary>
+        /// <param name="text">The text to normalise line endings in</param>
+        /// <returns>the input text with '\r\n' (windows), '\r' (mac) and '\n' (*nix) replaced by Environment.NewLine</returns>
         public static string NormaliseLineEndings(string text)
         {
-            return text.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
+            return text.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine);
         }
     }
 }

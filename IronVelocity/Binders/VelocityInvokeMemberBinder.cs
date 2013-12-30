@@ -68,11 +68,17 @@ namespace IronVelocity.Binders
             }
             else
             {
+                var parameters = method.GetParameters();
+                var argExpressions = new Expression[args.Length];
+                for (int i = 0; i < args.Length; i++)
+                {
+                    argExpressions[i] = VelocityExpressions.ConvertIfNeeded(args[i].Expression, parameters[i].ParameterType);
+                }
 
                 result = Expression.Call(
                     VelocityExpressions.ConvertIfNeeded(target.Expression, method.DeclaringType),
                     method,
-                    args.Select(x => VelocityExpressions.ConvertIfNeeded(x.Expression, x.LimitType))
+                    argExpressions
                 );
 
                 //Dynamic return type is object, but primitives are not objects
