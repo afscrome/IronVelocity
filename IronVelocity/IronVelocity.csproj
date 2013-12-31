@@ -50,6 +50,7 @@
     <Compile Include="Constants.cs" />
     <Compile Include="Directives\Directives.cs" />
     <Compile Include="RuntimeHelpers\IntegerRange.cs" />
+    <Compile Include="RuntimeHelpers\VelocityString.cs" />
     <Compile Include="VelocityExpressions.cs" />
     <Compile Include="Extensions\INodeExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

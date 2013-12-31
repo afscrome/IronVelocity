@@ -516,7 +516,26 @@ namespace IronVelocity
             if (node.ChildrenCount > 0)
                 throw new NotImplementedException("Not supporting interpolated strings yet");
 
-            return Expression.Constant(node.Literal.Substring(1, node.Literal.Length - 2));
+
+            var isDoubleQuoted = node.Literal.StartsWith("\"");
+            var content = node.Literal.Substring(1, node.Literal.Length - 2);
+
+            if (content.StartsWith("%{") && content.EndsWith("}"))
+                return VelocityStrings.InterpolateDictionaryString(content);
+            else if (isDoubleQuoted && content.IndexOfAny(new[] { '$', '#' }) > 0)
+                throw new NotSupportedException("String interpolation not supported yet");
+
+            return Expression.Constant(content);
+        }
+
+        private Expression DictionaryStringLiteral(INode node)
+        {
+            throw new NotSupportedException("Dictionary strings not yet supported");
+        }
+
+        private Expression InterpolatedString(INode node)
+        {
+            throw new NotSupportedException("Interpolated strings not yet supported");
         }
 
         private Expression Text(INode node)

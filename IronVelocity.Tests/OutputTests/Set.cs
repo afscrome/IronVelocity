@@ -42,7 +42,7 @@ namespace Tests
             Utility.TestExpectedMarkupGenerated(input, expectedOutput);
         }
 
-        [Test, Ignore("Not yet supported")]
+        [Test]
         public void InterpolatedStringSet()
         {
             var input = "#set($foo = 'Jim')#set($bar = \"Hello $foo\")$bar";

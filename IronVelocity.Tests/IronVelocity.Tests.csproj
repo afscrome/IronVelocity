@@ -52,6 +52,7 @@
     <Compile Include="Binders\InvokeMemberBinderTests.cs" />
     <Compile Include="Binders\GetMemberBinderTests.cs" />
     <Compile Include="BoxingTests.cs" />
+    <Compile Include="Regression\StringInterpolationTests.cs" />
     <Compile Include="RuntimeHelpers\ModuloTests.cs" />
     <Compile Include="RuntimeHelpers\DivisionTests.cs" />
     <Compile Include="RuntimeHelpers\MultiplicationTests.cs" />
