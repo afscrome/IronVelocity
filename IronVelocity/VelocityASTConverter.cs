@@ -16,7 +16,10 @@ namespace IronVelocity
 {
     public class VelocityASTConverter
     {
-        private static readonly MethodInfo _appendMethodInfo = typeof(StringBuilder).GetMethod("Append", new[] { typeof(object) });
+        private static readonly MethodInfo _appendMethodInfo = typeof(StringBuilder).GetMethod("Append", new[] { typeof(string) });
+        private static readonly MethodInfo _toStringMethodInfo = typeof(object).GetMethod("ToString", new Type[] { });
+
+
         private static readonly MethodInfo _trueBooleanCoercionMethodInfo = typeof(BooleanCoercion).GetMethod("IsTrue", new[] { typeof(object) });
         private static readonly MethodInfo _falseBooleanCoercionMethodInfo = typeof(BooleanCoercion).GetMethod("IsFalse", new[] { typeof(object) });
         private static readonly ConstructorInfo _listConstructorInfo = typeof(List<object>).GetConstructor(new[] { typeof(IEnumerable<object>) });
@@ -121,7 +124,7 @@ namespace IronVelocity
                 if (child is ASTText || child is ASTEscape)
                     expressions.Add(Text(child));
                 else if (child is ASTReference)
-                    expressions.Add(Output(Reference(child, true)));
+                    expressions.Add(Reference(child, true));
                 else if (child is ASTIfStatement)
                     expressions.Add(IfStatement(child));
                 else if (child is ASTSetDirective)
@@ -223,40 +226,37 @@ namespace IronVelocity
 
             var metaData = new IronVelocity.INodeExtensions.ASTReferenceMetaData((ASTReference)node);
 
+            Expression expr;
             if (metaData.Type == INodeExtensions.ASTReferenceMetaData.ReferenceType.Runt)
+                expr = Expression.Constant(metaData.RootString);
+            else
             {
-                return Expression.Constant(metaData.RootString);
+                expr = GetLocal(metaData.RootString);
+
+                for (int i = 0; i < node.ChildrenCount; i++)
+                {
+                    var child = node.GetChild(i);
+                    if (child is ASTIdentifier)
+                        expr = Identifier(child, expr);
+                    else if (child is ASTMethod)
+                        expr = Method(child, expr);
+                    else
+                        throw new NotSupportedException("Node type not supported in a Reference: " + child.GetType().Name);
+                }
             }
 
-
-            Expression expr = GetLocal(metaData.RootString);
-
-            for (int i = 0; i < node.ChildrenCount; i++)
-            {
-                var child = node.GetChild(i);
-                if (child is ASTIdentifier)
-                    expr = Identifier(child, expr);
-                else if (child is ASTMethod)
-                    expr = Method(child, expr);
-                else
-                    throw new NotSupportedException("Node type not supported in a Reference: " + child.GetType().Name);
-            }
-
-
-            //If we're not rendering, we can return null here
+            //If we're not rendering, we can return here
             if (!renderable)
                 return expr;
-
-
 
             //If however we're rendering, we need to do funky stuff to the output, including rendering prefixes, suffixes etc.
             if (metaData.Escaped)
             {
-                return Expression.Condition(
+                return Output(Expression.Condition(
                     Expression.NotEqual(expr, Expression.Constant(null, expr.Type)),
                     Expression.Constant(metaData.EscapePrefix + metaData.NullString),
                     Expression.Constant(metaData.EscapePrefix + "\\" + metaData.NullString)
-                );
+                ));
             }
             else
             {
@@ -268,21 +268,13 @@ namespace IronVelocity
                         Expression.NotEqual(evaulatedResult, Expression.Constant(null, evaulatedResult.Type)),
                         Expression.Block(
                             Output(Expression.Constant(metaData.EscapePrefix + metaData.MoreString)),
-                            evaulatedResult
+                            Output(evaulatedResult)
                         ),
-                        Expression.Constant(metaData.EscapePrefix + metaData.EscapePrefix + metaData.MoreString + metaData.NullString, typeof(object))
+                        Output(Expression.Constant(metaData.EscapePrefix + metaData.EscapePrefix + metaData.MoreString + metaData.NullString))
                     )
                 );
-
-
             }
-
-
-
         }
-
-
-
 
 
 
@@ -544,6 +536,9 @@ namespace IronVelocity
             if (expression == null)
                 throw new ArgumentNullException("expression");
 
+            if (expression.Type != typeof(string))
+                expression = Expression.Call(expression, _toStringMethodInfo);
+
             return Expression.Call(Constants.OutputParameter, _appendMethodInfo, expression);
         }
 
@@ -629,9 +624,9 @@ namespace IronVelocity
                 //Store the result of the right hand side in to a temporary variable
                 Expression.Assign(tempResult, right),
                 Expression.IfThen(
-                    //If the temporary variable is not equal to null
+                //If the temporary variable is not equal to null
                     Expression.NotEqual(tempResult, Expression.Constant(null, right.Type)),
-                    //Make the assignment
+                //Make the assignment
                     Expression.Assign(left, tempResult)
                 )
             );

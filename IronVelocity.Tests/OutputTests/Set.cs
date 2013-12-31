@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace Tests
 {
@@ -48,6 +49,36 @@ namespace Tests
             var expectedOutput = "Hello Jim";
 
             Utility.TestExpectedMarkupGenerated(input, expectedOutput);
+        }
+
+        [Test]
+        public void SetMethodOnlyCalledOnce()
+        {
+            var x = new TestClass();
+            var context = new Dictionary<string, object>();
+            context["x"] = x;
+
+            Utility.TestExpectedMarkupGenerated("#set($y = $x.GetCallCount()) $y $y", " 0 0", context);
+            Assert.AreEqual(1, x.CallCount);
+        }
+
+        [Test]
+        public void SetPropertyOnlyCalledOnce()
+        {
+            var x = new TestClass();
+            var context = new Dictionary<string, object>();
+            context["x"] = x;
+
+            Utility.TestExpectedMarkupGenerated("#set($y = $x.CallCount) $y $y", " 0 0", context);
+            Assert.AreEqual(1, x.CallCount);
+        }
+
+
+        public class TestClass
+        {
+            private int _callCount;
+            public int GetCallCount() { return _callCount++; }
+            public int CallCount { get { return _callCount++; } }
         }
 
     }

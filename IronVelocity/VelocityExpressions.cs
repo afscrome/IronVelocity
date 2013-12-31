@@ -19,6 +19,9 @@ namespace IronVelocity
 
         public static Expression ConvertIfNeeded(Expression expression, Type type)
         {
+            if (type.IsValueType && !expression.Type.IsValueType)
+                return Expression.Unbox(expression, type);
+
             return expression.Type == type
                 ? expression
                 : Expression.Convert(expression, type);
@@ -27,8 +30,6 @@ namespace IronVelocity
         public static Expression ConvertIfNeeded(DynamicMetaObject target, MemberInfo member)
         {
             var expr = target.Expression;
-            if (member.DeclaringType.IsValueType && !expr.Type.IsValueType)
-                return Expression.Unbox(expr, member.DeclaringType);
 
             return ConvertIfNeeded(expr, member.DeclaringType);
         }

@@ -75,8 +75,9 @@ namespace IronVelocity.Binders
                     argExpressions[i] = VelocityExpressions.ConvertIfNeeded(args[i].Expression, parameters[i].ParameterType);
                 }
 
+
                 result = Expression.Call(
-                    VelocityExpressions.ConvertIfNeeded(target.Expression, method.DeclaringType),
+                    VelocityExpressions.ConvertIfNeeded(target, method),
                     method,
                     argExpressions
                 );
