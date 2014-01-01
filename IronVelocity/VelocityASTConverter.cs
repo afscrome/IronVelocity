@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Binders;
 using IronVelocity.Directivces;
 using IronVelocity.RuntimeHelpers;
+using NVelocity.Runtime.Directive;
 using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections.Generic;
@@ -164,9 +165,19 @@ namespace IronVelocity
         }
 
 
-        private static IDictionary<string, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<string, DirectiveExpressionBuilder>(StringComparer.OrdinalIgnoreCase)
+        private static IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
         {
-            {"foreach", new ForeachDirectiveExpressionBuilder()}
+            {typeof(Foreach), new ForeachDirectiveExpressionBuilder()},
+            {typeof(ForeachBeforeAllSection), new ForeachSectionExpressionBuilder(ForeachSection.BeforeAll)},
+            {typeof(ForeachBeforeSection), new ForeachSectionExpressionBuilder(ForeachSection.Before)},
+            {typeof(ForeachEachSection), new ForeachSectionExpressionBuilder(ForeachSection.Each)},
+            {typeof(ForeachOddSection), new ForeachSectionExpressionBuilder(ForeachSection.Odd)},
+            {typeof(ForeachEvenSection), new ForeachSectionExpressionBuilder(ForeachSection.Even)},
+            {typeof(ForeachBetweenSection), new ForeachSectionExpressionBuilder(ForeachSection.Between)},
+            {typeof(ForeachAfterSection), new ForeachSectionExpressionBuilder(ForeachSection.After)},
+            {typeof(ForeachAfterAllSection), new ForeachSectionExpressionBuilder(ForeachSection.AfterAll)},
+            {typeof(ForeachNoDataSection), new ForeachSectionExpressionBuilder(ForeachSection.NoData)},
+
         };
 
         private Expression Directive(INode node)
@@ -183,7 +194,7 @@ namespace IronVelocity
 
             DirectiveExpressionBuilder builder;
 
-            if (_directiveHandlers.TryGetValue(directive.DirectiveName, out builder))
+            if (_directiveHandlers.TryGetValue(directive.Directive.GetType(), out builder))
                 return builder.Build(directive, this);
             else
                 throw new NotSupportedException(String.Format("Unable to handle directive type '{0}'", directive.DirectiveName));
