@@ -21,15 +21,30 @@ namespace IronVelocity
 
         public static Expression ConvertIfNeeded(Expression expression, Type type)
         {
-            if (type.IsValueType && !expression.Type.IsValueType)
-                return Expression.Unbox(expression, type);
-
-            return expression.Type == type
-                ? expression
-                : Expression.Convert(expression, type);
+            return ConvertIfNeeded(expression, expression.Type, type);
         }
 
-        public static Expression ConvertIfNeeded(DynamicMetaObject target, MemberInfo member)
+        private static Expression ConvertIfNeeded(Expression expression, Type from, Type to)
+        {
+            if (to.IsValueType && !from.IsValueType && (from.IsInterface || from == typeof(object)))
+                return Expression.Unbox(expression, to);
+
+            if (expression.Type != from)
+                expression = Expression.Convert(expression, from);
+            if (from != to || expression.Type != to)
+                expression = Expression.Convert(expression, to);
+
+            return expression;
+        }
+
+
+        public static Expression ConvertParameterIfNeeded(DynamicMetaObject target, ParameterInfo info)
+        {
+            var expr = target.Expression;
+            return ConvertIfNeeded(expr, target.LimitType, info.ParameterType);
+        }
+
+        public static Expression ConvertReturnTypeIfNeeded(DynamicMetaObject target, MemberInfo member)
         {
             var expr = target.Expression;
 

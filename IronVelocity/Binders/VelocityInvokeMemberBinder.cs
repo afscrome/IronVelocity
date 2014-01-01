@@ -72,12 +72,12 @@ namespace IronVelocity.Binders
                 var argExpressions = new Expression[args.Length];
                 for (int i = 0; i < args.Length; i++)
                 {
-                    argExpressions[i] = VelocityExpressions.ConvertIfNeeded(args[i].Expression, parameters[i].ParameterType);
+                    argExpressions[i] = VelocityExpressions.ConvertParameterIfNeeded(args[i], parameters[i]);
                 }
 
 
                 result = Expression.Call(
-                    VelocityExpressions.ConvertIfNeeded(target, method),
+                    VelocityExpressions.ConvertReturnTypeIfNeeded(target, method),
                     method,
                     argExpressions
                 );

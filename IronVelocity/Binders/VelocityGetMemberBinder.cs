@@ -102,7 +102,7 @@ namespace VelocityExpressionTree.Binders
                     else
                     {
                         result = Expression.MakeIndex(
-                                VelocityExpressions.ConvertIfNeeded(target, indexer),
+                                VelocityExpressions.ConvertReturnTypeIfNeeded(target, indexer),
                                 (PropertyInfo)indexer,
                                 new[] { Expression.Constant(Name) }
                             );
@@ -114,14 +114,14 @@ namespace VelocityExpressionTree.Binders
                     if (member is PropertyInfo)
                     {
                         result = Expression.Property(
-                                VelocityExpressions.ConvertIfNeeded(target, member),
+                                VelocityExpressions.ConvertReturnTypeIfNeeded(target, member),
                                 (PropertyInfo)member
                             );
                     }
                     else if (member is FieldInfo)
                     {
                         result = Expression.Field(
-                                VelocityExpressions.ConvertIfNeeded(target, member),
+                                VelocityExpressions.ConvertReturnTypeIfNeeded(target, member),
                                 (FieldInfo)member
                             );
                     }

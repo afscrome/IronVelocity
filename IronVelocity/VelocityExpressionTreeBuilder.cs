@@ -20,7 +20,7 @@ namespace IronVelocity
             _runtimeService.Init();
         }
 
-        public static Expression<Action<StringBuilder>> BuildExpressionTree(string input, IDictionary<string,object> context)
+        public static Expression<Action<StringBuilder>> BuildExpressionTree(string input, IDictionary<string, object> context)
         {
             var parser = _runtimeService.CreateNewParser();
             using (var reader = new StringReader(input))
@@ -32,7 +32,7 @@ namespace IronVelocity
                 var converter = new VelocityASTConverter();
                 var expr = converter.BuildExpressionTree(ast, context);
 
-                return Expression.Lambda<Action<StringBuilder>>(expr, Constants.OutputParameter);
+                return Expression.Lambda<Action<StringBuilder>>(expr, "Velocity_TODO", new[] { Constants.OutputParameter });
                 //return Expression.Lambda<Action<IDictionary<string,object>, StringBuilder>>(expr, Constants.InputParameter, Constants.OutputParameter);
             }
         }
