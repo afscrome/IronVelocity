@@ -413,7 +413,7 @@ namespace IronVelocity
         private static Expression If(Expression condition, Expression trueContent, Expression falseContent)
         {
             if (condition.Type != typeof(bool))
-                condition = Expression.Call(_trueBooleanCoercionMethodInfo, condition);
+                condition = Expression.Call(_trueBooleanCoercionMethodInfo, VelocityExpressions.BoxIfNeeded(condition));
 
             return falseContent != null
                 ? Expression.IfThenElse(condition, trueContent, falseContent)
@@ -583,11 +583,13 @@ namespace IronVelocity
             if (expression == null)
                 throw new ArgumentNullException("expression");
 
+            //If the expression is of type void, we can't print anything, so just return the current expression
+            if (expression.Type == typeof(void))
+                return expression;
+
             if (expression.Type != typeof(string))
                 expression = Expression.Call(expression, _toStringMethodInfo);
 
-            if (expression.Type == typeof(void))
-                return expression;
 
             return Expression.Call(Constants.OutputParameter, _appendMethodInfo, expression);
         }
