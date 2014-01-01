@@ -52,7 +52,13 @@
     <Compile Include="Binders\InvokeMemberBinderTests.cs" />
     <Compile Include="Binders\GetMemberBinderTests.cs" />
     <Compile Include="BoxingTests.cs" />
+    <Compile Include="Regression\ForeachBreakTest.cs" />
+    <Compile Include="Regression\ForeachTest.cs" />
+    <Compile Include="Regression\MethodCallTestCase.cs" />
+    <Compile Include="Regression\ObjectComparisonTestCase.cs" />
+    <Compile Include="Regression\Provider\Something.cs" />
     <Compile Include="Regression\StringInterpolationTests.cs" />
+    <Compile Include="Regression\VelocityTest.cs" />
     <Compile Include="RuntimeHelpers\ModuloTests.cs" />
     <Compile Include="RuntimeHelpers\DivisionTests.cs" />
     <Compile Include="RuntimeHelpers\MultiplicationTests.cs" />
@@ -67,11 +73,11 @@
     <Compile Include="OutputTests\OutputTests.cs" />
     <Compile Include="OutputTests\Set.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Regression\BoolObj.cs" />
-    <Compile Include="Regression\Child.cs" />
-    <Compile Include="Regression\Person.cs" />
+    <Compile Include="Regression\Provider\BoolObj.cs" />
+    <Compile Include="Regression\Provider\Child.cs" />
+    <Compile Include="Regression\Provider\Person.cs" />
     <Compile Include="Regression\RegressionTests.cs" />
-    <Compile Include="Regression\TestProvider.cs" />
+    <Compile Include="Regression\Provider\TestProvider.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
