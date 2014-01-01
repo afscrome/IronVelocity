@@ -1,43 +1,126 @@
 ﻿using Microsoft.CSharp.RuntimeBinder;
+using System;
+using System.Diagnostics;
 
 namespace IronVelocity.RuntimeHelpers
 {
     public static class Comparators
     {
-        public static dynamic LessThan(dynamic left, dynamic right)
+        public static bool? LessThan(dynamic left, dynamic right)
         {
             try { return left < right; }
-            catch (RuntimeBinderException) { return null; }
+            catch (RuntimeBinderException)
+            {
+                int? comparison = Compare(left, right);
+                if (comparison.HasValue)
+                    return comparison < 0;
+                else
+                    return null;
+            }
         }
 
-        public static dynamic LessThanOrEqual(dynamic left, dynamic right)
+        public static bool? LessThanOrEqual(dynamic left, dynamic right)
         {
             try { return left <= right; }
-            catch (RuntimeBinderException) { return null; }
+            catch (RuntimeBinderException)
+            {
+                int? comparison = Compare(left, right);
+                if (comparison.HasValue)
+                    return comparison <= 0;
+                else
+                    return null;
+            }
         }
 
-        public static dynamic GreaterThan(dynamic left, dynamic right)
+        public static bool? GreaterThan(dynamic left, dynamic right)
         {
             try { return left > right; }
-            catch (RuntimeBinderException) { return null; }
+            catch (RuntimeBinderException)
+            {
+                int? comparison = Compare(left, right);
+                if (comparison.HasValue)
+                    return comparison > 0;
+                else
+                    return null;
+            }
         }
 
-        public static dynamic GreaterThanOrEqual(dynamic left, dynamic right)
+        public static bool? GreaterThanOrEqual(dynamic left, dynamic right)
         {
             try { return left >= right; }
-            catch (RuntimeBinderException) { return null; }
+            catch (RuntimeBinderException)
+            {
+                int? comparison = Compare(left, right);
+                if (comparison.HasValue)
+                    return comparison >= 0;
+                else
+                    return null;
+            }
         }
 
-        public static dynamic Equal(dynamic left, dynamic right)
+        public static bool Equal(dynamic left, dynamic right)
         {
             try { return left == right; }
-            catch (RuntimeBinderException) { return null; }
+            catch (RuntimeBinderException)
+            {
+                int? comparison = Compare(left, right);
+                if (comparison.HasValue)
+                    return comparison == 0;
+                else
+                    return Object.Equals(left, right);
+            }
         }
 
-        public static dynamic NotEqual(dynamic left, dynamic right)
+        public static bool NotEqual(dynamic left, dynamic right)
         {
             try { return left != right; }
-            catch (RuntimeBinderException) { return null; }
+            catch (RuntimeBinderException)
+            {
+                int? comparison = Compare(left, right);
+                if (comparison.HasValue)
+                    return comparison != 0;
+                else
+                    return !Object.Equals(left, right);
+            }
+        }
+
+        private static int? Compare(dynamic left, dynamic right)
+        {
+            if (left == null && right == null)
+                return 0;
+            if (left == null)
+                return -1;
+            if (right == null)
+                return 1;
+
+            try
+            {
+                if (left is IComparable)
+                    return ((IComparable)left).CompareTo(right);
+            }
+            catch { }
+
+            try
+            {
+                if (right is IComparable)
+                    return -((IComparable)right).CompareTo(left);
+            }
+            catch
+            {
+                /*
+                 * I'm not keen on the following, but it is str
+                 * Does it make sense to say that ("str" > 0 == true)?
+                 * 
+                 * Whilst adding this fixes the "CompareString" regression test from NVelocity,
+                 * it breaks the "logical.vm" regression tests from Velocity
+                 * 
+                if (left is string || right is string)
+                    return String.Compare(((object)left).ToString(), ((object)right).ToString());
+                */
+                Debug.WriteLine("Unable to compare objects '{0}' and '{1}'", ((object)left).GetType(), ((object)right).GetType());
+            }
+
+            return null;
         }
 
     }
