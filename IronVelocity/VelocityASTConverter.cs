@@ -75,7 +75,7 @@ namespace IronVelocity
             if (context != null)
                 expressions.AddRange(InitialiseEnvironment(context));
 
-            expressions.AddRange(GetBlockExpressions(ast));
+            expressions.AddRange(GetBlockExpressions(ast,true));
 
             if (!expressions.Any())
                 expressions.Add(Expression.Empty());
@@ -108,7 +108,7 @@ namespace IronVelocity
 
 
 
-        private IEnumerable<Expression> GetBlockExpressions(INode node)
+        public IEnumerable<Expression> GetBlockExpressions(INode node, bool output)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -122,17 +122,37 @@ namespace IronVelocity
             foreach (var child in node.GetChildren())
             {
                 if (child is ASTText || child is ASTEscape)
-                    expressions.Add(Text(child));
+                {
+                    var expr = Text(child);
+                    if (output)
+                        expr = Output(expr);
+                    expressions.Add(expr);
+                }
                 else if (child is ASTReference)
-                    expressions.Add(Reference(child, true));
+                {
+                    var expr = Reference(child,output);
+                    if (output)
+                        expr = Output(expr);
+                    expressions.Add(expr);
+                }
                 else if (child is ASTIfStatement)
                     expressions.Add(IfStatement(child));
                 else if (child is ASTSetDirective)
                     expressions.Add(Set(child));
                 else if (child is ASTEscapedDirective)
-                    expressions.Add(Output(Escaped(child)));
+                {
+                    var expr = Escaped(child);
+                    if (output)
+                        expr = Output(expr);
+                    expressions.Add(expr);
+                }
                 else if (child is ASTDirective)
-                    expressions.Add(Directive(child));
+                {
+                    var expr = Directive(child);
+                    if (output)
+                        expr = Output(expr);
+                    expressions.Add(expr);
+                }
                 else if (child is ASTComment)
                     continue;
                 else
@@ -188,7 +208,7 @@ namespace IronVelocity
             if (!(node is ASTBlock))
                 throw new ArgumentOutOfRangeException("node");
 
-            var children = GetBlockExpressions(node);
+            var children = GetBlockExpressions(node,true);
 
             if (children.Any())
                 return Expression.Block(children);
@@ -252,11 +272,11 @@ namespace IronVelocity
             //If however we're rendering, we need to do funky stuff to the output, including rendering prefixes, suffixes etc.
             if (metaData.Escaped)
             {
-                return Output(Expression.Condition(
+                return Expression.Condition(
                     Expression.NotEqual(expr, Expression.Constant(null, expr.Type)),
                     Expression.Constant(metaData.EscapePrefix + metaData.NullString),
                     Expression.Constant(metaData.EscapePrefix + "\\" + metaData.NullString)
-                ));
+                );
             }
             else
             {
@@ -267,10 +287,10 @@ namespace IronVelocity
                     Expression.Condition(
                         Expression.NotEqual(evaulatedResult, Expression.Constant(null, evaulatedResult.Type)),
                         Expression.Block(
-                            Output(Expression.Constant(metaData.EscapePrefix + metaData.MoreString)),
-                            Output(evaulatedResult)
+                            Expression.Constant(metaData.EscapePrefix + metaData.MoreString),
+                            VelocityExpressions.ConvertIfNeeded(evaulatedResult, typeof(object))
                         ),
-                        Output(Expression.Constant(metaData.EscapePrefix + metaData.EscapePrefix + metaData.MoreString + metaData.NullString))
+                        Expression.Constant(metaData.EscapePrefix + metaData.EscapePrefix + metaData.MoreString + metaData.NullString, typeof(object))
                     )
                 );
             }
@@ -520,12 +540,20 @@ namespace IronVelocity
             var isDoubleQuoted = node.Literal.StartsWith("\"");
             var content = node.Literal.Substring(1, node.Literal.Length - 2);
 
-            if (content.StartsWith("%{") && content.EndsWith("}"))
-                return VelocityStrings.InterpolateDictionaryString(content);
-            else if (isDoubleQuoted && content.IndexOfAny(new[] { '$', '#' }) > 0)
-                throw new NotSupportedException("String interpolation not supported yet");
+            switch (VelocityStrings.DetermineStringType(content))
+            {
+                case VelocityStrings.StringType.Constant:
+                    return Expression.Constant(content);
 
-            return Expression.Constant(content);
+                case VelocityStrings.StringType.Dictionary:
+                    return VelocityStrings.InterpolateDictionaryString(content, this);
+                
+                case VelocityStrings.StringType.Interpolated:
+                    return VelocityStrings.InterpolateString(content, this);
+
+                default:
+                    throw new InvalidProgramException();
+            }
         }
 
         private Expression DictionaryStringLiteral(INode node)
@@ -547,7 +575,7 @@ namespace IronVelocity
             if (text != node.Literal)
             {
             }
-            return Output(Expression.Constant(text));
+            return Expression.Constant(text);
         }
 
         private static Expression Output(Expression expression)
@@ -557,6 +585,9 @@ namespace IronVelocity
 
             if (expression.Type != typeof(string))
                 expression = Expression.Call(expression, _toStringMethodInfo);
+
+            if (expression.Type == typeof(void))
+                return expression;
 
             return Expression.Call(Constants.OutputParameter, _appendMethodInfo, expression);
         }

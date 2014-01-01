@@ -6,19 +6,97 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace IronVelocity.RuntimeHelpers
 {
+    /// <remarks>
+    /// The String Dictionary & Interpolation ("%{key=value,key2=value}" & "hello $name" respectively)
+    /// appear to be NVelocity specific.  Rather than being properly supported in the parser's grammar,
+    /// they were implemented as hacks on ASTStringLiteral.
+    /// 
+    /// I would love to be able to redefine the grammar and hence parser to include these properly in the AST
+    /// but for now I'm keeping the code as similar as possible to the NVelocity hack, only making minimal changes
+    /// (i.e. returning Expressions building a dictionary, rather than an actual dictionary object)
+    /// </remarks>
     public static class VelocityStrings
     {
         private const string DictStart = "%{";
         private const string DictEnd = "}";
 
-        public static bool IsDictionaryString(string str)
+
+        private static MethodInfo _escapeQuoteMethodInfo = typeof(VelocityStrings).GetMethod("EscapeQuotes", BindingFlags.Static | BindingFlags.NonPublic, null, new[] { typeof(object), typeof(char) }, null);
+
+        private static string EscapeQuotes(object obj, char quoteChar)
         {
-            return str.StartsWith(DictStart) && str.EndsWith(DictEnd);
+            var type = obj.GetType();
+            if (type.IsPrimitive || type == typeof(string) || type == typeof(decimal))
+                return string.Concat(quoteChar, obj.ToString().Replace(quoteChar.ToString(), "\\" + quoteChar), quoteChar);
+            else
+                return null;
+
+        }
+
+        public static Expression EscapeSingleQuote(Expression content)
+        {
+            return Expression.Call(
+                _escapeQuoteMethodInfo,
+                VelocityExpressions.ConvertIfNeeded(content, typeof(object)),
+                Expression.Constant('\'')
+            );
+        }
+
+        public static Expression EscapeDoubleQuote(Expression content)
+        {
+            return Expression.Call(
+                _escapeQuoteMethodInfo,
+                VelocityExpressions.ConvertIfNeeded(content, typeof(object)),
+                Expression.Constant('"')
+            );
+        }
+
+        public enum StringType
+        {
+            Constant,
+            Dictionary,
+            Interpolated
+        }
+
+        public static StringType DetermineStringType(string str)
+        {
+            if (str.StartsWith(DictStart) && str.EndsWith(DictEnd))
+                return StringType.Dictionary;
+            if (str.IndexOfAny(new[] { '$', '#' }) != -1)
+                return StringType.Interpolated;
+            else
+                return StringType.Constant;
+        }
+
+
+        private static MethodInfo _stringConcatMethodInfo = typeof(string).GetMethod("Concat", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object[]) }, null);
+        public static Expression InterpolateString(string str, VelocityASTConverter converter)
+        {
+            //TODO; Refactor to share with VelocityExpressionTreeBuilder, or reuse the same parser
+            var parser = new NVelocity.Runtime.RuntimeInstance().CreateNewParser();
+            using (var reader = new System.IO.StringReader(str))
+            {
+                var ast = parser.Parse(reader, null);
+
+                //If we fail to parse, the ast returned will be null, so just return our normal string
+                if (ast == null)
+                    return Expression.Constant(str);
+
+                var expressions = converter.GetBlockExpressions(ast, false)
+                    .Where(x => x.Type != typeof(void))
+                    .ToArray();
+
+                if (expressions.Length == 1)
+                    return expressions[0];
+                else
+                    return Expression.Call(_stringConcatMethodInfo, Expression.NewArrayInit(typeof(object), expressions));
+            }
         }
 
 
@@ -31,15 +109,15 @@ namespace IronVelocity.RuntimeHelpers
         /// <param name="str">If valid input a HybridDictionary with zero or more items,
         ///	otherwise the input string</param>
         /// <param name="context">NVelocity runtime context</param>
-        public static Expression InterpolateDictionaryString(string str)
+        public static Expression InterpolateDictionaryString(string str, VelocityASTConverter converter)
         {
             char[] contents = str.ToCharArray();
             int lastIndex;
 
-            return RecursiveBuildDictionary(contents, 2, out lastIndex);
+            return RecursiveBuildDictionary(contents, 2, out lastIndex, converter);
         }
 
-        private static Expression RecursiveBuildDictionary(char[] contents, int fromIndex, out int lastIndex)
+        private static Expression RecursiveBuildDictionary(char[] contents, int fromIndex, out int lastIndex, VelocityASTConverter converter)
         {
             // key=val, key='val', key=$val, key=${val}, key='id$id'
 
@@ -104,7 +182,7 @@ namespace IronVelocity.RuntimeHelpers
                         }
                         else if (c == '{')
                         {
-                            Expression nestedHash = RecursiveBuildDictionary(contents, i + 1, out i);
+                            Expression nestedHash = RecursiveBuildDictionary(contents, i + 1, out i, converter);
                             ProcessDictEntry(hash, sbKeyBuilder, nestedHash);
                             inKey = false;
                             valueStarted = false;
@@ -145,7 +223,7 @@ namespace IronVelocity.RuntimeHelpers
                         (!expectSingleCommaAtEnd && c == ',') ||
                         (inEvaluationContext == 0 && c == '}'))
                     {
-                        ProcessDictEntry(hash, sbKeyBuilder, sbValBuilder, expectSingleCommaAtEnd);
+                        ProcessDictEntry(hash, sbKeyBuilder, sbValBuilder, expectSingleCommaAtEnd, converter);
 
                         inKey = false;
                         valueStarted = false;
@@ -182,7 +260,7 @@ namespace IronVelocity.RuntimeHelpers
 
                     lastIndex = i;
 
-                    ProcessDictEntry(hash, sbKeyBuilder, sbValBuilder, expectSingleCommaAtEnd);
+                    ProcessDictEntry(hash, sbKeyBuilder, sbValBuilder, expectSingleCommaAtEnd, converter);
 
                     inKey = false;
                     valueStarted = false;
@@ -221,12 +299,61 @@ namespace IronVelocity.RuntimeHelpers
 
         private static void ProcessDictEntry(IDictionary<string, Expression> map,
                                       StringBuilder keyBuilder, StringBuilder value,
-                                      bool isTextContent)
+                                      bool isTextContent, VelocityASTConverter converter)
         {
+            Expression expr;
+            var content = value.ToString();
+            if (DetermineStringType(content) == StringType.Interpolated)
+                expr = InterpolateString(content, converter);
+            else
+            {
+                if (isTextContent)
+                {
+                    expr = Expression.Constant(content);
+                }
+                else
+                {
+                    if (content.Contains('.'))
+                    {
+                        try
+                        {
+                            expr = Expression.Constant(Convert.ToSingle(content));
+                        }
+                        catch (Exception)
+                        {
+                            throw new ArgumentException(
+                                string.Format(
+                                    "Could not convert dictionary value for entry {0} with value {1} to Single. If the value is supposed to be a string, it must be enclosed with '' (single quotes)",
+                                    keyBuilder, content));
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            expr = Expression.Constant(Convert.ToInt32(content));
+                        }
+                        catch (Exception)
+                        {
+                            throw new ArgumentException(
+                                string.Format(
+                                    "Could not convert dictionary value for entry {0} with value {1} to Int32. If the value is supposed to be a string, it must be enclosed with '' (single quotes)",
+                                    keyBuilder, content));
+                        }
+                    }
+                }
+            }
 
-            ProcessDictEntry(map, keyBuilder, Expression.Constant(value.ToString()));
+            ProcessDictEntry(map, keyBuilder, expr);
             value.Length = 0;
-
+            //If contains $, evaluate
+            // else if not text content
+            //{
+            //    If contains .
+            //           try parse as single
+            //    else
+            //          try parse as int
+            //}
 
             /*
             object val = value.ToString().Trim();
