@@ -111,12 +111,13 @@ namespace IronVelocity.RuntimeHelpers
                  * I'm not keen on the following, but it is str
                  * Does it make sense to say that ("str" > 0 == true)?
                  * 
-                 * Whilst adding this fixes the "CompareString" regression test from NVelocity,
+                 * Whilst adding this fixes the "CompareString" and "Test Evaluate" regression test from NVelocity,
                  * it breaks the "logical.vm" regression tests from Velocity
                  * 
+               */
                 if (left is string || right is string)
                     return String.Compare(((object)left).ToString(), ((object)right).ToString());
-                */
+  
                 Debug.WriteLine("Unable to compare objects '{0}' and '{1}'", ((object)left).GetType(), ((object)right).GetType());
             }
 

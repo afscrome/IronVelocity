@@ -165,7 +165,7 @@ leq
             {
                 VmCompareCouple(Int, ULong);
             }
-            catch (AssertionException ex)
+            catch (AssertionException)
             {
                 Assert.Inconclusive("TODO: Support Int & Ulong comparisons");
             }

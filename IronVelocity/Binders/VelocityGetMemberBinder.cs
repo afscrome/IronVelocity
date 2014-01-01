@@ -66,7 +66,18 @@ namespace VelocityExpressionTree.Binders
                     result = VelocityStrings.EscapeDoubleQuote(target.Expression);
                 else if (Name.Equals("to_squote", StringComparison.OrdinalIgnoreCase))
                     result = VelocityStrings.EscapeSingleQuote(target.Expression);
-
+            }
+            // Also if the value is typeof(ENUM), then return the relavant enumerated type
+            else if (target.Value is Type)
+            {
+                var valueType = (Type)target.Value;
+                if (valueType.IsEnum)
+                {
+                    try {
+                        result = Expression.Constant(Enum.Parse(valueType, Name, true), valueType);
+                    }
+                    catch(ArgumentException) { }
+                }
             }
             
             if (result == null)
