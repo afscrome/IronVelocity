@@ -326,7 +326,7 @@ namespace IronVelocity
             //Subsequent arguments are the parameters
             for (int i = 1; i < node.ChildrenCount; i++)
             {
-                arguments[i] = Statement(node.GetChild(i));
+                arguments[i] = Operand(node.GetChild(i));
             }
 
             return Expression.Dynamic(
@@ -433,7 +433,7 @@ namespace IronVelocity
         }
 
 
-        public Expression Statement(INode node)
+        public Expression Operand(INode node)
         {
             //Literal
             if (node is ASTTrue)
@@ -502,7 +502,7 @@ namespace IronVelocity
                 throw new ArgumentOutOfRangeException("node", "Only expected one child");
 
             var child = node.GetChild(0);
-            return Statement(child);
+            return Operand(child);
         }
 
         private Expression Array(INode node)
@@ -514,7 +514,7 @@ namespace IronVelocity
                 throw new ArgumentOutOfRangeException("node");
 
             var elements = node.GetChildren()
-                .Select(Statement);
+                .Select(Operand);
 
             return Expression.New(_listConstructorInfo, Expression.NewArrayInit(typeof(object), elements));
         }
@@ -624,25 +624,6 @@ namespace IronVelocity
         }
 
 
-        private Expression Operand(INode node)
-        {
-            if (node is ASTTrue)
-                return TrueExpression;
-            else if (node is ASTFalse)
-                return FalseExpression;
-            else if (node is ASTNumberLiteral)
-                return NumberLiteral(node);
-            else if (node is ASTStringLiteral)
-                return StringLiteral(node);
-            else if (node is ASTReference)
-                return Reference(node, false);
-            else if (node is ASTExpression)
-                return Expr(node);
-            else if (node is ASTNotNode)
-                return Not(node);
-            else
-                throw new NotSupportedException("Node type not supported in an operand: " + node.GetType().Name);
-        }
 
 
         /// <summary>

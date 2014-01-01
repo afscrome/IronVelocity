@@ -80,7 +80,7 @@ namespace IronVelocity.Directivces
                 throw new ArgumentOutOfRangeException("node");
 
             var loopVariable = converter.Reference(node.GetChild(0), false);
-            var enumerable = converter.Statement(node.GetChild(2));
+            var enumerable = converter.Operand(node.GetChild(2));
 
             var parts = new List<Expression>[9];
             var currentSection = ForeachSection.Each;
