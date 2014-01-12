@@ -48,9 +48,13 @@
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="Directives\Directives.cs" />
+    <Compile Include="Directives\DirectiveExpressionBuilder.cs" />
+    <Compile Include="Directives\BreakDirectiveExpressionBuilder.cs" />
+    <Compile Include="Directives\ForeachDirectiveExpressionBuilder.cs" />
     <Compile Include="RuntimeHelpers\IntegerRange.cs" />
     <Compile Include="RuntimeHelpers\VelocityString.cs" />
+    <Compile Include="Scope.cs" />
+    <Compile Include="VelocityContext.cs" />
     <Compile Include="VelocityExpressions.cs" />
     <Compile Include="Extensions\INodeExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -66,9 +70,7 @@
   <ItemGroup>
     <Content Include="FoiEachPrototype.txt" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Binders\InvokeMember\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

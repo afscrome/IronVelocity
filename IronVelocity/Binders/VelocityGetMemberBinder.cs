@@ -3,7 +3,6 @@ using IronVelocity.RuntimeHelpers;
 using System;
 using System.Diagnostics;
 using System.Dynamic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -67,7 +66,7 @@ namespace VelocityExpressionTree.Binders
                 else if (Name.Equals("to_squote", StringComparison.OrdinalIgnoreCase))
                     result = VelocityStrings.EscapeSingleQuote(target.Expression);
             }
-            // Also if the value is typeof(ENUM), then return the relavant enumerated type
+            // Also if the value is typeof(ENUM), then return the relevant enumerated type
             else if (target.Value is Type)
             {
                 var valueType = (Type)target.Value;

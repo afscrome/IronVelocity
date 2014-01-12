@@ -14,14 +14,8 @@
 // 
 namespace NVelocity.Test
 {
-    using System;
-    using System.Collections;
-    using System.IO;
-    using System.Text.RegularExpressions;
-    using App;
     using NUnit.Framework;
-    using NVelocity.Runtime;
-    using global::Commons.Collections;
+    using System;
     using Tests;
 
     /// <summary>

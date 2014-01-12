@@ -1,5 +1,5 @@
 ﻿using IronVelocity.Binders;
-using IronVelocity.Directivces;
+using IronVelocity.Directives;
 using IronVelocity.RuntimeHelpers;
 using NVelocity.Runtime.Directive;
 using NVelocity.Runtime.Parser.Node;
@@ -15,6 +15,7 @@ using VelocityExpressionTree.Binders;
 
 namespace IronVelocity
 {
+    [CLSCompliant(false)]
     public class VelocityASTConverter
     {
         private static readonly MethodInfo _appendMethodInfo = typeof(StringBuilder).GetMethod("Append", new[] { typeof(string) });
@@ -61,8 +62,10 @@ namespace IronVelocity
             return binder;
         }
 
+        private IScope _scope = new BaseScope(Constants.InputParameter);
+        private SymbolDocumentInfo _symbolDocument;
+
         [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
-        [CLSCompliant(false)]
         public Expression BuildExpressionTree(ASTprocess ast, IDictionary<string, object> context)
         {
             if (ast == null)
@@ -72,42 +75,26 @@ namespace IronVelocity
                 throw new ArgumentOutOfRangeException("ast");
 
             List<Expression> expressions = new List<Expression>();
+            _symbolDocument = Expression.SymbolDocument("C:\\temp\\test.txt");
 
-            if (context != null)
-                expressions.AddRange(InitialiseEnvironment(context));
 
             expressions.AddRange(GetBlockExpressions(ast,true));
 
             if (!expressions.Any())
                 expressions.Add(Expression.Empty());
 
-            return Expression.Block(_locals.Values, expressions);
+            return Expression.Block(expressions);
         }
 
-        private IEnumerable<Expression> InitialiseEnvironment(IDictionary<string, object> context)
+        public Expression GetVariable(string name)
         {
-            return context.Select(x => Expression.Assign(
-                    GetLocal(x.Key),
-                    Expression.Constant(x.Value, typeof(object)))
-            );
+            return _scope.GetVariable(name);
         }
 
 
-        private IDictionary<string, ParameterExpression> _locals = new Dictionary<string, ParameterExpression>(StringComparer.OrdinalIgnoreCase);
-
-        public ParameterExpression GetLocal(string name)
-        {
-            ParameterExpression local;
-            if (!_locals.TryGetValue(name, out local))
-            {
-                local = Expression.Parameter(typeof(object), name);
-                _locals[name] = local;
-            }
-
-            return local;
+        public DebugInfoExpression DebugInfo(INode node){
+            return Expression.DebugInfo(_symbolDocument, node.FirstToken.BeginLine, node.FirstToken.BeginColumn, node.LastToken.EndLine, node.LastToken.EndColumn);
         }
-
-
 
         public IEnumerable<Expression> GetBlockExpressions(INode node, bool output)
         {
@@ -120,8 +107,11 @@ namespace IronVelocity
 
             var expressions = new List<Expression>();
 
+
             foreach (var child in node.GetChildren())
             {
+                expressions.Add(DebugInfo(node));
+
                 if (child is ASTText || child is ASTEscape)
                 {
                     var expr = Text(child);
@@ -159,6 +149,7 @@ namespace IronVelocity
                 else
                     throw new NotSupportedException("Node type not supported in a block: " + child.GetType().Name);
 
+                expressions.Add(Expression.ClearDebugInfo(_symbolDocument));
             }
 
             return expressions;
@@ -177,7 +168,6 @@ namespace IronVelocity
             {typeof(ForeachAfterSection), new ForeachSectionExpressionBuilder(ForeachSection.After)},
             {typeof(ForeachAfterAllSection), new ForeachSectionExpressionBuilder(ForeachSection.AfterAll)},
             {typeof(ForeachNoDataSection), new ForeachSectionExpressionBuilder(ForeachSection.NoData)},
-
         };
 
         private Expression Directive(INode node)
@@ -262,7 +252,7 @@ namespace IronVelocity
                 expr = Expression.Constant(metaData.RootString);
             else
             {
-                expr = GetLocal(metaData.RootString);
+                expr = GetVariable(metaData.RootString);
 
                 for (int i = 0; i < node.ChildrenCount; i++)
                 {

@@ -2,9 +2,8 @@
 using NUnit.Framework;
 using System;
 using System.Dynamic;
-using System.Linq.Expressions;
-using VelocityExpressionTree.Binders;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace IronVelocity.Tests.Binders
 {

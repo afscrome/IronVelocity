@@ -14,13 +14,13 @@
 // 
 namespace NVelocity.Test
 {
-    using System;
-    using System.Collections;
-    using System.Globalization;
-    using System.IO;
     using App;
     using NUnit.Framework;
+    using System;
+    using System.Collections;
     using System.Collections.Generic;
+    using System.Globalization;
+    using System.IO;
     using Tests;
 
     /// <summary>

@@ -1,7 +1,6 @@
 ﻿using NVelocity.Runtime;
 using NVelocity.Runtime.Parser.Node;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
@@ -20,7 +19,7 @@ namespace IronVelocity
             _runtimeService.Init();
         }
 
-        public static Expression<Action<StringBuilder>> BuildExpressionTree(string input, IDictionary<string, object> context)
+        public static Expression<Action<VelocityContext,StringBuilder>> BuildExpressionTree(string input, IDictionary<string, object> context)
         {
             var parser = _runtimeService.CreateNewParser();
             using (var reader = new StringReader(input))
@@ -32,7 +31,8 @@ namespace IronVelocity
                 var converter = new VelocityASTConverter();
                 var expr = converter.BuildExpressionTree(ast, context);
 
-                return Expression.Lambda<Action<StringBuilder>>(expr, "Velocity_TODO", new[] { Constants.OutputParameter });
+
+                return Expression.Lambda<Action<VelocityContext, StringBuilder>>(expr, "Velocity_TODO", new[] { Constants.InputParameter, Constants.OutputParameter });
                 //return Expression.Lambda<Action<IDictionary<string,object>, StringBuilder>>(expr, Constants.InputParameter, Constants.OutputParameter);
             }
         }

@@ -1,62 +1,12 @@
-﻿using NVelocity.Runtime.Directive;
-using NVelocity.Runtime.Parser.Node;
+﻿using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace IronVelocity.Directivces
+namespace IronVelocity.Directives
 {
-    public abstract class DirectiveExpressionBuilder
-    {
-        public abstract Expression Build(ASTDirective node, VelocityASTConverter converter);
-    }
-
-    public enum ForeachSection : int
-    {
-        Each = 0,
-        BeforeAll = 1,
-        Before = 2,
-        Odd = 3,
-        Even = 4,
-        Between = 5,
-        After = 6,
-        AfterAll = 7,
-        NoData = 8
-    }
-
-    public class ForeachSectionExpressionBuilder : DirectiveExpressionBuilder
-    {
-        private readonly ForeachSection _part;
-        public ForeachSectionExpressionBuilder(ForeachSection part)
-        {
-            _part = part;
-        }
-
-        public override Expression Build(ASTDirective node, VelocityASTConverter converter)
-        {
-            return new ForeachPartSeperatorExpression(_part);
-        }
-
-    }
-
-    public class ForeachPartSeperatorExpression : Expression
-    {
-        public ForeachPartSeperatorExpression(ForeachSection part)
-        {
-            Part = part;
-        }
-        public ForeachSection Part { get; private set; }
-
-        public override Type Type { get { return typeof(void); } }
-        public override ExpressionType NodeType { get { return ExpressionType.Extension; } }
-        public override bool CanReduce { get { return false; } }
-    }
-
     public class ForeachDirectiveExpressionBuilder : DirectiveExpressionBuilder
     {
         private static readonly MethodInfo _enumeratorMethodInfo = typeof(IEnumerable).GetMethod("GetEnumerator", new Type[] { });
@@ -101,7 +51,7 @@ namespace IronVelocity.Directivces
 
             }
 
-            var index = converter.GetLocal("velocityCount");
+            var index = converter.GetVariable("velocityCount");
 
 
             //For the first item, output the #BeforeAll template, for all others #Between
@@ -110,7 +60,6 @@ namespace IronVelocity.Directivces
                     GetExpressionBlock(parts[(int)ForeachSection.BeforeAll]),
                     GetExpressionBlock(parts[(int)ForeachSection.Between])
                 );
-
 
             var oddEven = Expression.IfThenElse(
                 Expression.Equal(Expression.Constant(0), Expression.Modulo(VelocityExpressions.ConvertIfNeeded(index, typeof(int)), Expression.Constant(2))),
@@ -143,8 +92,6 @@ namespace IronVelocity.Directivces
             else
                 return Expression.Block(typeof(void), expressions);
         }
-
-
 
 
         private static Expression ForeachExpression(Expression enumerable, Expression body, Expression currentItem, Expression currentIndex, Expression loopSuffix)
@@ -186,14 +133,15 @@ namespace IronVelocity.Directivces
                 //Store original item & index to revert to after the loop
                     Expression.Assign(originalItemValue, currentItem),
                     Expression.Assign(originalIndex, currentIndex),
-                    //Initalise the index
+                //Initalise the index
                     Expression.Assign(currentIndex, VelocityExpressions.ConvertIfNeeded(Expression.Assign(localIndex, Expression.Constant(0)), currentIndex.Type)),
-                    //Get the enumerator
-                //Enumerate through
+                //Can only attempt foreach if the input implements IEnumerable
                     Expression.IfThen(
-                        Expression.TypeIs(enumerable, typeof(IEnumerable)), 
+                        Expression.TypeIs(enumerable, typeof(IEnumerable)),
                         Expression.Block(
+                //Get the enumerator
                             Expression.Assign(enumerator, Expression.Call(enumerable, _enumeratorMethodInfo)),
+                // Loop through the enumerator
                             Expression.Loop(
                                 Expression.IfThenElse(
                                     Expression.IsTrue(Expression.Call(enumerator, _moveNextMethodInfo)),
@@ -210,19 +158,53 @@ namespace IronVelocity.Directivces
                         )
                     ),
                     loopSuffix,
-                    //Revert current item & index to original values
+                //Revert current item & index to original values
                     Expression.Assign(currentIndex, originalIndex),
                     Expression.Assign(currentItem, originalItemValue)
                 );
 
             return loop;
+        }
+    }
 
-            
-
+    public class ForeachSectionExpressionBuilder : DirectiveExpressionBuilder
+    {
+        private readonly ForeachSection _part;
+        public ForeachSectionExpressionBuilder(ForeachSection part)
+        {
+            _part = part;
         }
 
+        public override Expression Build(ASTDirective node, VelocityASTConverter converter)
+        {
+            return new ForeachPartSeperatorExpression(_part);
+        }
 
+    }
 
+    public class ForeachPartSeperatorExpression : Expression
+    {
+        public ForeachPartSeperatorExpression(ForeachSection part)
+        {
+            Part = part;
+        }
+        public ForeachSection Part { get; private set; }
 
+        public override Type Type { get { return typeof(void); } }
+        public override ExpressionType NodeType { get { return ExpressionType.Extension; } }
+        public override bool CanReduce { get { return false; } }
+    }
+
+    public enum ForeachSection : int
+    {
+        Each = 0,
+        BeforeAll = 1,
+        Before = 2,
+        Odd = 3,
+        Even = 4,
+        Between = 5,
+        After = 6,
+        AfterAll = 7,
+        NoData = 8
     }
 }

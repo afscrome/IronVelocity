@@ -14,14 +14,10 @@
 // 
 namespace NVelocity.Test
 {
-	using System;
-	using System.IO;
-	using App;
-	using NUnit.Framework;
-	using Runtime.Parser.Node;
-    using System.Collections;
-using System.Collections.Generic;
-using Tests;
+    using NUnit.Framework;
+    using System;
+    using System.Collections.Generic;
+    using Tests;
 
 	/// <summary>
 	/// Tests comparison of custom objects.

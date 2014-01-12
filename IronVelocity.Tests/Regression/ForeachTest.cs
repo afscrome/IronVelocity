@@ -14,15 +14,14 @@
 // 
 namespace NVelocity.Test
 {
-	using System;
-	using System.Collections;
-	using System.IO;
-	using System.Text.RegularExpressions;
-	using App;
-	using NUnit.Framework;
     using IronVelocity.Tests.Regression.Provider;
-    using Tests;
+    using NUnit.Framework;
+    using System;
+    using System.Collections;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Text.RegularExpressions;
+    using Tests;
 
 	/// <summary>
 	/// Tests to make sure that the VelocityContext is functioning correctly

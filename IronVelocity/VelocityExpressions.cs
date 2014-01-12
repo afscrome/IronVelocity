@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Linq;
 
 namespace IronVelocity
 {
@@ -28,7 +28,6 @@ namespace IronVelocity
         {
             if (to.IsValueType && !from.IsValueType && (from.IsInterface || from == typeof(object)))
                 return Expression.Unbox(expression, to);
-
             if (expression.Type != from)
                 expression = Expression.Convert(expression, from);
             if (from != to || expression.Type != to)

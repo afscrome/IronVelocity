@@ -1,7 +1,6 @@
 ﻿using IronVelocity;
 using NUnit.Framework;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,14 +8,18 @@ namespace Tests
 {
     public static class Utility
     {
-        public static Action<StringBuilder> BuildGenerator(string input, IDictionary<string, object> environment = null)
+        public static Action<VelocityContext, StringBuilder> BuildGenerator(string input, IDictionary<string, object> environment = null)
         {
-            return VelocityExpressionTreeBuilder.BuildExpressionTree(input, environment).Compile();
+            var symbolGenerator = System.Runtime.CompilerServices.DebugInfoGenerator.CreatePdbGenerator();
+            var tree = VelocityExpressionTreeBuilder.BuildExpressionTree(input, environment);
+            
+            //TODO: Look into Compile to Method to support PDB info
+            return tree.Compile();
         }
 
         public static String GetNormalisedOutput(string input, IDictionary<string, object> environment)
         {
-            Action<StringBuilder> action = null;
+            Action<VelocityContext, StringBuilder> action = null;
             try
             {
                 action = BuildGenerator(input, environment);
@@ -28,7 +31,8 @@ namespace Tests
             }
 
             var builder = new StringBuilder();
-            action(builder);
+            var ctx = new VelocityContext(environment);
+            action(ctx, builder);
 
             return NormaliseLineEndings(builder.ToString());
         }
