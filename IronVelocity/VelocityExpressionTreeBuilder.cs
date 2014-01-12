@@ -19,7 +19,7 @@ namespace IronVelocity
             _runtimeService.Init();
         }
 
-        public static Expression<Action<VelocityContext,StringBuilder>> BuildExpressionTree(string input, IDictionary<string, object> context)
+        public static Expression<Action<VelocityContext,StringBuilder>> BuildExpressionTree(string input, IDictionary<string, object> context = null)
         {
             var parser = _runtimeService.CreateNewParser();
             using (var reader = new StringReader(input))
@@ -29,7 +29,7 @@ namespace IronVelocity
                     throw new InvalidProgramException("Unable to parse ast");
 
                 var converter = new VelocityASTConverter();
-                var expr = converter.BuildExpressionTree(ast, context);
+                var expr = converter.BuildExpressionTree(ast);
 
 
                 return Expression.Lambda<Action<VelocityContext, StringBuilder>>(expr, "Velocity_TODO", new[] { Constants.InputParameter, Constants.OutputParameter });

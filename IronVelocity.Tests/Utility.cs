@@ -10,11 +10,8 @@ namespace Tests
     {
         public static Action<VelocityContext, StringBuilder> BuildGenerator(string input, IDictionary<string, object> environment = null)
         {
-            var symbolGenerator = System.Runtime.CompilerServices.DebugInfoGenerator.CreatePdbGenerator();
-            var tree = VelocityExpressionTreeBuilder.BuildExpressionTree(input, environment);
-            
-            //TODO: Look into Compile to Method to support PDB info
-            return tree.Compile();
+            var runtime = new VelocityRuntime(null);
+            return runtime.CompileTemplate(input, "test");
         }
 
         public static String GetNormalisedOutput(string input, IDictionary<string, object> environment)

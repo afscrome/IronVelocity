@@ -51,6 +51,16 @@ namespace IronVelocity
 
 
         private IDictionary<string, VelocityGetMemberBinder> _binders = new Dictionary<string, VelocityGetMemberBinder>(StringComparer.OrdinalIgnoreCase);
+        private IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers;
+        private IScope _scope = new BaseScope(Constants.InputParameter);
+        private SymbolDocumentInfo _symbolDocument;
+
+        public VelocityASTConverter(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers)
+        {
+            _directiveHandlers = directiveHandlers;
+        }
+
+
         private VelocityGetMemberBinder GetGetMemberBinder(string propertyName)
         {
             VelocityGetMemberBinder binder;
@@ -62,11 +72,9 @@ namespace IronVelocity
             return binder;
         }
 
-        private IScope _scope = new BaseScope(Constants.InputParameter);
-        private SymbolDocumentInfo _symbolDocument;
 
         [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
-        public Expression BuildExpressionTree(ASTprocess ast, IDictionary<string, object> context)
+        public Expression BuildExpressionTree(ASTprocess ast)
         {
             if (ast == null)
                 throw new ArgumentNullException("ast");
@@ -149,26 +157,13 @@ namespace IronVelocity
                 else
                     throw new NotSupportedException("Node type not supported in a block: " + child.GetType().Name);
 
-                expressions.Add(Expression.ClearDebugInfo(_symbolDocument));
+                //expressions.Add(Expression.ClearDebugInfo(_symbolDocument));
             }
 
             return expressions;
         }
 
 
-        private static IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
-        {
-            {typeof(Foreach), new ForeachDirectiveExpressionBuilder()},
-            {typeof(ForeachBeforeAllSection), new ForeachSectionExpressionBuilder(ForeachSection.BeforeAll)},
-            {typeof(ForeachBeforeSection), new ForeachSectionExpressionBuilder(ForeachSection.Before)},
-            {typeof(ForeachEachSection), new ForeachSectionExpressionBuilder(ForeachSection.Each)},
-            {typeof(ForeachOddSection), new ForeachSectionExpressionBuilder(ForeachSection.Odd)},
-            {typeof(ForeachEvenSection), new ForeachSectionExpressionBuilder(ForeachSection.Even)},
-            {typeof(ForeachBetweenSection), new ForeachSectionExpressionBuilder(ForeachSection.Between)},
-            {typeof(ForeachAfterSection), new ForeachSectionExpressionBuilder(ForeachSection.After)},
-            {typeof(ForeachAfterAllSection), new ForeachSectionExpressionBuilder(ForeachSection.AfterAll)},
-            {typeof(ForeachNoDataSection), new ForeachSectionExpressionBuilder(ForeachSection.NoData)},
-        };
 
         private Expression Directive(INode node)
         {
@@ -281,7 +276,9 @@ namespace IronVelocity
             }
             else
             {
+                //TODO: this fails if return type is void
                 var evaulatedResult = Expression.Parameter(expr.Type, "evaulatedResult");
+
                 return Expression.Block(
                     new[] { evaulatedResult },
                     Expression.Assign(evaulatedResult, expr),
@@ -541,7 +538,11 @@ namespace IronVelocity
             var isDoubleQuoted = node.Literal.StartsWith("\"");
             var content = node.Literal.Substring(1, node.Literal.Length - 2);
 
-            switch (VelocityStrings.DetermineStringType(content))
+            var stringType = isDoubleQuoted
+                ? VelocityStrings.DetermineStringType(content)
+                : VelocityStrings.StringType.Constant;
+
+            switch (stringType)
             {
                 case VelocityStrings.StringType.Constant:
                     return Expression.Constant(content);

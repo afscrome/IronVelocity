@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NVelocity.Exception;
+using NVelocity.Runtime.Parser.Node;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -77,7 +79,15 @@ namespace IronVelocity.RuntimeHelpers
             var parser = new NVelocity.Runtime.RuntimeInstance().CreateNewParser();
             using (var reader = new System.IO.StringReader(str))
             {
-                var ast = parser.Parse(reader, null);
+                SimpleNode ast;
+                try
+                {
+                    ast = parser.Parse(reader, null);
+                }
+                catch (ParseErrorException)
+                {
+                    ast = null;
+                }
 
                 //If we fail to parse, the ast returned will be null, so just return our normal string
                 if (ast == null)

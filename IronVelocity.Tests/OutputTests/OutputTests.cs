@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System.Collections.Generic;
 
 namespace Tests
 {
@@ -37,6 +38,22 @@ namespace Tests
             Utility.TestExpectedMarkupGenerated(input, expected);
         }
 
+        [Test]
+        public void SuccessfullVoidDoesNotOutputOriginalToken()
+        {
+            var input = "Hello $x.DoStuff()";
+            var expected = "Hello ";
+            var ctx = new Dictionary<string, object>();
+            ctx["x"] = new VoidTest();
+            Utility.TestExpectedMarkupGenerated(input, expected);
+        }
+
+        public class VoidTest
+        {
+            public void DoStuff()
+            {
+            }
+        }
 
     }
 

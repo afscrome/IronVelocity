@@ -14,7 +14,14 @@ namespace IronVelocity
             if (expression == null)
                 throw new ArgumentNullException("expression");
 
-            return expression.Type.IsValueType
+            /*
+            if (expression.Type == typeof(void))
+                return Expression.Block(
+                    expression,
+                    Expression.Default(typeof(object))
+                );
+            */
+            return expression.Type.IsValueType && expression.Type != typeof(void)
                 ? Expression.Convert(expression, typeof(object))
                 : expression;
         }

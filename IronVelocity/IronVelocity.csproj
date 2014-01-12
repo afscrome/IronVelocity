@@ -51,6 +51,7 @@
     <Compile Include="Directives\DirectiveExpressionBuilder.cs" />
     <Compile Include="Directives\BreakDirectiveExpressionBuilder.cs" />
     <Compile Include="Directives\ForeachDirectiveExpressionBuilder.cs" />
+    <Compile Include="IScriptedContentFragmentNVelocityDirectiveService.cs" />
     <Compile Include="RuntimeHelpers\IntegerRange.cs" />
     <Compile Include="RuntimeHelpers\VelocityString.cs" />
     <Compile Include="Scope.cs" />
@@ -61,14 +62,11 @@
     <Compile Include="RuntimeHelpers\BooleanCoercion.cs" />
     <Compile Include="VelocityASTConverter.cs" />
     <Compile Include="RuntimeHelpers\Comparators.cs" />
-    <Compile Include="VelocityExpressionTreeBuilder.cs" />
     <Compile Include="RuntimeHelpers\VelocityOperators.cs" />
+    <Compile Include="VelocityRuntime.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="FoiEachPrototype.txt" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
