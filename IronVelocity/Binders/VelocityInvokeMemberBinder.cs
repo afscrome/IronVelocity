@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Linq;
@@ -60,6 +61,20 @@ namespace IronVelocity.Binders
 
             Expression result;
 
+            //Try adding an optional dict param
+            if (method == null)
+            {
+                var argTypeArrayOptionalDict = new Type[argTypeArray.Length + 1];
+                argTypeArray.CopyTo(argTypeArrayOptionalDict, 0);
+                argTypeArrayOptionalDict[argTypeArray.Length] = typeof(IDictionary);
+
+                method = target.LimitType.GetMethod(Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase, null, argTypeArrayOptionalDict, null);
+
+                if (method != null)
+                    argTypeArray = argTypeArrayOptionalDict;
+
+            }
+
             if (method == null)
             {
                 Debug.WriteLine(string.Format("Unable to resolve method '{0}' on type '{1}'", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
@@ -68,18 +83,31 @@ namespace IronVelocity.Binders
             else
             {
                 var parameters = method.GetParameters();
-                var argExpressions = new Expression[args.Length];
+                var argExpressions = new Expression[argTypeArray.Length];
                 for (int i = 0; i < args.Length; i++)
                 {
                     argExpressions[i] = VelocityExpressions.ConvertParameterIfNeeded(args[i], parameters[i]);
                 }
-
+                if (argTypeArray.Length > args.Length)
+                    argExpressions[args.Length] = Expression.Default(typeof(IDictionary));
 
                 result = Expression.Call(
                     VelocityExpressions.ConvertReturnTypeIfNeeded(target, method),
                     method,
                     argExpressions
                 );
+
+                //Not keen on returning empty string, but this maintains consistency with NVelocity.
+                // Otherwise returning void fails with an exception because the DLR can't convert 
+                // Returning null causes problems as null indicates the method call failed, and so
+                // causes the Identifier to be emitted instead of blank.
+                if (method.ReturnType == typeof(void))
+                {
+                    result = Expression.Block(
+                        result,
+                        Expression.Constant(String.Empty)
+                    );
+                }
 
                 //Dynamic return type is object, but primitives are not objects
                 // DLR does not handle boxing to make primitives objects, so do it ourselves

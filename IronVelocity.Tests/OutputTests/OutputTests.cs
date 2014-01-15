@@ -45,7 +45,7 @@ namespace Tests
             var expected = "Hello ";
             var ctx = new Dictionary<string, object>();
             ctx["x"] = new VoidTest();
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            Utility.TestExpectedMarkupGenerated(input, expected, ctx);
         }
 
         public class VoidTest
