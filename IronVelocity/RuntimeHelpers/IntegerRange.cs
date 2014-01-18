@@ -4,7 +4,7 @@ namespace IronVelocity.RuntimeHelpers
 {
     public static class IntegerRange
     {
-        public static List<int> Range(object left, object right)
+        public static IList<int> Range(object left, object right)
         {
             if (!(left is int && right is int))
                 return null;

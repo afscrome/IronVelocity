@@ -6,7 +6,7 @@ using System.Dynamic;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace VelocityExpressionTree.Binders
+namespace IronVelocity.Binders
 {
     public class VelocityGetMemberBinder : GetMemberBinder
     {

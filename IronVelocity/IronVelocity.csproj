@@ -45,12 +45,14 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ASTReferenceMetaData.cs" />
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Directives\DirectiveExpressionBuilder.cs" />
     <Compile Include="Directives\BreakDirectiveExpressionBuilder.cs" />
     <Compile Include="Directives\ForeachDirectiveExpressionBuilder.cs" />
+    <Compile Include="DynamicDebugSupport.cs" />
     <Compile Include="IScriptedContentFragmentNVelocityDirectiveService.cs" />
     <Compile Include="RuntimeHelpers\IntegerRange.cs" />
     <Compile Include="RuntimeHelpers\VelocityString.cs" />

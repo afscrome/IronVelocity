@@ -85,7 +85,7 @@ namespace IronVelocity.Directives
             return ForeachExpression(enumerable, body, loopVariable, index, loopSuffix);
         }
 
-        private Expression GetExpressionBlock(IEnumerable<Expression> expressions)
+        private static Expression GetExpressionBlock(IEnumerable<Expression> expressions)
         {
             if (expressions == null)
                 return Expression.Default(typeof(void));
@@ -97,13 +97,13 @@ namespace IronVelocity.Directives
         private static Expression ForeachExpression(Expression enumerable, Expression body, Expression currentItem, Expression currentIndex, Expression loopSuffix)
         {
             if (enumerable == null)
-                throw new ArgumentNullException("collection");
+                throw new ArgumentNullException("enumerable");
             if (body == null)
                 throw new ArgumentNullException("body");
             if (currentItem == null)
                 throw new ArgumentNullException("currentItem");
             if (currentIndex == null)
-                throw new ArgumentNullException();
+                throw new ArgumentNullException("currentIndex");
 
             if (currentItem.Type != typeof(object))
                 throw new ArgumentOutOfRangeException("currentItem");

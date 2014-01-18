@@ -31,7 +31,6 @@ namespace NVelocity.Test
 	{
 		private ArrayList items;
 		private IDictionary<string,object> c = new Dictionary<string,object>();
-		private StringWriter sw;
 		private string template;
 
 		[SetUp]
@@ -46,8 +45,6 @@ namespace NVelocity.Test
 
 			c["x"] = new Something();
 			c["items"]=items;
-
-			sw = new StringWriter();
 
 
 			template =

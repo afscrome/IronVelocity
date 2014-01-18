@@ -11,7 +11,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
-using VelocityExpressionTree.Binders;
 
 namespace IronVelocity
 {
@@ -74,7 +73,7 @@ namespace IronVelocity
 
 
         [SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
-        public Expression BuildExpressionTree(ASTprocess ast)
+        public Expression BuildExpressionTree(ASTprocess ast, string fileName)
         {
             if (ast == null)
                 throw new ArgumentNullException("ast");
@@ -83,13 +82,13 @@ namespace IronVelocity
                 throw new ArgumentOutOfRangeException("ast");
 
             List<Expression> expressions = new List<Expression>();
-            _symbolDocument = Expression.SymbolDocument("C:\\temp\\test.txt");
+            _symbolDocument = Expression.SymbolDocument(fileName);
 
 
-            expressions.AddRange(GetBlockExpressions(ast,true));
+            expressions.AddRange(GetBlockExpressions(ast, true));
 
             if (!expressions.Any())
-                expressions.Add(Expression.Empty());
+                return Expression.Default(typeof(void));
 
             return Expression.Block(expressions);
         }
@@ -100,8 +99,15 @@ namespace IronVelocity
         }
 
 
-        public DebugInfoExpression DebugInfo(INode node){
-            return Expression.DebugInfo(_symbolDocument, node.FirstToken.BeginLine, node.FirstToken.BeginColumn, node.LastToken.EndLine, node.LastToken.EndColumn);
+        public Expression DebugInfo(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            return Expression.Block(
+                //Expression.ClearDebugInfo(_symbolDocument),
+                Expression.DebugInfo(_symbolDocument, node.FirstToken.BeginLine, node.FirstToken.BeginColumn, node.LastToken.EndLine, node.LastToken.EndColumn)
+            );
         }
 
         public IEnumerable<Expression> GetBlockExpressions(INode node, bool output)
@@ -129,7 +135,7 @@ namespace IronVelocity
                 }
                 else if (child is ASTReference)
                 {
-                    var expr = Reference(child,output);
+                    var expr = Reference(child, output);
                     if (output)
                         expr = Output(expr);
                     expressions.Add(expr);
@@ -157,7 +163,6 @@ namespace IronVelocity
                 else
                     throw new NotSupportedException("Node type not supported in a block: " + child.GetType().Name);
 
-                //expressions.Add(Expression.ClearDebugInfo(_symbolDocument));
             }
 
             return expressions;
@@ -185,7 +190,7 @@ namespace IronVelocity
                 throw new NotSupportedException(String.Format("Unable to handle directive type '{0}'", directive.DirectiveName));
         }
 
-        private Expression Escaped(INode node)
+        private static Expression Escaped(INode node)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -204,7 +209,7 @@ namespace IronVelocity
             if (!(node is ASTBlock))
                 throw new ArgumentOutOfRangeException("node");
 
-            var children = GetBlockExpressions(node,true);
+            var children = GetBlockExpressions(node, true);
 
             if (children.Any())
                 return Expression.Block(children);
@@ -240,10 +245,10 @@ namespace IronVelocity
 
             //Remove $ or $! prefix to get just the variable name
 
-            var metaData = new IronVelocity.INodeExtensions.ASTReferenceMetaData((ASTReference)node);
+            var metaData = new IronVelocity.ASTReferenceMetaData((ASTReference)node);
 
             Expression expr;
-            if (metaData.Type == INodeExtensions.ASTReferenceMetaData.ReferenceType.Runt)
+            if (metaData.Type == ASTReferenceMetaData.ReferenceType.Runt)
                 expr = Expression.Constant(metaData.RootString);
             else
             {
@@ -288,7 +293,7 @@ namespace IronVelocity
                             Expression.Constant(metaData.EscapePrefix + metaData.MoreString),
                             VelocityExpressions.ConvertIfNeeded(evaulatedResult, typeof(object))
                         ),
-                        Expression.Constant(metaData.EscapePrefix + metaData.EscapePrefix + metaData.MoreString + metaData.NullString, typeof(object))
+                        Expression.Convert(Expression.Constant(metaData.EscapePrefix + metaData.EscapePrefix + metaData.MoreString + metaData.NullString), typeof(object))
                     )
                 );
             }
@@ -316,10 +321,13 @@ namespace IronVelocity
                 arguments[i] = Operand(node.GetChild(i));
             }
 
-            return Expression.Dynamic(
-                new VelocityInvokeMemberBinder(methodName, new CallInfo(0)),
-                typeof(object),
-                arguments
+            return Expression.Block(
+                DebugInfo(node),
+                Expression.Dynamic(
+                    new VelocityInvokeMemberBinder(methodName, new CallInfo(0)),
+                    typeof(object),
+                    arguments
+                )
             );
         }
 
@@ -343,11 +351,13 @@ namespace IronVelocity
                 throw new ArgumentOutOfRangeException("node");
 
             var propertyName = node.Literal;
-
-            return Expression.Dynamic(
-                GetGetMemberBinder(propertyName),
-                typeof(object),
-                parent
+            return Expression.Block(
+                DebugInfo(node),
+                Expression.Dynamic(
+                    GetGetMemberBinder(propertyName),
+                    typeof(object),
+                    parent
+                )
             );
         }
 
@@ -422,6 +432,9 @@ namespace IronVelocity
 
         public Expression Operand(INode node)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             //Literal
             if (node is ASTTrue)
                 return TrueExpression;
@@ -549,7 +562,7 @@ namespace IronVelocity
 
                 case VelocityStrings.StringType.Dictionary:
                     return VelocityStrings.InterpolateDictionaryString(content, this);
-                
+
                 case VelocityStrings.StringType.Interpolated:
                     return VelocityStrings.InterpolateString(content, this);
 
@@ -558,17 +571,8 @@ namespace IronVelocity
             }
         }
 
-        private Expression DictionaryStringLiteral(INode node)
-        {
-            throw new NotSupportedException("Dictionary strings not yet supported");
-        }
 
-        private Expression InterpolatedString(INode node)
-        {
-            throw new NotSupportedException("Interpolated strings not yet supported");
-        }
-
-        private Expression Text(INode node)
+        private static Expression Text(INode node)
         {
             if (node == null)
                 throw new ArgumentNullException("node");

@@ -62,17 +62,17 @@ namespace IronVelocity
         }
 
 
-        public Action<VelocityContext, StringBuilder> CompileTemplate(string input, string name)
+        public Action<VelocityContext, StringBuilder> CompileTemplate(string input, string typeName, string fileName)
         {
-#if DEBUGD
-            return CompileWithDebug(input, name);
+#if DEBUG
+            return CompileWithDebug(input, typeName, fileName);
 #else
             var expressionTree = GetExpressionTree(input, name);
             return expressionTree.Compile();
 #endif
         }
 
-        private Expression<Action<VelocityContext, StringBuilder>> GetExpressionTree(string input, string name)
+        private Expression<Action<VelocityContext, StringBuilder>> GetExpressionTree(string input, string typeName, string fileName)
         {
             var parser = _runtimeService.CreateNewParser();
             using (var reader = new StringReader(input))
@@ -82,15 +82,16 @@ namespace IronVelocity
                     throw new InvalidProgramException("Unable to parse ast");
 
                 var converter = new VelocityASTConverter(_directiveHandlers);
-                var expr = converter.BuildExpressionTree(ast);
+                var expr = converter.BuildExpressionTree(ast, fileName);
 
 
-                return Expression.Lambda<Action<VelocityContext, StringBuilder>>(expr, name, new[] { Constants.InputParameter, Constants.OutputParameter });
+                return Expression.Lambda<Action<VelocityContext, StringBuilder>>(expr, typeName, new[] { Constants.InputParameter, Constants.OutputParameter });
             }
         }
 
-
-        public Action<VelocityContext, StringBuilder> CompileWithDebug(string input, string name)
+        private const string _methodName = "Execute";
+        private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(StringBuilder) };
+        public Action<VelocityContext, StringBuilder> CompileWithDebug(string input, string name, string fileName)
         {
             AssemblyName assemblyName = new AssemblyName("Widgets");
             AssemblyBuilder assemblyBuilder =
@@ -98,31 +99,41 @@ namespace IronVelocity
 
             ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name, true);
 
+            TypeBuilder typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public);
+
+
+            MethodBuilder meth = typeBuilder.DefineMethod(
+                    _methodName,
+                    MethodAttributes.Public | MethodAttributes.Static,
+                    typeof(void),
+                    _signature);
+
+            var expressionTree = GetExpressionTree(input, name, fileName);
+
+            var reducer = new DynamicToExplicitCallsiteConvertor(typeBuilder);
+
+            expressionTree = (Expression<Action<VelocityContext, StringBuilder>>)reducer.Visit(expressionTree);
+
+            var debugInfo = DebugInfoGenerator.CreatePdbGenerator();
+            expressionTree.CompileToMethod(meth, debugInfo);
+
+            var compiledType = typeBuilder.CreateType();
+            var compiledMethod = compiledType.GetMethod(_methodName, _signature);
+            return (Action<VelocityContext, StringBuilder>)Delegate.CreateDelegate(typeof(Action<VelocityContext, StringBuilder>), compiledMethod);
+
+            //TODO: Is there any purpose to setting Debug info?
+            /*
             var debugAttributes =
                 DebuggableAttribute.DebuggingModes.Default |
                 DebuggableAttribute.DebuggingModes.DisableOptimizations;
 
-            ConstructorInfo constructor =
+             * ConstructorInfo constructor =
                     typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
             var cab = new CustomAttributeBuilder(constructor, new object[] { debugAttributes });
             assemblyBuilder.SetCustomAttribute(cab);
             moduleBuilder.SetCustomAttribute(cab);
-
-             TypeBuilder typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public);
-
-
-            MethodBuilder meth = typeBuilder.DefineMethod(
-                    "Execute",
-                    MethodAttributes.Public | MethodAttributes.Static,
-                    typeof(void),
-                    new Type[] { typeof(VelocityContext), typeof(StringBuilder) });
-
-            var expressionTree = GetExpressionTree(input, name);
-            var debugInfo = DebugInfoGenerator.CreatePdbGenerator();
-            expressionTree.CompileToMethod(meth, debugInfo);
-
-            return (VelocityContext ctx, StringBuilder builder) => { meth.Invoke(null, new object[] { ctx, builder }); };
-
+            */
+        
         }
     }
 }

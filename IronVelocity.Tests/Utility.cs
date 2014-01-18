@@ -11,7 +11,7 @@ namespace Tests
         public static Action<VelocityContext, StringBuilder> BuildGenerator(string input, IDictionary<string, object> environment = null)
         {
             var runtime = new VelocityRuntime(null);
-            return runtime.CompileTemplate(input, "test");
+            return runtime.CompileTemplate(input, "test", "");
         }
 
         public static String GetNormalisedOutput(string input, IDictionary<string, object> environment)

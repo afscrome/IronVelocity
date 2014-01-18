@@ -63,6 +63,8 @@ namespace IronVelocity.RuntimeHelpers
 
         public static StringType DetermineStringType(string str)
         {
+            if (str == null)
+                return StringType.Constant;
             if (str.StartsWith(DictStart) && str.EndsWith(DictEnd))
                 return StringType.Dictionary;
             if (str.IndexOfAny(new[] { '$', '#' }) != -1)
