@@ -1,4 +1,6 @@
-﻿using System;
+﻿using IronVelocity.RuntimeHelpers;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
@@ -71,8 +73,9 @@ namespace IronVelocity
             return ConvertIfNeeded(expr, member.DeclaringType);
         }
 
-        private static readonly ConstructorInfo _dictionaryConstructorInfo = typeof(Dictionary<string, object>).GetConstructor(new[] { typeof(int), typeof(IEqualityComparer<string>) });
-        private static readonly MethodInfo _dictionaryAddMemberInfo = typeof(Dictionary<string, object>).GetMethod("Add", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string), typeof(object) }, null);
+        private static readonly Type _dictionaryType = typeof(RuntimeDictionary);
+        private static readonly ConstructorInfo _dictionaryConstructorInfo = _dictionaryType.GetConstructor(new[] { typeof(int) });
+        private static readonly MethodInfo _dictionaryAddMemberInfo = _dictionaryType.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string), typeof(object) }, null);
         private static readonly PropertyInfo _comparer = typeof(StringComparer).GetProperty("OrdinalIgnoreCase", BindingFlags.Public | BindingFlags.Static); 
         public static Expression Dictionary(IDictionary<string, Expression> input)
         {
@@ -81,8 +84,7 @@ namespace IronVelocity
 
             Expression dictionaryInit = Expression.New(
                     _dictionaryConstructorInfo,
-                    Expression.Constant(input.Count),
-                    Expression.Property(null, _comparer)
+                    Expression.Constant(input.Count)
                     //Expression.Constant(StringComparer.OrdinalIgnoreCase)
                 );
 
@@ -90,7 +92,7 @@ namespace IronVelocity
             if (!input.Any())
                 return dictionaryInit;
 
-            var dictionary = Expression.Parameter(typeof(Dictionary<string, object>), "dictionary");
+            var dictionary = Expression.Parameter(_dictionaryType, "dictionary");
             dictionaryInit = Expression.Assign(dictionary, dictionaryInit);
 
             var valuesInit = input.Select(x => Expression.Call(
@@ -104,7 +106,7 @@ namespace IronVelocity
 
             return Expression.Block(
                 new[] { dictionary },
-                Enumerable.Union(new[] { dictionaryInit }, valuesInit).Union(new[] { dictionary })
+                Enumerable.Union(new[] { dictionaryInit }, valuesInit).Union(new[] { Expression.Convert(dictionary, typeof(IDictionary)) })
             );
 
         }

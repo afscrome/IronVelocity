@@ -55,6 +55,7 @@
     <Compile Include="DynamicDebugSupport.cs" />
     <Compile Include="IScriptedContentFragmentNVelocityDirectiveService.cs" />
     <Compile Include="RuntimeHelpers\IntegerRange.cs" />
+    <Compile Include="RuntimeHelpers\RuntimeDictionary.cs" />
     <Compile Include="RuntimeHelpers\VelocityString.cs" />
     <Compile Include="Scope.cs" />
     <Compile Include="VelocityContext.cs" />

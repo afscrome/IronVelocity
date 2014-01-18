@@ -54,7 +54,6 @@ namespace IronVelocity
         public void Clear()
         {
             _variables.Clear();
-            throw new NotImplementedException();
         }
 
         public bool Contains(KeyValuePair<string, object> item)
