@@ -46,7 +46,7 @@ namespace IronVelocity
             _properties.AddProperty("velocimacro.permissions.allow.inline", "false");
             _properties.AddProperty("runtime.log.invalid.references", "false");
             _properties.AddProperty("runtime.log.logsystem.class", typeof(NVelocity.Runtime.Log.NullLogSystem).AssemblyQualifiedName.Replace(",", ";"));
-
+            _properties.AddProperty("parser.pool.size", 0);
             ArrayList userDirectivces = new ArrayList();
             if (directiveHandlers != null)
             {
@@ -67,7 +67,7 @@ namespace IronVelocity
 #if DEBUG
             return CompileWithDebug(input, typeName, fileName);
 #else
-            var expressionTree = GetExpressionTree(input, name);
+            var expressionTree = GetExpressionTree(input, typeName, fileName);
             return expressionTree.Compile();
 #endif
         }

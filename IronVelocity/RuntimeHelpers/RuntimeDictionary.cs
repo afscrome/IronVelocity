@@ -40,12 +40,10 @@ namespace IronVelocity.RuntimeHelpers
         public ICollection<string> Keys { get { return _values.Keys; } }
         public ICollection<object> Values { get { return _values.Values; } }
 
-
         public void Add(string key, object value)
         {
             _values.Add(key, value);
         }
-
 
         public void Clear()
         {
@@ -77,28 +75,32 @@ namespace IronVelocity.RuntimeHelpers
             return _values.Remove(key);
         }
 
-        public bool Remove(KeyValuePair<string, object> item)
-        {
-            return _values.Remove(item.Key);
-        }
-
         public bool TryGetValue(string key, out object value)
         {
             return _values.TryGetValue(key, out value);
         }
 
 
+        #region ICollection<KeyValuePair<TKey,TValue>>
 
         bool ICollection<KeyValuePair<string, object>>.IsReadOnly { get { return ((ICollection<KeyValuePair<string, object>>)_values).IsReadOnly; } }
+
         void ICollection<KeyValuePair<string, object>>.Add(KeyValuePair<string, object> item)
         {
             ((ICollection<KeyValuePair<string, object>>)_values).Add(item);
         }
+
         void ICollection<KeyValuePair<string, object>>.CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
         {
             ((ICollection<KeyValuePair<string, object>>)_values).CopyTo(array, arrayIndex);
         }
 
+        bool ICollection<KeyValuePair<string, object>>.Remove(KeyValuePair<string, object> item)
+        {
+            return _values.Remove(item.Key);
+        }
+
+        #endregion
 
 
         bool IDictionary.IsFixedSize { get { return ((IDictionary)_values).IsFixedSize; } }
@@ -124,12 +126,10 @@ namespace IronVelocity.RuntimeHelpers
             return ((IDictionary)_values).GetEnumerator();
         }
 
-
         void IDictionary.Remove(object key)
         {
             ((IDictionary)_values).Remove(key);
         }
-
 
         object IDictionary.this[object key]
         {

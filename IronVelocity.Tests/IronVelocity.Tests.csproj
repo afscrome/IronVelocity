@@ -52,6 +52,7 @@
     <Compile Include="Binders\InvokeMemberBinderTests.cs" />
     <Compile Include="Binders\GetMemberBinderTests.cs" />
     <Compile Include="BoxingTests.cs" />
+    <Compile Include="OutputTests\Strings.cs" />
     <Compile Include="Regression\ForeachBreakTest.cs" />
     <Compile Include="Regression\ForeachTest.cs" />
     <Compile Include="Regression\MethodCallTestCase.cs" />

@@ -43,6 +43,7 @@ namespace IronVelocity
         private static readonly MethodInfo _equalMethodInfo = typeof(Comparators).GetMethod("Equal", new[] { typeof(object), typeof(object) });
         private static readonly MethodInfo _notEqualMethodInfo = typeof(Comparators).GetMethod("NotEqual", new[] { typeof(object), typeof(object) });
 
+        private static readonly MethodInfo _stringConcatMethodInfo = typeof(String).GetMethod("Concat", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object), typeof(object) }, null);
 
 
         private static readonly Expression TrueExpression = Expression.Constant(true);
@@ -289,11 +290,12 @@ namespace IronVelocity
                     Expression.Assign(evaulatedResult, expr),
                     Expression.Condition(
                         Expression.NotEqual(evaulatedResult, Expression.Constant(null, evaulatedResult.Type)),
-                        Expression.Block(
-                            Expression.Constant(metaData.EscapePrefix + metaData.MoreString),
+                        Expression.Call(
+                            _stringConcatMethodInfo,
+                            Expression.Convert(Expression.Constant(metaData.EscapePrefix + metaData.MoreString), typeof(object)),
                             VelocityExpressions.ConvertIfNeeded(evaulatedResult, typeof(object))
                         ),
-                        Expression.Convert(Expression.Constant(metaData.EscapePrefix + metaData.EscapePrefix + metaData.MoreString + metaData.NullString), typeof(object))
+                        Expression.Constant(metaData.EscapePrefix + metaData.EscapePrefix + metaData.MoreString + metaData.NullString)
                     )
                 );
             }

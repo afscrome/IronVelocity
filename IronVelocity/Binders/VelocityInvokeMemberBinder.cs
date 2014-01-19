@@ -61,6 +61,7 @@ namespace IronVelocity.Binders
 
             Expression result;
 
+            /*
             //Try adding an optional dict param
             if (method == null)
             {
@@ -74,6 +75,7 @@ namespace IronVelocity.Binders
                     argTypeArray = argTypeArrayOptionalDict;
 
             }
+            */
 
             if (method == null)
             {
