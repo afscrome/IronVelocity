@@ -12,6 +12,11 @@ using IronVelocity.Binders;
 
 namespace IronVelocity
 {
+    /// <summary>
+    /// Visits Dynamic expressions in an expression tree and converts them to an explicit implementation using CallSite
+    /// 
+    /// This is requried when compiling expression trees to assemblies rather than using dynamic method 
+    /// </summary>
     public class DynamicToExplicitCallsiteConvertor : ExpressionVisitor
     {
         private static Type _callSiteTType = typeof(CallSite<>);
@@ -35,10 +40,10 @@ namespace IronVelocity
 
             //First argument is the callsite
             var arguments = new[] { callSiteField }
-                //Need to recusively visit remaining arguments
+                //Need to recursively visit remaining arguments
                 .Concat(node.Arguments.Select(Visit));
 
-            var invoke =                 Expression.Call(
+            var invoke = Expression.Call(
                      Expression.Field(
                          callSiteField,
                           siteType.GetField("Target")

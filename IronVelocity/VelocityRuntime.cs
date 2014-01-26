@@ -65,7 +65,7 @@ namespace IronVelocity
         public Action<VelocityContext, StringBuilder> CompileTemplate(string input, string typeName, string fileName)
         {
 #if DEBUG
-            return CompileWithDebug(input, typeName, fileName);
+            return CompileWithSymbols(input, typeName, fileName);
 #else
             var expressionTree = GetExpressionTree(input, typeName, fileName);
             return expressionTree.Compile();
@@ -91,22 +91,37 @@ namespace IronVelocity
 
         private const string _methodName = "Execute";
         private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(StringBuilder) };
-        public Action<VelocityContext, StringBuilder> CompileWithDebug(string input, string name, string fileName)
+        public Action<VelocityContext, StringBuilder> CompileWithSymbols(string input, string name, string fileName)
         {
-            AssemblyName assemblyName = new AssemblyName("Widgets");
-            AssemblyBuilder assemblyBuilder =
-                AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+            var assemblyName = new AssemblyName("Widgets");
+            var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+            return CompileWithSymbols(input, name, fileName, assemblyBuilder);
+        }
 
-            ModuleBuilder moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName.Name, true);
+        public Action<VelocityContext, StringBuilder> CompileWithSymbols(string input, string name, string fileName, AssemblyBuilder assemblyBuilder, bool debugMode = false)
+        {
+            var moduleBuilder = assemblyBuilder.DefineDynamicModule(name, true);
 
-            TypeBuilder typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public);
+            if (debugMode)
+            {
+                var debugAttributes =
+                    DebuggableAttribute.DebuggingModes.Default |
+                    DebuggableAttribute.DebuggingModes.DisableOptimizations;
 
+                var constructor = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
+                var cab = new CustomAttributeBuilder(constructor, new object[] { debugAttributes });
+                assemblyBuilder.SetCustomAttribute(cab);
+                moduleBuilder.SetCustomAttribute(cab);
+            }
 
-            MethodBuilder meth = typeBuilder.DefineMethod(
+            var typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public);
+
+            var meth = typeBuilder.DefineMethod(
                     _methodName,
                     MethodAttributes.Public | MethodAttributes.Static,
                     typeof(void),
                     _signature);
+
 
             var expressionTree = GetExpressionTree(input, name, fileName);
 
@@ -121,19 +136,7 @@ namespace IronVelocity
             var compiledMethod = compiledType.GetMethod(_methodName, _signature);
             return (Action<VelocityContext, StringBuilder>)Delegate.CreateDelegate(typeof(Action<VelocityContext, StringBuilder>), compiledMethod);
 
-            //TODO: Is there any purpose to setting Debug info?
-            /*
-            var debugAttributes =
-                DebuggableAttribute.DebuggingModes.Default |
-                DebuggableAttribute.DebuggingModes.DisableOptimizations;
 
-             * ConstructorInfo constructor =
-                    typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
-            var cab = new CustomAttributeBuilder(constructor, new object[] { debugAttributes });
-            assemblyBuilder.SetCustomAttribute(cab);
-            moduleBuilder.SetCustomAttribute(cab);
-            */
-        
         }
     }
 }
