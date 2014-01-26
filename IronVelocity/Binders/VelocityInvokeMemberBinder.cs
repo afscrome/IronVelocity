@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Dynamic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -23,6 +24,11 @@ namespace IronVelocity.Binders
 
         public override DynamicMetaObject FallbackInvokeMember(DynamicMetaObject target, DynamicMetaObject[] args, DynamicMetaObject errorSuggestion)
         {
+            if (target == null)
+                throw new ArgumentNullException("target");
+            if (args == null)
+                throw new ArgumentNullException("args");
+
             //TODO: Support dictionary --> arguments
             //TODO: Support optional params?  BindingFlags.OptionalParamBinding
 
@@ -54,7 +60,7 @@ namespace IronVelocity.Binders
                 }
                 catch (AmbiguousMatchException)
                 {
-                    Debug.WriteLine(string.Format("Ambiguous match for method '{0}' on type '{1}'", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
+                    Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Ambiguous match for method '{0}' on type '{1}'", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
 
                 }
             }
@@ -79,7 +85,7 @@ namespace IronVelocity.Binders
 
             if (method == null)
             {
-                Debug.WriteLine(string.Format("Unable to resolve method '{0}' on type '{1}'", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
+                Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Unable to resolve method '{0}' on type '{1}'", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
                 result = Constants.VelocityUnresolvableResult;
             }
             else

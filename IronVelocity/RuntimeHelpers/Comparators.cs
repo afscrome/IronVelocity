@@ -84,6 +84,7 @@ namespace IronVelocity.RuntimeHelpers
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification="Maintaining Compatability with NVelocity")]
         private static int? Compare(dynamic left, dynamic right)
         {
             if (left == null && right == null)
@@ -116,7 +117,7 @@ namespace IronVelocity.RuntimeHelpers
                  * 
                */
                 if (left is string || right is string)
-                    return String.Compare(((object)left).ToString(), ((object)right).ToString());
+                    return String.Compare(((object)left).ToString(), ((object)right).ToString(), StringComparison.Ordinal);
   
                 Debug.WriteLine("Unable to compare objects '{0}' and '{1}'", ((object)left).GetType(), ((object)right).GetType());
             }

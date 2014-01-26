@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Dynamic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -188,7 +189,7 @@ namespace IronVelocity
             if (_directiveHandlers.TryGetValue(directive.Directive.GetType(), out builder))
                 return builder.Build(directive, this);
             else
-                throw new NotSupportedException(String.Format("Unable to handle directive type '{0}'", directive.DirectiveName));
+                throw new NotSupportedException(String.Format(CultureInfo.InvariantCulture, "Unable to handle directive type '{0}'", directive.DirectiveName));
         }
 
         private static Expression Escaped(INode node)
@@ -241,15 +242,16 @@ namespace IronVelocity
             if (node == null)
                 throw new ArgumentNullException("node");
 
-            if (!(node is ASTReference))
+            var refNode = node as ASTReference;
+            if (refNode == null)
                 throw new ArgumentOutOfRangeException("node");
 
             //Remove $ or $! prefix to get just the variable name
 
-            var metaData = new IronVelocity.ASTReferenceMetaData((ASTReference)node);
+            var metaData = new IronVelocity.ASTReferenceMetadata(refNode);
 
             Expression expr;
-            if (metaData.Type == ASTReferenceMetaData.ReferenceType.Runt)
+            if (metaData.RefType == ASTReferenceMetadata.ReferenceType.Runt)
                 expr = Expression.Constant(metaData.RootString);
             else
             {
@@ -333,17 +335,6 @@ namespace IronVelocity
             );
         }
 
-        private static Expression Parameter(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTParameters))
-                throw new ArgumentOutOfRangeException("node");
-
-            throw new NotImplementedException();
-        }
-
         private Expression Identifier(INode node, Expression parent)
         {
             if (node == null)
@@ -372,7 +363,7 @@ namespace IronVelocity
             if (!(node is ASTNumberLiteral))
                 throw new ArgumentOutOfRangeException("node");
 
-            return Expression.Constant(int.Parse(node.Literal));
+            return Expression.Constant(int.Parse(node.Literal, CultureInfo.InvariantCulture));
         }
 
         private Expression IfStatement(INode node)
@@ -550,7 +541,7 @@ namespace IronVelocity
                 throw new NotImplementedException("Not supporting interpolated strings yet");
 
 
-            var isDoubleQuoted = node.Literal.StartsWith("\"");
+            var isDoubleQuoted = node.Literal.StartsWith("\"", StringComparison.Ordinal);
             var content = node.Literal.Substring(1, node.Literal.Length - 2);
 
             var stringType = isDoubleQuoted

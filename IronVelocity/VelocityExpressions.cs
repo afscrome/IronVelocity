@@ -68,6 +68,12 @@ namespace IronVelocity
 
         public static Expression ConvertReturnTypeIfNeeded(DynamicMetaObject target, MemberInfo member)
         {
+            if (target == null)
+                throw new ArgumentNullException("target");
+
+            if (member == null)
+                throw new ArgumentNullException("member");
+
             var expr = target.Expression;
 
             return ConvertIfNeeded(expr, member.DeclaringType);
@@ -76,7 +82,6 @@ namespace IronVelocity
         private static readonly Type _dictionaryType = typeof(RuntimeDictionary);
         private static readonly ConstructorInfo _dictionaryConstructorInfo = _dictionaryType.GetConstructor(new[] { typeof(int) });
         private static readonly MethodInfo _dictionaryAddMemberInfo = _dictionaryType.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string), typeof(object) }, null);
-        private static readonly PropertyInfo _comparer = typeof(StringComparer).GetProperty("OrdinalIgnoreCase", BindingFlags.Public | BindingFlags.Static); 
         public static Expression Dictionary(IDictionary<string, Expression> input)
         {
             if (input == null)
@@ -85,7 +90,6 @@ namespace IronVelocity
             Expression dictionaryInit = Expression.New(
                     _dictionaryConstructorInfo,
                     Expression.Constant(input.Count)
-                    //Expression.Constant(StringComparer.OrdinalIgnoreCase)
                 );
 
             //If we're initalising an empty list, we can just return the list as is, without having to create a block expression

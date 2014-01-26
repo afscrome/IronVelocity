@@ -14,7 +14,7 @@ namespace IronVelocity
     /// <remarks>
     /// This is mostly copy n' paste from the original NVelocity ASTReference class in order to expose data from private methods
     /// </remarks>
-    public class ASTReferenceMetaData
+    public class ASTReferenceMetadata
     {
         private ReferenceType referenceType;
 
@@ -22,18 +22,18 @@ namespace IronVelocity
             escPrefix = String.Empty,
             morePrefix = String.Empty;
 
-        private bool computableReference = true,
-            escaped = false;
+        //private bool computableReference = true;
+        private bool escaped = false;
 
         public string RootString { get; private set; }
-        public ReferenceType Type { get { return referenceType; } }
+        public ReferenceType RefType { get { return referenceType; } }
         public bool Escaped { get { return escaped; } }
         public string EscapePrefix { get { return escPrefix; } }
         public string NullString { get { return nullString; } }
         public string MoreString { get { return morePrefix; } }
-        private bool ComputableReference { get { return computableReference; } }
+        //private bool ComputableReference { get { return computableReference; } }
 
-        public ASTReferenceMetaData(ASTReference node)
+        public ASTReferenceMetadata(ASTReference node)
         {
             RootString = GetRootString(node);
         }
@@ -51,7 +51,7 @@ namespace IronVelocity
 
             // so, see if we have "\\!"
 
-            int slashBang = t.Image.IndexOf("\\!");
+            int slashBang = t.Image.IndexOf("\\!", StringComparison.Ordinal);
 
             if (slashBang != -1)
             {
@@ -71,7 +71,7 @@ namespace IronVelocity
                 {
                     // yikes!
                     //runtimeServices.Error("ASTReference.getRoot() : internal error : no $ found for slashbang.");
-                    computableReference = false;
+                    //computableReference = false;
                     nullString = t.Image;
                     return nullString;
                 }
@@ -97,7 +97,7 @@ namespace IronVelocity
                 nullString += t.Image.Substring(start + count); // and the rest, including the
 
                 // this isn't a valid reference, so lets short circuit the value and set calcs
-                computableReference = false;
+                //computableReference = false;
 
                 return nullString;
             }

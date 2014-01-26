@@ -3,6 +3,7 @@ using IronVelocity.RuntimeHelpers;
 using System;
 using System.Diagnostics;
 using System.Dynamic;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -42,6 +43,9 @@ namespace IronVelocity.Binders
 
         public override DynamicMetaObject FallbackGetMember(DynamicMetaObject target, DynamicMetaObject errorSuggestion)
         {
+            if (target == null)
+                throw new ArgumentNullException("target");
+
             //If any of the Dynamic Meta Objects don't yet have a value, defer until they have values.  Failure to do this may result in an infinite loop
             if (!target.HasValue)
                 return Defer(target);
@@ -94,7 +98,7 @@ namespace IronVelocity.Binders
                     }
                     catch (AmbiguousMatchException)
                     {
-                        Debug.WriteLine(string.Format("Ambiguous match for member '{0}' on type '{1}'", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
+                        Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Ambiguous match for member '{0}' on type '{1}'", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
 
                     }
                 }
@@ -106,7 +110,7 @@ namespace IronVelocity.Binders
                     var indexer = target.LimitType.GetProperty("Item", BindingFlags.Public | BindingFlags.Instance, null, null, new[] { typeof(string) }, null);
                     if (indexer == null)
                     {
-                        Debug.WriteLine(string.Format("Unable to resolve Property '{0}' on type '{1}'", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
+                        Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Unable to resolve Property '{0}' on type '{1}'", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
                         result = Constants.VelocityUnresolvableResult;
                     }
                     else
@@ -120,26 +124,29 @@ namespace IronVelocity.Binders
                 }
                 else
                 {
-
-                    if (member is PropertyInfo)
+                    var property = member as PropertyInfo;
+                    if (property != null)
                     {
                         result = Expression.Property(
                                 VelocityExpressions.ConvertReturnTypeIfNeeded(target, member),
-                                (PropertyInfo)member
-                            );
-                    }
-                    else if (member is FieldInfo)
-                    {
-                        result = Expression.Field(
-                                VelocityExpressions.ConvertReturnTypeIfNeeded(target, member),
-                                (FieldInfo)member
+                                property
                             );
                     }
                     else
                     {
-                        throw new InvalidProgramException();
+                        var field = member as FieldInfo;
+                        if (field != null)
+                        {
+                            result = Expression.Field(
+                                    VelocityExpressions.ConvertReturnTypeIfNeeded(target, member),
+                                    field
+                                );
+                        }
+                        else
+                        {
+                            throw new InvalidProgramException();
+                        }
                     }
-
                 }
             }
 

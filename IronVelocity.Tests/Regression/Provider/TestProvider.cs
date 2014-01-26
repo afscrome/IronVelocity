@@ -247,7 +247,8 @@ namespace NVelocity.Test.Provider
 			}
 		}
 
-		public virtual String Foo
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification = "Testing the unexpected")]
+        public virtual String Foo
 		{
 			get
 			{
@@ -256,7 +257,8 @@ namespace NVelocity.Test.Provider
 			}
 		}
 
-		public virtual String Throw
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1065:DoNotRaiseExceptionsInUnexpectedLocations", Justification="Testing the unexpected")]
+        public virtual String Throw
 		{
 			get
 			{

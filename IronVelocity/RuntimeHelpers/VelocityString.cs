@@ -2,6 +2,7 @@
 using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -61,13 +62,13 @@ namespace IronVelocity.RuntimeHelpers
             Interpolated
         }
 
-        public static StringType DetermineStringType(string str)
+        public static StringType DetermineStringType(string value)
         {
-            if (str == null)
+            if (value == null)
                 return StringType.Constant;
-            if (str.StartsWith(DictStart) && str.EndsWith(DictEnd))
+            if (value.StartsWith(DictStart, StringComparison.OrdinalIgnoreCase) && value.EndsWith(DictEnd, StringComparison.OrdinalIgnoreCase))
                 return StringType.Dictionary;
-            if (str.IndexOfAny(new[] { '$', '#' }) != -1)
+            if (value.IndexOfAny(new[] { '$', '#' }) != -1)
                 return StringType.Interpolated;
             else
                 return StringType.Constant;
@@ -75,11 +76,14 @@ namespace IronVelocity.RuntimeHelpers
 
 
         private static MethodInfo _stringConcatMethodInfo = typeof(string).GetMethod("Concat", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object[]) }, null);
-        public static Expression InterpolateString(string str, VelocityASTConverter converter)
+        public static Expression InterpolateString(string value, VelocityASTConverter converter)
         {
+            if (converter == null)
+                throw new ArgumentNullException("converter");
+
             //TODO; Refactor to share with VelocityExpressionTreeBuilder, or reuse the same parser
             var parser = new NVelocity.Runtime.RuntimeInstance().CreateNewParser();
-            using (var reader = new System.IO.StringReader(str))
+            using (var reader = new System.IO.StringReader(value))
             {
                 SimpleNode ast;
                 try
@@ -93,7 +97,7 @@ namespace IronVelocity.RuntimeHelpers
 
                 //If we fail to parse, the ast returned will be null, so just return our normal string
                 if (ast == null)
-                    return Expression.Constant(str);
+                    return Expression.Constant(value);
 
                 var expressions = converter.GetBlockExpressions(ast, false)
                     .Where(x => x.Type != typeof(void))
@@ -113,12 +117,15 @@ namespace IronVelocity.RuntimeHelpers
         /// "%{ key='value' [,key2='value2' }"		
         /// "%{ key='value' [,key2='value2'] }"		
         /// </summary>
-        /// <param name="str">If valid input a HybridDictionary with zero or more items,
+        /// <param name="value">If valid input a HybridDictionary with zero or more items,
         ///	otherwise the input string</param>
         /// <param name="context">NVelocity runtime context</param>
-        public static Expression InterpolateDictionaryString(string str, VelocityASTConverter converter)
+        public static Expression InterpolateDictionaryString(string value, VelocityASTConverter converter)
         {
-            char[] contents = str.ToCharArray();
+            if (value == null)
+                throw new ArgumentNullException("value");
+
+            char[] contents = value.ToCharArray();
             int lastIndex;
 
             return RecursiveBuildDictionary(contents, 2, out lastIndex, converter);
@@ -260,7 +267,7 @@ namespace IronVelocity.RuntimeHelpers
 
                 if (i == contents.Length - 1)
                 {
-                    if (sbKeyBuilder.ToString().Trim() == String.Empty)
+                    if (String.IsNullOrWhiteSpace(sbKeyBuilder.ToString()))
                     {
                         break;
                     }
@@ -284,7 +291,7 @@ namespace IronVelocity.RuntimeHelpers
         {
             var key = keyBuilder.ToString().Trim();
 
-            if (key.StartsWith("$"))
+            if (key.StartsWith("$", StringComparison.OrdinalIgnoreCase))
             {
                 throw new NotSupportedException("Dictionary keys must be strings");
                 /*
@@ -324,12 +331,12 @@ namespace IronVelocity.RuntimeHelpers
                     {
                         try
                         {
-                            expr = Expression.Constant(Convert.ToSingle(content));
+                            expr = Expression.Constant(Convert.ToSingle(content, CultureInfo.InvariantCulture));
                         }
                         catch (Exception)
                         {
                             throw new ArgumentException(
-                                string.Format(
+                                string.Format(CultureInfo.InvariantCulture,
                                     "Could not convert dictionary value for entry {0} with value {1} to Single. If the value is supposed to be a string, it must be enclosed with '' (single quotes)",
                                     keyBuilder, content));
                         }
@@ -338,12 +345,12 @@ namespace IronVelocity.RuntimeHelpers
                     {
                         try
                         {
-                            expr = Expression.Constant(Convert.ToInt32(content));
+                            expr = Expression.Constant(Convert.ToInt32(content, CultureInfo.InvariantCulture));
                         }
                         catch (Exception)
                         {
                             throw new ArgumentException(
-                                string.Format(
+                                string.Format(CultureInfo.InvariantCulture,
                                     "Could not convert dictionary value for entry {0} with value {1} to Int32. If the value is supposed to be a string, it must be enclosed with '' (single quotes)",
                                     keyBuilder, content));
                         }

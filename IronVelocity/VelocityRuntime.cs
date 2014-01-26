@@ -23,16 +23,16 @@ namespace IronVelocity
         private RuntimeInstance _runtimeService;
         private IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
         {
-            {typeof(Foreach), new ForeachDirectiveExpressionBuilder()},
-            {typeof(ForeachBeforeAllSection), new ForeachSectionExpressionBuilder(ForeachSection.BeforeAll)},
-            {typeof(ForeachBeforeSection), new ForeachSectionExpressionBuilder(ForeachSection.Before)},
-            {typeof(ForeachEachSection), new ForeachSectionExpressionBuilder(ForeachSection.Each)},
-            {typeof(ForeachOddSection), new ForeachSectionExpressionBuilder(ForeachSection.Odd)},
-            {typeof(ForeachEvenSection), new ForeachSectionExpressionBuilder(ForeachSection.Even)},
-            {typeof(ForeachBetweenSection), new ForeachSectionExpressionBuilder(ForeachSection.Between)},
-            {typeof(ForeachAfterSection), new ForeachSectionExpressionBuilder(ForeachSection.After)},
-            {typeof(ForeachAfterAllSection), new ForeachSectionExpressionBuilder(ForeachSection.AfterAll)},
-            {typeof(ForeachNoDataSection), new ForeachSectionExpressionBuilder(ForeachSection.NoData)},
+            {typeof(Foreach), new ForEachDirectiveExpressionBuilder()},
+            {typeof(ForeachBeforeAllSection), new ForEachSectionExpressionBuilder(ForEachSection.BeforeAll)},
+            {typeof(ForeachBeforeSection), new ForEachSectionExpressionBuilder(ForEachSection.Before)},
+            {typeof(ForeachEachSection), new ForEachSectionExpressionBuilder(ForEachSection.Each)},
+            {typeof(ForeachOddSection), new ForEachSectionExpressionBuilder(ForEachSection.Odd)},
+            {typeof(ForeachEvenSection), new ForEachSectionExpressionBuilder(ForEachSection.Even)},
+            {typeof(ForeachBetweenSection), new ForEachSectionExpressionBuilder(ForEachSection.Between)},
+            {typeof(ForeachAfterSection), new ForEachSectionExpressionBuilder(ForEachSection.After)},
+            {typeof(ForeachAfterAllSection), new ForEachSectionExpressionBuilder(ForEachSection.AfterAll)},
+            {typeof(ForeachNoDataSection), new ForEachSectionExpressionBuilder(ForEachSection.NoData)},
         };
 
         ExtendedProperties _properties;
@@ -100,6 +100,9 @@ namespace IronVelocity
 
         public Action<VelocityContext, StringBuilder> CompileWithSymbols(string input, string name, string fileName, AssemblyBuilder assemblyBuilder, bool debugMode = false)
         {
+            if (assemblyBuilder == null)
+                throw new ArgumentNullException("assemblyBuilder");
+
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(name, true);
 
             if (debugMode)
@@ -125,7 +128,7 @@ namespace IronVelocity
 
             var expressionTree = GetExpressionTree(input, name, fileName);
 
-            var reducer = new DynamicToExplicitCallsiteConvertor(typeBuilder);
+            var reducer = new DynamicToExplicitCallSiteConvertor(typeBuilder);
 
             expressionTree = (Expression<Action<VelocityContext, StringBuilder>>)reducer.Visit(expressionTree);
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 namespace IronVelocity
 {
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification="Implementing IDictionary for compatibility with NVelocity")]
     public class VelocityContext : IDictionary<string, object>
     {
         private readonly IDictionary<string, object> _variables = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);

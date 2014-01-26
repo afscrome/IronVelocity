@@ -17,13 +17,13 @@ namespace IronVelocity
     /// 
     /// This is requried when compiling expression trees to assemblies rather than using dynamic method 
     /// </summary>
-    public class DynamicToExplicitCallsiteConvertor : ExpressionVisitor
+    public class DynamicToExplicitCallSiteConvertor : ExpressionVisitor
     {
         private static Type _callSiteTType = typeof(CallSite<>);
         private static ConstructorInfo _callInfoConstructor = typeof(CallInfo).GetConstructor(new[] { typeof(int), typeof(string[]) });
 
         private readonly TypeBuilder _builder;
-        public DynamicToExplicitCallsiteConvertor(TypeBuilder typeBuilder)
+        public DynamicToExplicitCallSiteConvertor(TypeBuilder typeBuilder)
         {
             _builder = typeBuilder;
         }
@@ -31,6 +31,9 @@ namespace IronVelocity
 
         protected override Expression VisitDynamic(DynamicExpression node)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             var delegateType = node.DelegateType;
             var siteType = _callSiteTType.MakeGenericType(delegateType);
 
@@ -76,29 +79,34 @@ namespace IronVelocity
 
         private static Expression _emptyStringArray = Expression.NewArrayInit(typeof(string));
 
-        private Expression CreateBinderExpression(CallSiteBinder binder, int argCount)
+        private static Expression CreateBinderExpression(CallSiteBinder binder, int argCount)
         {
-            if (binder is VelocityGetMemberBinder)
+            var getBinder = binder as VelocityGetMemberBinder;
+            if (getBinder != null)
             {
-                var name = ((VelocityGetMemberBinder)binder).Name;
+                var name = getBinder.Name;
                 return Expression.New(
                     _getMemberBinderConstructor,
                     Expression.Constant(name)
                 );
             }
-            else if (binder is VelocityInvokeMemberBinder)
+            else
             {
-                var name = ((VelocityInvokeMemberBinder)binder).Name;
+                var setBinder = binder as VelocityInvokeMemberBinder;
+                if (setBinder != null)
+                {
+                    var name = setBinder.Name;
 
-                return Expression.New(
-                    _invokeMemberBinderConstructor,
-                    Expression.Constant(name),
-                    Expression.New(
-                        _callInfoConstructor,
-                        Expression.Constant(argCount),
-                        _emptyStringArray
-                    )
-                );
+                    return Expression.New(
+                        _invokeMemberBinderConstructor,
+                        Expression.Constant(name),
+                        Expression.New(
+                            _callInfoConstructor,
+                            Expression.Constant(argCount),
+                            _emptyStringArray
+                        )
+                    );
+                }
             }
 
             throw new ArgumentOutOfRangeException("binder");

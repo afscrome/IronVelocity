@@ -7,7 +7,7 @@ using System.Reflection;
 
 namespace IronVelocity.Directives
 {
-    public class ForeachDirectiveExpressionBuilder : DirectiveExpressionBuilder
+    public class ForEachDirectiveExpressionBuilder : DirectiveExpressionBuilder
     {
         private static readonly MethodInfo _enumeratorMethodInfo = typeof(IEnumerable).GetMethod("GetEnumerator", new Type[] { });
         private static readonly MethodInfo _moveNextMethodInfo = typeof(IEnumerator).GetMethod("MoveNext", new Type[] { });
@@ -16,6 +16,10 @@ namespace IronVelocity.Directives
 
         public override Expression Build(ASTDirective node, VelocityASTConverter converter)
         {
+            if (converter == null)
+                throw new ArgumentNullException("converter");
+
+
             if (node == null)
                 throw new ArgumentNullException("node");
 
@@ -33,10 +37,10 @@ namespace IronVelocity.Directives
             var enumerable = converter.Operand(node.GetChild(2));
 
             var parts = new List<Expression>[9];
-            var currentSection = ForeachSection.Each;
+            var currentSection = ForEachSection.Each;
             foreach (var expression in converter.GetBlockExpressions(node.GetChild(3), true))
             {
-                var seperator = expression as ForeachPartSeperatorExpression;
+                var seperator = expression as ForEachPartSeparatorExpression;
                 if (seperator != null)
                 {
                     currentSection = seperator.Part;
@@ -57,29 +61,29 @@ namespace IronVelocity.Directives
             //For the first item, output the #BeforeAll template, for all others #Between
             var bodyPrefix = Expression.IfThenElse(
                     Expression.Equal(Expression.Convert(index, typeof(int)), Expression.Constant(1)),
-                    GetExpressionBlock(parts[(int)ForeachSection.BeforeAll]),
-                    GetExpressionBlock(parts[(int)ForeachSection.Between])
+                    GetExpressionBlock(parts[(int)ForEachSection.BeforeAll]),
+                    GetExpressionBlock(parts[(int)ForEachSection.Between])
                 );
 
             var oddEven = Expression.IfThenElse(
                 Expression.Equal(Expression.Constant(0), Expression.Modulo(VelocityExpressions.ConvertIfNeeded(index, typeof(int)), Expression.Constant(2))),
-                GetExpressionBlock(parts[(int)ForeachSection.Even]),
-                GetExpressionBlock(parts[(int)ForeachSection.Odd])
+                GetExpressionBlock(parts[(int)ForEachSection.Even]),
+                GetExpressionBlock(parts[(int)ForEachSection.Odd])
                 );
 
             var loopSuffix = Expression.IfThenElse(
                     Expression.Equal(Expression.Constant(0), VelocityExpressions.ConvertIfNeeded(index, typeof(int))),
-                    GetExpressionBlock(parts[(int)ForeachSection.NoData]),
-                    GetExpressionBlock(parts[(int)ForeachSection.AfterAll])
+                    GetExpressionBlock(parts[(int)ForEachSection.NoData]),
+                    GetExpressionBlock(parts[(int)ForEachSection.AfterAll])
                 );
 
 
             var bodyExpressions = new List<Expression>();
             bodyExpressions.Add(bodyPrefix);
-            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForeachSection.Before]));
+            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForEachSection.Before]));
             bodyExpressions.Add(oddEven);
-            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForeachSection.Each]));
-            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForeachSection.After]));
+            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForEachSection.Each]));
+            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForEachSection.After]));
 
             var body = Expression.Block(bodyExpressions);
             return ForeachExpression(enumerable, body, loopVariable, index, loopSuffix);
@@ -167,35 +171,35 @@ namespace IronVelocity.Directives
         }
     }
 
-    public class ForeachSectionExpressionBuilder : DirectiveExpressionBuilder
+    public class ForEachSectionExpressionBuilder : DirectiveExpressionBuilder
     {
-        private readonly ForeachSection _part;
-        public ForeachSectionExpressionBuilder(ForeachSection part)
+        private readonly ForEachSection _part;
+        public ForEachSectionExpressionBuilder(ForEachSection part)
         {
             _part = part;
         }
 
         public override Expression Build(ASTDirective node, VelocityASTConverter converter)
         {
-            return new ForeachPartSeperatorExpression(_part);
+            return new ForEachPartSeparatorExpression(_part);
         }
 
     }
 
-    public class ForeachPartSeperatorExpression : Expression
+    public class ForEachPartSeparatorExpression : Expression
     {
-        public ForeachPartSeperatorExpression(ForeachSection part)
+        public ForEachPartSeparatorExpression(ForEachSection part)
         {
             Part = part;
         }
-        public ForeachSection Part { get; private set; }
+        public ForEachSection Part { get; private set; }
 
         public override Type Type { get { return typeof(void); } }
         public override ExpressionType NodeType { get { return ExpressionType.Extension; } }
         public override bool CanReduce { get { return false; } }
     }
 
-    public enum ForeachSection : int
+    public enum ForEachSection : int
     {
         Each = 0,
         BeforeAll = 1,
