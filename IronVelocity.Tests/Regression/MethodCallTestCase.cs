@@ -77,7 +77,7 @@ namespace NVelocity.Test
 			Assert.AreEqual("HybridDictionary", Eval("$test.Amb(\"%{id=1}\")"));
 		}
 
-		[Test]
+		[Test, Ignore]
 		public void CorrectExceptionThrownOnInvocationException()
 		{
 			try

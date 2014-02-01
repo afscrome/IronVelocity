@@ -18,7 +18,7 @@ namespace Tests
             Utility.TestExpectedMarkupGenerated(input, expected);
         }
 
-        [Test, Ignore("Seems to be bug in NVelocity")]
+        [Test, Ignore("Seems to be bug in NVelocity parser")]
         public void SingleLineCommentIgnored()
         {
             //TODO: investigate failure

@@ -1,4 +1,4 @@
-﻿using IronVelocity.RuntimeHelpers;
+﻿using IronVelocity.Runtime;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace IronVelocity
+namespace IronVelocity.Compilation
 {
     public static class VelocityExpressions
     {
@@ -32,7 +32,7 @@ namespace IronVelocity
             return ConvertIfNeeded(expression, expression.Type, type);
         }
 
-        private static Expression ConvertIfNeeded(Expression expression, Type from, Type to)
+        public static Expression ConvertIfNeeded(Expression expression, Type from, Type to)
         {
             if (expression == null)
                 throw new ArgumentNullException("expression");
@@ -42,6 +42,9 @@ namespace IronVelocity
             
             if (from == null)
                 throw new ArgumentNullException("from");
+
+            if (expression.NodeType == ExpressionType.Convert)
+                expression = ((UnaryExpression)expression).Operand;
 
             if (to.IsValueType && !from.IsValueType && (from.IsInterface || from == typeof(object)))
                 return Expression.Unbox(expression, to);

@@ -2,7 +2,7 @@
 using System;
 using System.Diagnostics;
 
-namespace IronVelocity.RuntimeHelpers
+namespace IronVelocity.Runtime
 {
     public static class Comparators
     {

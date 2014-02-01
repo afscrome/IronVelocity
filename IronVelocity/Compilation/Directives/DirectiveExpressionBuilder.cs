@@ -1,7 +1,7 @@
 ﻿using NVelocity.Runtime.Parser.Node;
 using System.Linq.Expressions;
 
-namespace IronVelocity.Directives
+namespace IronVelocity.Compilation.Directives
 {
     public abstract class DirectiveExpressionBuilder
     {

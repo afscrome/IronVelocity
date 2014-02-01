@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IronVelocity.RuntimeHelpers
+namespace IronVelocity.Runtime
 {
     public class RuntimeDictionary : IDictionary<string, object>, IDictionary
     {

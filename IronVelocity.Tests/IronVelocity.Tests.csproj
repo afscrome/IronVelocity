@@ -50,6 +50,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Binders\SetMemberBinderTests.cs" />
     <Compile Include="Binders\InvokeMemberBinderTests.cs" />
     <Compile Include="Binders\GetMemberBinderTests.cs" />
     <Compile Include="BoxingTests.cs" />

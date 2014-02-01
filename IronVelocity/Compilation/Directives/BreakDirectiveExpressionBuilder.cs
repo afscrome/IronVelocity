@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 
-namespace IronVelocity.Directives
+namespace IronVelocity.Compilation.Directives
 {
     public class BreakDirectiveExpressionBuilder : DirectiveExpressionBuilder
     {

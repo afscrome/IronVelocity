@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IronVelocity.Compilation;
+using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Dynamic;
@@ -18,6 +19,7 @@ namespace IronVelocity.Binders
 
         public override DynamicMetaObject FallbackInvoke(DynamicMetaObject target, DynamicMetaObject[] args, DynamicMetaObject errorSuggestion)
         {
+            //Don't support static invocation
             throw new NotImplementedException();
         }
 

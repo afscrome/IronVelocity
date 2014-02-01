@@ -10,12 +10,12 @@ using System.Text;
 using System.Threading.Tasks;
 using IronVelocity.Binders;
 
-namespace IronVelocity
+namespace IronVelocity.Compilation
 {
     /// <summary>
     /// Visits Dynamic expressions in an expression tree and converts them to an explicit implementation using CallSite
     /// 
-    /// This is requried when compiling expression trees to assemblies rather than using dynamic method 
+    /// This is required when compiling expression trees to assemblies rather than using dynamic method 
     /// </summary>
     public class DynamicToExplicitCallSiteConvertor : ExpressionVisitor
     {
@@ -28,6 +28,10 @@ namespace IronVelocity
             _builder = typeBuilder;
         }
 
+        protected override Expression VisitExtension(Expression node)
+        {
+            return base.VisitExtension(node);
+        }
 
         protected override Expression VisitDynamic(DynamicExpression node)
         {
@@ -75,6 +79,7 @@ namespace IronVelocity
         }
 
         private static readonly ConstructorInfo _getMemberBinderConstructor = typeof(VelocityGetMemberBinder).GetConstructor(new[] { typeof(string) });
+        private static readonly ConstructorInfo _setMemberBinderConstructor = typeof(VelocitySetMemberBinder).GetConstructor(new[] { typeof(string) });
         private static readonly ConstructorInfo _invokeMemberBinderConstructor = typeof(VelocityInvokeMemberBinder).GetConstructor(new[] { typeof(string), typeof(CallInfo) });
 
         private static Expression _emptyStringArray = Expression.NewArrayInit(typeof(string));
@@ -92,10 +97,10 @@ namespace IronVelocity
             }
             else
             {
-                var setBinder = binder as VelocityInvokeMemberBinder;
-                if (setBinder != null)
+                var invokeBinder = binder as VelocityInvokeMemberBinder;
+                if (invokeBinder != null)
                 {
-                    var name = setBinder.Name;
+                    var name = invokeBinder.Name;
 
                     return Expression.New(
                         _invokeMemberBinderConstructor,
@@ -106,6 +111,19 @@ namespace IronVelocity
                             _emptyStringArray
                         )
                     );
+                }
+                else
+                {
+                    var setBinder = binder as VelocitySetMemberBinder;
+                    if (setBinder != null)
+                    {
+                        var name = setBinder.Name;
+                        return Expression.New(
+                            _setMemberBinderConstructor,
+                            Expression.Constant(name)
+                        );
+                    }
+
                 }
             }
 

@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using IronVelocity.Runtime;
+using NUnit.Framework;
 using NVelocity.Test.Provider;
 using System;
 using System.Collections;
@@ -37,7 +38,7 @@ namespace IronVelocity.Tests.Regression
 
             var provider = new TestProvider();
             var al = provider.Customers;
-            var h = new Hashtable();
+            var h = new RuntimeDictionary();
 
             h.Add("Bar", "this is from a hashtable!");
             h.Add("Foo", "this is from a hashtable too!");
@@ -61,7 +62,7 @@ namespace IronVelocity.Tests.Regression
             context["providers"] = provider.Customers2;
             context["list"] = al;
             context["hashtable"] = h;
-            context["hashmap"] = new Hashtable();
+            context["hashmap"] = new RuntimeDictionary();
             context["search"] = provider.Search;
             context["relatedSearches"] = provider.RelSearches;
             context["searchResults"] = provider.RelSearches;
@@ -111,7 +112,7 @@ namespace IronVelocity.Tests.Regression
             var expectedOutput = File.ReadAllText(expectedOutputFile);
 
 
-            var output = Utility.GetNormalisedOutput(input, _environment);
+            var output = Utility.GetNormalisedOutput(input, _environment, inputFile);
             expectedOutput = Utility.NormaliseLineEndings(expectedOutput);
 
             try

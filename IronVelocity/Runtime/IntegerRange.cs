@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace IronVelocity.RuntimeHelpers
+namespace IronVelocity.Runtime
 {
     public static class IntegerRange
     {

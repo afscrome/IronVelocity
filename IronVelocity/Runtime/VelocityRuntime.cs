@@ -1,5 +1,6 @@
 ﻿using Commons.Collections;
-using IronVelocity.Directives;
+using IronVelocity.Compilation;
+using IronVelocity.Compilation.Directives;
 using NVelocity.Runtime;
 using NVelocity.Runtime.Directive;
 using NVelocity.Runtime.Parser.Node;

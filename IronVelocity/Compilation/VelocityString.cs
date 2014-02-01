@@ -8,7 +8,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
-namespace IronVelocity.RuntimeHelpers
+namespace IronVelocity.Compilation
 {
     /// <remarks>
     /// The String Dictionary & Interpolation ("%{key=value,key2=value}" & "hello $name" respectively)

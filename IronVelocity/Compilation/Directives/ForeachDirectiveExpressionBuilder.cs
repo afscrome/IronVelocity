@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace IronVelocity.Directives
+namespace IronVelocity.Compilation.Directives
 {
     public class ForEachDirectiveExpressionBuilder : DirectiveExpressionBuilder
     {

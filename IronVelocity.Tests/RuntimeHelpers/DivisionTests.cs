@@ -1,7 +1,7 @@
-﻿using IronVelocity.RuntimeHelpers;
+﻿using IronVelocity.Runtime;
 using NUnit.Framework;
 
-namespace IronVelocity.Tests.RuntimeHelpers
+namespace IronVelocity.Tests.Runtime
 {
     public class DivisionTests
     {

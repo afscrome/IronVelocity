@@ -2,7 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace IronVelocity
+namespace IronVelocity.Compilation
 {
     public interface IScope
     {

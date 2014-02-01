@@ -28,6 +28,7 @@ namespace NVelocity.Test
          * Tests break directive with a couple of iterations.
          */
         [Test]
+        [Ignore("Break not yet implemented")]
         public void testConditionalBreakDirective()
         {
             assertEvalEquals("1, 2, 3, 4, 5",
@@ -40,6 +41,7 @@ $i#if($i > 4)#break
          * Tests break directive with immediate break.
          */
         [Test]
+        [Ignore("Break not yet implemented")]
         public void testUnconditionalBreakDirective()
         {
             assertEvalEquals("1", @"#foreach($i in [1..5])
@@ -48,6 +50,7 @@ $i#break
         }
 
         [Test]
+        [Ignore("Break not yet implemented")]
         public void testNestedForeach()
         {
             assertEvalEquals("~~~, ~~, ~, ",

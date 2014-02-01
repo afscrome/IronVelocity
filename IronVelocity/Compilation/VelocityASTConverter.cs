@@ -1,6 +1,6 @@
 ﻿using IronVelocity.Binders;
-using IronVelocity.Directives;
-using IronVelocity.RuntimeHelpers;
+using IronVelocity.Compilation.Directives;
+using IronVelocity.Runtime;
 using NVelocity.Runtime.Directive;
 using NVelocity.Runtime.Parser.Node;
 using System;
@@ -13,7 +13,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 
-namespace IronVelocity
+namespace IronVelocity.Compilation
 {
     [CLSCompliant(false)]
     public class VelocityASTConverter
@@ -101,14 +101,18 @@ namespace IronVelocity
         }
 
 
-        public Expression DebugInfo(INode node)
+
+        public Expression DebugInfo(INode node, Expression expr)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
 
+            return expr;
+
             return Expression.Block(
-                //Expression.ClearDebugInfo(_symbolDocument),
-                Expression.DebugInfo(_symbolDocument, node.FirstToken.BeginLine, node.FirstToken.BeginColumn, node.LastToken.EndLine, node.LastToken.EndColumn)
+                Expression.DebugInfo(_symbolDocument, node.FirstToken.BeginLine, node.FirstToken.BeginColumn, node.LastToken.EndLine, node.LastToken.EndColumn),
+                expr
+                //, Expression.ClearDebugInfo(_symbolDocument)
             );
         }
 
@@ -126,45 +130,41 @@ namespace IronVelocity
 
             foreach (var child in node.GetChildren())
             {
-                expressions.Add(DebugInfo(node));
-
+                Expression expr;
                 if (child is ASTText || child is ASTEscape)
                 {
-                    var expr = Text(child);
+                    expr = Text(child);
                     if (output)
                         expr = Output(expr);
-                    expressions.Add(expr);
                 }
                 else if (child is ASTReference)
                 {
-                    var expr = Reference(child, output);
+                    expr = Reference(child, output);
                     if (output)
                         expr = Output(expr);
-                    expressions.Add(expr);
                 }
                 else if (child is ASTIfStatement)
-                    expressions.Add(IfStatement(child));
+                    expr = IfStatement(child);
                 else if (child is ASTSetDirective)
-                    expressions.Add(Set(child));
+                    expr = Set(child);
                 else if (child is ASTEscapedDirective)
                 {
-                    var expr = Escaped(child);
+                    expr = Escaped(child);
                     if (output)
                         expr = Output(expr);
-                    expressions.Add(expr);
                 }
                 else if (child is ASTDirective)
                 {
-                    var expr = Directive(child);
+                     expr = Directive(child);
                     if (output)
                         expr = Output(expr);
-                    expressions.Add(expr);
                 }
                 else if (child is ASTComment)
                     continue;
                 else
                     throw new NotSupportedException("Node type not supported in a block: " + child.GetType().Name);
 
+                expressions.Add(expr);
             }
 
             return expressions;
@@ -192,7 +192,7 @@ namespace IronVelocity
                 throw new NotSupportedException(String.Format(CultureInfo.InvariantCulture, "Unable to handle directive type '{0}'", directive.DirectiveName));
         }
 
-        private static Expression Escaped(INode node)
+        private Expression Escaped(INode node)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -200,7 +200,7 @@ namespace IronVelocity
             if (!(node is ASTEscapedDirective))
                 throw new ArgumentOutOfRangeException("node");
 
-            return Expression.Constant(node.Literal);
+            return DebugInfo(node, Expression.Constant(node.Literal));
         }
 
         public Expression Block(INode node)
@@ -213,10 +213,13 @@ namespace IronVelocity
 
             var children = GetBlockExpressions(node, true);
 
+            Expression expr;
             if (children.Any())
-                return Expression.Block(children);
+                expr = Expression.Block(children);
             else
-                return Expression.Empty();
+                expr = Expression.Empty();
+
+            return DebugInfo(node, expr);
         }
 
         private Expression Set(INode node)
@@ -248,7 +251,7 @@ namespace IronVelocity
 
             //Remove $ or $! prefix to get just the variable name
 
-            var metaData = new IronVelocity.ASTReferenceMetadata(refNode);
+            var metaData = new ASTReferenceMetadata(refNode);
 
             Expression expr;
             if (metaData.RefType == ASTReferenceMetadata.ReferenceType.Runt)
@@ -325,8 +328,8 @@ namespace IronVelocity
                 arguments[i] = Operand(node.GetChild(i));
             }
 
-            return Expression.Block(
-                DebugInfo(node),
+            return DebugInfo(
+                node,
                 Expression.Dynamic(
                     new VelocityInvokeMemberBinder(methodName, new CallInfo(0)),
                     typeof(object),
@@ -344,8 +347,8 @@ namespace IronVelocity
                 throw new ArgumentOutOfRangeException("node");
 
             var propertyName = node.Literal;
-            return Expression.Block(
-                DebugInfo(node),
+            return DebugInfo(
+                node,
                 Expression.Dynamic(
                     GetGetMemberBinder(propertyName),
                     typeof(object),
@@ -398,28 +401,29 @@ namespace IronVelocity
                     var innerCondition = Expr(child.GetChild(0));
                     var innerContent = Block(child.GetChild(1));
 
-                    falseContent = If(innerCondition, innerContent, falseContent);
+                    falseContent = If(child, innerCondition, innerContent, falseContent);
                 }
                 else
 
                     throw new InvalidOperationException("Expected: ASTElseStatement, Actual: " + child.GetType().Name);
             }
-            return If(condition, trueContent, falseContent);
+            return If(node, condition, trueContent, falseContent);
         }
 
         /// <summary>
         /// Helper to build an If or an IfElse statement based on whether we have the falseContent block is not null
         /// </summary>
         /// <returns></returns>
-        private static Expression If(Expression condition, Expression trueContent, Expression falseContent)
+        private Expression If(INode node, Expression condition, Expression trueContent, Expression falseContent)
         {
             if (condition.Type != typeof(bool))
                 condition = Expression.Call(_trueBooleanCoercionMethodInfo, VelocityExpressions.BoxIfNeeded(condition));
 
-            return falseContent != null
+            var expr = falseContent != null
                 ? Expression.IfThenElse(condition, trueContent, falseContent)
                 : Expression.IfThen(condition, trueContent);
 
+            return DebugInfo(node, expr);
         }
 
 
@@ -428,59 +432,63 @@ namespace IronVelocity
             if (node == null)
                 throw new ArgumentNullException("node");
 
+            Expression operand;
             //Literal
             if (node is ASTTrue)
-                return TrueExpression;
+                operand = TrueExpression;
             else if (node is ASTFalse)
-                return FalseExpression;
+                operand = FalseExpression;
             else if (node is ASTNumberLiteral)
-                return NumberLiteral(node);
+                operand = NumberLiteral(node);
             else if (node is ASTStringLiteral)
-                return StringLiteral(node);
+                operand = StringLiteral(node);
             //Logical
             else if (node is ASTAndNode)
-                return And(node);
+                operand = And(node);
             else if (node is ASTOrNode)
-                return Or(node);
+                operand = Or(node);
             else if (node is ASTNotNode)
-                return Not(node);
+                operand = Not(node);
             //Comparison
             else if (node is ASTLTNode)
-                return LessThan(node);
+                operand = LessThan(node);
             else if (node is ASTLENode)
-                return LessThanOrEqual(node);
+                operand = LessThanOrEqual(node);
             else if (node is ASTGTNode)
-                return GreaterThan(node);
+                operand = GreaterThan(node);
             else if (node is ASTGENode)
-                return GreaterThanOrEqual(node);
+                operand = GreaterThanOrEqual(node);
             else if (node is ASTEQNode)
-                return Equal(node);
+                operand = Equal(node);
             else if (node is ASTNENode)
-                return NotEqual(node);
+                operand = NotEqual(node);
             //Mathematical Operations
             else if (node is ASTAddNode)
-                return Addition(node);
+                operand = Addition(node);
             else if (node is ASTSubtractNode)
-                return Subtraction(node);
+                operand = Subtraction(node);
             else if (node is ASTMulNode)
-                return Multiplication(node);
+                operand = Multiplication(node);
             else if (node is ASTDivNode)
-                return Division(node);
+                operand = Division(node);
             else if (node is ASTModNode)
-                return Modulo(node);
+                operand = Modulo(node);
             //Code
             else if (node is ASTAssignment)
-                return Assign(node);
+                operand = Assign(node);
             else if (node is ASTReference)
-                return Reference(node, false);
+                operand = Reference(node, false);
             else if (node is ASTObjectArray)
-                return Array(node);
+                operand = Array(node);
             else if (node is ASTIntegerRange)
-                return IntegerRange(node);
+                operand = IntegerRange(node);
             else if (node is ASTExpression)
-                return Expr(node);
+                operand = Expr(node);
             else
                 throw new NotSupportedException("Node type not supported in an expression: " + node.GetType().Name);
+
+            //No DebugInfo - should already be added by children.
+            return operand;
         }
 
         private Expression Expr(INode node)
@@ -509,7 +517,7 @@ namespace IronVelocity
             var elements = node.GetChildren()
                 .Select(Operand);
 
-            return Expression.New(_listConstructorInfo, Expression.NewArrayInit(typeof(object), elements));
+            return DebugInfo(node, Expression.New(_listConstructorInfo, Expression.NewArrayInit(typeof(object), elements)));
         }
 
         private Expression IntegerRange(INode node)
@@ -523,9 +531,12 @@ namespace IronVelocity
             Expression left, right;
             GetBinaryExpressionOperands(node, out left, out right);
 
-            return Expression.Call(null, _integerRangeMethodInfo,
-                VelocityExpressions.ConvertIfNeeded(left, typeof(object)),
-                VelocityExpressions.ConvertIfNeeded(right, typeof(object))
+            return DebugInfo(
+                node,
+                    Expression.Call(null, _integerRangeMethodInfo,
+                    VelocityExpressions.ConvertIfNeeded(left, typeof(object)),
+                    VelocityExpressions.ConvertIfNeeded(right, typeof(object))
+                    )
                 );
         }
 
@@ -537,10 +548,6 @@ namespace IronVelocity
             if (!(node is ASTStringLiteral))
                 throw new ArgumentOutOfRangeException("node");
 
-            if (node.ChildrenCount > 0)
-                throw new NotImplementedException("Not supporting interpolated strings yet");
-
-
             var isDoubleQuoted = node.Literal.StartsWith("\"", StringComparison.Ordinal);
             var content = node.Literal.Substring(1, node.Literal.Length - 2);
 
@@ -548,24 +555,30 @@ namespace IronVelocity
                 ? VelocityStrings.DetermineStringType(content)
                 : VelocityStrings.StringType.Constant;
 
+            Expression expr;
+
             switch (stringType)
             {
                 case VelocityStrings.StringType.Constant:
-                    return Expression.Constant(content);
+                    expr = Expression.Constant(content);
+                    break;
 
                 case VelocityStrings.StringType.Dictionary:
-                    return VelocityStrings.InterpolateDictionaryString(content, this);
-
+                    expr = VelocityStrings.InterpolateDictionaryString(content, this);
+                    break;
                 case VelocityStrings.StringType.Interpolated:
-                    return VelocityStrings.InterpolateString(content, this);
+                    expr = VelocityStrings.InterpolateString(content, this);
+                    break;
 
                 default:
                     throw new InvalidProgramException();
             }
+
+            return DebugInfo(node, expr);
         }
 
 
-        private static Expression Text(INode node)
+        private Expression Text(INode node)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -574,7 +587,7 @@ namespace IronVelocity
             if (text != node.Literal)
             {
             }
-            return Expression.Constant(text);
+            return DebugInfo(node, Expression.Constant(text));
         }
 
         private static Expression Output(Expression expression)
@@ -640,29 +653,54 @@ namespace IronVelocity
                 right = Expression.Convert(right, left.Type);
             }
 
-            if (left.NodeType == ExpressionType.Dynamic)
-                throw new NotSupportedException("Don't currently support assignment to dotted properties");
+            if (left.NodeType == ExpressionType.Block)
+            {
+                var leftBlock = (BlockExpression)left;
+                if (leftBlock.Expressions.Count == 2 && leftBlock.Expressions[0] is DebugInfoExpression)
+                {
+                    left = leftBlock.Expressions[1];
+                }
+            }
 
-            /* One of the nuances of velocity is that if the right evaluates to null,
-             * Thus we can't simply return an assignment expression.
-             * The resulting expression looks as follows:P
-             *     .set $tempResult = right;
-             *     .if ($tempResult != null){
-             *         Assign(left, right)
-             *     }
-             */
-            var tempResult = Expression.Parameter(right.Type);
-            return Expression.Block(new[] { tempResult },
-                //Store the result of the right hand side in to a temporary variable
-                Expression.Assign(tempResult, right),
-                Expression.IfThen(
-                //If the temporary variable is not equal to null
-                    Expression.NotEqual(tempResult, Expression.Constant(null, right.Type)),
-                //Make the assignment
-                    Expression.Assign(left, tempResult)
-                )
-            );
-            //return Expression.Assign(left, right);
+            Expression assignment = null;
+            if (left.NodeType == ExpressionType.Dynamic)
+            {
+                var dynamic = (DynamicExpression)left;
+                var getBinder = dynamic.Binder as VelocityGetMemberBinder;
+                if (getBinder != null)
+                {
+                    assignment = Expression.Dynamic(
+                        new VelocitySetMemberBinder(getBinder.Name),
+                        typeof(object),
+                        dynamic.Arguments[0],
+                        right
+                        );
+                }
+            }
+            if (assignment == null)
+            {
+                /* One of the nuances of velocity is that if the right evaluates to null,
+                 * Thus we can't simply return an assignment expression.
+                 * The resulting expression looks as follows:P
+                 *     .set $tempResult = right;
+                 *     .if ($tempResult != null){
+                 *         Assign(left, right)
+                 *     }
+                 */
+                var tempResult = Expression.Parameter(right.Type);
+                assignment = Expression.Block(new[] { tempResult },
+                    //Store the result of the right hand side in to a temporary variable
+                    Expression.Assign(tempResult, right),
+                    Expression.IfThen(
+                        //If the temporary variable is not equal to null
+                        Expression.NotEqual(tempResult, Expression.Constant(null, right.Type)),
+                        //Make the assignment
+                        Expression.Assign(left, tempResult)
+                    )
+                );
+            }
+
+            return DebugInfo(node, assignment);
         }
         #endregion
 
@@ -682,9 +720,7 @@ namespace IronVelocity
             if (!(node is ASTAddNode))
                 throw new ArgumentOutOfRangeException("node");
 
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-            return BinaryMathematicalExpression(Expression.Add, left, right, _additionMethodInfo);
+            return BinaryMathematicalExpression(Expression.Add, node, _additionMethodInfo);
         }
 
         /// <summary>
@@ -700,9 +736,7 @@ namespace IronVelocity
             if (!(node is ASTSubtractNode))
                 throw new ArgumentOutOfRangeException("node");
 
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-            return BinaryMathematicalExpression(Expression.Subtract, left, right, _subtractionMethodInfo);
+            return BinaryMathematicalExpression(Expression.Subtract, node, _subtractionMethodInfo);
         }
 
         /// <summary>
@@ -718,9 +752,7 @@ namespace IronVelocity
             if (!(node is ASTMulNode))
                 throw new ArgumentOutOfRangeException("node");
 
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-            return BinaryMathematicalExpression(Expression.Multiply, left, right, _multiplicationMethodInfo);
+            return BinaryMathematicalExpression(Expression.Multiply, node, _multiplicationMethodInfo);
         }
 
         /// <summary>
@@ -736,9 +768,7 @@ namespace IronVelocity
             if (!(node is ASTDivNode))
                 throw new ArgumentOutOfRangeException("node");
 
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-            return BinaryMathematicalExpression(Expression.Divide, left, right, _divisionMethodInfo);
+            return BinaryMathematicalExpression(Expression.Divide, node, _divisionMethodInfo);
         }
 
         /// <summary>
@@ -754,35 +784,39 @@ namespace IronVelocity
             if (!(node is ASTModNode))
                 throw new ArgumentOutOfRangeException("node");
 
+            return BinaryMathematicalExpression(Expression.Divide, node, _moduloMethodInfo);
+        }
+
+
+        private Expression BinaryMathematicalExpression(Func<Expression, Expression, MethodInfo, Expression> generator, INode node, MethodInfo implementation)
+        {
             Expression left, right;
             GetBinaryExpressionOperands(node, out left, out right);
-            return BinaryMathematicalExpression(Expression.Divide, left, right, _moduloMethodInfo);
-        }
 
-
-        private static Expression BinaryMathematicalExpression(Func<Expression, Expression, MethodInfo, Expression> generator, Expression left, Expression right, MethodInfo implementation)
-        {
             // The expression tree will fail if the types don't *exactly* match the types on the method signature
             // So ensure everything is converted to object
             left = VelocityExpressions.ConvertIfNeeded(left, typeof(object));
             right = VelocityExpressions.ConvertIfNeeded(right, typeof(object));
 
-            return generator(left, right, implementation);
+            return DebugInfo(node, generator(left, right, implementation));
         }
 
-        private static Expression BinaryLogicalExpression(Func<Expression, Expression, bool, MethodInfo, Expression> generator, Expression left, Expression right, MethodInfo implementation)
+        private Expression BinaryLogicalExpression(Func<Expression, Expression, bool, MethodInfo, Expression> generator, INode node, MethodInfo implementation)
         {
+            Expression left, right;
+            GetBinaryExpressionOperands(node, out left, out right);
+
             // The expression tree will fail if the types don't *exactly* match the types on the method signature
             // So ensure everything is converted to object
             left = VelocityExpressions.ConvertIfNeeded(left, typeof(object));
             right = VelocityExpressions.ConvertIfNeeded(right, typeof(object));
 
-            return generator(left, right, false, implementation);
+            return DebugInfo(node, generator(left, right, false, implementation));
         }
 
         #endregion
 
-        #region Logical Operators
+        #region Logical Comparators
 
         /// <summary>
         /// Builds an equals expression from an ASTLTNode
@@ -797,9 +831,7 @@ namespace IronVelocity
             if (!(node is ASTLTNode))
                 throw new ArgumentOutOfRangeException("node");
 
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-            return BinaryLogicalExpression(Expression.LessThan, left, right, _lessThanMethodInfo);
+            return BinaryLogicalExpression(Expression.LessThan, node, _lessThanMethodInfo);
         }
 
 
@@ -811,9 +843,7 @@ namespace IronVelocity
             if (!(node is ASTLENode))
                 throw new ArgumentOutOfRangeException("node");
 
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-            return BinaryLogicalExpression(Expression.LessThanOrEqual, left, right, _lessThanOrEqualMethodInfo);
+            return BinaryLogicalExpression(Expression.LessThanOrEqual, node, _lessThanOrEqualMethodInfo);
         }
 
         /// <summary>
@@ -829,9 +859,7 @@ namespace IronVelocity
             if (!(node is ASTGTNode))
                 throw new ArgumentOutOfRangeException("node");
 
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-            return BinaryLogicalExpression(Expression.GreaterThan, left, right, _greaterThanMethodInfo);
+            return BinaryLogicalExpression(Expression.GreaterThan, node, _greaterThanMethodInfo);
         }
         /// <summary>
         /// Builds a greater than or equal to expression from an ASTGENode
@@ -846,9 +874,7 @@ namespace IronVelocity
             if (!(node is ASTGENode))
                 throw new ArgumentOutOfRangeException("node");
 
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-            return BinaryLogicalExpression(Expression.GreaterThanOrEqual, left, right, _greaterThanOrEqualMethodInfo);
+            return BinaryLogicalExpression(Expression.GreaterThanOrEqual, node, _greaterThanOrEqualMethodInfo);
         }
 
         /// <summary>
@@ -864,9 +890,7 @@ namespace IronVelocity
             if (!(node is ASTEQNode))
                 throw new ArgumentOutOfRangeException("node");
 
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-            return BinaryLogicalExpression(Expression.Equal, left, right, _equalMethodInfo);
+            return BinaryLogicalExpression(Expression.Equal, node, _equalMethodInfo);
         }
 
         /// <summary>
@@ -882,9 +906,7 @@ namespace IronVelocity
             if (!(node is ASTNENode))
                 throw new ArgumentOutOfRangeException("node");
 
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-            return BinaryLogicalExpression(Expression.NotEqual, left, right, _notEqualMethodInfo);
+            return BinaryLogicalExpression(Expression.NotEqual, node, _notEqualMethodInfo);
         }
 
         #endregion
@@ -905,7 +927,7 @@ namespace IronVelocity
 
             var expr = VelocityExpressions.ConvertIfNeeded(Operand(node.GetChild(0)), typeof(object));
 
-            return Expression.Not(expr, _falseBooleanCoercionMethodInfo);
+            return DebugInfo(node, Expression.Not(expr, _falseBooleanCoercionMethodInfo));
         }
 
         private Expression And(INode node)
@@ -916,9 +938,7 @@ namespace IronVelocity
             if (!(node is ASTAndNode))
                 throw new ArgumentOutOfRangeException("node");
 
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-            return BinaryMathematicalExpression(Expression.And, left, right, _andMethodInfo);
+            return BinaryMathematicalExpression(Expression.And, node, _andMethodInfo);
         }
 
         private Expression Or(INode node)
@@ -929,9 +949,7 @@ namespace IronVelocity
             if (!(node is ASTOrNode))
                 throw new ArgumentOutOfRangeException("node");
 
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-            return BinaryMathematicalExpression(Expression.Or, left, right, _orMethodInfo);
+            return BinaryMathematicalExpression(Expression.Or, node, _orMethodInfo);
         }
 
 

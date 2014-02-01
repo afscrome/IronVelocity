@@ -1,6 +1,6 @@
 ﻿
 using Microsoft.CSharp.RuntimeBinder;
-namespace IronVelocity.RuntimeHelpers
+namespace IronVelocity.Runtime
 {
     public static class BooleanCoercion
     {
@@ -18,17 +18,14 @@ namespace IronVelocity.RuntimeHelpers
             if (value is bool)
                 return (bool)value;
 
+            return (object)value != null;
             try
             {
-                //Special case if the object has overridden the true or false operator
-                if (value)
-                    return true;
-                else
-                    return false;
+                return value;
             }
             catch (RuntimeBinderException)
             {
-                return value != null;
+                return (object)value != null;
             }
         }
 
@@ -46,17 +43,19 @@ namespace IronVelocity.RuntimeHelpers
             if (value is bool)
                 return !((bool)value);
 
+            if ((object)value == null)
+                return true;
+
+            return (object)value == null;
+
             try
             {
                 //Special case if the object has overridden the false operator
-                if (!value)
-                    return true;
-                else
-                    return false;
+                return !value;
             }
             catch (RuntimeBinderException)
             {
-                return value == null;
+                return (object)value == null;
             }
         }
     }

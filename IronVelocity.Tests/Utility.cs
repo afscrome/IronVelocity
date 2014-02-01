@@ -8,22 +8,22 @@ namespace Tests
 {
     public static class Utility
     {
-        public static Action<VelocityContext, StringBuilder> BuildGenerator(string input, IDictionary<string, object> environment = null)
+        public static Action<VelocityContext, StringBuilder> BuildGenerator(string input, IDictionary<string, object> environment = null, string fileName = "")
         {
             var runtime = new VelocityRuntime(null);
-            return runtime.CompileTemplate(input, "test", "");
+            return runtime.CompileTemplate(input, "test", fileName);
         }
 
-        public static String GetNormalisedOutput(string input, IDictionary<string, object> environment)
+        public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, string fileName = "")
         {
             Action<VelocityContext, StringBuilder> action = null;
             try
             {
-                action = BuildGenerator(input, environment);
+                action = BuildGenerator(input, environment, fileName);
             }
             catch (NotSupportedException ex)
             {
-                //Temporary for dev to seperte those tests failing due to errors from those due to not being implemented yet
+                //Temporary for dev to separate those tests failing due to errors from those due to not being implemented yet
                 Assert.Inconclusive(ex.Message);
             }
 
@@ -34,10 +34,10 @@ namespace Tests
             return NormaliseLineEndings(builder.ToString());
         }
 
-        public static void TestExpectedMarkupGenerated(string input, string expectedOutput, IDictionary<string, object> environment = null)
+        public static void TestExpectedMarkupGenerated(string input, string expectedOutput, IDictionary<string, object> environment = null, string fileName = "")
         {
             expectedOutput = NormaliseLineEndings(expectedOutput);
-            var generatedOutput = GetNormalisedOutput(input, environment);
+            var generatedOutput = GetNormalisedOutput(input, environment, fileName);
 
             Assert.AreEqual(expectedOutput, generatedOutput);
         }
@@ -49,7 +49,9 @@ namespace Tests
         /// <returns>the input text with '\r\n' (windows), '\r' (mac) and '\n' (*nix) replaced by Environment.NewLine</returns>
         public static string NormaliseLineEndings(string text)
         {
-            return text.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", Environment.NewLine);
+            return text.Replace("\r\n", "\n")
+                .Replace("\r", "\n")
+                .Replace("\n", Environment.NewLine);
         }
     }
 }

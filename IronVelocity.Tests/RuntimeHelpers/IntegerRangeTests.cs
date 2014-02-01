@@ -1,4 +1,4 @@
-﻿using IronVelocity.RuntimeHelpers;
+﻿using IronVelocity.Runtime;
 using NUnit.Framework;
 
 namespace IronVelocity.Tests
