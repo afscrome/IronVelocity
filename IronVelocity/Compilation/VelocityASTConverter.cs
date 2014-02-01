@@ -107,8 +107,6 @@ namespace IronVelocity.Compilation
             if (node == null)
                 throw new ArgumentNullException("node");
 
-            return expr;
-
             return Expression.Block(
                 Expression.DebugInfo(_symbolDocument, node.FirstToken.BeginLine, node.FirstToken.BeginColumn, node.LastToken.EndLine, node.LastToken.EndColumn),
                 expr
