@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using IronVelocity.Binders;
+using System;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using IronVelocity.Binders;
 
 namespace IronVelocity.Compilation
 {
