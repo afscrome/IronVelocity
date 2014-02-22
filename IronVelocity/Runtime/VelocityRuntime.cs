@@ -65,12 +65,12 @@ namespace IronVelocity
 
         public Action<VelocityContext, StringBuilder> CompileTemplate(string input, string typeName, string fileName)
         {
-#if DEBUG
             return CompileWithSymbols(input, typeName, fileName);
-#else
+            //TODO: More detailed investigation of DynamicAssembly vs. DynamicMethod
+            /*
             var expressionTree = GetExpressionTree(input, typeName, fileName);
             return expressionTree.Compile();
-#endif
+             */
         }
 
         private Expression<Action<VelocityContext, StringBuilder>> GetExpressionTree(string input, string typeName, string fileName)
@@ -95,7 +95,8 @@ namespace IronVelocity
         public Action<VelocityContext, StringBuilder> CompileWithSymbols(string input, string name, string fileName)
         {
             var assemblyName = new AssemblyName("Widgets");
-            var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.Run);
+            //RunAndCollect allows this assembly to be garbage collected when finished with - http://msdn.microsoft.com/en-us/library/dd554932(VS.100).aspx
+            var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
             return CompileWithSymbols(input, name, fileName, assemblyBuilder);
         }
 
