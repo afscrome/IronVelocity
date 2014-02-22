@@ -69,22 +69,6 @@ namespace IronVelocity.Binders
 
             Expression result;
 
-            /*
-            //Try adding an optional dict param
-            if (method == null)
-            {
-                var argTypeArrayOptionalDict = new Type[argTypeArray.Length + 1];
-                argTypeArray.CopyTo(argTypeArrayOptionalDict, 0);
-                argTypeArrayOptionalDict[argTypeArray.Length] = typeof(IDictionary);
-
-                method = target.LimitType.GetMethod(Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase, null, argTypeArrayOptionalDict, null);
-
-                if (method != null)
-                    argTypeArray = argTypeArrayOptionalDict;
-
-            }
-            */
-
             if (method == null)
             {
                 Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Unable to resolve method '{0}' on type '{1}'", Name, target.LimitType.AssemblyQualifiedName), "Velocity");

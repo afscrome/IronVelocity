@@ -31,6 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="nunit.framework">
@@ -50,6 +51,9 @@
     <Compile Include="Compilation\ASTReferenceMetaData.cs" />
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />
+    <Compile Include="Compilation\Directives\ForeachScope.cs" />
+    <Compile Include="Compilation\Directives\MacroScope.cs" />
+    <Compile Include="Compilation\MethodHelper.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="Compilation\Directives\DirectiveExpressionBuilder.cs" />
     <Compile Include="Compilation\Directives\BreakDirectiveExpressionBuilder.cs" />
@@ -60,6 +64,7 @@
     <Compile Include="Runtime\RuntimeDictionary.cs" />
     <Compile Include="Compilation\VelocityString.cs" />
     <Compile Include="Compilation\Scope.cs" />
+    <Compile Include="Compilation\VelocityCompiler.cs" />
     <Compile Include="VelocityContext.cs" />
     <Compile Include="Compilation\VelocityExpressions.cs" />
     <Compile Include="Extensions\INodeExtensions.cs" />

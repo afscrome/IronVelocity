@@ -42,6 +42,9 @@ namespace IronVelocity.Binders
 
         public static Expression MemberExpression(string name, DynamicMetaObject target)
         {
+            if (target == null)
+                throw new ArgumentNullException("target");
+
             MemberInfo member = null;
             try
             {

@@ -196,6 +196,7 @@ namespace IronVelocity.Compilation
             }
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1008:EnumsShouldHaveZeroValue")]
         public enum ReferenceType
         {
             Normal = 1,

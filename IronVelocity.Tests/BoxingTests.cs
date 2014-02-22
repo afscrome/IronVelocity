@@ -14,7 +14,7 @@ namespace IronVelocity.Tests
     public class BoxingTests
     {
         [Test]
-        public void BoxTestWithPropery()
+        public void BoxTestWithProperyGet()
         {
             var context = new Dictionary<string, object>();
             context["x"] = new TestStruct();
@@ -22,6 +22,18 @@ namespace IronVelocity.Tests
 
             var x = (TestStruct)context["x"];
             Assert.AreEqual(3, x.CallCount);
+        }
+
+
+        [Test]
+        public void BoxTestWithProperySet()
+        {
+            var context = new Dictionary<string, object>();
+            context["x"] = new TestStruct();
+            Utility.TestExpectedMarkupGenerated("#set($x.ManualInt = 5)$x.ManualInt", "5", context);
+
+            var x = (TestStruct)context["x"];
+            Assert.AreEqual(5, x.ManualInt);
         }
 
         [Test]
@@ -39,7 +51,13 @@ namespace IronVelocity.Tests
         {
             private int _callCount;
             public int GetCallCount() { return _callCount++; }
-            public int CallCount { get { return _callCount++; } }
+            public int CallCount{get { return _callCount++; }}
+
+            private int _manualInt;
+            public int ManualInt {
+                get { return _manualInt; }
+                set { _manualInt = value; }
+            }
         }
 
 

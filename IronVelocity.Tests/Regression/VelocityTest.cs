@@ -26,151 +26,62 @@ namespace NVelocity.Test
     /// <summary>
     /// Test Velocity processing
     /// </summary>
-    [TestFixture]//[Ignore("TODO: migrate to IronVelocity")]
+    [TestFixture]
     public class VelocityTest
     {
         [Test]
-        [Ignore("TODO: convert")]
-        public void MathOperations()
+        [TestCase("1 + 1", "2")]
+        [TestCase("$fval + $fval", "2.4")]
+        [TestCase("$dval + $dval", "10.6")]
+        [TestCase("1 + $dval", "6.3")]
+        [TestCase("$fval * $dval", "6.36000025272369")]
+        [TestCase("$fval - $dval", "-4.09999995231628")]
+        [TestCase("$fval % $dval", "1.20000004768372")]
+        [TestCase("$fval / $dval", "0.22641510333655")]
+        public void MathOperations(string expression, string expectedResult)
         {
             System.Threading.Thread.CurrentThread.CurrentCulture = CultureInfo.InvariantCulture;
 
-            VelocityContext context = new VelocityContext();
+            var context = new Dictionary<string, object>();
+            context["fval"] = 1.2f;
+            context["dval"] = 5.3;
 
-            context.Put("fval", 1.2f);
-            context.Put("dval", 5.3);
-
-            Velocity.Init();
-
-            StringWriter sw = new StringWriter();
-
-            Assert.IsTrue(Velocity.Evaluate(context, sw, string.Empty, "#set($total = 1 + 1)\r\n$total"));
-            Assert.AreEqual("2", sw.GetStringBuilder().ToString());
-
-            sw = new StringWriter();
-
-            Assert.IsTrue(Velocity.Evaluate(context, sw, string.Empty, "#set($total = $fval + $fval)\r\n$total"));
-            Assert.AreEqual("2.4", sw.GetStringBuilder().ToString());
-
-            sw = new StringWriter();
-
-            Assert.IsTrue(Velocity.Evaluate(context, sw, string.Empty, "#set($total = $dval + $dval)\r\n$total"));
-            Assert.AreEqual("10.6", sw.GetStringBuilder().ToString());
-
-            sw = new StringWriter();
-
-            Assert.IsTrue(Velocity.Evaluate(context, sw, string.Empty, "#set($total = 1 + $dval)\r\n$total"));
-            Assert.AreEqual("6.3", sw.GetStringBuilder().ToString());
-
-            sw = new StringWriter();
-
-            Assert.IsTrue(Velocity.Evaluate(context, sw, string.Empty, "#set($total = $fval * $dval)\r\n$total"));
-            Assert.AreEqual("6.36000025272369", sw.GetStringBuilder().ToString());
-
-            sw = new StringWriter();
-
-            Assert.IsTrue(Velocity.Evaluate(context, sw, string.Empty, "#set($total = $fval - $dval)\r\n$total"));
-            Assert.AreEqual("-4.09999995231628", sw.GetStringBuilder().ToString());
-
-            sw = new StringWriter();
-
-            Assert.IsTrue(Velocity.Evaluate(context, sw, string.Empty, "#set($total = $fval % $dval)\r\n$total"));
-            Assert.AreEqual("1.20000004768372", sw.GetStringBuilder().ToString());
-
-            sw = new StringWriter();
-
-            Assert.IsTrue(Velocity.Evaluate(context, sw, string.Empty, "#set($total = $fval / $dval)\r\n$total"));
-            Assert.AreEqual("0.22641510333655", sw.GetStringBuilder().ToString());
+            var input = "#set($total = " + expression + ")\r\n$total";
+            Utility.TestExpectedMarkupGenerated(input, expectedResult, context);
         }
 
         [Test]
-        public void Test_Evaluate()
+        [TestCase("$firstName is my first name, my last name is $lastName", "Cort is my first name, my last name is Schaefer",TestName = "Evaluate_SimpleContext")]
+        [TestCase("Hashtable lookup: foo=$hashtable.foo", "Hashtable lookup: foo=bar", TestName = "Evaluate_Nested1")]
+        [TestCase("These are the nested properties:\naddr1=$contact.Address.Address1\naddr2=$contact.Address.Address2", "These are the nested properties:\naddr1=9339 Grand Teton Drive\naddr2=Office in the back",TestName = "Evaluate_Nested2")]
+        [TestCase("Hashtable lookup: foo=$hashtable.foo", "Hashtable lookup: foo=bar", TestName = "Evaluate_Hashtable")]
+        [TestCase("$!NOT_IN_CONTEXT", "", TestName="Evaluate_NotInContext")]
+        [TestCase("#if($enumValue == \"Value2\")equal#end", "equal", TestName = "Evaluate_Enum1")]
+        [TestCase("#if($enumValue == $EnumData.Value2)equal#end", "equal", TestName = "Evaluate_Enum2")]
+        public void Test_Evaluate(string input, string expected)
         {
-            var c = new Dictionary<string, object>();
-            c["key"] = "value";
-            c["firstName"] = "Cort";
-            c["lastName"] = "Schaefer";
+            var context = new Dictionary<string, object>();
+            context["key"] = "value";
+            context["firstName"] = "Cort";
+            context["lastName"] = "Schaefer";
+
             Hashtable h = new Hashtable();
             h.Add("foo", "bar");
-            c["hashtable"] = h;
-            c["EnumData"] = typeof(EnumData);
-            c["enumValue"] = EnumData.Value2;
+            context["hashtable"] = h;
+            context["EnumData"] = typeof(EnumData);
+            context["enumValue"] = EnumData.Value2;
 
             AddressData address = new AddressData();
             address.Address1 = "9339 Grand Teton Drive";
             address.Address2 = "Office in the back";
-            c["address"] = address;
+            context["address"] = address;
 
             ContactData contact = new ContactData();
             contact.Name = "Cort";
             contact.Address = address;
-            c["contact"] = contact;
+            context["contact"] = contact;
 
-            // test simple objects (no nesting)
-            StringWriter sw = new StringWriter();
-            Utility.TestExpectedMarkupGenerated(
-                "$firstName is my first name, my last name is $lastName",
-                "Cort is my first name, my last name is Schaefer",
-                c
-                );
-
-
-            // test nested object
-
-            Utility.TestExpectedMarkupGenerated(
-                "Hashtable lookup: foo=$hashtable.foo",
-                "Hashtable lookup: foo=bar",
-                c
-                );
-
-
-            Utility.TestExpectedMarkupGenerated(
-                "These are the nested properties:\naddr1=$contact.Address.Address1\naddr2=$contact.Address.Address2",
-                "These are the nested properties:\naddr1=9339 Grand Teton Drive\naddr2=Office in the back",
-                c
-                );
-
-            // test hashtable
-            Utility.TestExpectedMarkupGenerated(
-                "Hashtable lookup: foo=$hashtable.foo",
-                "Hashtable lookup: foo=bar",
-                c
-                );
-
-
-            // test nested properties
-            //    	    sw = new StringWriter();
-            //	    template = ;
-            //	    ok = Velocity.Evaluate(c, sw, string.Empty, template);
-            //	    Assert("Evaluation returned failure", ok);
-            //	    s = sw.ToString();
-            //	    Assert("test nested properties", s.Equals("These are the nested properties:\naddr1=9339 Grand Teton Drive\naddr2=Office in the back"));
-
-            // test key not found in context
-            Utility.TestExpectedMarkupGenerated(
-                "$!NOT_IN_CONTEXT",
-                String.Empty,
-                c
-                );
-
-            Utility.TestExpectedMarkupGenerated(
-                "#if($enumValue == \"Value2\")equal#end",
-                "equal",
-                c
-            );
-
-            Utility.TestExpectedMarkupGenerated(
-                "#if($enumValue == $EnumData.Value2)equal#end",
-                "equal",
-                c
-            );
-            // test nested properties where property not found
-            //	    sw = new StringWriter();
-            //	    template = "These are the non-existent nested properties:\naddr1=$contact.Address.Address1.Foo\naddr2=$contact.Bar.Address.Address2";
-            //	    ok = Velocity.Evaluate(c, sw, string.Empty, template);
-            //	    Assert("Evaluation returned failure", ok);
-            //	    s = sw.ToString();
-            //	    Assert("test nested properties where property not found", s.Equals("These are the non-existent nested properties:\naddr1=\naddr2="));
+            Utility.TestExpectedMarkupGenerated(input, expected, context);
         }
 
         // inner classes to support tests --------------------------

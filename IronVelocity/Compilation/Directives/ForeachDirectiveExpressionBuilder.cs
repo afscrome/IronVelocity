@@ -126,9 +126,9 @@ namespace IronVelocity.Compilation.Directives
             var @break = Expression.Label("break");
             var @continue = Expression.Label("continue");
 
-            var localIndex = Expression.Parameter(typeof(int), "index");
-            var originalItemValue = Expression.Parameter(currentItem.Type, "originalItem");
-            var originalIndex = Expression.Parameter(currentItem.Type, "originalVelocityIndex");
+            var localIndex = Expression.Parameter(typeof(int), "foreachIndex$0");
+            var originalItemValue = Expression.Parameter(currentItem.Type, "foreachOriginalItem$0");
+            var originalIndex = Expression.Parameter(currentItem.Type, "foreachOriginalVelocityIndex$0");
 
 
             var loop = Expression.Block(

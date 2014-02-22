@@ -4,6 +4,7 @@
     <Recognized>
       <Word>ast</Word>
       <Word>renderable</Word>
+      <Word>ASTElseStatement</Word>
     </Recognized>
   </Words>
   <Acronyms>

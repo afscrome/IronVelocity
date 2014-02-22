@@ -38,6 +38,14 @@ namespace IronVelocity.Tests.Binders
             Assert.Null(result);
         }
 
+        [Test]
+        public void InternalMethod()
+        {
+            object input = null;
+            var result = test(input, "Internal");
+            Assert.Null(result);
+        }
+
 
         [Test]
         public void MethodNameNotExist()
@@ -126,45 +134,45 @@ namespace IronVelocity.Tests.Binders
             }
         }
 
-        #region Suitability
+        #region Overload Suitability
         [Test]
-        public void Suitability_Object()
+        public void OverloadSuitability_Object()
         {
-            SuitabilityTests<object>(-1);
+            OverloadSuitabilityTests<object>(-1);
         }
         [Test]
-        public void Suitability_Parent()
+        public void OverloadSuitability_Parent()
         {
-            SuitabilityTests<Parent>("Failure");
+            OverloadSuitabilityTests<Parent>("Failure");
         }
         [Test]
-        public void Suitability_Child()
+        public void OverloadSuitability_Child()
         {
-            SuitabilityTests<Child>(true);
-        }
-
-        [Test]
-        public void Suitability_Son()
-        {
-            SuitabilityTests<Son>(Guid.Empty);
+            OverloadSuitabilityTests<Child>(true);
         }
 
         [Test]
-        public void Suitability_Daughter()
+        public void OverloadSuitability_Son()
         {
-            SuitabilityTests<Daughter>(true);
+            OverloadSuitabilityTests<Son>(Guid.Empty);
         }
 
-        public void SuitabilityTests<T>(object expectedResult)
+        [Test]
+        public void OverloadSuitability_Daughter()
+        {
+            OverloadSuitabilityTests<Daughter>(true);
+        }
+
+        public void OverloadSuitabilityTests<T>(object expectedResult)
             where T : new()
         {
-            var input = new Suitability();
+            var input = new OverloadSuitability();
             var result = test(input, "Overload", new T());
 
             Assert.AreEqual(expectedResult, result);
         }
 
-        public class Suitability
+        public class OverloadSuitability
         {
             public int Overload(object param) { return -1; }
             public string Overload(Parent param) { return "Failure"; }
@@ -179,6 +187,8 @@ namespace IronVelocity.Tests.Binders
             public string StringResult() { return "hello world"; }
 
             private string TopSecret() { return "The password is ********"; }
+
+            internal string Internal() { return "Access code: *****"; }
 
             public object OneParameter(object param)
             {

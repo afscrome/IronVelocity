@@ -1,6 +1,7 @@
 ﻿using Commons.Collections;
 using IronVelocity.Compilation;
 using IronVelocity.Compilation.Directives;
+using IronVelocity.Runtime;
 using NVelocity.Runtime;
 using NVelocity.Runtime.Directive;
 using NVelocity.Runtime.Parser.Node;
@@ -21,8 +22,8 @@ namespace IronVelocity
 {
     public class VelocityRuntime
     {
-        private RuntimeInstance _runtimeService;
-        private IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
+        private readonly RuntimeInstance _runtimeService;
+        private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
         {
             {typeof(Foreach), new ForEachDirectiveExpressionBuilder()},
             {typeof(ForeachBeforeAllSection), new ForEachSectionExpressionBuilder(ForEachSection.BeforeAll)},
@@ -62,17 +63,6 @@ namespace IronVelocity
             _runtimeService.Init(_properties);
         }
 
-
-        public Action<VelocityContext, StringBuilder> CompileTemplate(string input, string typeName, string fileName)
-        {
-            return CompileWithSymbols(input, typeName, fileName);
-            //TODO: More detailed investigation of DynamicAssembly vs. DynamicMethod
-            /*
-            var expressionTree = GetExpressionTree(input, typeName, fileName);
-            return expressionTree.Compile();
-             */
-        }
-
         private Expression<Action<VelocityContext, StringBuilder>> GetExpressionTree(string input, string typeName, string fileName)
         {
             var parser = _runtimeService.CreateNewParser();
@@ -90,58 +80,12 @@ namespace IronVelocity
             }
         }
 
-        private const string _methodName = "Execute";
-        private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(StringBuilder) };
-        public Action<VelocityContext, StringBuilder> CompileWithSymbols(string input, string name, string fileName)
+
+        public Action<VelocityContext, StringBuilder> CompileTemplate(string input, string typeName, string fileName)
         {
-            var assemblyName = new AssemblyName("Widgets");
-            //RunAndCollect allows this assembly to be garbage collected when finished with - http://msdn.microsoft.com/en-us/library/dd554932(VS.100).aspx
-            var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
-            return CompileWithSymbols(input, name, fileName, assemblyBuilder);
+            var tree = GetExpressionTree(input, typeName, fileName);
+            return VelocityCompiler.CompileWithSymbols(tree, typeName);
         }
 
-        public Action<VelocityContext, StringBuilder> CompileWithSymbols(string input, string name, string fileName, AssemblyBuilder assemblyBuilder, bool debugMode = false)
-        {
-            if (assemblyBuilder == null)
-                throw new ArgumentNullException("assemblyBuilder");
-
-            var moduleBuilder = assemblyBuilder.DefineDynamicModule(name, true);
-
-            if (debugMode)
-            {
-                var debugAttributes =
-                    DebuggableAttribute.DebuggingModes.Default |
-                    DebuggableAttribute.DebuggingModes.DisableOptimizations;
-
-                var constructor = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
-                var cab = new CustomAttributeBuilder(constructor, new object[] { debugAttributes });
-                assemblyBuilder.SetCustomAttribute(cab);
-                moduleBuilder.SetCustomAttribute(cab);
-            }
-
-            var typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public);
-
-            var meth = typeBuilder.DefineMethod(
-                    _methodName,
-                    MethodAttributes.Public | MethodAttributes.Static,
-                    typeof(void),
-                    _signature);
-
-
-            var expressionTree = GetExpressionTree(input, name, fileName);
-
-            var reducer = new DynamicToExplicitCallSiteConvertor(typeBuilder);
-
-            expressionTree = (Expression<Action<VelocityContext, StringBuilder>>)reducer.Visit(expressionTree);
-
-            var debugInfo = DebugInfoGenerator.CreatePdbGenerator();
-            expressionTree.CompileToMethod(meth, debugInfo);
-
-            var compiledType = typeBuilder.CreateType();
-            var compiledMethod = compiledType.GetMethod(_methodName, _signature);
-            return (Action<VelocityContext, StringBuilder>)Delegate.CreateDelegate(typeof(Action<VelocityContext, StringBuilder>), compiledMethod);
-
-
-        }
     }
 }

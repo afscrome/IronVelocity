@@ -84,7 +84,7 @@ namespace IronVelocity.Runtime
             }
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification="Maintaining Compatability with NVelocity")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Maintaining Compatability with NVelocity")]
         private static int? Compare(dynamic left, dynamic right)
         {
             if (left == null && right == null)
@@ -93,36 +93,41 @@ namespace IronVelocity.Runtime
                 return -1;
             if (right == null)
                 return 1;
-
-            try
+            
+            if (left is IComparable)
             {
-                if (left is IComparable)
-                    return ((IComparable)left).CompareTo(right);
-            }
-            catch { }
-
-            try
-            {
-                if (right is IComparable)
-                    return -((IComparable)right).CompareTo(left);
-            }
-            catch
-            {
-                /*
-                 * I'm not keen on the following, but it is str
-                 * Does it make sense to say that ("str" > 0 == true)?
-                 * 
-                 * Whilst adding this fixes the "CompareString" and "Test Evaluate" regression test from NVelocity,
-                 * it breaks the "logical.vm" regression tests from Velocity
-                 * 
-               */
-                if (left is string || right is string)
-                    return String.Compare(((object)left).ToString(), ((object)right).ToString(), StringComparison.Ordinal);
-  
-                Debug.WriteLine("Unable to compare objects '{0}' and '{1}'", ((object)left).GetType(), ((object)right).GetType());
+                try { return ((IComparable)left).CompareTo(right); }
+                catch { }
             }
 
-            return null;
+            if (right is IComparable)
+            {
+                try { return -((IComparable)right).CompareTo(left); }
+                catch { }
+            }
+
+            /*
+             * I'm not keen on the following, but it is what NVelocity did so leaving it for backwards compatability
+             * Does it make sense to say that ("str" > 0 == true)?
+             * 
+             * Whilst adding this fixes the "CompareString" and "Test Evaluate" regression test from NVelocity,
+             * it breaks the "logical.vm" regression tests from Velocity
+             * 
+           */
+
+            //Casting to object so we use static invocation for ToString and GetType.
+            var leftObj = (object)left;
+            var rightObj = (object)right;
+
+            if (left is string || right is string)
+            {
+                return String.Compare(leftObj.ToString(), rightObj.ToString(), StringComparison.Ordinal);
+            }
+            else
+            {
+                Debug.WriteLine("Unable to compare objects '{0}' and '{1}'", leftObj.GetType(), rightObj.GetType());
+                return null;
+            }
         }
 
     }
