@@ -1,6 +1,7 @@
 ﻿using Microsoft.CSharp.RuntimeBinder;
 using System;
 using System.Diagnostics;
+using System.Numerics;
 
 namespace IronVelocity.Runtime
 {
@@ -14,20 +15,53 @@ namespace IronVelocity.Runtime
                     if (left == null || right == null)
                         return null;
             */
-            try { return left + right; }
+            try { checked { return left + right; } }
             catch (RuntimeBinderException) { return null; }
+            catch (OverflowException)
+            {
+                try
+                {
+                    var bigLeft = new BigInteger(left);
+                    var bigRight = new BigInteger(right);
+
+                    return CompatibleBigIntegerType(bigLeft + bigRight);
+                }
+                catch (RuntimeBinderException) { return null; }
+            }
         }
 
         public static dynamic Subtraction(dynamic left, dynamic right)
         {
-            try { return left - right; }
+            try { checked { return left - right; } }
             catch (RuntimeBinderException) { return null; }
+            catch (OverflowException)
+            {
+                try
+                {
+                    var bigLeft = new BigInteger(left);
+                    var bigRight = new BigInteger(right);
+
+                    return CompatibleBigIntegerType(bigLeft - bigRight);
+                }
+                catch (RuntimeBinderException) { return null; }
+            }
         }
 
         public static dynamic Multiplication(dynamic left, dynamic right)
         {
-            try { return left * right; }
+            try { checked { return left * right; } }
             catch (RuntimeBinderException) { return null; }
+            catch (OverflowException)
+            {
+                try
+                {
+                    var bigLeft = new BigInteger(left);
+                    var bigRight = new BigInteger(right);
+
+                    return CompatibleBigIntegerType(bigLeft * bigRight);
+                }
+                catch (RuntimeBinderException) { return null; }
+            }
         }
 
         public static dynamic Division(dynamic left, dynamic right)
@@ -78,5 +112,17 @@ namespace IronVelocity.Runtime
              */
         }
 
+
+        private static object CompatibleBigIntegerType(BigInteger value)
+        {
+            if (value <= int.MinValue && value >= int.MaxValue)
+                return (int)value;
+            if (value <= long.MinValue && value >= long.MaxValue)
+                return (long)value;
+            if (value <= ulong.MinValue && value >= ulong.MaxValue)
+                return (ulong)value;
+
+            return (float)value;
+        }
     }
 }

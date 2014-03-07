@@ -13,12 +13,11 @@ namespace IronVelocity.Tests.Runtime
         [TestCase(null, null, null, TestName = "Addition Null Both")]
         [TestCase(1f, 4, 5f, TestName = "Addition Integer Float")]
         [TestCase(2, 5f, 7f, TestName = "Addition Float Integer")]
-        //[TestCase(2147483647, 1, 2147483648, TestName = "Addition Integer Overflow")]
-        //[TestCase(-2147483648, -1, -2147483649, TestName = "Addition Integer Underflow")]
+        [TestCase(2147483647, 1, 2147483648, TestName = "Addition Integer Overflow")]
+        [TestCase(-2147483648, -1, -2147483649, TestName = "Addition Integer Underflow")]
         public void BasicTest(object left, object right, object expected)
         {
             var result = Operators.Addition(left, right);
-
             Assert.AreEqual(expected, result);
         }
 
