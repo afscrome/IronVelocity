@@ -6,6 +6,8 @@ namespace IronVelocity.Runtime
 {
     public static class Comparators
     {
+        private static bool? UndefinedComparison = false;
+
         public static bool? LessThan(dynamic left, dynamic right)
         {
             try { return left < right; }
@@ -15,7 +17,7 @@ namespace IronVelocity.Runtime
                 if (comparison.HasValue)
                     return comparison < 0;
                 else
-                    return null;
+                    return UndefinedComparison;
             }
         }
 
@@ -28,7 +30,7 @@ namespace IronVelocity.Runtime
                 if (comparison.HasValue)
                     return comparison <= 0;
                 else
-                    return null;
+                    return UndefinedComparison;
             }
         }
 
@@ -41,7 +43,7 @@ namespace IronVelocity.Runtime
                 if (comparison.HasValue)
                     return comparison > 0;
                 else
-                    return null;
+                    return UndefinedComparison;
             }
         }
 
@@ -54,7 +56,7 @@ namespace IronVelocity.Runtime
                 if (comparison.HasValue)
                     return comparison >= 0;
                 else
-                    return null;
+                    return UndefinedComparison;
             }
         }
 
@@ -85,15 +87,15 @@ namespace IronVelocity.Runtime
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1031:DoNotCatchGeneralExceptionTypes", Justification = "Maintaining Compatability with NVelocity")]
-        private static int? Compare(dynamic left, dynamic right)
+        private static int? Compare(object left, object right)
         {
-            if (left == null && right == null)
+            if (left == right)
                 return 0;
             if (left == null)
                 return -1;
             if (right == null)
                 return 1;
-            
+
             if (left is IComparable)
             {
                 try { return ((IComparable)left).CompareTo(right); }
@@ -113,22 +115,41 @@ namespace IronVelocity.Runtime
              * Whilst adding this fixes the "CompareString" and "Test Evaluate" regression test from NVelocity,
              * it breaks the "logical.vm" regression tests from Velocity
              * 
-           */
+             * 
+             * TODO: Per discussion with Ben, do the ToString for string / primatives
+             */
 
-            //Casting to object so we use static invocation for ToString and GetType.
-            var leftObj = (object)left;
-            var rightObj = (object)right;
+            //If either is a char, convert to a string to simplify conversions:
 
-            if (left is string || right is string)
+            var leftType = left.GetType();
+            var rightType = right.GetType();
+
+            if (leftType == typeof(string) || rightType == typeof(string))
             {
-                return String.Compare(leftObj.ToString(), rightObj.ToString(), StringComparison.Ordinal);
+                //Try converting to numbers 
+                // * comparing strings with numbers
+                // * comparing numeric types which don't have compatible comparision operators (e.g. UInt16 and long)
+                double leftNum, rightNum;
+                if (Double.TryParse(left.ToString(), out leftNum) && Double.TryParse(right.ToString(), out rightNum))
+                    return leftNum.CompareTo(rightNum);
             }
-            else
+            if (leftType.IsEnum || rightType.IsEnum)
             {
-                Debug.WriteLine("Unable to compare objects '{0}' and '{1}'", leftObj.GetType(), rightObj.GetType());
-                return null;
+                return String.Compare(left.ToString(), right.ToString(), StringComparison.Ordinal);
             }
+            else if ((leftType == typeof(string) || leftType == typeof(char)) && (rightType == typeof(string) || rightType == typeof(char)))
+                return String.Compare(left.ToString(), right.ToString(), StringComparison.Ordinal);
+
+            Debug.WriteLine("Unable to compare objects '{0}' and '{1}'", left.GetType(), right.GetType());
+            return null;
         }
 
+        private static bool IsStringComparable(object value)
+        {
+            var type = value.GetType();
+            return type.IsPrimitive
+                || type.IsEnum
+                || type == typeof(string);
+        }
     }
 }

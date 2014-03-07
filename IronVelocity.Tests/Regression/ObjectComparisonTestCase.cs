@@ -171,7 +171,8 @@ leq
 		/// String does an alphabetical comparision, if you compare an object to a string, the
 		/// string value of that object will be used.  Char does an ascii comparison.
 		/// </summary>
-		[Test, Ignore("Not sure most of these tests make sense.  Also fixing this test breaks other regression tests")]
+		[Test]
+        [Ignore("Velocity itself only compares numerics.  Some of this string comparison seems to be an NVelocity Extension, whcih I don't think makes huge amounts of sense")]
 		public void CompareString()
 		{
 			string aaa = "aaa";
