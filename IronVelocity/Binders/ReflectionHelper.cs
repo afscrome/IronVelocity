@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -101,6 +102,37 @@ namespace IronVelocity.Binders
             }
             return null;
         }
+
+
+
+        public static bool IsArgumentCompatible(Type runtimeType, ParameterInfo param)
+        {
+            var underlyingType = param.ParameterType;
+            if (IsParamsArrayArgument(param))
+                underlyingType = underlyingType.GetElementType();
+
+            //If argType is null, then the value is null
+            //We can only map if the signature paramater is a reference type (i.e. supports null)
+            if (runtimeType == null)
+                return !underlyingType.IsPrimitive;
+
+
+            if (underlyingType.IsAssignableFrom(runtimeType))
+                return true;
+
+            if (underlyingType.IsPrimitive)
+            {
+                //TODO: check for widening conversions
+            }
+            return false;
+        }
+
+        private static bool IsParamsArrayArgument(ParameterInfo param)
+        {
+            return param != null
+                && param.GetCustomAttributes<ParamArrayAttribute>().Any();
+        }
+
 
     }
 }
