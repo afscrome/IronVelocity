@@ -1,4 +1,5 @@
 ﻿using IronVelocity;
+using IronVelocity.Compilation;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ namespace Tests
 {
     public static class Utility
     {
-        public static Action<VelocityContext, StringBuilder> BuildGenerator(string input, IDictionary<string, object> environment = null, string fileName = "")
+        public static VelocityTemplateMethod BuildGenerator(string input, IDictionary<string, object> environment = null, string fileName = "")
         {
             var runtime = new VelocityRuntime(null);
             return runtime.CompileTemplate(input, "test", fileName);
@@ -16,7 +17,7 @@ namespace Tests
 
         public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, string fileName = "")
         {
-            Action<VelocityContext, StringBuilder> action = null;
+            VelocityTemplateMethod action = null;
             try
             {
                 action = BuildGenerator(input, environment, fileName);

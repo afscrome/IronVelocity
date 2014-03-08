@@ -8,12 +8,14 @@ using System.Text;
 
 namespace IronVelocity.Compilation
 {
+    public delegate void VelocityTemplateMethod(VelocityContext context, StringBuilder builder);
     public static class VelocityCompiler
     {
         private const string _methodName = "Execute";
         private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(StringBuilder) };
 
-        public static Action<VelocityContext, StringBuilder> CompileWithSymbols(Expression<Action<VelocityContext, StringBuilder>> expressionTree, string name)
+
+        public static VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name)
         {
             var assemblyName = new AssemblyName("Widgets");
             //RunAndCollect allows this assembly to be garbage collected when finished with - http://msdn.microsoft.com/en-us/library/dd554932(VS.100).aspx
@@ -22,7 +24,8 @@ namespace IronVelocity.Compilation
             return CompileWithSymbols(expressionTree, name, assemblyBuilder, debug);
         }
 
-        public static Action<VelocityContext, StringBuilder> CompileWithSymbols(Expression<Action<VelocityContext, StringBuilder>> expressionTree, string name, AssemblyBuilder assemblyBuilder, bool debugMode)
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification="Final cast will fail if the Expression does not conform to VelocityTemplateMethod's signature")]
+        public static VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, AssemblyBuilder assemblyBuilder, bool debugMode)
         {
             if (assemblyBuilder == null)
                 throw new ArgumentNullException("assemblyBuilder");
@@ -52,16 +55,14 @@ namespace IronVelocity.Compilation
 
             var reducer = new DynamicToExplicitCallSiteConvertor(typeBuilder);
 
-            expressionTree = (Expression<Action<VelocityContext, StringBuilder>>)reducer.Visit(expressionTree);
+            expressionTree = (Expression<VelocityTemplateMethod>)reducer.Visit(expressionTree);
 
             var debugInfo = DebugInfoGenerator.CreatePdbGenerator();
             expressionTree.CompileToMethod(meth, debugInfo);
 
             var compiledType = typeBuilder.CreateType();
             var compiledMethod = compiledType.GetMethod(_methodName, _signature);
-            return (Action<VelocityContext, StringBuilder>)Delegate.CreateDelegate(typeof(Action<VelocityContext, StringBuilder>), compiledMethod);
-
-
+            return (VelocityTemplateMethod)Delegate.CreateDelegate(typeof(VelocityTemplateMethod), compiledMethod);
         }
 
     }

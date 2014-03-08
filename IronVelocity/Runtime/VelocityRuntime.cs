@@ -56,7 +56,7 @@ namespace IronVelocity
             _runtimeService.Init(_properties);
         }
 
-        private Expression<Action<VelocityContext, StringBuilder>> GetExpressionTree(string input, string typeName, string fileName)
+        private Expression<VelocityTemplateMethod> GetExpressionTree(string input, string typeName, string fileName)
         {
             var parser = _runtimeService.CreateNewParser();
             using (var reader = new StringReader(input))
@@ -68,13 +68,12 @@ namespace IronVelocity
                 var converter = new VelocityASTConverter(_directiveHandlers);
                 var expr = converter.BuildExpressionTree(ast, fileName);
 
-
-                return Expression.Lambda<Action<VelocityContext, StringBuilder>>(expr, typeName, new[] { Constants.InputParameter, Constants.OutputParameter });
+                return Expression.Lambda<VelocityTemplateMethod>(expr, typeName, new[] { Constants.InputParameter, Constants.OutputParameter });
             }
         }
 
 
-        public Action<VelocityContext, StringBuilder> CompileTemplate(string input, string typeName, string fileName)
+        public VelocityTemplateMethod CompileTemplate(string input, string typeName, string fileName)
         {
             var tree = GetExpressionTree(input, typeName, fileName);
             return VelocityCompiler.CompileWithSymbols(tree, typeName);

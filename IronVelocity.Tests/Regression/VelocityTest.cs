@@ -48,7 +48,6 @@ namespace NVelocity.Test
             Utility.TestExpectedMarkupGenerated(input, expectedResult, context);
         }
 
-        [Test]
         [TestCase("$firstName is my first name, my last name is $lastName", "Cort is my first name, my last name is Schaefer",TestName = "Evaluate_SimpleContext")]
         [TestCase("Hashtable lookup: foo=$hashtable.foo", "Hashtable lookup: foo=bar", TestName = "Evaluate_Nested1")]
         [TestCase("These are the nested properties:\naddr1=$contact.Address.Address1\naddr2=$contact.Address.Address2", "These are the nested properties:\naddr1=9339 Grand Teton Drive\naddr2=Office in the back",TestName = "Evaluate_Nested2")]

@@ -96,15 +96,17 @@ namespace IronVelocity.Runtime
             if (right == null)
                 return 1;
 
-            if (left is IComparable)
+            var leftComparable = left as IComparable;
+            if (leftComparable != null)
             {
-                try { return ((IComparable)left).CompareTo(right); }
+                try { return leftComparable.CompareTo(right); }
                 catch { }
             }
 
-            if (right is IComparable)
+            var rightComparable = right as IComparable;
+            if (rightComparable != null)
             {
-                try { return -((IComparable)right).CompareTo(left); }
+                try { return -rightComparable.CompareTo(left); }
                 catch { }
             }
 
