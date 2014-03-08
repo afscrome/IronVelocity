@@ -99,7 +99,7 @@ namespace IronVelocity.Compilation
             if (!input.Any())
                 return dictionaryInit;
 
-            var dictionary = Expression.Parameter(_dictionaryType, "dictionary");
+            var dictionary = Expression.Parameter(_dictionaryType, "tempDictionary");
             dictionaryInit = Expression.Assign(dictionary, dictionaryInit);
 
             var valuesInit = input.Select(x => Expression.Call(
@@ -113,7 +113,7 @@ namespace IronVelocity.Compilation
 
             return Expression.Block(
                 new[] { dictionary },
-                Enumerable.Union(new[] { dictionaryInit }, valuesInit).Union(new[] { Expression.Convert(dictionary, typeof(IDictionary)) })
+                Enumerable.Union(new[] { dictionaryInit }, valuesInit).Union(new[] { dictionary })
             );
 
         }

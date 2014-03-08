@@ -23,6 +23,7 @@ namespace IronVelocity.Compilation
         private IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers;
         private IScope _scope = new BaseScope(Constants.InputParameter);
         private SymbolDocumentInfo _symbolDocument;
+        private static ParameterExpression _evaulatedResult = Expression.Parameter(typeof(object), "tempEvaulatedResult");
 
         public VelocityASTConverter(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers)
         {
@@ -60,7 +61,7 @@ namespace IronVelocity.Compilation
             if (!expressions.Any())
                 return Expression.Default(typeof(void));
 
-            return Expression.Block(expressions);
+            return Expression.Block(new[] { _evaulatedResult }, expressions);
         }
 
         public Expression GetVariable(string name)
@@ -258,9 +259,7 @@ namespace IronVelocity.Compilation
             else
             {
                 //TODO: this fails if return type is void
-                var evaluatedResult = _evaulatedResult;
                 return Expression.Block(
-                    new[] { _evaulatedResult },
                     Expression.Assign(_evaulatedResult, expr),
                     Expression.Condition(
                         Expression.NotEqual(_evaulatedResult, Expression.Constant(null, _evaulatedResult.Type)),
@@ -274,7 +273,6 @@ namespace IronVelocity.Compilation
                 );
             }
         }
-        private static ParameterExpression _evaulatedResult = Expression.Parameter(typeof(object), "evaulatedResult");
 
 
         private Expression Method(INode node, Expression parent)
