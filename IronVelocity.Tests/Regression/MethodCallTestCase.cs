@@ -68,13 +68,13 @@ namespace NVelocity.Test
 			Assert.AreEqual("99", Eval("$test.justDoIt($num)"));
 		}
 
-		[Test, Ignore("reminder of change of HybridDictionary to Dictionary<string,object>")]
+		[Test]
 		public void NoAmbiguityTest()
 		{
 			int num = 99;
 			c["num"] =num;
 			Assert.AreEqual("Int32", Eval("$test.Amb($num)"));
-			Assert.AreEqual("HybridDictionary", Eval("$test.Amb(\"%{id=1}\")"));
+			Assert.AreEqual("RuntimeDictionary", Eval("$test.Amb(\"%{id=1}\")"));
 		}
 
 		[Test, Ignore]
