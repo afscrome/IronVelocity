@@ -128,42 +128,102 @@ namespace IronVelocity.Binders
             // Loosely based on C# resolution algorithm
             // C# 1.0 resolution algorithm at http://msdn.microsoft.com/en-us/library/aa691336(v=vs.71).aspx
             // C# 5.0 algorithm in section 7.5.3 of spec - http://www.microsoft.com/en-gb/download/details.aspx?id=7029
-            var candidates = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
-                .Where(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-
             //Given the set of applicable candidate function members, the best function member in that set is located.
-            var applicables = candidates.Where(x => IsMethodApplicable(x, argTypes))
+            var candidates = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
+                .Where(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
+                .Where(x => IsMethodApplicable(x, argTypes))
                 .ToList();
 
-
             //If the set contains only one function member, then that function member is the best function member.
-            if (applicables.Count == 1)
-                return applicables.First();
+            if (candidates.Count == 1)
+                return candidates.First();
 
+            if (!candidates.Any())
+                return null;
+
+            return GetBestFunctionMember(candidates);
+        }
+
+        public static MethodInfo GetBestFunctionMember(IEnumerable<MethodInfo> applicableFunctionMembers)
+        {
             //Otherwise, the best function member is the one function member that is better than all other function
             //members with respect to the given argument list, provided that each function member is compared to
             //all other function members using the rules in §7.5.3.2.
-            if (!applicables.Any())
-                return null;
-
-            var maximals = new List<MethodInfo>();
-            foreach (var applicable in applicables)
+            var best = new List<MethodInfo>();
+            foreach (var candidate in applicableFunctionMembers)
             {
-                var applicableArguments = applicable.GetParameters();
+                var candidateArguments = candidate.GetParameters();
+                bool lessSpecific = false;
+                foreach (var better in best.ToArray())
+                {
+                    switch (IsBetterFunctionMember(candidate, better))
+                    {
+                        //If the current candidate is better than the 'better', remove 'better' from
+                        case MethodSpecificityComparison.Better:
+                            best.Remove(better);
+                            break;
+                        case MethodSpecificityComparison.Incomparable:
+                            break;
+                        case MethodSpecificityComparison.Worse:
+                            lessSpecific = true;
+                            continue;
+                        default:
+                            throw new InvalidOperationException();
+                    }
+                }
+                if (!lessSpecific)
+                {
+                    best.Add(candidate);
+                }
             }
 
-            throw new NotImplementedException();
+            //If the set contains only one function member, then that function member is the best function member.
+            if (best.Count == 1)
+                return best.First();
+
+            //TODO: Implement Tie-break rules
 
             //If there is not exactly one function member that is better than all other function members, then the
             //function member invocation is ambiguous and a compile-time error occurs.
+            throw new AmbiguousMatchException();
         }
 
-        public static bool AreArgumentsMoreSpecific()
+        public static MethodSpecificityComparison IsBetterFunctionMember(MethodInfo left, MethodInfo right)
         {
-            throw new NotImplementedException();
+            var leftArgs = left.GetParameters();
+            var rightArgs = right.GetParameters();
+
+            if (leftArgs.Length != rightArgs.Length)
+                throw new ArgumentOutOfRangeException();
+
+            bool leftMoreSpecific = false;
+            bool rightMoreSpecific = false;
+
+            for (int i = 0; i < leftArgs.Length; i++)
+            {
+                var leftType = leftArgs[i].ParameterType;
+                var rightType = rightArgs[i].ParameterType;
+                //If types the same, then neither is more specific
+                if (leftType != rightType)
+                {
+                    leftMoreSpecific |= CanBeImplicitlyConverted(leftType, rightType);
+                    rightMoreSpecific |= CanBeImplicitlyConverted(rightType, leftType);
+                }
+            }
+
+            if (leftMoreSpecific == rightMoreSpecific)
+                return MethodSpecificityComparison.Incomparable;
+            else if (leftMoreSpecific)
+                return MethodSpecificityComparison.Better;
+            else if (rightMoreSpecific)
+                return MethodSpecificityComparison.Worse;
+
+            //Should be impossible to get here right??
+            throw new InvalidProgramException();
         }
 
-        public enum X{
+        public enum MethodSpecificityComparison
+        {
             Better,
             Incomparable,
             Worse
@@ -232,12 +292,11 @@ namespace IronVelocity.Binders
             return CanBeImplicitlyConverted(runtimeType, underlyingArgumentType);
         }
 
-        private static bool IsParamsArrayArgument(ParameterInfo param)
+        public static bool IsParamsArrayArgument(ParameterInfo param)
         {
             return param != null
                 && param.GetCustomAttributes<ParamArrayAttribute>().Any();
         }
-
 
     }
 }

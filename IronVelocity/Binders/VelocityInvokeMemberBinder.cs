@@ -48,15 +48,21 @@ namespace IronVelocity.Binders
                 );
             }
 
-            var argTypeArray = args.Select(x =>
-                    x.Value == null
-                        ? null
-                        : x.LimitType
-                ).ToArray();
+            // If an argument has a null value, use a null type so that the resolution algorithm can do implicit null conversions
+            var argTypeArray = args
+                .Select(x => x.Value == null ? null: x.LimitType)
+                .ToArray();
 
-            var method = ReflectionHelper.ResolveMethod(target.LimitType, Name, argTypeArray);
-
+            MethodInfo method;
             Expression result;
+            try
+            {
+                method = ReflectionHelper.ResolveMethod(target.LimitType, Name, argTypeArray);
+            }
+            catch (AmbiguousMatchException)
+            {
+                method = null;
+            }
 
             if (method == null)
             {
@@ -69,11 +75,15 @@ namespace IronVelocity.Binders
                 var argExpressions = new Expression[argTypeArray.Length];
                 for (int i = 0; i < args.Length; i++)
                 {
-                    argExpressions[i] = VelocityExpressions.ConvertParameterIfNeeded(args[i], parameters[i]);
+                    var parameter = parameters[i];
+                    if (ReflectionHelper.IsParamsArrayArgument(parameter))
+                        throw new NotImplementedException();
+                    argExpressions[i] = VelocityExpressions.ConvertParameterIfNeeded(args[i], parameter);
                 }
+                /*
                 if (argTypeArray.Length > args.Length)
                     argExpressions[args.Length] = Expression.Default(typeof(IDictionary));
-
+                */
                 result = Expression.Call(
                     VelocityExpressions.ConvertReturnTypeIfNeeded(target, method),
                     method,
