@@ -48,24 +48,13 @@ namespace IronVelocity.Binders
                 );
             }
 
-            MethodInfo method = null;
-            var argTypeArray = args.Select(x => x.LimitType).ToArray();
-            try
-            {
-                method = target.LimitType.GetMethod(Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase, null, argTypeArray, null);
-            }
-            catch (AmbiguousMatchException)
-            {
-                try
-                {
-                    method = target.LimitType.GetMethod(Name, BindingFlags.Public | BindingFlags.Instance, null, argTypeArray, null);
-                }
-                catch (AmbiguousMatchException)
-                {
-                    Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Ambiguous match for method '{0}' on type '{1}'", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
+            var argTypeArray = args.Select(x =>
+                    x.Value == null
+                        ? null
+                        : x.LimitType
+                ).ToArray();
 
-                }
-            }
+            var method = ReflectionHelper.ResolveMethod(target.LimitType, Name, argTypeArray);
 
             Expression result;
 

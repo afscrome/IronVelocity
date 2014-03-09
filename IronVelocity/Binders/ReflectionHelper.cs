@@ -1,5 +1,6 @@
 ﻿using IronVelocity.Compilation;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
@@ -13,6 +14,24 @@ namespace IronVelocity.Binders
     {
         private const BindingFlags _caseSensitiveBindingFlags = BindingFlags.Public | BindingFlags.Instance;
         private const BindingFlags _caseInsensitiveBindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase;
+
+        /// <summary>
+        /// A list of implicit numeric conversions as defined in section 6.1.2 of the C# 5.0 spec
+        /// The value array indicates types which the Key type can be implicitly converted to.
+        /// </summary>
+        private static readonly IDictionary<Type, Type[]> _implicitNumericConversions = new Dictionary<Type, Type[]>(){
+                    { typeof(sbyte), new[]{typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal)}},
+                    { typeof(byte), new[]{typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal)}},
+                    { typeof(short), new[]{typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal)}},
+                    { typeof(ushort), new[]{typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal)}},
+                    { typeof(int), new[]{typeof(long), typeof(float), typeof(double), typeof(decimal)}},
+                    { typeof(uint), new[]{typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal)}},
+                    { typeof(long), new[]{typeof(float), typeof(double), typeof(decimal)}},
+                    { typeof(ulong), new[]{typeof(float), typeof(double), typeof(decimal)}},
+                    { typeof(char), new[]{typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal)}},
+                    { typeof(float), new[]{typeof(double)}},
+                };
+
 
         private static MemberInfo GetMember(string name, Type type, bool caseSensitive)
         {
@@ -104,27 +123,113 @@ namespace IronVelocity.Binders
         }
 
 
-
-        public static bool IsArgumentCompatible(Type runtimeType, ParameterInfo param)
+        public static MethodInfo ResolveMethod(Type type, string name, params Type[] argTypes)
         {
-            var underlyingType = param.ParameterType;
-            if (IsParamsArrayArgument(param))
-                underlyingType = underlyingType.GetElementType();
+            // Loosely based on C# resolution algorithm
+            // C# 1.0 resolution algorithm at http://msdn.microsoft.com/en-us/library/aa691336(v=vs.71).aspx
+            // C# 5.0 algorithm in section 7.5.3 of spec - http://www.microsoft.com/en-gb/download/details.aspx?id=7029
+            var candidates = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
+                .Where(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
-            //If argType is null, then the value is null
-            //We can only map if the signature paramater is a reference type (i.e. supports null)
-            if (runtimeType == null)
-                return !underlyingType.IsPrimitive;
+            //Given the set of applicable candidate function members, the best function member in that set is located.
+            var applicables = candidates.Where(x => IsMethodApplicable(x, argTypes))
+                .ToList();
 
 
-            if (underlyingType.IsAssignableFrom(runtimeType))
+            //If the set contains only one function member, then that function member is the best function member.
+            if (applicables.Count == 1)
+                return applicables.First();
+
+            //Otherwise, the best function member is the one function member that is better than all other function
+            //members with respect to the given argument list, provided that each function member is compared to
+            //all other function members using the rules in §7.5.3.2.
+            if (!applicables.Any())
+                return null;
+
+            var maximals = new List<MethodInfo>();
+            foreach (var applicable in applicables)
+            {
+                var applicableArguments = applicable.GetParameters();
+            }
+
+            throw new NotImplementedException();
+
+            //If there is not exactly one function member that is better than all other function members, then the
+            //function member invocation is ambiguous and a compile-time error occurs.
+        }
+
+        public static bool AreArgumentsMoreSpecific()
+        {
+            throw new NotImplementedException();
+        }
+
+        public enum X{
+            Better,
+            Incomparable,
+            Worse
+        }
+
+        public static bool IsMethodApplicable(MethodInfo method, params Type[] argTypes)
+        {
+            if (method == null)
+                throw new ArgumentNullException("method");
+
+            if (argTypes == null)
+                argTypes = new Type[0];
+
+            //Don't support generic method definitions
+            if (method.IsGenericMethod)
+                return false;
+
+            var args = method.GetParameters();
+            if (argTypes.Length != args.Length)
+                return false;
+
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (!IsArgumentCompatible(argTypes[i], args[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1004:GenericMethodsShouldProvideTypeParameter")]
+        public static bool CanBeImplicitlyConverted<TFrom, TTo>()
+        {
+            return CanBeImplicitlyConverted(typeof(TFrom), typeof(TTo));
+        }
+
+        public static bool CanBeImplicitlyConverted(Type from, Type to)
+        {
+            //from may be null, but to may not be
+            if (to == null)
+                throw new ArgumentNullException("to");
+
+
+            if (from == null)
+                return !to.IsPrimitive;
+
+            if (to.IsAssignableFrom(from))
                 return true;
 
-            if (underlyingType.IsPrimitive)
-            {
-                //TODO: check for widening conversions
-            }
+            Type[] supportedConversions;
+            if (_implicitNumericConversions.TryGetValue(from, out supportedConversions))
+                return supportedConversions.Contains(to);
+
             return false;
+        }
+
+        public static bool IsArgumentCompatible(Type runtimeType, ParameterInfo parameter)
+        {
+            if (parameter == null)
+                throw new ArgumentNullException("parameter");
+
+            var underlyingArgumentType = parameter.ParameterType;
+            if (IsParamsArrayArgument(parameter))
+                underlyingArgumentType = underlyingArgumentType.GetElementType();
+
+            return CanBeImplicitlyConverted(runtimeType, underlyingArgumentType);
         }
 
         private static bool IsParamsArrayArgument(ParameterInfo param)

@@ -51,6 +51,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Binders\ReflectionHelper\ArgumentCompatabilityTests.cs" />
+    <Compile Include="Binders\ReflectionHelper\ImplicitConversionSupportTests.cs" />
+    <Compile Include="Binders\ReflectionHelper\MethodApplicabilityTests.cs" />
     <Compile Include="Binders\SetMemberBinderTests.cs" />
     <Compile Include="Binders\InvokeMemberBinderTests.cs" />
     <Compile Include="Binders\GetMemberBinderTests.cs" />

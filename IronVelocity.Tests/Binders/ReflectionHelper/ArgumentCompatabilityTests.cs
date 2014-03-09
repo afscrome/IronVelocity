@@ -1,48 +1,13 @@
 ﻿using IronVelocity.Binders;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Tests.Binders
 {
+    //Tests based on section 6.1 from C# spec
     public class ArgumentCompatabilityTests
     {
-        [Test]
-        public void NullValueIsCompatibleWithReferenceType()
-        {
-            var param = GetParameterInfo("ReferenceType");
-            var result = ReflectionHelper.IsArgumentCompatible(null, param);
-            Assert.IsTrue(result);
-        }
-
-        [Test]
-        public void NullValueIsIncompatibleWithValuetype()
-        {
-            var param = GetParameterInfo("ValueType");
-            var result = ReflectionHelper.IsArgumentCompatible(null, param);
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void BoxedPrimitiveCompatibleWithUnboxed()
-        {
-            var param = GetParameterInfo("ValueType");
-            var result = ReflectionHelper.IsArgumentCompatible(typeof(Int32), param);
-            Assert.IsTrue(result);
-        }
-
-        [Test]
-        public void UnboxedPrimitiveCompatibleWithBoxed()
-        {
-            var param = GetParameterInfo("BoxedPrimitive");
-            var result = ReflectionHelper.IsArgumentCompatible(typeof(int), param);
-            Assert.IsTrue(result);
-        }
-
         [Test]
         public void ChildTypeIsCompatibleWithParent()
         {
@@ -108,13 +73,13 @@ namespace IronVelocity.Tests.Binders
 
         private ParameterInfo GetParameterInfo(string key)
         {
-            return typeof(ArgumentHelper).GetMethod(key).GetParameters()[0];
+            return typeof(TestArguments).GetMethod(key).GetParameters()[0];
         }
 
         /// <summary>
         /// Fake class used by GetParameterInfo to build a ParamaterInfo object
         /// </summary>
-        private class ArgumentHelper
+        private class TestArguments
         {
             public void ValueType(int arg) { }
             public void ReferenceType(String arg) { }
@@ -125,6 +90,8 @@ namespace IronVelocity.Tests.Binders
             public void ParamArray(params Child[] arg) { }
             public void Object(object arg) { }
             public void GenericArgument<T>(T arg) { }
+
+            public void NullableValueType(int? arg) { }
         }
 
     }
