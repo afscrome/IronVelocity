@@ -77,7 +77,7 @@ namespace IronVelocity.Compilation
                 throw new ArgumentNullException("node");
 
             return Expression.Block(
-                Expression.DebugInfo(_symbolDocument, node.FirstToken.BeginLine, node.FirstToken.BeginColumn, node.LastToken.EndLine, node.LastToken.EndColumn),
+                Expression.DebugInfo(_symbolDocument, node.FirstToken.BeginLine + 1, node.FirstToken.BeginColumn, node.LastToken.EndLine + 1, node.LastToken.EndColumn),
                 expression
                 //, Expression.ClearDebugInfo(_symbolDocument)
             );
