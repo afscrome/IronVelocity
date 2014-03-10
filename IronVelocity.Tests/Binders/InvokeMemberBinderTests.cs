@@ -99,6 +99,44 @@ namespace IronVelocity.Tests.Binders
             Assert.AreEqual("One Param Success", result);
         }
 
+        [Test]
+        public void ParamArrayWithNoArguments()
+        {
+            var target = new MethodTests();
+            var result = test(target, "ParamArray");
+
+            Assert.AreEqual(0, result);
+        }
+
+        [Test]
+        public void ParamArrayWithOneArgument()
+        {
+            var target = new MethodTests();
+            var result = test(target, "ParamArray", "one");
+
+            Assert.AreEqual(1, result);
+        }
+
+        [Test]
+        public void ParamArrayWithTwoArguments()
+        {
+            var target = new MethodTests();
+            var result = test(target, "ParamArray", "one", "two");
+
+            Assert.AreEqual(2, result);
+        }
+
+        [Test]
+        public void ParamArrayWithArrayArguments()
+        {
+            var target = new MethodTests();
+            var arg1 = new string[] {"one", "two"};
+            var result = test(target, "ParamArray", new[] { arg1 });
+
+            Assert.AreEqual(2, result);
+        }
+
+
         //null input returns null
         //Void returns null??
 
@@ -194,6 +232,12 @@ namespace IronVelocity.Tests.Binders
             {
                 return "One Param Success";
             }
+
+            public int ParamArray(params object[] values)
+            {
+                return values.Length;
+            }
+
         }
 
 

@@ -30,12 +30,20 @@ namespace IronVelocity.Tests.Binders
             var result = ReflectionHelper.IsArgumentCompatible(typeof(Daughter), param);
             Assert.IsFalse(result);
         }
-        
+
         [Test]
         public void UnderlyingTypeIsCompatibleWithParamsArray()
         {
             var param = GetParameterInfo("ParamArray");
             var result = ReflectionHelper.IsArgumentCompatible(typeof(Child), param);
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void UnderlyingTypeArrayIsCompatibleWithParamsArray()
+        {
+            var param = GetParameterInfo("ParamArray");
+            var result = ReflectionHelper.IsArgumentCompatible(typeof(Child[]), param);
             Assert.IsTrue(result);
         }
 
@@ -54,6 +62,13 @@ namespace IronVelocity.Tests.Binders
             var result = ReflectionHelper.IsArgumentCompatible(typeof(Son), param);
             Assert.IsTrue(result);
         }
+        [Test]
+        public void ChildOfUnderlyingTypeArrayIsIncompatibleWithParamsArray()
+        {
+            var param = GetParameterInfo("ParamArray");
+            var result = ReflectionHelper.IsArgumentCompatible(typeof(Son[]), param);
+            Assert.IsTrue(result);
+        }
 
         [Test]
         public void ValueTypeCanBeBoxedToObject()
@@ -70,6 +85,7 @@ namespace IronVelocity.Tests.Binders
             var result = ReflectionHelper.IsArgumentCompatible(typeof(object), param);
             Assert.IsFalse(result);
         }
+
 
         private ParameterInfo GetParameterInfo(string key)
         {

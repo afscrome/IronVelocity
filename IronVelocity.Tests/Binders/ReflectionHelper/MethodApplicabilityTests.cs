@@ -7,7 +7,7 @@ namespace IronVelocity.Tests.Binders
     public class MethodApplicabilityTests
     {
         [Test]
-        public void ParameterlessMethodIsApplicableIsApplicable()
+        public void ParameterlessMethodIsApplicable()
         {
             var method = typeof(TestMethods).GetMethod("Parameterless");
             var result = ReflectionHelper.IsMethodApplicable(method);
@@ -86,12 +86,46 @@ namespace IronVelocity.Tests.Binders
             Assert.IsFalse(result);
         }
 
+        [Test]
+        public void ParamsArrayIsApplicableToNoArgument()
+        {
+            var method = typeof(TestMethods).GetMethod("ParamArray");
+            var result = ReflectionHelper.IsMethodApplicable(method);
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void ParamsArrayIsApplicableToSingleArgument()
+        {
+            var method = typeof(TestMethods).GetMethod("ParamArray");
+            var result = ReflectionHelper.IsMethodApplicable(method, typeof(string));
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void ParamsArrayIsApplicableToTwoArguments()
+        {
+            var method = typeof(TestMethods).GetMethod("ParamArray");
+            var result = ReflectionHelper.IsMethodApplicable(method, typeof(string), typeof(string));
+            Assert.IsTrue(result);
+        }
+        [Test]
+        public void StringArrayIsApplicableToStringParamArray()
+        {
+            var method = typeof(TestMethods).GetMethod("ParamArray");
+            var result = ReflectionHelper.IsMethodApplicable(method, typeof(string[]));
+            Assert.IsTrue(result);
+        }
+
+
         private class TestMethods
         {
             public void Parameterless() { }
             public void Int(int arg) { }
             public void Parent(Parent arg) { }
             public void Child(Child arg) { }
+
+            public void ParamArray(params string[] args) { }
 
             public void Generic<T>() { }
             public T GenericReturn<T>() { return default(T); }

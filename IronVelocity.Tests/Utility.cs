@@ -29,7 +29,10 @@ namespace Tests
             }
 
             var builder = new StringBuilder();
-            var ctx = new VelocityContext(environment);
+            var ctx = environment as VelocityContext;
+            if (ctx == null)
+                ctx = new VelocityContext(environment);
+
             action(ctx, builder);
 
             return NormaliseLineEndings(builder.ToString());

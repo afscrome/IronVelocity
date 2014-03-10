@@ -72,18 +72,38 @@ namespace IronVelocity.Binders
             else
             {
                 var parameters = method.GetParameters();
-                var argExpressions = new Expression[argTypeArray.Length];
-                for (int i = 0; i < args.Length; i++)
+                var lastParameter = parameters.LastOrDefault();
+                bool hasParamsArray = ReflectionHelper.IsParamsArrayArgument(lastParameter);
+
+                int trivialParams = hasParamsArray
+                    ? parameters.Length - 1
+                    : parameters.Length;
+
+                var argExpressions = new Expression[parameters.Length];
+                for (int i = 0; i < trivialParams; i++)
                 {
                     var parameter = parameters[i];
-                    if (ReflectionHelper.IsParamsArrayArgument(parameter))
-                        throw new NotImplementedException();
                     argExpressions[i] = VelocityExpressions.ConvertParameterIfNeeded(args[i], parameter);
                 }
-                /*
-                if (argTypeArray.Length > args.Length)
-                    argExpressions[args.Length] = Expression.Default(typeof(IDictionary));
-                */
+                if (hasParamsArray)
+                {
+                    int lastIndex = argExpressions.Length - 1;
+                    //Check if the array has been explicitly passed, rather than as individual elements
+                    if (argTypeArray.Length == parameters.Length && ReflectionHelper.CanBeImplicitlyConverted(argTypeArray.Last(), lastParameter.ParameterType))
+                        argExpressions[lastIndex] = VelocityExpressions.ConvertParameterIfNeeded(args[lastIndex], lastParameter);
+                    else
+                    {
+                        var elementType = lastParameter.ParameterType.GetElementType();
+                        argExpressions[lastIndex] = Expression.NewArrayInit(
+                            elementType,
+                            args.Skip(lastIndex)
+                                .Select(x => x.Expression)
+                                .Select(x => VelocityExpressions.ConvertIfNeeded(x, elementType))
+                            );
+                    }
+                }
+
+
                 result = Expression.Call(
                     VelocityExpressions.ConvertReturnTypeIfNeeded(target, method),
                     method,

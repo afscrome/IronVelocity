@@ -316,7 +316,7 @@ namespace IronVelocity.Compilation
                                       bool isTextContent, VelocityASTConverter converter)
         {
             Expression expr;
-            var content = value.ToString();
+            var content = value.ToString().Trim();
             if (DetermineStringType(content) == StringType.Interpolated)
                 expr = InterpolateString(content, converter);
             else
@@ -327,6 +327,7 @@ namespace IronVelocity.Compilation
                 }
                 else
                 {
+                    content = content.ToString();
                     if (content.Contains('.'))
                     {
                         try

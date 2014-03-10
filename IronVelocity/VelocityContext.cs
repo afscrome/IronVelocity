@@ -9,6 +9,10 @@ namespace IronVelocity
     {
         private readonly IDictionary<string, object> _variables = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
+        public VelocityContext()
+        {
+        }
+
         public VelocityContext(IDictionary<string, object> values)
         {
             if (values != null)

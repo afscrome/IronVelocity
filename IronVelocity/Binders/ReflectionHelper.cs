@@ -193,8 +193,10 @@ namespace IronVelocity.Binders
             var leftArgs = left.GetParameters();
             var rightArgs = right.GetParameters();
 
-            if (leftArgs.Length != rightArgs.Length)
-                throw new ArgumentOutOfRangeException();
+            if (leftArgs.Length > rightArgs.Length)
+                return MethodSpecificityComparison.Better;
+            else if (rightArgs.Length > leftArgs.Length)
+                return MethodSpecificityComparison.Worse;
 
             bool leftMoreSpecific = false;
             bool rightMoreSpecific = false;
@@ -242,12 +244,31 @@ namespace IronVelocity.Binders
                 return false;
 
             var args = method.GetParameters();
-            if (argTypes.Length != args.Length)
+            //Do we have a param array?
+            var lastArg = args.LastOrDefault();
+            ParameterInfo paramsArrayInfo = null;
+            if (lastArg != null)
+            {
+                if (lastArg.IsOptional)
+                    return false;
+                if (ReflectionHelper.IsParamsArrayArgument(lastArg))
+                    paramsArrayInfo = lastArg;
+            }
+
+
+            if (paramsArrayInfo == null && args.Length != argTypes.Length)
+                return false;
+            else if (argTypes.Length < args.Length - 1)
                 return false;
 
-            for (int i = 0; i < args.Length; i++)
+
+            for (int i = 0; i < argTypes.Length; i++)
             {
-                if (!IsArgumentCompatible(argTypes[i], args[i]))
+                var paramToValidateAgainst = i >= args.Length
+                    ? paramsArrayInfo
+                    : args[i];
+
+                if (!IsArgumentCompatible(argTypes[i], paramToValidateAgainst))
                     return false;
             }
 
@@ -285,11 +306,11 @@ namespace IronVelocity.Binders
             if (parameter == null)
                 throw new ArgumentNullException("parameter");
 
-            var underlyingArgumentType = parameter.ParameterType;
-            if (IsParamsArrayArgument(parameter))
-                underlyingArgumentType = underlyingArgumentType.GetElementType();
+            if (CanBeImplicitlyConverted(runtimeType, parameter.ParameterType))
+                return true;
 
-            return CanBeImplicitlyConverted(runtimeType, underlyingArgumentType);
+            return IsParamsArrayArgument(parameter)
+                && CanBeImplicitlyConverted(runtimeType, parameter.ParameterType.GetElementType());
         }
 
         public static bool IsParamsArrayArgument(ParameterInfo param)
