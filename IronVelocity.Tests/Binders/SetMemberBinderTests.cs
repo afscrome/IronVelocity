@@ -45,13 +45,22 @@ namespace IronVelocity.Tests.Binders
         public void ClassSetValueTypeProperty()
         {
             var input = new BasicClass();
-            test(input, "ValueType", 123);
-            Assert.AreEqual(123, input.ValueType);
+            var result = Guid.NewGuid();
+            test(input, "ValueType", result);
+            Assert.AreEqual(result, input.ValueType);
+        }
+
+        [Test]
+        public void ClassSetPrimitiveProperty()
+        {
+            var input = new BasicClass();
+            test(input, "Primitive", 123);
+            Assert.AreEqual(123, input.Primitive);
         }
 
         #region Struct
         [Test]
-        [Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
+        //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
         public void StructSetPropertyNameIsExactMatch()
         {
             var input = new BasicStruct("initial");
@@ -60,7 +69,7 @@ namespace IronVelocity.Tests.Binders
         }
 
         [Test]
-        [Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
+        //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
         public void StructSetPropertyNameDiffersInCase()
         {
             var input = new BasicStruct("initial");
@@ -69,7 +78,7 @@ namespace IronVelocity.Tests.Binders
         }
 
         [Test]
-        [Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
+        //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
         public void StructSetPropertyDoesNotExist()
         {
             var input = new BasicStruct("initial");
@@ -87,12 +96,22 @@ namespace IronVelocity.Tests.Binders
         }
 
         [Test]
-        [Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
+        //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
         public void StructSetValueTypeProperty()
         {
             var input = new BasicStruct("initial");
-            test(input, "ValueType", 123);
-            Assert.AreEqual(123, input.ValueType);
+            var result = Guid.NewGuid();
+            test(input, "ValueType", result);
+            Assert.AreEqual(result, input.ValueType);
+        }
+
+        [Test]
+        //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
+        public void StructSetPrimitiveProperty()
+        {
+            var input = new BasicStruct("initial");
+            test(input, "Primitive", 123);
+            Assert.AreEqual(123, input.Primitive);
         }
         #endregion
 
@@ -121,7 +140,8 @@ namespace IronVelocity.Tests.Binders
                 set { _property = value; }
             }
 
-            public int ValueType { get; set; }
+            public Guid ValueType { get; set; }
+            public int Primitive { get; set; }
         }
 
         public struct BasicStruct
@@ -130,7 +150,8 @@ namespace IronVelocity.Tests.Binders
             {
                 Field = value;
                 _property = value;
-                _valueType = 0;
+                _valueType = Guid.Empty;
+                _primitive = 0;
             }
 
             public string Field;
@@ -141,8 +162,15 @@ namespace IronVelocity.Tests.Binders
                 set { _property = value; }
             }
 
-            private int _valueType;
-            public int ValueType
+            private int _primitive;
+            public int Primitive
+            {
+                get { return _primitive; }
+                set { _primitive = value; }
+            }
+
+            private Guid _valueType;
+            public Guid ValueType
             {
                 get { return _valueType; }
                 set { _valueType = value; }

@@ -118,7 +118,7 @@ namespace IronVelocity.Runtime
              * it breaks the "logical.vm" regression tests from Velocity
              * 
              * 
-             * TODO: Per discussion with Ben, do the ToString for string / primatives
+             * TODO: Per discussion with Ben, do the ToString for string / primitives
              */
 
             //If either is a char, convert to a string to simplify conversions:
@@ -146,12 +146,5 @@ namespace IronVelocity.Runtime
             return null;
         }
 
-        private static bool IsStringComparable(object value)
-        {
-            var type = value.GetType();
-            return type.IsPrimitive
-                || type.IsEnum
-                || type == typeof(string);
-        }
     }
 }

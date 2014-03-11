@@ -49,9 +49,16 @@ namespace IronVelocity.Tests.Binders
         }
 
         [Test]
-        public void NullLiteralConversion_FailsWithValueType()
+        public void NullLiteralConversion_FailsWithPrimitive()
         {
             var result = ReflectionHelper.CanBeImplicitlyConverted(null, typeof(int));
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void NullLiteralConversion_FailsWithValueType()
+        {
+            var result = ReflectionHelper.CanBeImplicitlyConverted(null, typeof(Guid));
             Assert.IsFalse(result);
         }
 

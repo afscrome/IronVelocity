@@ -23,7 +23,7 @@ namespace IronVelocity.Tests.Binders
 
 
         [Test]
-        public void MethodOnPrimative()
+        public void MethodOnPrimitive()
         {
             var input = 472;
             var result = test(input, "ToString");

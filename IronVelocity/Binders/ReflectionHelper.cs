@@ -303,7 +303,7 @@ namespace IronVelocity.Binders
 
 
             if (from == null)
-                return !to.IsPrimitive;
+                return !to.IsValueType;
 
             if (to.IsAssignableFrom(from))
                 return true;

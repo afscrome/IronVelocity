@@ -71,13 +71,44 @@ namespace IronVelocity.Tests.Binders
         }
 
         [Test]
-        public void ValueTypeCanBeBoxedToObject()
+        public void NullIsIncompatibleWithValueType()
+        {
+            var param = GetParameterInfo("ValueType");
+            var result = ReflectionHelper.IsArgumentCompatible(null, param);
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void NullIsIncompatibleWithPrimitive()
+        {
+            var param = GetParameterInfo("Primitive");
+            var result = ReflectionHelper.IsArgumentCompatible(null, param);
+            Assert.IsFalse(result);
+        }
+
+        [Test]
+        public void NullIsCompatibleWithReferenceType()
+        {
+            var param = GetParameterInfo("ReferenceType");
+            var result = ReflectionHelper.IsArgumentCompatible(null, param);
+            Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void PrimitiveCanBeBoxedToObject()
         {
             var param = GetParameterInfo("Object");
             var result = ReflectionHelper.IsArgumentCompatible(typeof(int), param);
             Assert.IsTrue(result);
         }
 
+        [Test]
+        public void ValueTypeCanBeBoxedToObject()
+        {
+            var param = GetParameterInfo("Object");
+            var result = ReflectionHelper.IsArgumentCompatible(typeof(Guid), param);
+            Assert.IsTrue(result);
+        }
         [Test]
         public void GenericTypeArgumentNotSupported()
         {
@@ -97,7 +128,8 @@ namespace IronVelocity.Tests.Binders
         /// </summary>
         private class TestArguments
         {
-            public void ValueType(int arg) { }
+            public void Primitive(int arg) { }
+            public void ValueType(Guid arg) { }
             public void ReferenceType(String arg) { }
             public void BoxedPrimitive(Int32 arg) { }
             public void Parent(Parent arg) { }
