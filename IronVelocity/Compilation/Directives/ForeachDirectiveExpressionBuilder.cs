@@ -71,9 +71,10 @@ namespace IronVelocity.Compilation.Directives
                 GetExpressionBlock(parts[(int)ForEachSection.Odd])
                 );
 
+            var noData = GetExpressionBlock(parts[(int)ForEachSection.NoData]);
             var loopSuffix = Expression.IfThenElse(
                     Expression.Equal(Expression.Constant(0), VelocityExpressions.ConvertIfNeeded(index, typeof(int))),
-                    GetExpressionBlock(parts[(int)ForEachSection.NoData]),
+                    noData,
                     GetExpressionBlock(parts[(int)ForEachSection.AfterAll])
                 );
 
@@ -86,7 +87,7 @@ namespace IronVelocity.Compilation.Directives
             bodyExpressions.Add(GetExpressionBlock(parts[(int)ForEachSection.After]));
 
             var body = Expression.Block(bodyExpressions);
-            return ForeachExpression(enumerable, body, loopVariable, index, loopSuffix);
+            return ForeachExpression(enumerable, body, loopVariable, index, loopSuffix, noData);
         }
 
         private static Expression GetExpressionBlock(IEnumerable<Expression> expressions)
@@ -98,7 +99,7 @@ namespace IronVelocity.Compilation.Directives
         }
 
 
-        private static Expression ForeachExpression(Expression enumerable, Expression body, Expression currentItem, Expression currentIndex, Expression loopSuffix)
+        private static Expression ForeachExpression(Expression enumerable, Expression body, Expression currentItem, Expression currentIndex, Expression loopSuffix, Expression noData)
         {
             if (enumerable == null)
                 throw new ArgumentNullException("enumerable");
@@ -115,23 +116,20 @@ namespace IronVelocity.Compilation.Directives
                 throw new ArgumentOutOfRangeException("currentIndex");
 
             if (enumerable.Type != typeof(IEnumerable))
-            {
-                //if (typeof(IEnumerable).IsAssignableFrom(enumerable.Type))
-                enumerable = Expression.Convert(enumerable, typeof(IEnumerable));
-                //else
-                //    throw new ArgumentOutOfRangeException("collection", "Collection expression must be assignable to IEnumerable");
-            }
+                enumerable = Expression.TypeAs(enumerable, typeof(IEnumerable));
 
             var enumerator = Expression.Parameter(typeof(IEnumerator), "enumerator");
             var @break = Expression.Label("break");
             var @continue = Expression.Label("continue");
 
-            var localIndex = Expression.Parameter(typeof(int), "foreachIndex$0");
-            var originalItemValue = Expression.Parameter(currentItem.Type, "foreachOriginalItem$0");
-            var originalIndex = Expression.Parameter(currentItem.Type, "foreachOriginalVelocityIndex$0");
+            var localIndex = Expression.Parameter(typeof(int), "foreachIndex");
+            var originalItemValue = Expression.Parameter(currentItem.Type, "foreachOriginalItem");
+            var originalIndex = Expression.Parameter(currentItem.Type, "foreachOriginalVelocityIndex");
 
 
-            var loop = Expression.Block(
+            var loop = Expression.IfThenElse(
+                Expression.TypeIs(enumerable, typeof(IEnumerable)),                
+                Expression.Block(
                     typeof(void),
                     new[] { enumerator, localIndex, originalItemValue, originalIndex },
                 //Store original item & index to revert to after the loop
@@ -140,9 +138,6 @@ namespace IronVelocity.Compilation.Directives
                 //Initalise the index
                     Expression.Assign(currentIndex, VelocityExpressions.ConvertIfNeeded(Expression.Assign(localIndex, Expression.Constant(0)), currentIndex.Type)),
                 //Can only attempt foreach if the input implements IEnumerable
-                    Expression.IfThen(
-                        Expression.TypeIs(enumerable, typeof(IEnumerable)),
-                        Expression.Block(
                 //Get the enumerator
                             Expression.Assign(enumerator, Expression.Call(enumerable, _enumeratorMethodInfo)),
                 // Loop through the enumerator
@@ -158,13 +153,15 @@ namespace IronVelocity.Compilation.Directives
                                 ),
                                 @break,
                                 @continue
-                            )
-                        )
-                    ),
-                    loopSuffix,
+                            ),
+                            loopSuffix,
+  //                      )
+  //                  ),
                 //Revert current item & index to original values
                     Expression.Assign(currentIndex, originalIndex),
                     Expression.Assign(currentItem, originalItemValue)
+                ),
+                noData
                 );
 
             return loop;
