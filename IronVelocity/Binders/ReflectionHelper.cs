@@ -249,8 +249,6 @@ namespace IronVelocity.Binders
             ParameterInfo paramsArrayInfo = null;
             if (lastArg != null)
             {
-                if (lastArg.IsOptional)
-                    return false;
                 if (ReflectionHelper.IsParamsArrayArgument(lastArg))
                     paramsArrayInfo = lastArg;
             }
