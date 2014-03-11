@@ -23,10 +23,10 @@ namespace IronVelocity.Tests.Binders
             var right = typeof(TestMethods).GetMethod(worseName);
 
             var result = ReflectionHelper.IsBetterFunctionMember(left, right);
-            Assert.AreEqual(ReflectionHelper.MethodSpecificityComparison.Better, result);
+            Assert.AreEqual(MethodSpecificityComparison.Better, result);
 
             var inverse = ReflectionHelper.IsBetterFunctionMember(right, left);
-            Assert.AreEqual(ReflectionHelper.MethodSpecificityComparison.Worse, inverse);
+            Assert.AreEqual(MethodSpecificityComparison.Worse, inverse);
         }
 
         [TestCase("Inseperable1", "Inseperable2")]
@@ -36,10 +36,10 @@ namespace IronVelocity.Tests.Binders
             var right = typeof(TestMethods).GetMethod(rightName);
 
             var result1 = ReflectionHelper.IsBetterFunctionMember(left, right);
-            Assert.AreEqual(ReflectionHelper.MethodSpecificityComparison.Incomparable, result1);
+            Assert.AreEqual(MethodSpecificityComparison.Incomparable, result1);
 
             var result2 = ReflectionHelper.IsBetterFunctionMember(right, left);
-            Assert.AreEqual(ReflectionHelper.MethodSpecificityComparison.Incomparable, result2);
+            Assert.AreEqual(MethodSpecificityComparison.Incomparable, result2);
         }
 
 

@@ -73,7 +73,7 @@ namespace IronVelocity.Binders
             {
                 var parameters = method.GetParameters();
                 var lastParameter = parameters.LastOrDefault();
-                bool hasParamsArray = ReflectionHelper.IsParamsArrayArgument(lastParameter);
+                bool hasParamsArray = ReflectionHelper.IsParameterArrayArgument(lastParameter);
 
                 int trivialParams = hasParamsArray
                     ? parameters.Length - 1

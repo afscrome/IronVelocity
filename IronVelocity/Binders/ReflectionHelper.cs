@@ -141,6 +141,9 @@ namespace IronVelocity.Binders
 
         public static MethodInfo ResolveMethod(Type type, string name, params Type[] argTypes)
         {
+            if (type == null)
+                throw new ArgumentNullException("type");
+
             // Loosely based on C# resolution algorithm
             // C# 1.0 resolution algorithm at http://msdn.microsoft.com/en-us/library/aa691336(v=vs.71).aspx
             // C# 5.0 algorithm in section 7.5.3 of spec - http://www.microsoft.com/en-gb/download/details.aspx?id=7029
@@ -162,13 +165,15 @@ namespace IronVelocity.Binders
 
         public static MethodInfo GetBestFunctionMember(IEnumerable<MethodInfo> applicableFunctionMembers)
         {
+            if (applicableFunctionMembers == null)
+                throw new ArgumentNullException("applicableFunctionMembers");
+
             //Otherwise, the best function member is the one function member that is better than all other function
             //members with respect to the given argument list, provided that each function member is compared to
             //all other function members using the rules in §7.5.3.2.
             var best = new List<MethodInfo>();
             foreach (var candidate in applicableFunctionMembers)
             {
-                var candidateArguments = candidate.GetParameters();
                 bool lessSpecific = false;
                 foreach (var better in best.ToArray())
                 {
@@ -204,8 +209,13 @@ namespace IronVelocity.Binders
             throw new AmbiguousMatchException();
         }
 
-        public static MethodSpecificityComparison IsBetterFunctionMember(MethodInfo left, MethodInfo right)
+        public static MethodSpecificityComparison IsBetterFunctionMember(MethodBase left, MethodBase right)
         {
+            if (left == null)
+                throw new ArgumentNullException("left");
+            if (right == null)
+                throw new ArgumentNullException("right");
+
             var leftArgs = left.GetParameters();
             var rightArgs = right.GetParameters();
 
@@ -240,13 +250,6 @@ namespace IronVelocity.Binders
             throw new InvalidProgramException();
         }
 
-        public enum MethodSpecificityComparison
-        {
-            Better,
-            Incomparable,
-            Worse
-        }
-
         public static bool IsMethodApplicable(MethodInfo method, params Type[] argTypes)
         {
             if (method == null)
@@ -265,7 +268,7 @@ namespace IronVelocity.Binders
             ParameterInfo paramsArrayInfo = null;
             if (lastArg != null)
             {
-                if (ReflectionHelper.IsParamsArrayArgument(lastArg))
+                if (ReflectionHelper.IsParameterArrayArgument(lastArg))
                     paramsArrayInfo = lastArg;
             }
 
@@ -323,15 +326,23 @@ namespace IronVelocity.Binders
             if (CanBeImplicitlyConverted(runtimeType, parameter.ParameterType))
                 return true;
 
-            return IsParamsArrayArgument(parameter)
+            return IsParameterArrayArgument(parameter)
                 && CanBeImplicitlyConverted(runtimeType, parameter.ParameterType.GetElementType());
         }
 
-        public static bool IsParamsArrayArgument(ParameterInfo param)
+        public static bool IsParameterArrayArgument(ParameterInfo parameter)
         {
-            return param != null
-                && param.GetCustomAttributes<ParamArrayAttribute>().Any();
+            return parameter != null
+                && parameter.GetCustomAttributes<ParamArrayAttribute>().Any();
         }
 
     }
+
+    public enum MethodSpecificityComparison
+    {
+        Better,
+        Incomparable,
+        Worse
+    }
+
 }

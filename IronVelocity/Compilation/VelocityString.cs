@@ -55,23 +55,16 @@ namespace IronVelocity.Compilation
             );
         }
 
-        public enum StringType
-        {
-            Constant,
-            Dictionary,
-            Interpolated
-        }
-
-        public static StringType DetermineStringType(string value)
+        public static VelocityStringType DetermineStringType(string value)
         {
             if (value == null)
-                return StringType.Constant;
+                return VelocityStringType.Constant;
             if (value.StartsWith(DictStart, StringComparison.OrdinalIgnoreCase) && value.EndsWith(DictEnd, StringComparison.OrdinalIgnoreCase))
-                return StringType.Dictionary;
+                return VelocityStringType.Dictionary;
             if (value.IndexOfAny(new[] { '$', '#' }) != -1)
-                return StringType.Interpolated;
+                return VelocityStringType.Interpolated;
             else
-                return StringType.Constant;
+                return VelocityStringType.Constant;
         }
 
 
@@ -317,7 +310,7 @@ namespace IronVelocity.Compilation
         {
             Expression expr;
             var content = value.ToString().Trim();
-            if (DetermineStringType(content) == StringType.Interpolated)
+            if (DetermineStringType(content) == VelocityStringType.Interpolated)
                 expr = InterpolateString(content, converter);
             else
             {
@@ -454,4 +447,12 @@ namespace IronVelocity.Compilation
         */
 
     }
+
+    public enum VelocityStringType
+    {
+        Constant,
+        Dictionary,
+        Interpolated
+    }
+
 }

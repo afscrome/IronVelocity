@@ -52,7 +52,6 @@
     <Compile Include="Compilation\ASTReferenceMetaData.cs" />
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />
-    <Compile Include="Compilation\Directives\ForeachScope.cs" />
     <Compile Include="Compilation\Directives\MacroScope.cs" />
     <Compile Include="Compilation\MethodHelper.cs" />
     <Compile Include="Constants.cs" />

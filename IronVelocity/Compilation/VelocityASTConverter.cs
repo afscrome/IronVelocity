@@ -519,20 +519,20 @@ namespace IronVelocity.Compilation
 
             var stringType = isDoubleQuoted
                 ? VelocityStrings.DetermineStringType(content)
-                : VelocityStrings.StringType.Constant;
+                : VelocityStringType.Constant;
 
             Expression expr;
 
             switch (stringType)
             {
-                case VelocityStrings.StringType.Constant:
+                case VelocityStringType.Constant:
                     expr = Expression.Constant(content);
                     break;
 
-                case VelocityStrings.StringType.Dictionary:
+                case VelocityStringType.Dictionary:
                     expr = VelocityStrings.InterpolateDictionaryString(content, this);
                     break;
-                case VelocityStrings.StringType.Interpolated:
+                case VelocityStringType.Interpolated:
                     expr = VelocityStrings.InterpolateString(content, this);
                     break;
 
