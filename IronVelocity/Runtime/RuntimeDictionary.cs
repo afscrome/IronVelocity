@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 
 namespace IronVelocity.Runtime
@@ -68,15 +69,22 @@ namespace IronVelocity.Runtime
             return _values.GetEnumerator();
         }
 
-        public bool Remove(string key)
+
+        public void Remove(string key)
         {
-            return _values.Remove(key);
+            _values.Remove(key);
+        }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "For consistency with HybridDictionary, need a void implementation of Remove to be the main visible method")]
+        bool IDictionary<string, object>.Remove(string key)
+        {
+            throw new NotImplementedException();
         }
 
         public bool TryGetValue(string key, out object value)
         {
             return _values.TryGetValue(key, out value);
         }
+
 
 
         #region ICollection<KeyValuePair<TKey,TValue>>
