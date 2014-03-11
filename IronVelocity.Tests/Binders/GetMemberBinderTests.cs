@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace IronVelocity.Tests.Binders
 {
@@ -106,6 +107,7 @@ namespace IronVelocity.Tests.Binders
             var result = test(input, "_privateProperty");
             Assert.Null(result);
         }
+
         [Test]
         public void StaticProperty()
         {
@@ -115,6 +117,23 @@ namespace IronVelocity.Tests.Binders
             Assert.Null(result);
         }
 
+        [Test]
+        public void ExplictInterfaceProperty()
+        {
+            var input = new BasicClass();
+
+            var result = test(input, "Hidden");
+            Assert.AreEqual("Super Secret", result);
+        }
+
+        [Test]
+        public void ExplictInterfacePropertyWithConflicts()
+        {
+            var input = new BasicClass();
+            var result = test(input, "HiddenConflict");
+
+            Assert.IsNull(result);
+        }
         #endregion
 
         #region Fields
@@ -248,12 +267,17 @@ namespace IronVelocity.Tests.Binders
             return action();
         }
 
-        public class BasicClass
+        public class BasicClass : IExplicit, IConflict
         {
             public string Field = "Success!";
             public string Property { get { return Field; } }
 
+
+            string IExplicit.Hidden { get { return "Super Secret"; }}
+            string IExplicit.HiddenConflict { get { return "Conflict"; } }
+            string IConflict.HiddenConflict { get { return "Conflict"; } }
         }
+
 
         public struct BasicStruct
         {
@@ -293,5 +317,17 @@ namespace IronVelocity.Tests.Binders
             public string POTENTIALLY_AMBIGIOUS_FIELD;
             public string potentially_ambigious_field;
         }
+
+        public interface IExplicit
+        {
+            string Hidden { get; }
+            string HiddenConflict { get; }
+        }
+
+        public interface IConflict
+        {
+            string HiddenConflict { get; }
+        }
+
     }
 }

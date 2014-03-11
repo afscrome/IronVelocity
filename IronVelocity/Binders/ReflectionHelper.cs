@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Compilation;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
@@ -51,8 +52,23 @@ namespace IronVelocity.Binders
 
             if (property != null)
                 return property;
-            else
+            else if (field != null)
                 return field;
+
+            if (!type.IsInterface)
+            {
+                var interfaceProperties = type.GetInterfaces()
+                    .Select(x => GetMember(name, x, caseSensitive))
+                    .Where(x => x != null)
+                    .ToList();
+
+                if (interfaceProperties.Count == 1)
+                    return interfaceProperties.First();
+                else if (interfaceProperties.Count > 1)
+                    throw new AmbiguousMatchException();
+            }
+
+            return null;
 
         }
 
