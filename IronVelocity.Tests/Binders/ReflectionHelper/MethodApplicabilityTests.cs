@@ -109,12 +109,21 @@ namespace IronVelocity.Tests.Binders
             var result = ReflectionHelper.IsMethodApplicable(method, typeof(string), typeof(string));
             Assert.IsTrue(result);
         }
+
         [Test]
         public void StringArrayIsApplicableToStringParamArray()
         {
             var method = typeof(TestMethods).GetMethod("ParamArray");
             var result = ReflectionHelper.IsMethodApplicable(method, typeof(string[]));
             Assert.IsTrue(result);
+        }
+
+        [Test]
+        public void ParamsArrayWithOptionalParamIsNotApplicableToSingleArgument()
+        {
+            var method = typeof(TestMethods).GetMethod("ParamArrayWithOptional");
+            var result = ReflectionHelper.IsMethodApplicable(method, typeof(string));
+            Assert.IsFalse(result);
         }
 
 
@@ -130,6 +139,10 @@ namespace IronVelocity.Tests.Binders
             public void Generic<T>() { }
             public T GenericReturn<T>() { return default(T); }
             public void GenericArg<T>(T arg) { }
+
+            public void NoMandatoryOneOptional(string s = null) { }
+            public void OneMandatoryOneOptional(int i, string s = null) { }
+            public void ParamArrayWithOptional(int opt = 0, params string[] args) { }
         }
     }
 }
