@@ -54,19 +54,6 @@ namespace IronVelocity.Binders
             else if (field != null)
                 return field;
 
-            if (!type.IsInterface)
-            {
-                var interfaceProperties = type.GetInterfaces()
-                    .Select(x => GetMember(name, x, caseSensitive))
-                    .Where(x => x != null)
-                    .ToList();
-
-                if (interfaceProperties.Count == 1)
-                    return interfaceProperties.First();
-                else if (interfaceProperties.Count > 1)
-                    throw new AmbiguousMatchException();
-            }
-
             return null;
 
         }

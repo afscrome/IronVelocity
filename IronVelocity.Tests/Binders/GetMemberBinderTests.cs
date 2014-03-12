@@ -122,7 +122,7 @@ namespace IronVelocity.Tests.Binders
             var input = new BasicClass();
 
             var result = test(input, "Hidden");
-            Assert.AreEqual("Super Secret", result);
+            Assert.Null(result);
         }
 
         [Test]
