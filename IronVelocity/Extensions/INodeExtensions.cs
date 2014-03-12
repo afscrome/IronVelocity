@@ -1,10 +1,8 @@
 ﻿using NVelocity.Runtime.Parser.Node;
-using System;
 using System.Collections.Generic;
 
 namespace IronVelocity
 {
-    [CLSCompliant(false)]
     public static class INodeExtensions
     {  
         public static IEnumerable<INode> GetChildren(this INode node)
@@ -14,10 +12,5 @@ namespace IronVelocity
                 yield return node.GetChild(i);
             };
         }
-
-
-
     }
-
-
 }

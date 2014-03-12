@@ -13,7 +13,6 @@ using System.Reflection;
 
 namespace IronVelocity.Compilation
 {
-    [CLSCompliant(false)]
     public class VelocityASTConverter
     {
         private static readonly Expression TrueExpression = Expression.Constant(true);

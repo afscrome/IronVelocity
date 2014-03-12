@@ -1,6 +1,5 @@
 ﻿using IronVelocity.Compilation;
 using System;
-using System.Collections;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
