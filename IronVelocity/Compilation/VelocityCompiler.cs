@@ -20,6 +20,7 @@ namespace IronVelocity.Compilation
             var assemblyName = new AssemblyName("Widgets");
             //RunAndCollect allows this assembly to be garbage collected when finished with - http://msdn.microsoft.com/en-us/library/dd554932(VS.100).aspx
             var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
+            //TODO: use debug mode from web.config rather than debugger attached
             var debug = System.Diagnostics.Debugger.IsAttached;
             return CompileWithSymbols(expressionTree, name, assemblyBuilder, debug);
         }
@@ -32,7 +33,7 @@ namespace IronVelocity.Compilation
 
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(name, true);
 
-            if (debugMode)
+            if (true)
             {
                 var debugAttributes =
                     DebuggableAttribute.DebuggingModes.Default |

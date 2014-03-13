@@ -6,9 +6,6 @@ namespace Tests
     [TestFixture]
     public class TextAndCommentTests
     {
-
-
-
         [Test]
         public void TextOnly()
         {
@@ -18,13 +15,11 @@ namespace Tests
             Utility.TestExpectedMarkupGenerated(input, expected);
         }
 
-        [Test, Ignore("Seems to be bug in NVelocity parser")]
+        [Test]
         public void SingleLineCommentIgnored()
         {
-            //TODO: investigate failure
-            //Seems to be a bug in nvelocity
-            var input = "dd ##bar";
-            var expected = "foo";
+            var input = "dd ##bar\r\n";
+            var expected = "dd ";
 
             Utility.TestExpectedMarkupGenerated(input, expected);
         }

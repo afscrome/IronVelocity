@@ -135,6 +135,7 @@ leq
 			Assert.AreEqual(ObjectComparer.Greater, ObjectComparer.CompareObjects("Reader", FileAccess.Read));
 		}
         */
+
 		[Test]
 		public void ComparePrimitive()
 		{
@@ -152,19 +153,11 @@ leq
             */
 			VmCompareCouple(Int, Double);
 			VmCompareCouple(Int, Float);
-			//VmCompareCouple(Int, ULong);
+			VmCompareCouple(Int, ULong);
 			VmCompareCouple(ULong, Float);
 			VmCompareCouple(Float, Double);
 			VmCompareCouple(ULong, Double);
-
-            try
-            {
-                VmCompareCouple(Int, ULong);
-            }
-            catch (AssertionException)
-            {
-                Assert.Inconclusive("TODO: Support Int & Ulong comparisons");
-            }
+            VmCompareCouple(Int, ULong);
 		}
 
 		/// <summary>
@@ -172,40 +165,18 @@ leq
 		/// string value of that object will be used.  Char does an ascii comparison.
 		/// </summary>
 		[Test]
-        [Ignore("Velocity itself only compares numerics.  Some of this string comparison seems to be an NVelocity Extension, whcih I don't think makes huge amounts of sense")]
 		public void CompareString()
 		{
 			string aaa = "aaa";
 			string bbb = "aab";
 
-            /*
-			Assert.AreEqual(ObjectComparer.Smaller, ObjectComparer.CompareObjects(aaa, bbb));
-			Assert.AreEqual(ObjectComparer.Greater, ObjectComparer.CompareObjects(bbb, aaa));
-			Assert.AreEqual(ObjectComparer.Equal, ObjectComparer.CompareObjects(aaa, aaa));
-            */
 			VmCompareCouple(aaa, bbb);
 
 			char c = 'c';
 			short s = 7;
-            /*
-			Assert.AreEqual(ObjectComparer.Smaller, ObjectComparer.CompareObjects(bbb, c));
-			Assert.AreEqual(ObjectComparer.Greater, ObjectComparer.CompareObjects(c, bbb));
-			Assert.AreEqual(ObjectComparer.Equal, ObjectComparer.CompareObjects(c, c));
-            */
 
 			VmCompareCouple(aaa, c);
 			VmCompareCouple(bbb, c);
-
-            /*
-			Assert.AreEqual(ObjectComparer.Greater, ObjectComparer.CompareObjects(aaa, s));
-			Assert.AreEqual(ObjectComparer.Smaller, ObjectComparer.CompareObjects(s, bbb));
-
-			Assert.AreEqual(ObjectComparer.Greater, ObjectComparer.CompareObjects(c, s));
-			Assert.AreEqual(ObjectComparer.Smaller, ObjectComparer.CompareObjects(s, c));
-
-			Assert.AreEqual(ObjectComparer.Greater, ObjectComparer.CompareObjects(c, aaa));
-			Assert.AreEqual(ObjectComparer.Smaller, ObjectComparer.CompareObjects(bbb, c));
-            */
 
 			VmCompareCouple(s, aaa);
 			VmCompareCouple(s, c);

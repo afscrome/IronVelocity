@@ -77,7 +77,7 @@ namespace NVelocity.Test
 			Assert.AreEqual("RuntimeDictionary", Eval("$test.Amb(\"%{id=1}\")"));
 		}
 
-		[Test, Ignore]
+		[Test]
 		public void CorrectExceptionThrownOnInvocationException()
 		{
 			try

@@ -60,7 +60,6 @@ namespace IronVelocity.Tests.Binders
         [Test]
         public void BoxingConversion_Unboxing()
         {
-            Assert.Inconclusive();
             var result = ReflectionHelper.CanBeImplicitlyConverted<int, object>();
             Assert.IsTrue(result);
         }
