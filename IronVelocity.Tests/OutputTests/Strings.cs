@@ -7,12 +7,25 @@ namespace IronVelocity.Tests.OutputTests
     public class Strings
     {
         [Test]
-        public void JQueryId()
+        public void JQueryIdSelector()
         {
             var input = "jQuery('#$x')";
             var expected = "jQuery('#$x')";
 
             Utility.TestExpectedMarkupGenerated(input, expected);
+        }
+
+        [Test]
+        public void JQueryIdSelectorWithSubstitution()
+        {
+            var context = new Dictionary<string, object>(){
+                {"x", "myId"}
+            };
+
+            var input = "jQuery('#$x')";
+            var expected = "jQuery('#myId')";
+
+            Utility.TestExpectedMarkupGenerated(input, expected, context);
         }
 
         //Key whitespace
