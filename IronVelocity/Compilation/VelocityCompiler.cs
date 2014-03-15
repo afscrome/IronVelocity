@@ -15,14 +15,13 @@ namespace IronVelocity.Compilation
         private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(StringBuilder) };
 
 
-        public static VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name)
+        public static VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, bool debugMode = false)
         {
             var assemblyName = new AssemblyName("Widgets");
             //RunAndCollect allows this assembly to be garbage collected when finished with - http://msdn.microsoft.com/en-us/library/dd554932(VS.100).aspx
             var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
             //TODO: use debug mode from web.config rather than debugger attached
-            var debug = System.Diagnostics.Debugger.IsAttached;
-            return CompileWithSymbols(expressionTree, name, assemblyBuilder, debug);
+            return CompileWithSymbols(expressionTree, name, assemblyBuilder, debugMode);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification="Final cast will fail if the Expression does not conform to VelocityTemplateMethod's signature")]
@@ -33,7 +32,7 @@ namespace IronVelocity.Compilation
 
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(name, true);
 
-            if (true)
+            if (debugMode)
             {
                 var debugAttributes =
                     DebuggableAttribute.DebuggingModes.Default |

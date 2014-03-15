@@ -72,10 +72,10 @@ namespace IronVelocity
         }
 
 
-        public VelocityTemplateMethod CompileTemplate(string input, string typeName, string fileName)
+        public VelocityTemplateMethod CompileTemplate(string input, string typeName, string fileName, bool debugMode = false)
         {
             var tree = GetExpressionTree(input, typeName, fileName);
-            return VelocityCompiler.CompileWithSymbols(tree, typeName);
+            return VelocityCompiler.CompileWithSymbols(tree, typeName, debugMode);
         }
 
     }
