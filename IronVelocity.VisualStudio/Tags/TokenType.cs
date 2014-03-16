@@ -17,6 +17,8 @@ namespace IronVelocity.VisualStudio.Tags
         Identifier,
         StringLiteral,
         NumberLiteral,
-        SymbolReference,
+        BooleanLiteral,
+        Method,
+        Block
     }
 }

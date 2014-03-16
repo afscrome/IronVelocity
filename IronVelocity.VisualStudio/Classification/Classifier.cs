@@ -30,7 +30,7 @@ namespace IronVelocity.VisualStudio
 
             foreach (var tagSpan in this._aggregator.GetTags(spans))
             {
-                IClassificationType classification;
+                IClassificationType classification = null;
                 switch (tagSpan.Tag.Type)
                 {
                     case TokenType.Literal:
@@ -39,6 +39,7 @@ namespace IronVelocity.VisualStudio
                     case TokenType.Operator:
                         classification = _standardClassifications.Operator;
                         break;
+                    case TokenType.BooleanLiteral:
                     case TokenType.Keyword:
                         classification = _standardClassifications.Keyword;
                         break;
@@ -54,14 +55,21 @@ namespace IronVelocity.VisualStudio
                     case TokenType.NumberLiteral:
                         classification = _standardClassifications.NumberLiteral;
                         break;
-                    case TokenType.SymbolReference:
-                        classification = _standardClassifications.SymbolReference;
+                    case TokenType.Method:
+                        classification = _standardClassifications.SymbolDefinition;
+                        break;
+                    case TokenType.Block:
+                        classification = _standardClassifications.Literal;
                         break;
                     default:
+#if DEBUG
                         throw new InvalidOperationException();
+#endif
                 }
+                if (classification != null) {
                 var span = tagSpan.Span.GetSpans(globalSpan.Snapshot)[0];
                 yield return new TagSpan<ClassificationTag>(span, new ClassificationTag(classification));
+                }
             }
             yield break;
         }

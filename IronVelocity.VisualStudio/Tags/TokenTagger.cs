@@ -45,13 +45,13 @@ namespace IronVelocity.VisualStudio.Tags
 
                 using (var reader = new StringReader(text))
                 {
-                    var charStream = new VelocityCharStream(reader, 0, 0, text.Length);
+                    var charStream = new MyCharStream(text);// new VelocityCharStream(reader, 0, 0, text.Length);
                     _parser.ReInit(charStream);
 
                     try
                     {
                         var tree = _parser.Process();
-                        tags = tags.Union(GetTags(tree, span));
+                        tags = tags.Union(GetTags(tree, span, span.Start.Position));
                     }
                     catch
                     {
@@ -64,7 +64,7 @@ namespace IronVelocity.VisualStudio.Tags
             return tags;
         }
 
-        private IEnumerable<ITagSpan<TokenTag>> GetTags(INode node, SnapshotSpan parent)
+        private IEnumerable<ITagSpan<TokenTag>> GetTags(INode node, SnapshotSpan parent, int baseIndex)
         {
             var currentSnapshotSpan = parent;
 
@@ -76,17 +76,15 @@ namespace IronVelocity.VisualStudio.Tags
             }
 
             //Some of this positioning gets tricky - VS wants an absolute index in the string, but velocity only gives us line & char
-            var lastEnd = parent.Start;
             for (int i = 0; i < node.ChildrenCount; i++)
             {
                 var child = node.GetChild(i);
                 int length = child.Literal.Length;
-                var childSpan = new SnapshotSpan(lastEnd, length);
-                foreach (var tag in GetTags(child, childSpan))
+                var childSpan = new SnapshotSpan(parent.Snapshot, baseIndex + child.Column - 1, length);
+                foreach (var tag in GetTags(child, childSpan, baseIndex))
                 {
                     yield return tag;
                 }
-                lastEnd = childSpan.End;
             }
         }
 
@@ -105,16 +103,28 @@ namespace IronVelocity.VisualStudio.Tags
 
                 case ParserTreeConstants.TRUE:
                 case ParserTreeConstants.FALSE:
+                    return TokenType.BooleanLiteral;
                 case ParserTreeConstants.OBJECT_ARRAY:
                 case ParserTreeConstants.INTEGER_RANGE:
                     return TokenType.Literal;
 
                 case ParserTreeConstants.IDENTIFIER:
-                    return TokenType.Identifier;
+                    if (node.Parent.Type == ParserTreeConstants.METHOD)
+                        return TokenType.Method;
+                    else
+                        return node.ChildrenCount == 0
+                            ? TokenType.Identifier
+                            : TokenType.Ignore;
 
+                //Ignore method - we'll highlight on it's children
                 case ParserTreeConstants.METHOD:
+                    return TokenType.Ignore;
+
                 case ParserTreeConstants.REFERENCE:
-                    return TokenType.SymbolReference;
+                    return ParseReference(node);
+
+                case ParserTreeConstants.BLOCK:
+                    return TokenType.Block;
 
                 case ParserTreeConstants.AND_NODE:
                 case ParserTreeConstants.OR_NODE:
@@ -153,9 +163,30 @@ namespace IronVelocity.VisualStudio.Tags
                 case ParserTreeConstants.VOID:
                 case ParserTreeConstants.WORD:
                     return TokenType.Ignore;
+
                 default:
+#if DEBUG
                     throw new ArgumentOutOfRangeException("node");
+
+#else
+                    return TokenType.Ignore;
+#endif
             }
+        }
+
+        private TokenType ParseReference(INode node)
+        {
+            var content = node.Literal;
+            if (content.StartsWith("\"") || content.StartsWith("'"))
+                return TokenType.StringLiteral;
+            float f;
+            if (float.TryParse(node.Literal, out f))
+                return TokenType.NumberLiteral;
+
+            if (content.Equals("true", StringComparison.OrdinalIgnoreCase) || content.Equals("false", StringComparison.OrdinalIgnoreCase))
+                return TokenType.Literal;
+
+            return TokenType.Method;
         }
 
     }
