@@ -79,10 +79,8 @@
     <Compile Include="Tags\TokenTag.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Tags\TokenTagger.cs" />
     <Compile Include="Tags\TokenTagProvider.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Tags\TokenTagger.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Tags\TokenType.cs" />

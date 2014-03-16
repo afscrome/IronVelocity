@@ -19,6 +19,8 @@ namespace IronVelocity.VisualStudio.Tags
         NumberLiteral,
         BooleanLiteral,
         Method,
-        Block
+        FormalReferenceStart,
+        FormalReferenceEnd,
+        Punctuator,
     }
 }

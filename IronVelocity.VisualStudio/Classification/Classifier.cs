@@ -58,18 +58,17 @@ namespace IronVelocity.VisualStudio
                     case TokenType.Method:
                         classification = _standardClassifications.SymbolDefinition;
                         break;
-                    case TokenType.Block:
-                        classification = _standardClassifications.Literal;
-                        break;
+                    case TokenType.FormalReferenceEnd:
+                    case TokenType.FormalReferenceStart:
+                    case TokenType.Punctuator:
+                        continue;
                     default:
 #if DEBUG
                         throw new InvalidOperationException();
 #endif
                 }
-                if (classification != null) {
                 var span = tagSpan.Span.GetSpans(globalSpan.Snapshot)[0];
                 yield return new TagSpan<ClassificationTag>(span, new ClassificationTag(classification));
-                }
             }
             yield break;
         }

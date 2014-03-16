@@ -12,23 +12,12 @@ namespace IronVelocity.VisualStudio.Tags
 {
     internal sealed class TokenTagger : ITagger<TokenTag>
     {
-        private static readonly RuntimeInstance _runtimeServices;
-
-        static TokenTagger()
-        {
-            //No idea why the followign is required = 
-            var hack = Type.GetType(typeof(NVelocity.SupportClass).AssemblyQualifiedName);
-            var hack3 = Type.GetType("NVelocity.Runtime.Directive.DirectiveManager,NVelocity");
-
-            _runtimeServices = new VelocityRuntime(null)._runtimeService;
-        }
-
         ITextBuffer _buffer;
-        Parser _parser;
+        ParserTokenManager _parser;
         internal TokenTagger(ITextBuffer buffer)
         {
             _buffer = buffer;
-            _parser = _runtimeServices.CreateNewParser();
+            _parser = new ParserTokenManager(null);
         }
 
         public event EventHandler<SnapshotSpanEventArgs> TagsChanged;
@@ -41,153 +30,142 @@ namespace IronVelocity.VisualStudio.Tags
                 var text = span.GetText();
                 //Perf hack - if we don't have any of the following, then there's no special velocity
                 if (text.IndexOfAny(new[] { '$', '#' }) < 0)
-                    return Enumerable.Empty<ITagSpan<TokenTag>>();
+                    yield break;
 
-                using (var reader = new StringReader(text))
+                var charStream = new MyCharStream(text);// new VelocityCharStream(reader, 0, 0, text.Length);
+                _parser.ReInit(charStream);
+
+                int position = span.Start.Position;
+
+                while (true)
                 {
-                    var charStream = new MyCharStream(text);// new VelocityCharStream(reader, 0, 0, text.Length);
-                    _parser.ReInit(charStream);
-
+                    Token token;
                     try
                     {
-                        var tree = _parser.Process();
-                        tags = tags.Union(GetTags(tree, span, span.Start.Position));
+                        token = _parser.NextToken;
                     }
                     catch
                     {
-
+                        //TODO: return some kind of error
+                        yield break;
                     }
+                    if (token.Kind == ParserConstants.EOF)
+                        yield break;
+
+                    var tag = TagToken(token, position, span.Snapshot);
+                    if (tag != null)
+                        yield return tag;
+
+                    position += token.Image.Length;
                 }
 
             }
-
-            return tags;
         }
 
-        private IEnumerable<ITagSpan<TokenTag>> GetTags(INode node, SnapshotSpan parent, int baseIndex)
+        private ITagSpan<TokenTag> TagToken(Token token, int position, ITextSnapshot snapshot)
         {
-            var currentSnapshotSpan = parent;
+            var type = GetTokenType(token);
+            if (type == TokenType.Ignore)
+                return null;
 
-            var tagType = GetTokenType(node);
-            if (tagType != TokenType.Ignore)
-            {
-                var tag = new TokenTag(tagType);
-                yield return new TagSpan<TokenTag>(parent, tag);
-            }
-
-            //Some of this positioning gets tricky - VS wants an absolute index in the string, but velocity only gives us line & char
-            for (int i = 0; i < node.ChildrenCount; i++)
-            {
-                var child = node.GetChild(i);
-                int length = child.Literal.Length;
-                var childSpan = new SnapshotSpan(parent.Snapshot, baseIndex + child.Column - 1, length);
-                foreach (var tag in GetTags(child, childSpan, baseIndex))
-                {
-                    yield return tag;
-                }
-            }
+            var span = new SnapshotSpan(snapshot, position, token.Image.Length);
+            var tag = new TokenTag(type);
+            return new TagSpan<TokenTag>(span, tag);
         }
 
-        private TokenType GetTokenType(INode node)
+
+        private TokenType GetTokenType(Token token)
         {
-            switch (node.Type)
+            switch (token.Kind)
             {
-                case ParserTreeConstants.COMMENT:
-                    return TokenType.Comment;
-
-                case ParserTreeConstants.NUMBER_LITERAL:
-                    return TokenType.NumberLiteral;
-
-                case ParserTreeConstants.STRING_LITERAL:
-                    return TokenType.StringLiteral;
-
-                case ParserTreeConstants.TRUE:
-                case ParserTreeConstants.FALSE:
-                    return TokenType.BooleanLiteral;
-                case ParserTreeConstants.OBJECT_ARRAY:
-                case ParserTreeConstants.INTEGER_RANGE:
-                    return TokenType.Literal;
-
-                case ParserTreeConstants.IDENTIFIER:
-                    if (node.Parent.Type == ParserTreeConstants.METHOD)
-                        return TokenType.Method;
-                    else
-                        return node.ChildrenCount == 0
-                            ? TokenType.Identifier
-                            : TokenType.Ignore;
-
-                //Ignore method - we'll highlight on it's children
-                case ParserTreeConstants.METHOD:
-                    return TokenType.Ignore;
-
-                case ParserTreeConstants.REFERENCE:
-                    return ParseReference(node);
-
-                case ParserTreeConstants.BLOCK:
-                    return TokenType.Block;
-
-                case ParserTreeConstants.AND_NODE:
-                case ParserTreeConstants.OR_NODE:
-                case ParserTreeConstants.NOT_NODE:
-                case ParserTreeConstants.LT_NODE:
-                case ParserTreeConstants.LE_NODE:
-                case ParserTreeConstants.GT_NODE:
-                case ParserTreeConstants.GE_NODE:
-                case ParserTreeConstants.EQ_NODE:
-                case ParserTreeConstants.NE_NODE:
-                case ParserTreeConstants.ADD_NODE:
-                case ParserTreeConstants.SUBTRACT_NODE:
-                case ParserTreeConstants.MUL_NODE:
-                case ParserTreeConstants.DIV_NODE:
-                case ParserTreeConstants.MOD_NODE:
+                case ParserConstants.LOGICAL_AND:
+                case ParserConstants.LOGICAL_EQUALS:
+                case ParserConstants.LOGICAL_GE:
+                case ParserConstants.LOGICAL_GT:
+                case ParserConstants.LOGICAL_LE:
+                case ParserConstants.LOGICAL_LT:
+                case ParserConstants.LOGICAL_NOT:
+                case ParserConstants.LOGICAL_NOT_EQUALS:
+                case ParserConstants.LOGICAL_OR:
+                case ParserConstants.EQUALS:
+                case ParserConstants.PLUS:
+                case ParserConstants.MINUS:
+                case ParserConstants.MULTIPLY:
+                case ParserConstants.DIVIDE:
+                case ParserConstants.MODULUS:
+                case ParserConstants.DOUBLEDOT:
                     return TokenType.Operator;
 
 
-
-                case ParserTreeConstants.DIRECTIVE:
-                case ParserTreeConstants.IF_STATEMENT:
-                case ParserTreeConstants.SET_DIRECTIVE:
-                case ParserTreeConstants.ELSE_IF_STATEMENT:
-                case ParserTreeConstants.ELSE_STATEMENT:
+                case ParserConstants.IF_DIRECTIVE:
+                case ParserConstants.ELSE_DIRECTIVE:
+                case ParserConstants.ELSEIF_DIRECTIVE:
+                case ParserConstants.END:
+                case ParserConstants.SET_DIRECTIVE:
+                case ParserConstants.STOP_DIRECTIVE:
+                case ParserConstants.WORD: //Directives are words - e.g. #RegisterEndOfPageHtml
                     return TokenType.Keyword;
 
+                case ParserConstants.NUMBER_LITERAL:
+                    return TokenType.NumberLiteral;
 
-                case ParserTreeConstants.ASSIGNMENT:
-                case ParserTreeConstants.EXPRESSION:
+                case ParserConstants.TRUE:
+                case ParserConstants.FALSE:
+                    return TokenType.BooleanLiteral;
+
+                case ParserConstants.FORMAL_COMMENT:
+                case ParserConstants.MULTI_LINE_COMMENT:
+                case ParserConstants.SINGLE_LINE_COMMENT:
+                    return TokenType.Comment;
+
+                case ParserConstants.STRING_LITERAL:
+                    return TokenType.Comment;
+
+                case ParserConstants.IDENTIFIER:
+                    return TokenType.Identifier;
+
+                case ParserConstants.DOT:
+                case ParserConstants.COMMA:
+                    return TokenType.Punctuator;
+
+
+                case ParserConstants.LCURLY:
+                    return TokenType.FormalReferenceStart;
+                case ParserConstants.RCURLY:
+                    return TokenType.FormalReferenceEnd;
+
+                //TODO: Use for Outlining
+                case ParserConstants.LBRACKET:
+                case ParserConstants.LPAREN:
+                case ParserConstants.RPAREN:
+                case ParserConstants.RBRACKET:
                     return TokenType.Ignore;
 
-                case ParserTreeConstants.PROCESS:
-                case ParserTreeConstants.TEXT:
-                case ParserTreeConstants.ESCAPE:
-                case ParserTreeConstants.ESCAPED_DIRECTIVE:
-                case ParserTreeConstants.VOID:
-                case ParserTreeConstants.WORD:
-                    return TokenType.Ignore;
-
+                case ParserConstants.ALPHA_CHAR:
+                case ParserConstants.ALPHANUM_CHAR:
+                case ParserConstants.DIRECTIVE_CHAR:
+                case ParserConstants.DIRECTIVE_TERMINATOR:
+                case ParserConstants.DOLLAR:
+                case ParserConstants.DOLLARBANG:
+                case ParserConstants.DOUBLE_ESCAPE:
+                case ParserConstants.ESCAPE:
+                case ParserConstants.ESCAPE_DIRECTIVE:
+                case ParserConstants.HASH:
+                case ParserConstants.IDENTIFIER_CHAR:
+                case ParserConstants.LETTER:
+                case ParserConstants.DIGIT:
+                case ParserConstants.REFERENCE_TERMINATOR:
+                case ParserConstants.REFMOD2_RPAREN:
+                case ParserConstants.TEXT:
+                case ParserConstants.WHITESPACE:
+                case ParserConstants.NEWLINE:
+                case ParserConstants.EOF:
                 default:
-#if DEBUG
-                    throw new ArgumentOutOfRangeException("node");
-
-#else
                     return TokenType.Ignore;
-#endif
+                    throw new NotImplementedException();
             }
         }
 
-        private TokenType ParseReference(INode node)
-        {
-            var content = node.Literal;
-            if (content.StartsWith("\"") || content.StartsWith("'"))
-                return TokenType.StringLiteral;
-            float f;
-            if (float.TryParse(node.Literal, out f))
-                return TokenType.NumberLiteral;
-
-            if (content.Equals("true", StringComparison.OrdinalIgnoreCase) || content.Equals("false", StringComparison.OrdinalIgnoreCase))
-                return TokenType.Literal;
-
-            return TokenType.Method;
-        }
 
     }
 }
