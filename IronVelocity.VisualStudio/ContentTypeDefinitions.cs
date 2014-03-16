@@ -10,7 +10,7 @@ namespace IronVelocity.VisualStudio
 
         [Export]
         [Name(ContentType)]
-        //[BaseDefinition("code")]
+        [BaseDefinition("code")]
         [BaseDefinition("htmlx")]
         internal static ContentTypeDefinition VelocityContentType = null;
 

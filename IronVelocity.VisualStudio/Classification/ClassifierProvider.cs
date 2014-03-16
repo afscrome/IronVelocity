@@ -1,4 +1,5 @@
 ﻿using IronVelocity.VisualStudio.Tags;
+using Microsoft.VisualStudio.Language.StandardClassification;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text.Tagging;
@@ -13,7 +14,7 @@ namespace IronVelocity.VisualStudio
     internal sealed class ClassifierProvider : ITaggerProvider
     {
         [Import]
-        internal IClassificationTypeRegistryService ClassificationTypeRegistry = null;
+        internal IStandardClassificationService StandardClassificationService = null;
 
         [Import]
         internal IBufferTagAggregatorFactoryService aggregatorFactory = null;
@@ -24,7 +25,7 @@ namespace IronVelocity.VisualStudio
             ITagAggregator<TokenTag> ookTagAggregator =
                                             aggregatorFactory.CreateTagAggregator<TokenTag>(buffer);
 
-            return new Classifier(buffer, ookTagAggregator, ClassificationTypeRegistry) as ITagger<T>;
+            return new Classifier(ookTagAggregator, StandardClassificationService) as ITagger<T>;
         }
     }
 }

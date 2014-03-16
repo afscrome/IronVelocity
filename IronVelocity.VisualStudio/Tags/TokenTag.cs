@@ -4,8 +4,11 @@ namespace IronVelocity.VisualStudio.Tags
 {
     public class TokenTag : ITag
     {
-        public TokenTag()
+        public TokenType Type {get; private set;}
+
+        public TokenTag(TokenType type)
         {
+            Type = type;
         }
     }
 
