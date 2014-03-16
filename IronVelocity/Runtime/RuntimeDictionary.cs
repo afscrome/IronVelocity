@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace IronVelocity.Runtime
 {
     public class RuntimeDictionary : IDictionary<string, object>, IDictionary
     {
+        [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
         private readonly Dictionary<string, object> _values;
         public RuntimeDictionary()
             : this(0)

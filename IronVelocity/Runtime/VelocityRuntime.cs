@@ -9,12 +9,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
+using System.Linq;
+using NVelocity.Runtime.Resource;
 
 namespace IronVelocity
 {
     public class VelocityRuntime
     {
-        private readonly RuntimeInstance _runtimeService;
+        internal readonly RuntimeInstance _runtimeService;
         private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
         {
             {typeof(Foreach), new ForEachDirectiveExpressionBuilder()},
@@ -29,30 +31,29 @@ namespace IronVelocity
             {typeof(ForeachNoDataSection), new ForEachSectionExpressionBuilder(ForEachSection.NoData)},
         };
 
-        ExtendedProperties _properties;
         public VelocityRuntime(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers)
         {
             _runtimeService = new RuntimeInstance();
 
-            _properties = new Commons.Collections.ExtendedProperties();
-            _properties.AddProperty("input.encoding", "utf-8");
-            _properties.AddProperty("output.encoding", "utf-8");
-            _properties.AddProperty("velocimacro.permissions.allow.inline", "false");
-            _properties.AddProperty("runtime.log.invalid.references", "false");
-            _properties.AddProperty("runtime.log.logsystem.class", typeof(NVelocity.Runtime.Log.NullLogSystem).AssemblyQualifiedName.Replace(",", ";"));
-            _properties.AddProperty("parser.pool.size", 0);
-            ArrayList userDirectivces = new ArrayList();
+            var properties = new Commons.Collections.ExtendedProperties();
+            properties.AddProperty("input.encoding", "utf-8");
+            properties.AddProperty("output.encoding", "utf-8");
+            properties.AddProperty("velocimacro.permissions.allow.inline", "false");
+            properties.AddProperty("runtime.log.invalid.references", "false");
+            properties.AddProperty("runtime.log.logsystem.class", typeof(NVelocity.Runtime.Log.NullLogSystem).AssemblyQualifiedName.Replace(",", ";"));
+            properties.AddProperty("parser.pool.size", 0);
+            ArrayList userDirectives = new ArrayList();
             if (directiveHandlers != null)
             {
                 foreach (var directive in directiveHandlers)
                 {
-                    userDirectivces.Add(directive.Key.AssemblyQualifiedName);
+                    userDirectives.Add(directive.Key.AssemblyQualifiedName);
                     _directiveHandlers.Add(directive);
                 }
-                _properties.AddProperty("userdirective", userDirectivces);
+                properties.AddProperty("userdirective", userDirectives);
             }
-
-            _runtimeService.Init(_properties);
+            var ass = AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("N")).ToArray();
+            _runtimeService.Init(properties);
         }
 
         private Expression<VelocityTemplateMethod> GetExpressionTree(string input, string typeName, string fileName)

@@ -75,6 +75,7 @@ namespace IronVelocity.VisualStudio.Tags
                 yield return new TagSpan<TokenTag>(parent, tag);
             }
 
+            //Some of this positioning gets tricky - VS wants an absolute index in the string, but velocity only gives us line & char
             var lastEnd = parent.Start;
             for (int i = 0; i < node.ChildrenCount; i++)
             {
