@@ -32,31 +32,34 @@ namespace IronVelocity.VisualStudio.Tags
                 if (text.IndexOfAny(new[] { '$', '#' }) < 0)
                     yield break;
 
-                var charStream = new MyCharStream(text);// new VelocityCharStream(reader, 0, 0, text.Length);
-                _parser.ReInit(charStream);
-
-                int position = span.Start.Position;
-
-                while (true)
+                using (var reader = new StringReader(text))
                 {
-                    Token token;
-                    try
-                    {
-                        token = _parser.NextToken;
-                    }
-                    catch
-                    {
-                        //TODO: return some kind of error
-                        yield break;
-                    }
-                    if (token.Kind == ParserConstants.EOF)
-                        yield break;
+                    var charStream = new VelocityCharStream(reader, 0, 1, text.Length);
+                    _parser.ReInit(charStream);
 
-                    var tag = TagToken(token, position, span.Snapshot);
-                    if (tag != null)
-                        yield return tag;
+                    int position = span.Start.Position;
 
-                    position += token.Image.Length;
+                    while (true)
+                    {
+                        Token token;
+                        try
+                        {
+                            token = _parser.NextToken;
+                        }
+                        catch
+                        {
+                            //TODO: return some kind of error
+                            yield break;
+                        }
+                        if (token.Kind == ParserConstants.EOF)
+                            yield break;
+
+                        var tag = TagToken(token, position, span.Snapshot);
+                        if (tag != null)
+                            yield return tag;
+
+                        position += token.Image.Length;
+                    }
                 }
 
             }

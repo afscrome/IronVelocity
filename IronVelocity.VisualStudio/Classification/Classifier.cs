@@ -63,6 +63,7 @@ namespace IronVelocity.VisualStudio
                     case TokenType.Punctuator:
                         continue;
                     default:
+                        continue;
 #if DEBUG
                         throw new InvalidOperationException();
 #endif
