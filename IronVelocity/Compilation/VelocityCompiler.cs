@@ -15,7 +15,7 @@ namespace IronVelocity.Compilation
         private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(StringBuilder) };
 
 
-        public static VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, bool debugMode = false)
+        public static VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, bool debugMode)
         {
             var assemblyName = new AssemblyName("Widgets");
             //RunAndCollect allows this assembly to be garbage collected when finished with - http://msdn.microsoft.com/en-us/library/dd554932(VS.100).aspx

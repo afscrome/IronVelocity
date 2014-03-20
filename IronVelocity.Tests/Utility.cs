@@ -12,7 +12,7 @@ namespace Tests
         public static VelocityTemplateMethod BuildGenerator(string input, IDictionary<string, object> environment = null, string fileName = "")
         {
             var runtime = new VelocityRuntime(null);
-            return runtime.CompileTemplate(input, "test", fileName);
+            return runtime.CompileTemplate(input, "test", fileName, System.Diagnostics.Debugger.IsAttached);
         }
 
         public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, string fileName = "")

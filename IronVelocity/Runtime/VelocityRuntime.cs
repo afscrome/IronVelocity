@@ -52,7 +52,6 @@ namespace IronVelocity
                 }
                 properties.AddProperty("userdirective", userDirectives);
             }
-            var ass = AppDomain.CurrentDomain.GetAssemblies().Where(x => x.FullName.StartsWith("N")).ToArray();
             _runtimeService.Init(properties);
         }
 
@@ -73,7 +72,7 @@ namespace IronVelocity
         }
 
 
-        public VelocityTemplateMethod CompileTemplate(string input, string typeName, string fileName, bool debugMode = false)
+        public VelocityTemplateMethod CompileTemplate(string input, string typeName, string fileName, bool debugMode)
         {
             var tree = GetExpressionTree(input, typeName, fileName);
             return VelocityCompiler.CompileWithSymbols(tree, typeName, debugMode);
