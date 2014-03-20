@@ -42,7 +42,7 @@ namespace IronVelocity.Compilation
             if (from == null)
                 throw new ArgumentNullException("from");
 
-            if (expression.NodeType == ExpressionType.Convert)
+            while (expression.NodeType == ExpressionType.Convert)
                 expression = ((UnaryExpression)expression).Operand;
 
             if (to.IsValueType && !from.IsValueType && (from.IsInterface || from == typeof(object)))
@@ -55,6 +55,16 @@ namespace IronVelocity.Compilation
             return expression;
         }
 
+
+        public static Expression CoerceToBoolean(Expression expression)
+        {
+            if (expression == null)
+                throw new ArgumentNullException("expression");
+
+            expression = ConvertIfNeeded(expression, typeof(object));
+
+            return Expression.Convert(expression, typeof(bool), MethodHelpers.BooleanCoercionMethodInfo);
+        }
 
         public static Expression ConvertParameterIfNeeded(DynamicMetaObject target, ParameterInfo info)
         {

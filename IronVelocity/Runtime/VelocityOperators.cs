@@ -86,33 +86,6 @@ namespace IronVelocity.Runtime
             }
         }
 
-        public static dynamic And(object left, object right)
-        {
-            return BooleanCoercion.IsTrue(left) && BooleanCoercion.IsTrue(right);
-            // Since it's virtually impossible to override the And operator, no need for dynamics
-            /*
-            try { return left && right; }
-            catch (RuntimeBinderException)
-            {
-                return BooleanCoercion.IsTrue(left) && BooleanCoercion.IsTrue(right);
-            }
-            */
-        }
-
-        public static dynamic Or(object left, object right)
-        {
-            return BooleanCoercion.IsTrue(left) || BooleanCoercion.IsTrue(right);
-            // Since it's virtually impossible to override the Or operator, no need for dynamics
-            /*
-            try { return left || right; }
-            catch (RuntimeBinderException)
-            {
-                return BooleanCoercion.IsTrue(left) || BooleanCoercion.IsTrue(right);
-            }
-             */
-        }
-
-
         private static object CompatibleBigIntegerType(BigInteger value)
         {
             if (value <= int.MinValue && value >= int.MaxValue)

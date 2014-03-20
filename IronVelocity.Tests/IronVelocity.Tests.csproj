@@ -61,7 +61,9 @@
     <Compile Include="BoxingTests.cs" />
     <Compile Include="DummyClasses.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="MethodInfoReflectionTests.cs" />
     <Compile Include="OutputTests\Foreach.cs" />
+    <Compile Include="OutputTests\BooleanLogic.cs" />
     <Compile Include="OutputTests\Strings.cs" />
     <Compile Include="Regression\ForeachBreakTest.cs" />
     <Compile Include="Regression\ForeachTest.cs" />

@@ -383,7 +383,7 @@ namespace IronVelocity.Compilation
         private Expression If(INode node, Expression condition, Expression trueContent, Expression falseContent)
         {
             if (condition.Type != typeof(bool))
-                condition = Expression.Call(MethodHelpers.TrueBooleanCoercionMethodInfo, VelocityExpressions.BoxIfNeeded(condition));
+                condition = VelocityExpressions.CoerceToBoolean(condition);
 
             var expr = falseContent != null
                 ? Expression.IfThenElse(condition, trueContent, falseContent)
@@ -763,7 +763,20 @@ namespace IronVelocity.Compilation
             return DebugInfo(node, generator(left, right, implementation));
         }
 
-        private Expression BinaryLogicalExpression(Func<Expression, Expression, bool, MethodInfo, Expression> generator, INode node, MethodInfo implementation)
+        private Expression BinaryLogicalExpression(Func<Expression, Expression, MethodInfo, Expression> generator, INode node, MethodInfo implementation = null)
+        {
+            Expression left, right;
+            GetBinaryExpressionOperands(node, out left, out right);
+
+            // The expression tree will fail if the types don't *exactly* match the types on the method signature
+            // So ensure everything is converted to object
+            left = VelocityExpressions.CoerceToBoolean(left);
+            right = VelocityExpressions.CoerceToBoolean(right);
+
+            return DebugInfo(node, generator(left, right, implementation));
+        }
+
+        private Expression BinaryComparisonExpression(Func<Expression, Expression, bool, MethodInfo, Expression> generator, INode node, MethodInfo implementation)
         {
             Expression left, right;
             GetBinaryExpressionOperands(node, out left, out right);
@@ -793,7 +806,7 @@ namespace IronVelocity.Compilation
             if (!(node is ASTLTNode))
                 throw new ArgumentOutOfRangeException("node");
 
-            return BinaryLogicalExpression(Expression.LessThan, node, MethodHelpers.LessThanMethodInfo);
+            return BinaryComparisonExpression(Expression.LessThan, node, MethodHelpers.LessThanMethodInfo);
         }
 
 
@@ -805,7 +818,7 @@ namespace IronVelocity.Compilation
             if (!(node is ASTLENode))
                 throw new ArgumentOutOfRangeException("node");
 
-            return BinaryLogicalExpression(Expression.LessThanOrEqual, node, MethodHelpers.LessThanOrEqualMethodInfo);
+            return BinaryComparisonExpression(Expression.LessThanOrEqual, node, MethodHelpers.LessThanOrEqualMethodInfo);
         }
 
         /// <summary>
@@ -821,7 +834,7 @@ namespace IronVelocity.Compilation
             if (!(node is ASTGTNode))
                 throw new ArgumentOutOfRangeException("node");
 
-            return BinaryLogicalExpression(Expression.GreaterThan, node, MethodHelpers.GreaterThanMethodInfo);
+            return BinaryComparisonExpression(Expression.GreaterThan, node, MethodHelpers.GreaterThanMethodInfo);
         }
         /// <summary>
         /// Builds a greater than or equal to expression from an ASTGENode
@@ -836,7 +849,7 @@ namespace IronVelocity.Compilation
             if (!(node is ASTGENode))
                 throw new ArgumentOutOfRangeException("node");
 
-            return BinaryLogicalExpression(Expression.GreaterThanOrEqual, node, MethodHelpers.GreaterThanOrEqualMethodInfo);
+            return BinaryComparisonExpression(Expression.GreaterThanOrEqual, node, MethodHelpers.GreaterThanOrEqualMethodInfo);
         }
 
         /// <summary>
@@ -852,7 +865,7 @@ namespace IronVelocity.Compilation
             if (!(node is ASTEQNode))
                 throw new ArgumentOutOfRangeException("node");
 
-            return BinaryLogicalExpression(Expression.Equal, node, MethodHelpers.EqualMethodInfo);
+            return BinaryComparisonExpression(Expression.Equal, node, MethodHelpers.EqualMethodInfo);
         }
 
         /// <summary>
@@ -868,7 +881,7 @@ namespace IronVelocity.Compilation
             if (!(node is ASTNENode))
                 throw new ArgumentOutOfRangeException("node");
 
-            return BinaryLogicalExpression(Expression.NotEqual, node, MethodHelpers.NotEqualMethodInfo);
+            return BinaryComparisonExpression(Expression.NotEqual, node, MethodHelpers.NotEqualMethodInfo);
         }
 
         #endregion
@@ -886,10 +899,10 @@ namespace IronVelocity.Compilation
             if (node.ChildrenCount != 1)
                 throw new ArgumentOutOfRangeException("node");
 
+            var operand = Operand(node.GetChild(0));
+            var expression = VelocityExpressions.CoerceToBoolean(operand);
 
-            var expr = VelocityExpressions.ConvertIfNeeded(Operand(node.GetChild(0)), typeof(object));
-
-            return DebugInfo(node, Expression.Not(expr, MethodHelpers.FalseBooleanCoercionMethodInfo));
+            return DebugInfo(node, Expression.Not(expression));
         }
 
         private Expression And(INode node)
@@ -899,8 +912,8 @@ namespace IronVelocity.Compilation
 
             if (!(node is ASTAndNode))
                 throw new ArgumentOutOfRangeException("node");
-
-            return BinaryMathematicalExpression(Expression.And, node, MethodHelpers.AndMethodInfo);
+            
+            return BinaryLogicalExpression(Expression.AndAlso, node);
         }
 
         private Expression Or(INode node)
@@ -911,7 +924,7 @@ namespace IronVelocity.Compilation
             if (!(node is ASTOrNode))
                 throw new ArgumentOutOfRangeException("node");
 
-            return BinaryMathematicalExpression(Expression.Or, node, MethodHelpers.OrMethodInfo);
+            return BinaryLogicalExpression(Expression.OrElse, node);
         }
 
 
