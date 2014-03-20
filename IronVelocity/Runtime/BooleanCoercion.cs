@@ -7,10 +7,7 @@ namespace IronVelocity.Runtime
         public static bool CoerceToBoolean(dynamic value)
         {
             try { return value; }
-            catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException)
-            {
-                return ((object)value) != null;
-            }
+            catch (RuntimeBinderException) { return ((object)value) != null; }
         }
     }
 }
