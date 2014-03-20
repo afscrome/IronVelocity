@@ -88,7 +88,9 @@ namespace IronVelocity.Binders
                 {
                     int lastIndex = argExpressions.Length - 1;
                     //Check if the array has been explicitly passed, rather than as individual elements
-                    if (argTypeArray.Length == parameters.Length && ReflectionHelper.CanBeImplicitlyConverted(argTypeArray.Last(), lastParameter.ParameterType))
+                    if (argTypeArray.Length == parameters.Length
+                        && ReflectionHelper.CanBeImplicitlyConverted(argTypeArray.Last(), lastParameter.ParameterType)
+                        && argTypeArray.Last() != null)
                         argExpressions[lastIndex] = VelocityExpressions.ConvertParameterIfNeeded(args[lastIndex], lastParameter);
                     else
                     {

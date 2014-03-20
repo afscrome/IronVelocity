@@ -137,6 +137,24 @@ namespace IronVelocity.Tests.Binders
         }
 
 
+        [Test]
+        public void ParamArrayWithOneNullArgument()
+        {
+            var target = new MethodTests();
+            var result = test(target, "ParamArray", new object[] { null} );
+
+            Assert.AreEqual(1, result);
+        }
+
+        [Test]
+        public void ParamArrayWithTwoNullArguments()
+        {
+            var target = new MethodTests();
+            var result = test(target, "ParamArray", null, null);
+
+            Assert.AreEqual(2, result);
+        }
+
         //null input returns null
         //Void returns null??
 
