@@ -6,10 +6,12 @@ using System.Linq;
 
 namespace IronVelocity.Runtime
 {
-    public class RuntimeDictionary : IDictionary<string, object>, IDictionary
+    public class RuntimeDictionary : IDictionary<object, object>, IDictionary
     {
+        private static IEqualityComparer<object> _comparer = new KeyComparer();
+
         [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
-        private readonly Dictionary<string, object> _values;
+        private readonly Dictionary<object, object> _values;
         public RuntimeDictionary()
             : this(0)
         {
@@ -17,10 +19,10 @@ namespace IronVelocity.Runtime
 
         public RuntimeDictionary(int capacity)
         {
-            _values = new Dictionary<string, object>(capacity, StringComparer.OrdinalIgnoreCase);
+            _values = new Dictionary<object, object>(capacity, _comparer);
         }
 
-        public object this[string key]
+        public object this[object key]
         {
             get
             {
@@ -37,10 +39,10 @@ namespace IronVelocity.Runtime
         }
 
         public int Count { get { return _values.Count; } }
-        public ICollection<string> Keys { get { return _values.Keys; } }
+        public ICollection<object> Keys { get { return _values.Keys; } }
         public ICollection<object> Values { get { return _values.Values; } }
 
-        public void Add(string key, object value)
+        public void Add(object key, object value)
         {
             _values.Add(key, value);
         }
@@ -50,63 +52,62 @@ namespace IronVelocity.Runtime
             _values.Clear();
         }
 
-        public bool Contains(KeyValuePair<string, object> item)
+        public bool Contains(KeyValuePair<object, object> item)
         {
             return _values.Contains(item);
         }
 
-        public bool ContainsKey(string key)
+        public bool ContainsKey(object key)
         {
             return _values.ContainsKey(key);
         }
 
-        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
+        public IEnumerator<KeyValuePair<object, object>> GetEnumerator()
         {
             return _values.GetEnumerator();
         }
 
-        IEnumerator System.Collections.IEnumerable.GetEnumerator()
+        IEnumerator IEnumerable.GetEnumerator()
         {
             return _values.GetEnumerator();
         }
 
-
-        public void Remove(string key)
+        public void Remove(object key)
         {
             _values.Remove(key);
         }
+
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "For consistency with HybridDictionary, need a void implementation of Remove to be the main visible method")]
-        bool IDictionary<string, object>.Remove(string key)
+        bool IDictionary<object, object>.Remove(object key)
         {
-            throw new NotImplementedException();
+            return _values.Remove(key);
         }
 
-        public bool TryGetValue(string key, out object value)
+        public bool TryGetValue(object key, out object value)
         {
             return _values.TryGetValue(key, out value);
         }
 
 
-
         #region ICollection<KeyValuePair<TKey,TValue>>
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
-        bool ICollection<KeyValuePair<string, object>>.IsReadOnly { get { return ((ICollection<KeyValuePair<string, object>>)_values).IsReadOnly; } }
+        bool ICollection<KeyValuePair<object, object>>.IsReadOnly { get { return ((ICollection<KeyValuePair<object, object>>)_values).IsReadOnly; } }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
-        void ICollection<KeyValuePair<string, object>>.Add(KeyValuePair<string, object> item)
+        void ICollection<KeyValuePair<object, object>>.Add(KeyValuePair<object, object> item)
         {
-            ((ICollection<KeyValuePair<string, object>>)_values).Add(item);
+            ((ICollection<KeyValuePair<object, object>>)_values).Add(item);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
-        void ICollection<KeyValuePair<string, object>>.CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
+        void ICollection<KeyValuePair<object, object>>.CopyTo(KeyValuePair<object, object>[] array, int arrayIndex)
         {
-            ((ICollection<KeyValuePair<string, object>>)_values).CopyTo(array, arrayIndex);
+            ((ICollection<KeyValuePair<object, object>>)_values).CopyTo(array, arrayIndex);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
-        bool ICollection<KeyValuePair<string, object>>.Remove(KeyValuePair<string, object> item)
+        bool ICollection<KeyValuePair<object, object>>.Remove(KeyValuePair<object, object> item)
         {
             return _values.Remove(item.Key);
         }
@@ -119,45 +120,30 @@ namespace IronVelocity.Runtime
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
         bool IDictionary.IsReadOnly { get { return ((IDictionary)_values).IsReadOnly; } }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
-        ICollection IDictionary.Keys { get { return ((IDictionary)_values).Keys; } }
+        ICollection IDictionary.Keys { get { return _values.Keys; } }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
-        ICollection IDictionary.Values { get { return ((IDictionary)_values).Values; } }
+        ICollection IDictionary.Values { get { return _values.Values; } }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
         bool ICollection.IsSynchronized { get { return ((IDictionary)_values).IsSynchronized; } }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
         object ICollection.SyncRoot { get { return ((IDictionary)_values).SyncRoot; } }
 
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
-        void IDictionary.Add(object key, object value)
-        {
-            ((IDictionary)_values).Add(key, value);
-        }
+
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
         bool IDictionary.Contains(object key)
         {
-            return ((IDictionary)_values).Contains(key);
+            return _values.ContainsKey(key);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
         IDictionaryEnumerator IDictionary.GetEnumerator()
         {
-            return ((IDictionary)_values).GetEnumerator();
+            return _values.GetEnumerator();
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
-        void IDictionary.Remove(object key)
-        {
-            ((IDictionary)_values).Remove(key);
-        }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
-        object IDictionary.this[object key]
-        {
-            get { return ((IDictionary)_values)[key]; }
-            set { ((IDictionary)_values)[key] = value; }
-        }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
         void ICollection.CopyTo(Array array, int index)
@@ -165,6 +151,20 @@ namespace IronVelocity.Runtime
             ((IDictionary)_values).CopyTo(array, index);
         }
 
-    }
+        private class KeyComparer : IEqualityComparer<object>
+        {
+            private IEqualityComparer _comparer = StringComparer.OrdinalIgnoreCase;
 
+            public bool Equals(object x, object y)
+            {
+                return _comparer.Equals(x, y);
+            }
+
+            public int GetHashCode(object obj)
+            {
+                return _comparer.GetHashCode(obj);
+            }
+        }
+
+    }
 }
