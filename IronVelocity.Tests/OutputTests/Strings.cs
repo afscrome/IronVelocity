@@ -54,7 +54,7 @@ namespace IronVelocity.Tests.OutputTests
 
                 CollectionAssert.Contains(env.Keys, "dict");
 
-                var dict = env["dict"] as IDictionary<string, object>;
+                var dict = (IDictionary<object, object>)env["dict"];
                 CollectionAssert.Contains(dict.Keys, "key");
 
                 Assert.AreEqual(value, dict["key"]);
@@ -93,7 +93,7 @@ namespace IronVelocity.Tests.OutputTests
 
                 CollectionAssert.Contains(env.Keys, "dict");
 
-                var dict = env["dict"] as IDictionary<string, object>;
+                var dict = (IDictionary<object, object>)env["dict"];
                 CollectionAssert.Contains(dict.Keys, "key");
 
                 Assert.AreEqual(value, dict["key"]);
