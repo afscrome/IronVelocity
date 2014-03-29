@@ -12,7 +12,7 @@ namespace IronVelocity.Tests.Regression
     [TestFixture]
     public class RegressionTests
     {
-        private static readonly string _base = "c:\\Projects\\IronVelocity\\IronVelocity.Tests\\Regression\\templates\\";
+        private static readonly string _base = "..\\..\\Regression\\templates\\";
         private static readonly string _failureResultsDir = "Failures";
 
         private IDictionary<string, object> _environment;
