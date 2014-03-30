@@ -96,35 +96,25 @@ namespace IronVelocity.Compilation
         private static readonly MethodInfo _dictionaryAddMemberInfo = _dictionaryType.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string), typeof(object) }, null);
         public static Expression Dictionary(IDictionary<string, Expression> input)
         {
+
             if (input == null)
                 throw new ArgumentNullException("input");
 
-            Expression dictionaryInit = Expression.New(
+            var dictionaryInit = Expression.New(
                     _dictionaryConstructorInfo,
                     Expression.Constant(input.Count)
                 );
 
-            //If we're initalising an empty list, we can just return the list as is, without having to create a block expression
             if (!input.Any())
                 return dictionaryInit;
 
-            var dictionary = Expression.Parameter(_dictionaryType, "tempDictionary");
-            dictionaryInit = Expression.Assign(dictionary, dictionaryInit);
+            var initializers = input.Select(x => Expression.ElementInit(
+                _dictionaryAddMemberInfo,
+                Expression.Constant(x.Key),
+                VelocityExpressions.ConvertIfNeeded(x.Value, typeof(object))
+            ));
 
-            var valuesInit = input.Select(x => Expression.Call(
-                        dictionary,
-                        _dictionaryAddMemberInfo,
-                        Expression.Constant(x.Key),
-                        Expression.Convert(x.Value, typeof(object))
-                    )
-                ).OfType<Expression>();
-
-
-            return Expression.Block(
-                new[] { dictionary },
-                Enumerable.Union(new[] { dictionaryInit }, valuesInit).Union(new[] { dictionary })
-            );
-
+            return Expression.ListInit(dictionaryInit, initializers);
         }
 
 
