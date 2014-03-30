@@ -155,12 +155,12 @@ namespace IronVelocity.Runtime
         {
             private IEqualityComparer _comparer = StringComparer.OrdinalIgnoreCase;
 
-            public bool Equals(object x, object y)
+            bool IEqualityComparer<object>.Equals(object x, object y)
             {
                 return _comparer.Equals(x, y);
             }
 
-            public int GetHashCode(object obj)
+            int IEqualityComparer<object>.GetHashCode(object obj)
             {
                 return _comparer.GetHashCode(obj);
             }

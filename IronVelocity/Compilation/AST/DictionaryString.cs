@@ -15,13 +15,10 @@ namespace IronVelocity.Compilation.AST
         private readonly VelocityASTConverter _converter;
         public string Value { get; set; }
 
-        public DictionaryString(string value, VelocityASTConverter converter)
+        public DictionaryString(string value)
         {
-            if (converter == null)
-                throw new ArgumentNullException("converter");
-
             Value = value;
-            _converter = converter;
+            _converter = new VelocityASTConverter(null);
         }
 
         protected override Expression ReduceInternal()
@@ -138,7 +135,7 @@ namespace IronVelocity.Compilation.AST
                         (!expectSingleCommaAtEnd && c == ',') ||
                         (inEvaluationContext == 0 && c == '}'))
                     {
-                        ProcessDictEntry(hash, sbKeyBuilder, sbValBuilder, expectSingleCommaAtEnd, converter);
+                        ProcessDictEntry(hash, sbKeyBuilder, sbValBuilder, expectSingleCommaAtEnd);
 
                         inKey = false;
                         valueStarted = false;
@@ -175,7 +172,7 @@ namespace IronVelocity.Compilation.AST
 
                     lastIndex = i;
 
-                    ProcessDictEntry(hash, sbKeyBuilder, sbValBuilder, expectSingleCommaAtEnd, converter);
+                    ProcessDictEntry(hash, sbKeyBuilder, sbValBuilder, expectSingleCommaAtEnd);
 
                     inKey = false;
                     valueStarted = false;
@@ -188,7 +185,7 @@ namespace IronVelocity.Compilation.AST
             return VelocityExpressions.Dictionary(hash);
         }
 
-        private void ProcessDictEntry(IDictionary<string, Expression> map, StringBuilder keyBuilder, Expression value)
+        private static void ProcessDictEntry(IDictionary<string, Expression> map, StringBuilder keyBuilder, Expression value)
         {
             var key = keyBuilder.ToString().Trim();
 
@@ -212,14 +209,14 @@ namespace IronVelocity.Compilation.AST
             keyBuilder.Length = 0;
         }
 
-        private void ProcessDictEntry(IDictionary<string, Expression> map,
+        private static void ProcessDictEntry(IDictionary<string, Expression> map,
                                       StringBuilder keyBuilder, StringBuilder value,
-                                      bool isTextContent, VelocityASTConverter converter)
+                                      bool isTextContent)
         {
             Expression expr;
             var content = value.ToString().Trim();
             if (VelocityString.DetermineStringType(content) == VelocityStringType.Interpolated)
-                expr = new InterpolatedString(content, converter);
+                expr = new InterpolatedString(content);
             else
             {
                 if (isTextContent)

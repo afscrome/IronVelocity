@@ -12,13 +12,11 @@ namespace IronVelocity.Compilation.AST
 {
     public class InterpolatedString : VelocityExpression
     {
-        private readonly VelocityASTConverter _converter;
         public string Value { get; private set; }
 
-        public InterpolatedString(string value, VelocityASTConverter converter)
+        public InterpolatedString(string value)
         {
             Value = value;
-            _converter = converter;
         }
 
         private static MethodInfo _stringConcatMethodInfo = typeof(string).GetMethod("Concat", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object[]) }, null);
@@ -43,7 +41,7 @@ namespace IronVelocity.Compilation.AST
                 if (ast == null)
                     return Expression.Constant(Value);
 
-                var expressions =  _converter.GetBlockExpressions(ast, false)
+                var expressions =  new VelocityASTConverter(null).GetBlockExpressions(ast, false)
                     .Where(x => x.Type != typeof(void))
                     .ToArray();
 

@@ -33,9 +33,17 @@ namespace IronVelocity.Compilation.Directives
             if (inNode == null || !inNode.Literal.Equals("in"))
                 throw new ArgumentOutOfRangeException("node");
 
-            var loopVariable = converter.Reference(node.GetChild(0), false);
-            var enumerable = converter.Operand(node.GetChild(2));
+            var loopVariable = VelocityASTConverter.Reference(node.GetChild(0), false);
 
+            //TODO: Hack until Foreach is moved to an Extension expression node
+            var temp = loopVariable as IronVelocity.Compilation.AST.DynamicReference;
+            if (temp != null)
+                loopVariable = temp.Value;
+            var temp2 = loopVariable as IronVelocity.Compilation.AST.VariableReference;
+            if (temp2 != null)
+                loopVariable = temp2.Reduce();
+            var enumerable =  AST.ConversionHelpers.Operand(node.GetChild(2));
+            
             var parts = new List<Expression>[9];
             var currentSection = ForEachSection.Each;
             foreach (var expression in converter.GetBlockExpressions(node.GetChild(3), true))

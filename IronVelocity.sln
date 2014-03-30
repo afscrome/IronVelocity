@@ -9,16 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronVelocity", "IronVelocit
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{7FEB209B-1DC1-4D13-BE69-727AB2F6CE5E}"
 	ProjectSection(SolutionItems) = preProject
-		IntegrationTests.testsettings = IntegrationTests.testsettings
 		.nuget\NuGet.Config = .nuget\NuGet.Config
 		.nuget\NuGet.exe = .nuget\NuGet.exe
 		.nuget\NuGet.targets = .nuget\NuGet.targets
-		UnitTests.testsettings = UnitTests.testsettings
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0E865FE4-4470-4067-BA64-DE57F4A234D8}"
-	ProjectSection(SolutionItems) = preProject
-		Performance1.psess = Performance1.psess
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronVelocity.VisualStudio", "IronVelocity.VisualStudio\IronVelocity.VisualStudio.csproj", "{59F1BC28-3EBA-46E6-97B2-7E85BC4EFE22}"

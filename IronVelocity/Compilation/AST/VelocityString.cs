@@ -10,11 +10,11 @@ namespace IronVelocity.Compilation.AST
 {
     public class VelocityString : VelocityExpression
     {
-        private readonly VelocityASTConverter _converter;
         public VelocityStringType StringType { get; private set; }
         public string Value { get; set; }
 
-        public VelocityString(INode node, VelocityASTConverter converter)
+        public VelocityString(INode node)
+            : base(node)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -23,7 +23,6 @@ namespace IronVelocity.Compilation.AST
                 throw new ArgumentOutOfRangeException("node");
 
             Value = node.Literal.Substring(1, node.Literal.Length - 2);
-            _converter = converter;
 
             var isDoubleQuoted = node.Literal.StartsWith("\"", StringComparison.Ordinal);
             StringType = isDoubleQuoted
@@ -38,9 +37,9 @@ namespace IronVelocity.Compilation.AST
                 case VelocityStringType.Constant:
                     return Expression.Constant(Value);
                 case VelocityStringType.Dictionary:
-                    return new DictionaryString(Value, _converter);
+                    return new DictionaryString(Value);
                 case VelocityStringType.Interpolated:
-                    return new InterpolatedString(Value, _converter);
+                    return new InterpolatedString(Value);
                 default:
                     throw new InvalidOperationException();
             }
@@ -57,13 +56,6 @@ namespace IronVelocity.Compilation.AST
             else
                 return VelocityStringType.Constant;
         }
-
-        public override string ToString()
-        {
-            return Value;
-        }
-
-        private string DebugView { get { return "todo"; } }
 
     }
 
