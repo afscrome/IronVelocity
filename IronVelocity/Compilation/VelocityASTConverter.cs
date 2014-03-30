@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Binders;
+using IronVelocity.Compilation.AST;
 using IronVelocity.Compilation.Directives;
 using NVelocity.Runtime.Parser;
 using NVelocity.Runtime.Parser.Node;
@@ -513,31 +514,7 @@ namespace IronVelocity.Compilation
             if (!(node is ASTStringLiteral))
                 throw new ArgumentOutOfRangeException("node");
 
-            var isDoubleQuoted = node.Literal.StartsWith("\"", StringComparison.Ordinal);
-            var content = node.Literal.Substring(1, node.Literal.Length - 2);
-
-            var stringType = isDoubleQuoted
-                ? VelocityStrings.DetermineStringType(content)
-                : VelocityStringType.Constant;
-
-            Expression expr;
-
-            switch (stringType)
-            {
-                case VelocityStringType.Constant:
-                    expr = Expression.Constant(content);
-                    break;
-
-                case VelocityStringType.Dictionary:
-                    expr = VelocityStrings.InterpolateDictionaryString(content, this);
-                    break;
-                case VelocityStringType.Interpolated:
-                    expr = VelocityStrings.InterpolateString(content, this);
-                    break;
-
-                default:
-                    throw new InvalidProgramException();
-            }
+            var expr = new VelocityString(node, this);
 
             return DebugInfo(node, expr);
         }

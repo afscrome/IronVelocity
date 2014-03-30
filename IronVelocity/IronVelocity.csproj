@@ -52,8 +52,15 @@
     <Compile Include="Compilation\ASTReferenceMetaData.cs" />
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />
+    <Compile Include="Compilation\AST\InterpolatedString.cs" />
+    <Compile Include="Compilation\AST\DictionaryString.cs" />
+    <Compile Include="Compilation\AST\VelocityExpression.cs" />
+    <Compile Include="Compilation\AST\VelocityString.cs" />
     <Compile Include="Compilation\Directives\MacroScope.cs" />
     <Compile Include="Compilation\MethodHelper.cs" />
+    <Compile Include="Compilation\VelocityString.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Constants.cs" />
     <Compile Include="Compilation\Directives\DirectiveExpressionBuilder.cs" />
     <Compile Include="Compilation\Directives\BreakDirectiveExpressionBuilder.cs" />
@@ -62,7 +69,6 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Runtime\IntegerRange.cs" />
     <Compile Include="Runtime\RuntimeDictionary.cs" />
-    <Compile Include="Compilation\VelocityString.cs" />
     <Compile Include="Compilation\Scope.cs" />
     <Compile Include="Compilation\VelocityCompiler.cs" />
     <Compile Include="VelocityContext.cs" />
@@ -81,6 +87,7 @@
   <ItemGroup>
     <CodeAnalysisDictionary Include="Properties\CodeAnalysisDictionary.xml" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
