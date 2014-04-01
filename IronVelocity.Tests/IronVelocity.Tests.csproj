@@ -51,6 +51,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Binders\MathematicalBinaryOperationBinderTests\AdditionTests.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Binders\MathematicalBinaryOperationBinderTests\MultiplicationTests.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Binders\MathematicalBinaryOperationBinderTests\SubtractionTests.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Binders\ReflectionHelper\ArgumentCompatabilityTests.cs" />
     <Compile Include="Binders\ReflectionHelper\BetterFunctionMemberTests.cs" />
     <Compile Include="Binders\ReflectionHelper\ImplicitConversionSupportTests.cs" />
@@ -75,9 +84,6 @@
     <Compile Include="Regression\VelocityTest.cs" />
     <Compile Include="RuntimeHelpers\ModuloTests.cs" />
     <Compile Include="RuntimeHelpers\DivisionTests.cs" />
-    <Compile Include="RuntimeHelpers\MultiplicationTests.cs" />
-    <Compile Include="RuntimeHelpers\SubtractionTests.cs" />
-    <Compile Include="RuntimeHelpers\AdditionTests.cs" />
     <Compile Include="RuntimeHelpers\IntegerRangeTests.cs" />
     <Compile Include="OutputTests\Method.cs" />
     <Compile Include="OutputTests\Identifer.cs" />

@@ -35,24 +35,6 @@ namespace IronVelocity.Tests
         }
 
         [Test]
-        public void Addition()
-        {
-            Assert.NotNull(MethodHelpers.AdditionMethodInfo);
-        }
-
-        [Test]
-        public void Subtraction()
-        {
-            Assert.NotNull(MethodHelpers.SubtractionMethodInfo);
-        }
-
-        [Test]
-        public void Multiplication()
-        {
-            Assert.NotNull(MethodHelpers.MultiplicationMethodInfo);
-        }
-
-        [Test]
         public void Division()
         {
             Assert.NotNull(MethodHelpers.DivisionMethodInfo);

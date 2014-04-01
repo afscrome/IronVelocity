@@ -3,7 +3,10 @@ using IronVelocity.Compilation;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Linq;
 
 namespace Tests
 {
@@ -56,6 +59,16 @@ namespace Tests
             return text.Replace("\r\n", "\n")
                 .Replace("\r", "\n")
                 .Replace("\n", Environment.NewLine);
+        }
+
+        public static object BinderTests(CallSiteBinder binder, params object[] args)
+        {
+            var expression = Expression.Dynamic(binder, typeof(object), args.Select(Expression.Constant));
+
+            var action = Expression.Lambda<Func<object>>(expression)
+                .Compile();
+
+            return action();
         }
     }
 }

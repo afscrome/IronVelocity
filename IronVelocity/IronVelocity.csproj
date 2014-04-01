@@ -48,12 +48,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Binders\ReflectionHelper.cs" />
+    <Compile Include="Binders\VelocityBinaryOperationBinder.cs" />
+    <Compile Include="Binders\VelocityBinaryLogicalOperationBinder.cs" />
+    <Compile Include="Binders\VelocityBinaryMathematicalOperationBinder.cs" />
     <Compile Include="Binders\VelocitySetMemberBinder.cs" />
     <Compile Include="Compilation\ASTReferenceMetaData.cs" />
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />
     <Compile Include="Compilation\AST\BinaryExpression.cs" />
     <Compile Include="Compilation\AST\AssignmentExpression.cs" />
+    <Compile Include="Compilation\AST\BinaryMathematicalExpression.cs" />
     <Compile Include="Compilation\AST\Directive.cs" />
     <Compile Include="Compilation\AST\DynamicReference.cs" />
     <Compile Include="Compilation\AST\DynamicSetMemberExpression.cs" />

@@ -1,5 +1,9 @@
-﻿using IronVelocity.Runtime;
+﻿using IronVelocity.Binders;
+using IronVelocity.Runtime;
 using NUnit.Framework;
+using System;
+using System.Linq.Expressions;
+using Tests;
 
 namespace IronVelocity.Tests.Runtime
 {
@@ -17,7 +21,7 @@ namespace IronVelocity.Tests.Runtime
         [TestCase(-2147483648, -1, -2147483649, TestName = "Addition Integer Underflow")]
         public void BasicTest(object left, object right, object expected)
         {
-            var result = Operators.Addition(left, right);
+            var result = Test(left, right);
             Assert.AreEqual(expected, result);
         }
 
@@ -26,13 +30,18 @@ namespace IronVelocity.Tests.Runtime
         {
             var left = new OverloadedAdd(1);
             var right = new OverloadedAdd(3);
-            var result = Operators.Addition(left, right);
+            var result = Test(left, right);
 
             Assert.IsInstanceOf<OverloadedAdd>(result);
             Assert.AreEqual(4, ((OverloadedAdd)result).Value);
         }
 
+        private object Test(object left, object right)
+        {
+            var binder = new VelocityBinaryMathematicalOperationBinder(ExpressionType.Add);
 
+            return Utility.BinderTests(binder, left, right);
+        }
 
         public class OverloadedAdd
         {

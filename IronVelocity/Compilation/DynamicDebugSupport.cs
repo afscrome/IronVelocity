@@ -30,6 +30,8 @@ namespace IronVelocity.Compilation
             return base.VisitExtension(node);
         }
 
+
+
         protected override Expression VisitDynamic(DynamicExpression node)
         {
             if (node == null)
@@ -78,6 +80,7 @@ namespace IronVelocity.Compilation
         private static readonly ConstructorInfo _getMemberBinderConstructor = typeof(VelocityGetMemberBinder).GetConstructor(new[] { typeof(string) });
         private static readonly ConstructorInfo _setMemberBinderConstructor = typeof(VelocitySetMemberBinder).GetConstructor(new[] { typeof(string) });
         private static readonly ConstructorInfo _invokeMemberBinderConstructor = typeof(VelocityInvokeMemberBinder).GetConstructor(new[] { typeof(string), typeof(CallInfo) });
+        private static readonly ConstructorInfo _binaryOperationBinderConstructor = typeof(VelocityBinaryMathematicalOperationBinder).GetConstructor(new [] { typeof(ExpressionType) });
 
         private static Expression _emptyStringArray = Expression.NewArrayInit(typeof(string));
 
@@ -119,6 +122,14 @@ namespace IronVelocity.Compilation
                             _setMemberBinderConstructor,
                             Expression.Constant(name)
                         );
+                    }
+                    else {
+                        var binary = binder as VelocityBinaryMathematicalOperationBinder;
+                        if (binary != null)
+                        {
+                            var type = Expression.Constant(binary.Operation);
+                            return Expression.New(_binaryOperationBinderConstructor, type);
+                        }
                     }
 
                 }

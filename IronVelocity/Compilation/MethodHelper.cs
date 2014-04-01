@@ -1,6 +1,8 @@
-﻿using IronVelocity.Runtime;
+﻿using IronVelocity.Binders;
+using IronVelocity.Runtime;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 
@@ -13,12 +15,10 @@ namespace IronVelocity.Compilation
         public static readonly ConstructorInfo ListConstructorInfo = typeof(List<object>).GetConstructor(new[] { typeof(IEnumerable<object>) });
         public static readonly MethodInfo IntegerRangeMethodInfo = typeof(IntegerRange).GetMethod("Range", new[] { typeof(int), typeof(int) });
         public static readonly MethodInfo StringConcatMethodInfo = typeof(String).GetMethod("Concat", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object), typeof(object) }, null);
+        public static readonly MethodInfo ReduceBigIntegerMethodInfo = typeof(VelocityBinaryMathematicalOperationBinder).GetMethod("ReduceBigInteger", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(BigInteger) }, null);
 
         public static readonly MethodInfo BooleanCoercionMethodInfo = typeof(BooleanCoercion).GetMethod("CoerceToBoolean", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object) }, null);
 
-        public static readonly MethodInfo AdditionMethodInfo = typeof(Operators).GetMethod("Addition", new[] { typeof(object), typeof(object) });
-        public static readonly MethodInfo SubtractionMethodInfo = typeof(Operators).GetMethod("Subtraction", new[] { typeof(object), typeof(object) });
-        public static readonly MethodInfo MultiplicationMethodInfo = typeof(Operators).GetMethod("Multiplication", new[] { typeof(object), typeof(object) });
         public static readonly MethodInfo DivisionMethodInfo = typeof(Operators).GetMethod("Division", new[] { typeof(object), typeof(object) });
         public static readonly MethodInfo ModuloMethodInfo = typeof(Operators).GetMethod("Modulo", new[] { typeof(object), typeof(object) });
 

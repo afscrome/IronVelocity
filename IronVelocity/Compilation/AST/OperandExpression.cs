@@ -1,4 +1,5 @@
-﻿using NVelocity.Runtime.Parser;
+﻿using IronVelocity.Binders;
+using NVelocity.Runtime.Parser;
 using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections.Generic;
@@ -111,11 +112,11 @@ namespace IronVelocity.Compilation.AST
                     return NotEqual(node);
                 //Mathematical Operations
                 case ParserTreeConstants.ADD_NODE:
-                    return Addition(node);
+                    return new BinaryMathematicalExpression(node, MathematicalOperation.Add);
                 case ParserTreeConstants.SUBTRACT_NODE:
-                    return Subtraction(node);
+                    return new BinaryMathematicalExpression(node, MathematicalOperation.Subtract);
                 case ParserTreeConstants.MUL_NODE:
-                    return Multiplication(node);
+                    return new BinaryMathematicalExpression(node, MathematicalOperation.Multiply);
                 case ParserTreeConstants.DIV_NODE:
                     return Division(node);
                 case ParserTreeConstants.MOD_NODE:
@@ -200,54 +201,6 @@ namespace IronVelocity.Compilation.AST
 
 
         #region Numeric Operators
-
-        /// <summary>
-        /// Builds an addition expression from an ASTAddNode
-        /// </summary>
-        /// <param name="node">The ASTAddNode to build the addition Expression from</param>
-        /// <returns>An expression representing the addition operation</returns>
-        private static Expression Addition(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTAddNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryMathematicalExpression(Expression.Add, node, MethodHelpers.AdditionMethodInfo);
-        }
-
-        /// <summary>
-        /// Builds a subtraction expression from an ASTSubtractNode
-        /// </summary>
-        /// <param name="node">The ASTSubtractNode to build the subtraction Expression from</param>
-        /// <returns>An expression representing the subtraction operation</returns>
-        private static Expression Subtraction(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTSubtractNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryMathematicalExpression(Expression.Subtract, node, MethodHelpers.SubtractionMethodInfo);
-        }
-
-        /// <summary>
-        /// Builds a multiplication expression from an ASTMulNode
-        /// </summary>
-        /// <param name="node">The ASTMulNode to build the multiplication Expression from</param>
-        /// <returns>An expression representing the multiplication operation</returns>
-        private static Expression Multiplication(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTMulNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryMathematicalExpression(Expression.Multiply, node, MethodHelpers.MultiplicationMethodInfo);
-        }
 
         /// <summary>
         /// Builds a division expression from an ASTDivNode

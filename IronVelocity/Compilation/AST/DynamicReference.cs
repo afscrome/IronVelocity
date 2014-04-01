@@ -77,9 +77,9 @@ namespace IronVelocity.Compilation.AST
                 var NullValue = Expression.Constant(Reference.MetaData.EscapePrefix + prefix + Reference.MetaData.NullString);
 
                 //If the literal has not been escaped (has an empty prefix), then we can return a simple Coalesce expression
-                /*if (String.IsNullOrEmpty(prefix))
+                if (String.IsNullOrEmpty(prefix))
                     return Expression.Coalesce(Reference, NullValue);
-                */
+
                 //Otherwise we have to do a slightly more complicated result
                 var _evaulatedResult = Expression.Parameter(typeof(object), "tempEvaulatedResult");
                 return Expression.Block(

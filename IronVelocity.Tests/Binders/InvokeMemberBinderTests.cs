@@ -4,6 +4,7 @@ using System;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
+using Tests;
 
 namespace IronVelocity.Tests.Binders
 {
@@ -162,16 +163,9 @@ namespace IronVelocity.Tests.Binders
         {
             var binder = new VelocityInvokeMemberBinder(methodName, new CallInfo(paramaters.Length));
 
-            var argExpressions = new Expression[] { Expression.Constant(input) }
-                .Concat(paramaters.Select(x => Expression.Constant(x)));
+            var args = new[] { input }.Concat(paramaters).ToArray();
 
-            var value = Expression.Constant(input);
-            var expression = Expression.Dynamic(binder, typeof(object), argExpressions);
-
-            var action = Expression.Lambda<Func<object>>(expression)
-                .Compile();
-
-            return action();
+            return Utility.BinderTests(binder, args);
         }
 
         public class AmbigiousMethods
