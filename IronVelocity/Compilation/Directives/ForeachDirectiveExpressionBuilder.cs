@@ -1,4 +1,5 @@
-﻿using NVelocity.Runtime.Parser.Node;
+﻿using IronVelocity.Compilation.AST;
+using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,11 +15,8 @@ namespace IronVelocity.Compilation.Directives
         private static readonly PropertyInfo _currentPropertyInfo = typeof(IEnumerator).GetProperty("Current");
 
 
-        public override Expression Build(ASTDirective node, VelocityASTConverter converter)
+        public override Expression Build(ASTDirective node)
         {
-            if (converter == null)
-                throw new ArgumentNullException("converter");
-
 
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -46,24 +44,26 @@ namespace IronVelocity.Compilation.Directives
             
             var parts = new List<Expression>[9];
             var currentSection = ForEachSection.Each;
-            foreach (var expression in converter.GetBlockExpressions(node.GetChild(3), true))
+            foreach (var expression in AST.ConversionHelpers.GetBlockExpressions(node.GetChild(3)))
             {
-                var seperator = expression as ForEachPartSeparatorExpression;
+                var seperator = expression as Directive;
                 if (seperator != null)
                 {
-                    currentSection = seperator.Part;
+                    ForEachSection section;
+                    if (Enum.TryParse(seperator.Name, true, out section))
+                    {
+                        currentSection = section;
+                        continue;
+                    }
                 }
-                else
-                {
-                    if (parts[(int)currentSection] == null)
-                        parts[(int)currentSection] = new List<Expression>();
+                if (parts[(int)currentSection] == null)
+                    parts[(int)currentSection] = new List<Expression>();
 
-                    parts[(int)currentSection].Add(expression);
-                }
+                parts[(int)currentSection].Add(expression);
 
             }
 
-            var index = converter.GetVariable("velocityCount");
+            var index = new AST.VariableReference("velocityCount").Reduce();
 
 
             //For the first item, output the #BeforeAll template, for all others #Between
@@ -103,7 +103,7 @@ namespace IronVelocity.Compilation.Directives
             if (expressions == null)
                 return Expression.Default(typeof(void));
             else
-                return Expression.Block(typeof(void), expressions);
+                return new RenderedBlock(expressions);
         }
 
 
@@ -184,7 +184,7 @@ namespace IronVelocity.Compilation.Directives
             _part = part;
         }
 
-        public override Expression Build(ASTDirective node, VelocityASTConverter converter)
+        public override Expression Build(ASTDirective node)
         {
             return new ForEachPartSeparatorExpression(_part);
         }

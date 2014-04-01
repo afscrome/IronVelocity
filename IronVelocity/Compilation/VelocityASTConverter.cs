@@ -41,13 +41,7 @@ namespace IronVelocity.Compilation
             List<Expression> expressions = new List<Expression>();
             _symbolDocument = Expression.SymbolDocument(fileName);
 
-
-            expressions.AddRange(GetBlockExpressions(ast, true));
-
-            if (!expressions.Any())
-                return Expression.Default(typeof(void));
-
-            return Expression.Block(new[] { _evaulatedResult }, expressions);
+            return new RenderedBlock(ast);
         }
 
         public Expression GetVariable(string name)
@@ -143,31 +137,13 @@ namespace IronVelocity.Compilation
             DirectiveExpressionBuilder builder;
 
             if (_directiveHandlers.TryGetValue(directive.Directive.GetType(), out builder))
-                return builder.Build(directive, this);
+                return builder.Build(directive);
             else
                 throw new NotSupportedException(String.Format(CultureInfo.InvariantCulture, "Unable to handle directive type '{0}'", directive.DirectiveName));
         }
 
 
 
-        public Expression Block(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTBlock))
-                throw new ArgumentOutOfRangeException("node");
-
-            var children = GetBlockExpressions(node, true);
-
-            Expression expr;
-            if (children.Any())
-                expr = Expression.Block(children);
-            else
-                expr = Expression.Empty();
-
-            return DebugInfo(node, expr);
-        }
 
         private Expression Set(INode node)
         {
@@ -192,9 +168,12 @@ namespace IronVelocity.Compilation
             if (node == null)
                 throw new ArgumentNullException("node");
 
-            return renderable
-                ? new RenderableDynamicReference(node)
-                : new DynamicReference(node);
+            var reference = new DynamicReference(node);
+
+            if (renderable)
+                return new RenderableDynamicReference(reference);
+            else
+                return reference;
         }
 
 
@@ -220,7 +199,7 @@ namespace IronVelocity.Compilation
             if (!(node is ASTIfStatement))
                 throw new ArgumentOutOfRangeException("node");
 
-            return new IfStatement(node, this);            
+            return new IfStatement(node);            
         }
 
 

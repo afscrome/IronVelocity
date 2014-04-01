@@ -16,7 +16,7 @@ namespace IronVelocity.Compilation
     /// </summary>
     public class DynamicToExplicitCallSiteConvertor : ExpressionVisitor
     {
-        private static Type _callSiteTType = typeof(CallSite<>);
+        private static Type _callSiteType = typeof(CallSite<>);
         private static ConstructorInfo _callInfoConstructor = typeof(CallInfo).GetConstructor(new[] { typeof(int), typeof(string[]) });
 
         private readonly TypeBuilder _builder;
@@ -36,7 +36,7 @@ namespace IronVelocity.Compilation
                 throw new ArgumentNullException("node");
 
             var delegateType = node.DelegateType;
-            var siteType = _callSiteTType.MakeGenericType(delegateType);
+            var siteType = _callSiteType.MakeGenericType(delegateType);
 
             var callSiteField = Expression.Field(null,
                 _builder.DefineField("callsite$0", siteType, FieldAttributes.Static | FieldAttributes.Public)

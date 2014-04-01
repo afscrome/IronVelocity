@@ -12,7 +12,7 @@ namespace IronVelocity.Compilation.AST
     {
         public Expression Value { get; private set; }
 
-        public IfStatement(INode node, VelocityASTConverter converter)
+        public IfStatement(INode node)
             : base(node)
         {
             if (node == null)
@@ -21,11 +21,9 @@ namespace IronVelocity.Compilation.AST
             if (!(node is ASTIfStatement))
                 throw new ArgumentOutOfRangeException("node");
 
-            if (converter == null)
-                throw new ArgumentNullException("converter");
 
-            var condition = converter.Expr(node.GetChild(0));
-            var trueContent = converter.Block(node.GetChild(1));
+            var condition = ConversionHelpers.Expr(node.GetChild(0));
+            var trueContent = new RenderedBlock(node.GetChild(1));
             Expression falseContent = null;
 
             //Build the false expression recursively from the bottom up
@@ -40,12 +38,12 @@ namespace IronVelocity.Compilation.AST
                     if (child.ChildrenCount != 1)
                         throw new InvalidOperationException("Expected ASTElseStatement to only have 1 child");
 
-                    falseContent = converter.Block(child.GetChild(0));
+                    falseContent = new RenderedBlock(child.GetChild(0));
                 }
                 else if (child is ASTElseIfStatement)
                 {
-                    var innerCondition = converter.Expr(child.GetChild(0));
-                    var innerContent = converter.Block(child.GetChild(1));
+                    var innerCondition = ConversionHelpers.Expr(child.GetChild(0));
+                    var innerContent = new RenderedBlock(child.GetChild(1));
 
                     falseContent = If(child, innerCondition, innerContent, falseContent);
                 }

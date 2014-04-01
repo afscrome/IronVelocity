@@ -11,11 +11,67 @@ using System.Threading.Tasks;
 
 namespace IronVelocity.Compilation.AST
 {
+    /// <summary>
+    /// TODO: I don't like this class - refactor.
+    /// </summary>
     public static class ConversionHelpers
     {
 
         private static readonly Expression TrueExpression = Expression.Constant(true);
         private static readonly Expression FalseExpression = Expression.Constant(false);
+
+
+        public static IReadOnlyCollection<Expression> GetBlockExpressions(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            //ASTprocess is a special case for the root, otherwise it behaves exactly like ASTBlock
+            if (!(node is ASTBlock || node is ASTprocess))
+                throw new ArgumentOutOfRangeException("node");
+
+            var expressions = new List<Expression>();
+
+
+            foreach (var child in node.GetChildren())
+            {
+                Expression expr;
+                switch (child.Type)
+                {
+                    case ParserTreeConstants.TEXT:
+                    case ParserTreeConstants.ESCAPE:
+                        var content = NodeUtils.tokenLiteral(child.FirstToken);
+                        expr = Expression.Constant(content);
+                        break;
+                    case ParserTreeConstants.ESCAPED_DIRECTIVE:
+                        expr = Expression.Constant(child.Literal);
+                        break;
+                    case ParserTreeConstants.REFERENCE:
+                        expr = new DynamicReference(child);
+                        break;
+                    case ParserTreeConstants.IF_STATEMENT:
+                        expr = new IfStatement(child);
+                        break;
+                    case ParserTreeConstants.SET_DIRECTIVE:
+                        expr = Set(child);
+                        break;
+                    case ParserTreeConstants.DIRECTIVE:
+                        expr = new Directive(child);
+                        break;
+                    case ParserTreeConstants.COMMENT:
+                        continue;
+
+                    default:
+                        throw new NotSupportedException("Node type not supported in a block: " + child.GetType().Name);
+                }
+
+
+                expressions.Add(expr);
+            }
+
+            return expressions;
+        }
+
 
         public static Expression Operand(INode node)
         {
@@ -79,6 +135,22 @@ namespace IronVelocity.Compilation.AST
                     throw new NotSupportedException("Node type not supported in an expression: " + node.GetType().Name);
             }
         }
+
+
+        private static Expression Set(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTSetDirective))
+                throw new ArgumentOutOfRangeException("node");
+
+            if (node.ChildrenCount != 1)
+                throw new ArgumentOutOfRangeException("node", "Expected only one child");
+
+            return Expr(node.GetChild(0));
+        }
+
 
         public static Expression Expr(INode node)
         {

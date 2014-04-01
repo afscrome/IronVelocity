@@ -52,44 +52,52 @@ namespace IronVelocity.Compilation.AST
         }
     }
 
-    public class RenderableDynamicReference : DynamicReference
+    public class RenderableDynamicReference : VelocityExpression
     {
-        public RenderableDynamicReference(INode node)
-            : base(node){
+        public DynamicReference Reference { get; private set; }
 
+        public RenderableDynamicReference(DynamicReference reference)
+        {
+                Reference = reference;
         }
 
         protected override Expression ReduceInternal()
         {
-            var expr = base.ReduceInternal();
-
-            //If however we're rendering, we need to do funky stuff to the output, including rendering prefixes, suffixes etc.
-            if (MetaData.Escaped)
+            if (Reference.MetaData.Escaped)
             {
                 return Expression.Condition(
-                    Expression.NotEqual(expr, Expression.Constant(null, expr.Type)),
-                    Expression.Constant(MetaData.EscapePrefix + MetaData.NullString),
-                    Expression.Constant(MetaData.EscapePrefix + "\\" + MetaData.NullString)
+                    Expression.NotEqual(Reference, Expression.Constant(null, Reference.Type)),
+                    Expression.Constant(Reference.MetaData.EscapePrefix + Reference.MetaData.NullString),
+                    Expression.Constant(Reference.MetaData.EscapePrefix + "\\" + Reference.MetaData.NullString)
                 );
             }
             else
             {
+                var prefix = Reference.MetaData.EscapePrefix + Reference.MetaData.MoreString;
+                var NullValue = Expression.Constant(Reference.MetaData.EscapePrefix + prefix + Reference.MetaData.NullString);
+
+                //If the literal has not been escaped (has an empty prefix), then we can return a simple Coalesce expression
+                /*if (String.IsNullOrEmpty(prefix))
+                    return Expression.Coalesce(Reference, NullValue);
+                */
+                //Otherwise we have to do a slightly more complicated result
                 var _evaulatedResult = Expression.Parameter(typeof(object), "tempEvaulatedResult");
-                //TODO: this fails if return type is void
                 return Expression.Block(
                     new[] { _evaulatedResult },
-                    Expression.Assign(_evaulatedResult, expr),
+                    Expression.Assign(_evaulatedResult, Reference),
                     Expression.Condition(
                         Expression.NotEqual(_evaulatedResult, Expression.Constant(null, _evaulatedResult.Type)),
                         Expression.Call(
                             MethodHelpers.StringConcatMethodInfo,
-                            Expression.Convert(Expression.Constant(MetaData.EscapePrefix + MetaData.MoreString), typeof(object)),
+                            Expression.Convert(Expression.Constant(prefix), typeof(object)),
                             VelocityExpressions.ConvertIfNeeded(_evaulatedResult, typeof(object))
                         ),
-                        Expression.Constant(MetaData.EscapePrefix + MetaData.EscapePrefix + MetaData.MoreString + MetaData.NullString)
+                        NullValue
                     )
                 );
             }
-        }   
+        }
+
+        //public override Type Type { get { return typeof(string); } }
     }
 }

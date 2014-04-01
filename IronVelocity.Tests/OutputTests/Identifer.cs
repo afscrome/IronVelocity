@@ -6,6 +6,7 @@ namespace IronVelocity.Tests.OutputTests
 {
     public class Identifer
     {
+
         [Test]
         public void RenderProperty()
         {

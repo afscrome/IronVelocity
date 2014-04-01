@@ -62,6 +62,7 @@
     <Compile Include="DummyClasses.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="MethodInfoReflectionTests.cs" />
+    <Compile Include="OutputTests\Directive.cs" />
     <Compile Include="OutputTests\Foreach.cs" />
     <Compile Include="OutputTests\BooleanLogic.cs" />
     <Compile Include="OutputTests\Strings.cs" />

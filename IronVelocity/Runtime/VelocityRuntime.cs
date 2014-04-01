@@ -17,7 +17,7 @@ namespace IronVelocity
     public class VelocityRuntime
     {
         internal readonly RuntimeInstance _runtimeService;
-        private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
+        private static readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
         {
             {typeof(Foreach), new ForEachDirectiveExpressionBuilder()},
             {typeof(ForeachBeforeAllSection), new ForEachSectionExpressionBuilder(ForEachSection.BeforeAll)},
