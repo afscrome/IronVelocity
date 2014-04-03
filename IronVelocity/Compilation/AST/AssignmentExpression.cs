@@ -52,6 +52,7 @@ namespace IronVelocity.Compilation.AST
                 *         Assign(left, right)
                 *     }
                 */
+
             var tempResult = Expression.Parameter(right.Type);
             return Expression.Block(new[] { tempResult },
                 //Store the result of the right hand side in to a temporary variable

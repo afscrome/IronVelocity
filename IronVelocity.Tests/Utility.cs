@@ -65,6 +65,11 @@ namespace Tests
         {
             var expression = Expression.Dynamic(binder, typeof(object), args.Select(Expression.Constant));
 
+            return EvaluateExpression(expression);
+        }
+
+        public static object EvaluateExpression(Expression expression)
+        {
             var action = Expression.Lambda<Func<object>>(expression)
                 .Compile();
 

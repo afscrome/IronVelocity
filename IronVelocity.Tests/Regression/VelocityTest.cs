@@ -32,6 +32,8 @@ namespace NVelocity.Test
         [TestCase("$fval + $fval", "2.4")]
         [TestCase("$dval + $dval", "10.6")]
         [TestCase("1 + $dval", "6.3")]
+        [TestCase("1 + $fval", "2.2")]
+        [TestCase("$fval + $dval", "6.50000004768372")]
         [TestCase("$fval * $dval", "6.36000025272369")]
         [TestCase("$fval - $dval", "-4.09999995231628")]
         [TestCase("$fval % $dval", "1.20000004768372")]

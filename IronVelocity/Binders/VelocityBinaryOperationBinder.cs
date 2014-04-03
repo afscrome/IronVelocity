@@ -37,17 +37,18 @@ namespace IronVelocity.Binders
 
             //Convert the expression types, either by implicit conversion to a common type, or to the runtime type
             Expression left = ReflectionHelper.CanBeImplicitlyConverted(target.RuntimeType, arg.RuntimeType)
-                ? Expression.Convert(target.Expression, arg.RuntimeType)
-                : VelocityExpressions.ConvertIfNeeded(target.Expression, target.RuntimeType, target.RuntimeType);
+                ? VelocityExpressions.ConvertIfNeeded(target, arg.RuntimeType)
+                : VelocityExpressions.ConvertIfNeeded(target);
 
             Expression right = ReflectionHelper.CanBeImplicitlyConverted(arg.RuntimeType, target.RuntimeType)
-                ? Expression.Convert(arg.Expression, target.RuntimeType)
-                : VelocityExpressions.ConvertIfNeeded(arg.Expression, arg.RuntimeType, arg.RuntimeType);
+                ? VelocityExpressions.ConvertIfNeeded(arg, target.RuntimeType)
+                : VelocityExpressions.ConvertIfNeeded(arg);
 
             var expression = FallbackBinaryOperationExpression(left, right);
+            expression = VelocityExpressions.ConvertIfNeeded(expression, ReturnType);
 
             return new DynamicMetaObject(
-                VelocityExpressions.ConvertIfNeeded(expression, ReturnType),
+                expression,
                 restrictions
             );
         }

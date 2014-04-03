@@ -21,11 +21,12 @@ namespace IronVelocity.Compilation.AST
         public MathematicalOperation Operation { get; private set; }
         public ExpressionType ExpressionType { get; private set; }
 
-        protected override System.Linq.Expressions.Expression ReduceInternal()
+        protected override Expression ReduceInternal()
         {
+            var binder = new VelocityBinaryMathematicalOperationBinder(ExpressionType);
             return Expression.Dynamic(
-                new VelocityBinaryMathematicalOperationBinder(ExpressionType),
-                typeof(object),
+                binder,
+                binder.ReturnType,
                 Left,
                 Right
             );

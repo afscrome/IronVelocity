@@ -39,7 +39,7 @@ namespace IronVelocity.Binders
                 result = VelocityExpressions.BoxIfNeeded(
                     Expression.Assign(
                         result,
-                        VelocityExpressions.ConvertIfNeeded(value.Expression, value.RuntimeType, result.Type)
+                        VelocityExpressions.ConvertIfNeeded(value, result.Type)
                     )
                 );
             else

@@ -16,7 +16,9 @@ namespace IronVelocity.Tests.Runtime
         [TestCase(2, null, null, TestName = "Addition Null Right")]
         [TestCase(null, null, null, TestName = "Addition Null Both")]
         [TestCase(1f, 4, 5f, TestName = "Addition Integer Float")]
-        [TestCase(2, 5f, 7f, TestName = "Addition Float Integer")]
+        [TestCase(2.5d, 4, 6.5d, TestName = "Addition Integer Double")]
+        [TestCase(2, 5.5f, 7.5f, TestName = "Addition Float Integer")]
+        [TestCase(3.5f, 2d, 5.5d, TestName = "Addition Float Double")]
         [TestCase(2147483647, 1, 2147483648, TestName = "Addition Integer Overflow")]
         [TestCase(-2147483648, -1, -2147483649, TestName = "Addition Integer Underflow")]
         public void BasicTest(object left, object right, object expected)

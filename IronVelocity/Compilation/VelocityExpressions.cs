@@ -31,6 +31,16 @@ namespace IronVelocity.Compilation
             return ConvertIfNeeded(expression, expression.Type, type);
         }
 
+        public static Expression ConvertIfNeeded(DynamicMetaObject obj)
+        {
+            return ConvertIfNeeded(obj.Expression, obj.RuntimeType);
+        }
+
+        public static Expression ConvertIfNeeded(DynamicMetaObject obj, Type to)
+        {
+            return ConvertIfNeeded(obj.Expression, obj.RuntimeType, to);
+        }
+
         public static Expression ConvertIfNeeded(Expression expression, Type from, Type to)
         {
             if (expression == null)
