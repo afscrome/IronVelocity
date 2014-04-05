@@ -92,8 +92,10 @@ namespace IronVelocity.Compilation.AST
                     return new VelocityString(node);
                 case ParserTreeConstants.AND_NODE:
                     return And(node);
+                    return new BinaryMathematicalExpression(node, MathematicalOperation.And);
                 case ParserTreeConstants.OR_NODE:
                     return Or(node);
+                    return new BinaryMathematicalExpression(node, MathematicalOperation.Or);
                 case ParserTreeConstants.NOT_NODE:
                     return Not(node);
 
@@ -118,9 +120,9 @@ namespace IronVelocity.Compilation.AST
                 case ParserTreeConstants.MUL_NODE:
                     return new BinaryMathematicalExpression(node, MathematicalOperation.Multiply);
                 case ParserTreeConstants.DIV_NODE:
-                    return Division(node);
+                    return new BinaryMathematicalExpression(node, MathematicalOperation.Divide);
                 case ParserTreeConstants.MOD_NODE:
-                    return Modulo(node);
+                    return new BinaryMathematicalExpression(node, MathematicalOperation.Modulo);
                 //Code
                 case ParserTreeConstants.ASSIGNMENT:
                     return new AssignmentExpression(node);
@@ -179,12 +181,7 @@ namespace IronVelocity.Compilation.AST
             var elements = node.GetChildren()
                 .Select(Operand);
 
-            return DebugInfo(node, Expression.New(MethodHelpers.ListConstructorInfo, Expression.NewArrayInit(typeof(object), elements)));
-        }
-
-        public static Expression DebugInfo(INode node, Expression expression)
-        {
-            return expression;
+            return Expression.New(MethodHelpers.ListConstructorInfo, Expression.NewArrayInit(typeof(object), elements));
         }
 
         private static void GetBinaryExpressionOperands(INode node, out Expression left, out Expression right)
@@ -199,55 +196,6 @@ namespace IronVelocity.Compilation.AST
             right = Operand(node.GetChild(1));
         }
 
-
-        #region Numeric Operators
-
-        /// <summary>
-        /// Builds a division expression from an ASTDivNode
-        /// </summary>
-        /// <param name="node">The AstDivNode to build the division Expression from</param>
-        /// <returns>An expression representing the division operation</returns>
-        private static Expression Division(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTDivNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryMathematicalExpression(Expression.Divide, node, MethodHelpers.DivisionMethodInfo);
-        }
-
-        /// <summary>
-        /// Builds a modulo expression from an ASTModNode
-        /// </summary>
-        /// <param name="node">The ASTModNode to build the modulo Expression from</param>
-        /// <returns>An expression representing the modulo operation</returns>
-        private static Expression Modulo(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTModNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryMathematicalExpression(Expression.Divide, node, MethodHelpers.ModuloMethodInfo);
-        }
-
-
-        private static Expression BinaryMathematicalExpression(Func<Expression, Expression, MethodInfo, Expression> generator, INode node, MethodInfo implementation)
-        {
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-
-            // The expression tree will fail if the types don't *exactly* match the types on the method signature
-            // So ensure everything is converted to object
-            left = VelocityExpressions.ConvertIfNeeded(left, typeof(object));
-            right = VelocityExpressions.ConvertIfNeeded(right, typeof(object));
-
-            return DebugInfo(node, generator(left, right, implementation));
-        }
-
         private static Expression BinaryLogicalExpression(Func<Expression, Expression, MethodInfo, Expression> generator, INode node, MethodInfo implementation = null)
         {
             Expression left, right;
@@ -258,7 +206,7 @@ namespace IronVelocity.Compilation.AST
             left = VelocityExpressions.CoerceToBoolean(left);
             right = VelocityExpressions.CoerceToBoolean(right);
 
-            return DebugInfo(node, generator(left, right, implementation));
+            return generator(left, right, implementation);
         }
 
         private static Expression BinaryComparisonExpression(Func<Expression, Expression, bool, MethodInfo, Expression> generator, INode node, MethodInfo implementation)
@@ -271,10 +219,9 @@ namespace IronVelocity.Compilation.AST
             left = VelocityExpressions.ConvertIfNeeded(left, typeof(object));
             right = VelocityExpressions.ConvertIfNeeded(right, typeof(object));
 
-            return DebugInfo(node, generator(left, right, false, implementation));
+            return  generator(left, right, false, implementation);
         }
 
-        #endregion
 
         #region Logical Comparators
 

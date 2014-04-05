@@ -23,7 +23,7 @@ namespace IronVelocity.Compilation.AST
 
         protected override Expression ReduceInternal()
         {
-            var binder = new VelocityBinaryMathematicalOperationBinder(ExpressionType);
+            var binder = new VelocityBinaryOperationBinder(ExpressionType);
             return Expression.Dynamic(
                 binder,
                 binder.ReturnType,
@@ -32,7 +32,7 @@ namespace IronVelocity.Compilation.AST
             );
         }
 
-        public ExpressionType MathematicalOperationToExpressionType(MathematicalOperation op)
+        public static ExpressionType MathematicalOperationToExpressionType(MathematicalOperation op)
         {
             switch (op)
             {
@@ -46,6 +46,10 @@ namespace IronVelocity.Compilation.AST
                     return ExpressionType.Divide;
                 case MathematicalOperation.Modulo:
                     return ExpressionType.Modulo;
+                case MathematicalOperation.And:
+                    return ExpressionType.And;
+                case MathematicalOperation.Or:
+                    return ExpressionType.Or;
                 default:
                     throw new ArgumentOutOfRangeException("op");
             }
@@ -58,6 +62,8 @@ namespace IronVelocity.Compilation.AST
         Subtract,
         Multiply,
         Divide,
-        Modulo
+        Modulo,
+        And,
+        Or
     }
 }

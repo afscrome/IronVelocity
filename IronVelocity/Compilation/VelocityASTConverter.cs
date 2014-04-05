@@ -19,8 +19,6 @@ namespace IronVelocity.Compilation
  
         private IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers;
         private IScope _scope = new BaseScope(Constants.InputParameter);
-        private SymbolDocumentInfo _symbolDocument;
-        private static ParameterExpression _evaulatedResult = Expression.Parameter(typeof(object), "tempEvaulatedResult");
 
         public VelocityASTConverter(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers)
         {
@@ -39,7 +37,6 @@ namespace IronVelocity.Compilation
                 throw new ArgumentOutOfRangeException("ast");
 
             List<Expression> expressions = new List<Expression>();
-            _symbolDocument = Expression.SymbolDocument(fileName);
 
             return new RenderedBlock(ast);
         }
@@ -96,10 +93,10 @@ namespace IronVelocity.Compilation
                             expr = Output(expr);
                         break;
                     case ParserTreeConstants.IF_STATEMENT:
-                        expr = IfStatement(child);
+                        expr = new IfStatement(child);
                         break;
                     case ParserTreeConstants.SET_DIRECTIVE:
-                        expr = Set(child);
+                        expr = new AssignmentExpression(child);
                         break;
                     case ParserTreeConstants.DIRECTIVE:
                         expr = Directive(child);
@@ -177,30 +174,6 @@ namespace IronVelocity.Compilation
         }
 
 
-
-   
-
-        private static Expression NumberLiteral(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTNumberLiteral))
-                throw new ArgumentOutOfRangeException("node");
-
-            return Expression.Constant(int.Parse(node.Literal, CultureInfo.InvariantCulture));
-        }
-
-        private Expression IfStatement(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTIfStatement))
-                throw new ArgumentOutOfRangeException("node");
-
-            return new IfStatement(node);            
-        }
 
 
         public static Expression Operand(INode node)

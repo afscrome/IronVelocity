@@ -1,5 +1,8 @@
-﻿using IronVelocity.Runtime;
+﻿using IronVelocity.Binders;
+using IronVelocity.Runtime;
 using NUnit.Framework;
+using System.Linq.Expressions;
+using Tests;
 
 namespace IronVelocity.Tests.Runtime
 {
@@ -18,8 +21,7 @@ namespace IronVelocity.Tests.Runtime
         [TestCase(1.5f, -0f, float.NegativeInfinity, TestName = "Division float by negative 0")]
         public void BasicTest(object left, object right, object expected)
         {
-            var result = Operators.Division(left, right);
-
+            var result = Test(left, right);
             Assert.AreEqual(expected, result);
         }
 
@@ -28,10 +30,18 @@ namespace IronVelocity.Tests.Runtime
         {
             var left = new OverloadedDivision(6);
             var right = new OverloadedDivision(3);
-            var result = Operators.Division(left, right);
+            var result = Test(left, right);
 
             Assert.IsInstanceOf<OverloadedDivision>(result);
             Assert.AreEqual(2, ((OverloadedDivision)result).Value);
+        }
+
+
+        private object Test(object left, object right)
+        {
+            var binder = new VelocityBinaryOperationBinder(ExpressionType.Divide);
+
+            return Utility.BinderTests(binder, left, right);
         }
 
 

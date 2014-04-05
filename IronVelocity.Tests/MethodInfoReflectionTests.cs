@@ -35,18 +35,6 @@ namespace IronVelocity.Tests
         }
 
         [Test]
-        public void Division()
-        {
-            Assert.NotNull(MethodHelpers.DivisionMethodInfo);
-        }
-
-        [Test]
-        public void Modulo()
-        {
-            Assert.NotNull(MethodHelpers.ModuloMethodInfo);
-        }
-
-        [Test]
         public void LessThan()
         {
             Assert.NotNull(MethodHelpers.LessThanMethodInfo);

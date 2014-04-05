@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Binders;
+using IronVelocity.Compilation.AST;
 using System;
 using System.Dynamic;
 using System.Linq;
@@ -20,17 +21,33 @@ namespace IronVelocity.Compilation
         private static ConstructorInfo _callInfoConstructor = typeof(CallInfo).GetConstructor(new[] { typeof(int), typeof(string[]) });
 
         private readonly TypeBuilder _builder;
-        public DynamicToExplicitCallSiteConvertor(TypeBuilder typeBuilder)
+        private readonly SymbolDocumentInfo _symbolDocument;
+        private SymbolInformation _currentSymbol;
+
+        public DynamicToExplicitCallSiteConvertor(TypeBuilder typeBuilder, string fileName)
         {
             _builder = typeBuilder;
+            if (!String.IsNullOrEmpty(fileName)) { 
+            _symbolDocument = Expression.SymbolDocument(fileName);
+                }
         }
 
         protected override Expression VisitExtension(Expression node)
         {
+            if (_symbolDocument != null)
+            {
+                var extension = node as VelocityExpression;
+                if (extension != null && extension.Symbols != null && extension.Symbols != _currentSymbol)
+                {
+                    _currentSymbol = extension.Symbols;
+                    node = Expression.Block(
+                            Expression.DebugInfo(_symbolDocument, _currentSymbol.StartLine, _currentSymbol.StartColumn, _currentSymbol.EndLine, _currentSymbol.EndColumn),
+                            node
+                        );
+                }
+            }
             return base.VisitExtension(node);
         }
-
-
 
         protected override Expression VisitDynamic(DynamicExpression node)
         {
@@ -80,7 +97,7 @@ namespace IronVelocity.Compilation
         private static readonly ConstructorInfo _getMemberBinderConstructor = typeof(VelocityGetMemberBinder).GetConstructor(new[] { typeof(string) });
         private static readonly ConstructorInfo _setMemberBinderConstructor = typeof(VelocitySetMemberBinder).GetConstructor(new[] { typeof(string) });
         private static readonly ConstructorInfo _invokeMemberBinderConstructor = typeof(VelocityInvokeMemberBinder).GetConstructor(new[] { typeof(string), typeof(CallInfo) });
-        private static readonly ConstructorInfo _binaryOperationBinderConstructor = typeof(VelocityBinaryMathematicalOperationBinder).GetConstructor(new [] { typeof(ExpressionType) });
+        private static readonly ConstructorInfo _binaryOperationBinderConstructor = typeof(VelocityBinaryOperationBinder).GetConstructor(new[] { typeof(ExpressionType) });
 
         private static Expression _emptyStringArray = Expression.NewArrayInit(typeof(string));
 
@@ -124,7 +141,7 @@ namespace IronVelocity.Compilation
                         );
                     }
                     else {
-                        var binary = binder as VelocityBinaryMathematicalOperationBinder;
+                        var binary = binder as VelocityBinaryOperationBinder;
                         if (binary != null)
                         {
                             var type = Expression.Constant(binary.Operation);

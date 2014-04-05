@@ -12,55 +12,271 @@ using System.Numerics;
 
 namespace IronVelocity.Binders
 {
-    public abstract class VelocityBinaryOperationBinder : BinaryOperationBinder
+    public class VelocityBinaryOperationBinder : BinaryOperationBinder
     {
-        protected VelocityBinaryOperationBinder(ExpressionType type)
+        private static IDictionary<Type, ConstructorInfo> _bigIntConstructors = new Dictionary<Type, ConstructorInfo> {
+            { typeof(byte), typeof(BigInteger).GetConstructor(new[] { typeof(int)})},
+            { typeof(int), typeof(BigInteger).GetConstructor(new[] { typeof(int)})},
+            { typeof(long), typeof(BigInteger).GetConstructor(new[] { typeof(long)})},
+            { typeof(sbyte), typeof(BigInteger).GetConstructor(new[] { typeof(uint)})},
+            { typeof(uint), typeof(BigInteger).GetConstructor(new[] { typeof(uint)})},
+            { typeof(ulong), typeof(BigInteger).GetConstructor(new[] { typeof(ulong)})}
+        };
+
+        public VelocityBinaryOperationBinder(ExpressionType type)
             : base(type)
         {
         }
 
-        public sealed override DynamicMetaObject FallbackBinaryOperation(DynamicMetaObject target, DynamicMetaObject arg, DynamicMetaObject errorSuggestion)
+        public override DynamicMetaObject FallbackBinaryOperation(DynamicMetaObject target, DynamicMetaObject arg, DynamicMetaObject errorSuggestion)
         {
             if (!arg.HasValue)
                 Defer(arg);
 
-
-            var restrictions = GetBindingRestriction(target).Merge(GetBindingRestriction(arg));
-            //If either of the values are null, the result will be null
-            if (target.Value == null || arg.Value == null)
+            switch (Operation)
             {
-                return new DynamicMetaObject(
-                    Expression.Default(ReturnType),
-                    restrictions
-                );
+                case ExpressionType.Add:
+                case ExpressionType.Subtract:
+                case ExpressionType.Multiply:
+                case ExpressionType.Divide:
+                case ExpressionType.Modulo:
+                    return MathOperation(target, arg);
+                case ExpressionType.And:
+                case ExpressionType.Or:
+                    return LogicalOperation(target, arg);
+                default:
+                    throw new InvalidOperationException();
             }
 
-            //Convert the expression types, either by implicit conversion to a common type, or to the runtime type
-            Expression left = ReflectionHelper.CanBeImplicitlyConverted(target.RuntimeType, arg.RuntimeType)
-                ? VelocityExpressions.ConvertIfNeeded(target, arg.RuntimeType)
-                : VelocityExpressions.ConvertIfNeeded(target);
+        }
 
-            Expression right = ReflectionHelper.CanBeImplicitlyConverted(arg.RuntimeType, target.RuntimeType)
-                ? VelocityExpressions.ConvertIfNeeded(arg, target.RuntimeType)
-                : VelocityExpressions.ConvertIfNeeded(arg);
+        private DynamicMetaObject LogicalOperation(DynamicMetaObject target, DynamicMetaObject arg)
+        {
+            var left = CoerceToBoolean(target);
+            var right = CoerceToBoolean(arg);
 
-            var expression = FallbackBinaryOperationExpression(left, right);
-            expression = VelocityExpressions.ConvertIfNeeded(expression, ReturnType);
+            Expression expression = null;
+            BindingRestrictions restrictions = null;
+            if (Operation == ExpressionType.And)
+            {
+                if (left == null)
+                    restrictions = BindingRestrictions.GetInstanceRestriction(target.Expression, null);
+                else if (right == null)
+                    restrictions = BindingRestrictions.GetInstanceRestriction(arg.Expression, null);
+                else
+                    expression = Expression.AndAlso(left, right);
+            }
+            else if (Operation == ExpressionType.Or)
+            {
+                if (left == null)
+                {
+                    if (right == null)
+                    {
+                        expression = null;
+                        restrictions = BindingRestrictions.GetInstanceRestriction(target.Expression, null)
+                            .Merge(BindingRestrictions.GetInstanceRestriction(arg.Expression, null));
+                    }
+                    else
+                    {
+                        expression = right;
+                        restrictions = BindingRestrictions.GetInstanceRestriction(target.Expression, null)
+                            .Merge(BindingRestrictions.GetTypeRestriction(arg.Expression, arg.RuntimeType));
+                    }
+                }
+                else
+                {
+                    if (right == null)
+                    {
+                        expression = left;
+                        restrictions = BindingRestrictions.GetTypeRestriction(target.Expression, target.RuntimeType)
+                            .Merge(BindingRestrictions.GetInstanceRestriction(arg.Expression, null));
+                    }
+                    else
+                    {
+                        expression = Expression.OrElse(left, right);
+                    }
+                }
+            }
+            else
+                throw new InvalidOperationException();
+
+            if (expression == null)
+                expression = Expression.Constant(false);
+
+            if (restrictions == null)
+            {
+                restrictions = BindingRestrictions.GetTypeRestriction(target.Expression, target.RuntimeType)
+                        .Merge(BindingRestrictions.GetTypeRestriction(arg.Expression, arg.RuntimeType));
+            }
 
             return new DynamicMetaObject(
-                expression,
+                    VelocityExpressions.ConvertIfNeeded(expression, ReturnType),
+                    restrictions
+                );                
+        }
+
+        private DynamicMetaObject MathOperation(DynamicMetaObject target, DynamicMetaObject arg)
+        {
+            var result = ReturnNullIfEitherArgumentIsNull(target, arg);
+            if (result != null)
+                return result;
+
+            Expression left, right, mainExpression;
+            MakeArgumentsCompatible(target, arg, out left, out right);
+            try
+            {
+                switch (Operation)
+                {
+                    case ExpressionType.Add:
+                        mainExpression = Expression.AddChecked(left, right);
+                        break;
+                    case ExpressionType.Subtract:
+                        mainExpression = Expression.SubtractChecked(left, right);
+                        break;
+                    case ExpressionType.Multiply:
+                        mainExpression = Expression.MultiplyChecked(left, right);
+                        break;
+                    case ExpressionType.Divide:
+                        mainExpression = Expression.Divide(left, right);
+                        break;
+                    case ExpressionType.Modulo:
+                        mainExpression = Expression.Modulo(left, right);
+                        break;
+                    default:
+                        throw new InvalidProgramException();
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                mainExpression = null;
+            }
+
+            if (mainExpression == null)
+            {
+                mainExpression = Expression.Default(this.ReturnType);
+            }
+            else if (Operation == ExpressionType.Divide || Operation == ExpressionType.Modulo)
+            {
+                //If we have an integer type, need to handle divide by zero
+                if (right.Type == typeof(byte) || right.Type== typeof(short) || right.Type == typeof(int) || right.Type == typeof(long)
+                    || right.Type == typeof(sbyte) || right.Type == typeof(ushort) ||  right.Type == typeof(uint) || right.Type == typeof(ulong)
+                    || right.Type == typeof(decimal))
+                {
+                    mainExpression = Expression.Condition(
+                            Expression.Equal(right, VelocityExpressions.ConvertIfNeeded(Expression.Constant(0), right.Type)),
+                            Expression.Default(ReturnType),
+                            VelocityExpressions.ConvertIfNeeded(mainExpression, typeof(object))
+                        );
+                }
+            }
+            else
+            {
+                mainExpression = AddOverflowHandler(mainExpression, left, right);
+            }
+
+            return new DynamicMetaObject(
+                    VelocityExpressions.ConvertIfNeeded(mainExpression, ReturnType),
+                    BindingRestrictions.GetTypeRestriction(target.Expression, target.RuntimeType)
+                        .Merge(BindingRestrictions.GetTypeRestriction(arg.Expression, arg.RuntimeType))
+                );
+        }
+
+        private Expression AddOverflowHandler(Expression main, Expression left, Expression right)
+        {
+            //If we can't convert either of the inputs to BigIntegers, we can't do any overflow handling
+            ConstructorInfo leftConstructor, rightConstructor;
+            if (!_bigIntConstructors.TryGetValue(left.Type, out leftConstructor) || !_bigIntConstructors.TryGetValue(right.Type, out rightConstructor))
+                return main;
+
+            left = Expression.New(leftConstructor, left);
+            right = Expression.New(rightConstructor, right);
+
+            Expression oveflowHandler;
+            switch (Operation)
+            {
+                case ExpressionType.Add:
+                    oveflowHandler = Expression.Add(left, right);
+                    break;
+                case ExpressionType.Subtract:
+                    oveflowHandler = Expression.Subtract(left, right);
+                    break;
+                case ExpressionType.Multiply:
+                    oveflowHandler = Expression.Multiply(left, right);
+                    break;
+                default:
+                    throw new InvalidOperationException();
+            }
+
+
+            //Pass the final result into ReduceBigInteger(...) to return a more recognizable primitive
+            var overflowFallback = Expression.Convert(
+                    Expression.Convert(
+                        oveflowHandler,
+                        typeof(BigInteger)
+                    ),
+                    ReturnType,
+                    MethodHelpers.ReduceBigIntegerMethodInfo
+            );
+
+            return Expression.TryCatch(
+                VelocityExpressions.ConvertIfNeeded(main, ReturnType),
+                Expression.Catch(typeof(OverflowException),
+                    overflowFallback
+                )
+            );
+        }
+
+        private static Expression CoerceToBoolean(DynamicMetaObject value)
+        {
+            if (value.Value == null)
+                return null;
+            else if (value.RuntimeType == typeof(bool) || value.RuntimeType == typeof(bool?))
+                return VelocityExpressions.ConvertIfNeeded(value);
+            else if (value.Expression.Type.IsValueType)
+                return Expression.Constant(true);
+            else
+                return Expression.NotEqual(value.Expression, Expression.Constant(null, value.Expression.Type));
+        }
+
+        private static void MakeArgumentsCompatible(DynamicMetaObject leftObject, DynamicMetaObject rightObject, out Expression leftExpression, out Expression rightExpression)
+        {
+            leftExpression = ReflectionHelper.CanBeImplicitlyConverted(leftObject.RuntimeType, rightObject.RuntimeType)
+                ? VelocityExpressions.ConvertIfNeeded(leftObject, rightObject.RuntimeType)
+                : VelocityExpressions.ConvertIfNeeded(leftObject);
+
+            rightExpression = ReflectionHelper.CanBeImplicitlyConverted(rightObject.RuntimeType, leftObject.RuntimeType)
+                ? VelocityExpressions.ConvertIfNeeded(rightObject, leftObject.RuntimeType)
+                : VelocityExpressions.ConvertIfNeeded(rightObject);
+        }
+
+
+        private DynamicMetaObject ReturnNullIfEitherArgumentIsNull(DynamicMetaObject left, DynamicMetaObject right)
+        {
+            BindingRestrictions restrictions;
+
+            if (left.Value == null)
+                restrictions = BindingRestrictions.GetInstanceRestriction(left.Expression, null);
+            else if (right.Value == null)
+                restrictions = BindingRestrictions.GetInstanceRestriction(right.Expression, null);
+            else
+                return null;
+
+            return new DynamicMetaObject(
+                Expression.Default(ReturnType),
                 restrictions
             );
         }
 
-        protected abstract Expression FallbackBinaryOperationExpression(Expression left, Expression right);
-
-        protected BindingRestrictions GetBindingRestriction(DynamicMetaObject value)
+        public static object ReduceBigInteger(BigInteger value)
         {
-            if (value.Value == null)
-                return BindingRestrictions.GetInstanceRestriction(value.Expression, null);
-            else
-                return BindingRestrictions.GetTypeRestriction(value.Expression, value.RuntimeType);
+            if (value >= int.MinValue && value <= int.MaxValue)
+                return (int)value;
+            if (value >= long.MinValue && value <= long.MaxValue)
+                return (long)value;
+            if (value >= ulong.MinValue && value <= ulong.MaxValue)
+                return (ulong)value;
+
+            return (float)value;
         }
 
     }

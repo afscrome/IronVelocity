@@ -34,6 +34,30 @@ namespace IronVelocity.Tests.OutputTests
             Utility.TestExpectedMarkupGenerated(input, expected);
         }
 
+        [TestCase(123, "'hello'", true)]
+        [TestCase("'abc'", "$null", true)]
+        [TestCase("$null", 63f, true)]
+        [TestCase("$null", "$null", false)]
+        public void OrCoercion(object left, object right, bool result)
+        {
+            var input = string.Format("#if({0} || {1})true#else\r\nfalse#end", left.ToString().ToLower(), right.ToString().ToLower());
+            var expected = result ? "true" : "false";
+
+            Utility.TestExpectedMarkupGenerated(input, expected);
+        }
+
+        [TestCase(123, "'hello'", true)]
+        [TestCase("'abc'", "$null", false)]
+        [TestCase("$null", 63f, false)]
+        [TestCase("$null", "$null", false)]
+        public void AndCoercion(object left, object right, bool result)
+        {
+            var input = string.Format("#if({0} && {1})true#else\r\nfalse#end", left.ToString().ToLower(), right.ToString().ToLower());
+            var expected = result ? "true" : "false";
+
+            Utility.TestExpectedMarkupGenerated(input, expected);
+        }
+
         [Test]
         public void OrSecondOperandNotEvaluatedIfFirstIsTrue()
         {
