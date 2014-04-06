@@ -28,6 +28,8 @@ namespace IronVelocity.Tests.Runtime
         [Test]
         public void SubtractionOperatorOverload()
         {
+            Assert.Inconclusive("TODO: Determine support for custom operators");
+
             var left = new OverloadedSubtraction(1);
             var right = new OverloadedSubtraction(3);
             var result = Test(left, right);

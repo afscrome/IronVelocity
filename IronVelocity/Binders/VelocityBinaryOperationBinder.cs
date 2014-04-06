@@ -50,6 +50,7 @@ namespace IronVelocity.Binders
 
         }
 
+
         private DynamicMetaObject LogicalOperation(DynamicMetaObject target, DynamicMetaObject arg)
         {
             var left = CoerceToBoolean(target);
@@ -112,7 +113,7 @@ namespace IronVelocity.Binders
             return new DynamicMetaObject(
                     VelocityExpressions.ConvertIfNeeded(expression, ReturnType),
                     restrictions
-                );                
+                );
         }
 
         private DynamicMetaObject MathOperation(DynamicMetaObject target, DynamicMetaObject arg)
@@ -123,55 +124,63 @@ namespace IronVelocity.Binders
 
             Expression left, right, mainExpression;
             MakeArgumentsCompatible(target, arg, out left, out right);
-            try
-            {
-                switch (Operation)
-                {
-                    case ExpressionType.Add:
-                        mainExpression = Expression.AddChecked(left, right);
-                        break;
-                    case ExpressionType.Subtract:
-                        mainExpression = Expression.SubtractChecked(left, right);
-                        break;
-                    case ExpressionType.Multiply:
-                        mainExpression = Expression.MultiplyChecked(left, right);
-                        break;
-                    case ExpressionType.Divide:
-                        mainExpression = Expression.Divide(left, right);
-                        break;
-                    case ExpressionType.Modulo:
-                        mainExpression = Expression.Modulo(left, right);
-                        break;
-                    default:
-                        throw new InvalidProgramException();
-                }
-            }
-            catch (InvalidOperationException)
-            {
-                mainExpression = null;
-            }
 
-            if (mainExpression == null)
+            if (TypeHelper.IsNumeric(left.Type) && TypeHelper.IsNumeric(right.Type))
             {
-                mainExpression = Expression.Default(this.ReturnType);
-            }
-            else if (Operation == ExpressionType.Divide || Operation == ExpressionType.Modulo)
-            {
-                //If we have an integer type, need to handle divide by zero
-                if (right.Type == typeof(byte) || right.Type== typeof(short) || right.Type == typeof(int) || right.Type == typeof(long)
-                    || right.Type == typeof(sbyte) || right.Type == typeof(ushort) ||  right.Type == typeof(uint) || right.Type == typeof(ulong)
-                    || right.Type == typeof(decimal))
+                try
                 {
-                    mainExpression = Expression.Condition(
-                            Expression.Equal(right, VelocityExpressions.ConvertIfNeeded(Expression.Constant(0), right.Type)),
-                            Expression.Default(ReturnType),
-                            VelocityExpressions.ConvertIfNeeded(mainExpression, typeof(object))
-                        );
+                    switch (Operation)
+                    {
+                        case ExpressionType.Add:
+                            mainExpression = Expression.AddChecked(left, right);
+                            break;
+                        case ExpressionType.Subtract:
+                            mainExpression = Expression.SubtractChecked(left, right);
+                            break;
+                        case ExpressionType.Multiply:
+                            mainExpression = Expression.MultiplyChecked(left, right);
+                            break;
+                        case ExpressionType.Divide:
+                            mainExpression = Expression.Divide(left, right);
+                            break;
+                        case ExpressionType.Modulo:
+                            mainExpression = Expression.Modulo(left, right);
+                            break;
+                        default:
+                            throw new InvalidProgramException();
+                    }
+                }
+                catch (InvalidOperationException)
+                {
+                    mainExpression = null;
+                }
+
+                if (mainExpression == null)
+                {
+                    mainExpression = Expression.Default(this.ReturnType);
+                }
+                else
+                {
+                    if (Operation == ExpressionType.Divide || Operation == ExpressionType.Modulo)
+                    {
+                        if (!TypeHelper.SupportsDivisionByZero(right.Type))
+                        {
+                            mainExpression = Expression.Condition(
+                                    Expression.Equal(right, VelocityExpressions.ConvertIfNeeded(Expression.Constant(0), right.Type)),
+                                    Expression.Default(ReturnType),
+                                    VelocityExpressions.ConvertIfNeeded(mainExpression, ReturnType)
+                                );
+                        }
+                    }
+                    else
+                    {
+                        mainExpression = AddOverflowHandler(mainExpression, left, right);
+                    }
                 }
             }
             else
             {
-                mainExpression = AddOverflowHandler(mainExpression, left, right);
+                mainExpression = Expression.Default(ReturnType);
             }
 
             return new DynamicMetaObject(

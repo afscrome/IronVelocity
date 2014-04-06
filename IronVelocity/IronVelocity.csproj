@@ -86,6 +86,7 @@
     <Compile Include="Runtime\RuntimeDictionary.cs" />
     <Compile Include="Compilation\Scope.cs" />
     <Compile Include="Compilation\VelocityCompiler.cs" />
+    <Compile Include="TypeHelper.cs" />
     <Compile Include="VelocityContext.cs" />
     <Compile Include="Compilation\VelocityExpressions.cs" />
     <Compile Include="Extensions\INodeExtensions.cs" />

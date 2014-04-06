@@ -30,6 +30,8 @@ namespace IronVelocity.Tests.Runtime
         [Test]
         public void AdditionOperatorOverload()
         {
+            Assert.Inconclusive("TODO: Determine support for custom operators");
+
             var left = new OverloadedAdd(1);
             var right = new OverloadedAdd(3);
             var result = Test(left, right);
