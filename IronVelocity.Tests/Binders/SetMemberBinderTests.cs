@@ -95,6 +95,8 @@ namespace IronVelocity.Tests.Binders
         [Test]
         public void StructSetPropertyWithInvalidType()
         {
+            Assert.Inconclusive("TODO: Rewrite - the current struct test is invalid as structs get coppied whilst being passed around, so the test modifies the copy, not the object we assert against");
+
             var input = new BasicStruct("Success!");
             test(input, "Property", true);
             Assert.AreEqual("Success!", input.Property);
@@ -104,6 +106,7 @@ namespace IronVelocity.Tests.Binders
         //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
         public void StructSetValueTypeProperty()
         {
+            Assert.Inconclusive("TODO: Rewrite - the current struct test is invalid as structs get coppied whilst being passed around, so the test modifies the copy, not the object we assert against");
             var input = new BasicStruct("initial");
             var result = Guid.NewGuid();
             test(input, "ValueType", result);
@@ -114,6 +117,7 @@ namespace IronVelocity.Tests.Binders
         //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
         public void StructSetPrimitiveProperty()
         {
+            Assert.Inconclusive("TODO: Rewrite - the current struct test is invalid as structs get coppied whilst being passed around, so the test modifies the copy, not the object we assert against");
             var input = new BasicStruct("initial");
             test(input, "Primitive", 123);
             Assert.AreEqual(123, input.Primitive);
