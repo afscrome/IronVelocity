@@ -63,6 +63,8 @@ namespace IronVelocity.Tests.Binders
         //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
         public void StructSetPropertyNameIsExactMatch()
         {
+            Assert.Inconclusive("TODO: Rewrite - the current struct test is invalid as structs get coppied whilst being passed around, so the test modifies the copy, not the object we assert against");
+
             var input = new BasicStruct("initial");
             test(input, "Property", "abc123");
             Assert.AreEqual("abc123", input.Property);
@@ -72,6 +74,8 @@ namespace IronVelocity.Tests.Binders
         //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
         public void StructSetPropertyNameDiffersInCase()
         {
+            Assert.Inconclusive("TODO: Rewrite - the current struct test is invalid as structs get coppied whilst being passed around, so the test modifies the copy, not the object we assert against");
+
             var input = new BasicStruct("initial");
             test(input, "pRoPeRtY", "other");
             Assert.AreEqual("other", input.Property);
@@ -81,6 +85,7 @@ namespace IronVelocity.Tests.Binders
         //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
         public void StructSetPropertyDoesNotExist()
         {
+            Assert.Inconclusive("TODO: Rewrite - the current struct test is invalid as structs get coppied whilst being passed around, so the test modifies the copy, not the object we assert against");
             var input = new BasicStruct("initial");
             test(input, "NonExistant", "other");
             //How to test?

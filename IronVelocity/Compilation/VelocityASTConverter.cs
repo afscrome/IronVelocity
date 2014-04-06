@@ -43,22 +43,6 @@ namespace IronVelocity.Compilation
         }
 
 
-
-        public static Expression DebugInfo(INode node, Expression expression)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            return expression;
-            /*
-             * return Expression.Block(
-                Expression.DebugInfo(_symbolDocument, node.FirstToken.BeginLine + 1, node.FirstToken.BeginColumn, node.LastToken.EndLine + 1, node.LastToken.EndColumn),
-                expression
-                //, Expression.ClearDebugInfo(_symbolDocument)
-            );
-            */
-        }
-
         public IEnumerable<Expression> GetBlockExpressions(INode node, bool output)
         {
             if (node == null)
@@ -92,7 +76,7 @@ namespace IronVelocity.Compilation
                         expr = new IfStatement(child);
                         break;
                     case ParserTreeConstants.SET_DIRECTIVE:
-                        expr = new AssignmentExpression(child);
+                        expr = new SetDirective(child);
                         break;
                     case ParserTreeConstants.DIRECTIVE:
                         expr = Directive(child);
@@ -204,7 +188,7 @@ namespace IronVelocity.Compilation
             if (text != node.Literal)
             {
             }
-            return DebugInfo(node, Expression.Constant(text));
+            return Expression.Constant(text);
         }
 
         private static Expression Output(Expression expression)

@@ -46,6 +46,8 @@ namespace IronVelocity.Compilation.AST
                     return ExpressionType.And;
                 case MathematicalOperation.Or:
                     return ExpressionType.Or;
+                case MathematicalOperation.Equal:
+                    return ExpressionType.Equal;
                 default:
                     throw new ArgumentOutOfRangeException("op");
             }
@@ -60,6 +62,7 @@ namespace IronVelocity.Compilation.AST
         Divide,
         Modulo,
         And,
-        Or
+        Or,
+        Equal
     }
 }

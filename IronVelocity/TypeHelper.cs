@@ -40,7 +40,10 @@ namespace IronVelocity
                 case TypeCode.DateTime:
                 case TypeCode.DBNull:
                 case TypeCode.Object:
-                    throw new ArgumentOutOfRangeException("type");
+                    if (type == typeof(BigInteger))
+                        return false;
+                    else
+                        throw new ArgumentOutOfRangeException("type");
                 default:
                     return false;
             }

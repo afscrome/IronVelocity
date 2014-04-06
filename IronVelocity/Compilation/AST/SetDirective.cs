@@ -4,9 +4,9 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class AssignmentExpression : BinaryExpression
+    public class SetDirective : BinaryExpression
     {
-        public AssignmentExpression(INode node)
+        public SetDirective(INode node)
             : base(node)
         {
         }
@@ -38,7 +38,7 @@ namespace IronVelocity.Compilation.AST
             }
             if (left is VariableReference)
                 left = left.Reduce();
-           
+
 
             /* One of the nuances of velocity is that if the right evaluates to null,
                 * Thus we can't simply return an assignment expression.
@@ -62,6 +62,6 @@ namespace IronVelocity.Compilation.AST
             );
         }
 
-        public override Type Type { get{return typeof(void);}}
+        public override Type Type { get { return typeof(void); } }
     }
 }

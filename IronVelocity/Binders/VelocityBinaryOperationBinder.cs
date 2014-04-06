@@ -40,12 +40,43 @@ namespace IronVelocity.Binders
                 case ExpressionType.And:
                 case ExpressionType.Or:
                     return LogicalOperation(target, arg);
+                case ExpressionType.Equal:
+                    return Equals(target, arg);
                 default:
                     throw new InvalidOperationException();
             }
 
         }
 
+        private DynamicMetaObject Equals(DynamicMetaObject target, DynamicMetaObject arg)
+        {
+            Expression left, right, mainExpression;
+            MakeArgumentsCompatible(target, arg, out left, out right);
+
+            try
+            {
+                mainExpression = Expression.Equal(left, right);
+            }
+            catch (InvalidOperationException)
+            {
+                mainExpression = Expression.Equal(
+                    VelocityExpressions.ConvertIfNeeded(left, ReturnType),
+                    VelocityExpressions.ConvertIfNeeded(right, ReturnType)
+                );
+            }
+            return new DynamicMetaObject(
+                    VelocityExpressions.ConvertIfNeeded(mainExpression, ReturnType),
+                    GetArgRestriction(target).Merge(GetArgRestriction(arg))
+                );
+        }
+
+        private BindingRestrictions GetArgRestriction(DynamicMetaObject value)
+        {
+            if (value.Value != null)
+                return BindingRestrictions.GetTypeRestriction(value.Expression, value.RuntimeType);
+            else
+                return BindingRestrictions.GetInstanceRestriction(value.Expression, null);
+        }
 
         private DynamicMetaObject LogicalOperation(DynamicMetaObject target, DynamicMetaObject arg)
         {
@@ -245,13 +276,22 @@ namespace IronVelocity.Binders
 
         private static void MakeArgumentsCompatible(DynamicMetaObject leftObject, DynamicMetaObject rightObject, out Expression leftExpression, out Expression rightExpression)
         {
-            leftExpression = ReflectionHelper.CanBeImplicitlyConverted(leftObject.RuntimeType, rightObject.RuntimeType)
-                ? VelocityExpressions.ConvertIfNeeded(leftObject, rightObject.RuntimeType)
+            var leftType = leftObject.RuntimeType ?? typeof(object);
+            var rightType = rightObject.RuntimeType ?? typeof(object);
+
+            leftExpression = ReflectionHelper.CanBeImplicitlyConverted(leftType, rightType)
+                ? VelocityExpressions.ConvertIfNeeded(leftObject, rightType)
                 : VelocityExpressions.ConvertIfNeeded(leftObject);
 
-            rightExpression = ReflectionHelper.CanBeImplicitlyConverted(rightObject.RuntimeType, leftObject.RuntimeType)
-                ? VelocityExpressions.ConvertIfNeeded(rightObject, leftObject.RuntimeType)
+            rightExpression = ReflectionHelper.CanBeImplicitlyConverted(rightType, leftType)
+                ? VelocityExpressions.ConvertIfNeeded(rightObject, leftType)
                 : VelocityExpressions.ConvertIfNeeded(rightObject);
+
+
+            if (leftType == typeof(string) && rightType == typeof(char))
+                rightExpression = Expression.Call(rightExpression, MethodHelpers.ToStringMethodInfo);
+            else if (rightType == typeof(string) && leftType == typeof(char))
+                leftExpression = Expression.Call(leftExpression, MethodHelpers.ToStringMethodInfo);
         }
 
 
@@ -280,7 +320,7 @@ namespace IronVelocity.Binders
                 return (long)value;
             if (value >= ulong.MinValue && value <= ulong.MaxValue)
                 return (ulong)value;
-
+            
             return (float)value;
         }
 

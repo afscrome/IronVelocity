@@ -106,6 +106,7 @@ namespace IronVelocity.Compilation.AST
                 case ParserTreeConstants.GE_NODE:
                     return GreaterThanOrEqual(node);
                 case ParserTreeConstants.EQ_NODE:
+                    return new BinaryMathematicalExpression(node, MathematicalOperation.Equal);
                     return Equal(node);
                 case ParserTreeConstants.NE_NODE:
                     return NotEqual(node);
@@ -122,7 +123,7 @@ namespace IronVelocity.Compilation.AST
                     return new BinaryMathematicalExpression(node, MathematicalOperation.Modulo);
                 //Code
                 case ParserTreeConstants.ASSIGNMENT:
-                    return new AssignmentExpression(node);
+                    return new SetDirective(node);
                 case ParserTreeConstants.REFERENCE:
                     return new DynamicReference(node);
                 case ParserTreeConstants.OBJECT_ARRAY:
@@ -352,6 +353,7 @@ namespace IronVelocity.Compilation.AST
 
             if (!(node is ASTOrNode))
                 throw new ArgumentOutOfRangeException("node");
+
 
             return BinaryLogicalExpression(Expression.OrElse, node);
         }

@@ -54,7 +54,7 @@
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />
     <Compile Include="Compilation\AST\BinaryExpression.cs" />
-    <Compile Include="Compilation\AST\AssignmentExpression.cs" />
+    <Compile Include="Compilation\AST\SetDirective.cs" />
     <Compile Include="Compilation\AST\BinaryMathematicalExpression.cs" />
     <Compile Include="Compilation\AST\Directive.cs" />
     <Compile Include="Compilation\AST\DynamicReference.cs" />
@@ -65,7 +65,7 @@
     <Compile Include="Compilation\AST\DictionaryString.cs" />
     <Compile Include="Compilation\AST\DynamicInvokeExpression.cs" />
     <Compile Include="Compilation\AST\DynamicGetMemberExpression.cs" />
-    <Compile Include="Compilation\AST\OperandExpression.cs" />
+    <Compile Include="Compilation\AST\ConversionHelpers.cs" />
     <Compile Include="Compilation\AST\RenderedBlock.cs" />
     <Compile Include="Compilation\AST\VariableReference.cs" />
     <Compile Include="Compilation\AST\VelocityExpression.cs" />
