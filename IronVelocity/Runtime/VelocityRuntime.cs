@@ -1,5 +1,4 @@
-﻿using Commons.Collections;
-using IronVelocity.Compilation;
+﻿using IronVelocity.Compilation;
 using IronVelocity.Compilation.Directives;
 using NVelocity.Runtime;
 using NVelocity.Runtime.Directive;
@@ -9,8 +8,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq.Expressions;
-using System.Linq;
-using NVelocity.Runtime.Resource;
 
 namespace IronVelocity
 {

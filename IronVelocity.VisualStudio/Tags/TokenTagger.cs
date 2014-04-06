@@ -1,8 +1,6 @@
 ﻿using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Tagging;
-using NVelocity.Runtime;
 using NVelocity.Runtime.Parser;
-using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections.Generic;
 using System.IO;

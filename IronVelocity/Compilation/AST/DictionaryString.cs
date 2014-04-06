@@ -1,15 +1,12 @@
-﻿using NVelocity.Runtime.Parser.Node;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Compilation.AST
 {
-    using Convert = System.Convert;
     public class DictionaryString : VelocityExpression
     {
         private readonly VelocityASTConverter _converter;

@@ -1,7 +1,6 @@
 ﻿using IronVelocity.Binders;
 using NUnit.Framework;
 using System;
-using System.Linq.Expressions;
 using Tests;
 
 namespace IronVelocity.Tests.Binders

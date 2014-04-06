@@ -3,10 +3,10 @@ using IronVelocity.Compilation;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
-using System.Linq;
 
 namespace Tests
 {

@@ -3,7 +3,6 @@ using NUnit.Framework;
 using System;
 using System.Dynamic;
 using System.Linq;
-using System.Linq.Expressions;
 using Tests;
 
 namespace IronVelocity.Tests.Binders

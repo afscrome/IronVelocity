@@ -1,7 +1,4 @@
-﻿using IronVelocity.Compilation;
-using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+﻿using NUnit.Framework;
 using Tests;
 
 namespace IronVelocity.Tests.OutputTests
