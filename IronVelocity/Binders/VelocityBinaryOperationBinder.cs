@@ -288,9 +288,9 @@ namespace IronVelocity.Binders
                 : VelocityExpressions.ConvertIfNeeded(rightObject);
 
 
-            if (leftType == typeof(string) && rightType == typeof(char))
+            if (leftType == typeof(string) && (rightType == typeof(char) || rightType.IsEnum))
                 rightExpression = Expression.Call(rightExpression, MethodHelpers.ToStringMethodInfo);
-            else if (rightType == typeof(string) && leftType == typeof(char))
+            else if (rightType == typeof(string) && (leftType == typeof(char) || leftType.IsEnum))
                 leftExpression = Expression.Call(leftExpression, MethodHelpers.ToStringMethodInfo);
         }
 
