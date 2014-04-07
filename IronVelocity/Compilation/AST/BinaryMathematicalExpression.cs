@@ -48,6 +48,17 @@ namespace IronVelocity.Compilation.AST
                     return ExpressionType.Or;
                 case MathematicalOperation.Equal:
                     return ExpressionType.Equal;
+                case MathematicalOperation.NotEqual:
+                    return ExpressionType.NotEqual;
+                case MathematicalOperation.LessThan:
+                    return ExpressionType.LessThan;
+                case MathematicalOperation.LessThanOrEqual:
+                    return ExpressionType.LessThanOrEqual;
+                case MathematicalOperation.GreaterThan:
+                    return ExpressionType.GreaterThan;
+                case MathematicalOperation.GreaterThanOrEqual:
+                    return ExpressionType.GreaterThanOrEqual;
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException("op");
             }
@@ -63,6 +74,11 @@ namespace IronVelocity.Compilation.AST
         Modulo,
         And,
         Or,
-        Equal
+        Equal,
+        NotEqual,
+        LessThan,
+        LessThanOrEqual,
+        GreaterThan,
+        GreaterThanOrEqual
     }
 }

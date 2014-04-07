@@ -41,10 +41,51 @@ namespace IronVelocity.Binders
                 case ExpressionType.Or:
                     return LogicalOperation(target, arg);
                 case ExpressionType.Equal:
-                    return Equals(target, arg);
+                    return Compare(target, arg, Expression.Equal);
+                case ExpressionType.NotEqual:
+                    return Compare(target, arg, Expression.NotEqual);
+                case ExpressionType.LessThan:
+                    return Compare(target, arg, Expression.LessThan);
+                case ExpressionType.LessThanOrEqual:
+                    return Compare(target, arg, Expression.LessThanOrEqual);
+                case ExpressionType.GreaterThan:
+                    return Compare(target, arg, Expression.GreaterThan);
+                case ExpressionType.GreaterThanOrEqual:
+                    return Compare(target, arg, Expression.GreaterThanOrEqual);
                 default:
                     throw new InvalidOperationException();
             }
+
+        }
+
+        public DynamicMetaObject Compare(DynamicMetaObject target, DynamicMetaObject arg, Func<Expression, Expression, Expression> generator)
+        {
+            Expression left, right, mainExpression;
+            MakeArgumentsCompatible(target, arg, out left, out right);
+
+            try
+            {
+                mainExpression = generator(left, right);
+            }
+            catch (InvalidOperationException)
+            {
+                if (generator == Expression.Equal || generator == Expression.NotEqual)
+                {
+                    mainExpression = generator(
+                        VelocityExpressions.ConvertIfNeeded(left, ReturnType),
+                        VelocityExpressions.ConvertIfNeeded(right, ReturnType)
+                    );
+                }
+                else
+                {
+                    mainExpression = Expression.Constant(false);
+                }
+            }
+
+            return new DynamicMetaObject(
+                    VelocityExpressions.ConvertIfNeeded(mainExpression, ReturnType),
+                    GetArgRestriction(target).Merge(GetArgRestriction(arg))
+                );
 
         }
 
@@ -320,7 +361,7 @@ namespace IronVelocity.Binders
                 return (long)value;
             if (value >= ulong.MinValue && value <= ulong.MaxValue)
                 return (ulong)value;
-            
+
             return (float)value;
         }
 
