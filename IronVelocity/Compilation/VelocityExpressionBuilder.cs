@@ -20,6 +20,13 @@ namespace IronVelocity.Compilation.AST
 
         private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers;
 
+        private ParameterExpression _outputParameter = Constants.OutputParameter;
+        public ParameterExpression OutputParameter
+        {
+            get { return _outputParameter; }
+            set { _outputParameter = value; }
+        }
+
         public VelocityExpressionBuilder(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers)
         {
             _directiveHandlers = directiveHandlers ?? new Dictionary<Type, DirectiveExpressionBuilder>();
@@ -60,7 +67,24 @@ namespace IronVelocity.Compilation.AST
                         expr = Set(child);
                         break;
                     case ParserTreeConstants.DIRECTIVE:
-                        expr = new Directive(child, _directiveHandlers, this);
+                        var directive = (ASTDirective)child;
+
+                        if (directive.DirectiveName == "macro")
+                            throw new NotSupportedException("TODO: #macro support");
+                        if (directive.DirectiveName == "include")
+                            throw new NotSupportedException("TODO: #include support");
+                        if (directive.DirectiveName == "parse")
+                            throw new NotSupportedException("TODO: #parse support");
+                        if (directive.DirectiveName == "literal")
+                            throw new NotSupportedException("TODO: #literal support");
+
+                        DirectiveExpressionBuilder builder;
+                        if (directive.Directive != null && _directiveHandlers.TryGetValue(directive.Directive.GetType(), out builder))
+                        {
+                            expr = builder.Build(directive, this);
+                        }
+                        else
+                            expr = new UnrecognisedDirective(directive, this);
                         break;
                     case ParserTreeConstants.COMMENT:
                         continue;
@@ -89,16 +113,16 @@ namespace IronVelocity.Compilation.AST
                 case ParserTreeConstants.FALSE:
                     return FalseExpression;
                 case ParserTreeConstants.NUMBER_LITERAL:
-                    return Expression.Constant(int.Parse(node.Literal, CultureInfo.InvariantCulture));;
+                    return Expression.Constant(int.Parse(node.Literal, CultureInfo.InvariantCulture)); ;
 
                 case ParserTreeConstants.STRING_LITERAL:
                     return new VelocityString(node);
                 case ParserTreeConstants.AND_NODE:
                     return And(node);
-                    //return new BinaryMathematicalExpression(node, MathematicalOperation.And);
+                //return new BinaryMathematicalExpression(node, MathematicalOperation.And);
                 case ParserTreeConstants.OR_NODE:
                     return Or(node);
-                    //return new BinaryMathematicalExpression(node, MathematicalOperation.Or);
+                //return new BinaryMathematicalExpression(node, MathematicalOperation.Or);
                 case ParserTreeConstants.NOT_NODE:
                     return Not(node);
 

@@ -18,15 +18,6 @@ namespace IronVelocity
         private static readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
         {
             {typeof(Foreach), new ForEachDirectiveExpressionBuilder()},
-            {typeof(ForeachBeforeAllSection), new ForEachSectionExpressionBuilder(ForEachSection.BeforeAll)},
-            {typeof(ForeachBeforeSection), new ForEachSectionExpressionBuilder(ForEachSection.Before)},
-            {typeof(ForeachEachSection), new ForEachSectionExpressionBuilder(ForEachSection.Each)},
-            {typeof(ForeachOddSection), new ForEachSectionExpressionBuilder(ForEachSection.Odd)},
-            {typeof(ForeachEvenSection), new ForEachSectionExpressionBuilder(ForEachSection.Even)},
-            {typeof(ForeachBetweenSection), new ForEachSectionExpressionBuilder(ForEachSection.Between)},
-            {typeof(ForeachAfterSection), new ForEachSectionExpressionBuilder(ForEachSection.After)},
-            {typeof(ForeachAfterAllSection), new ForEachSectionExpressionBuilder(ForEachSection.AfterAll)},
-            {typeof(ForeachNoDataSection), new ForEachSectionExpressionBuilder(ForEachSection.NoData)},
         };
 
         public VelocityRuntime(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers)

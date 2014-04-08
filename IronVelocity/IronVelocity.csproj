@@ -65,6 +65,10 @@
     <Compile Include="Compilation\AST\DictionaryString.cs" />
     <Compile Include="Compilation\AST\DynamicInvokeExpression.cs" />
     <Compile Include="Compilation\AST\DynamicGetMemberExpression.cs" />
+    <Compile Include="Compilation\AST\UnrecognisedDirective.cs" />
+    <Compile Include="Compilation\Directives\ForeachDirective.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Compilation\VelocityExpressionBuilder.cs" />
     <Compile Include="Compilation\AST\RenderedBlock.cs" />
     <Compile Include="Compilation\AST\VariableReference.cs" />

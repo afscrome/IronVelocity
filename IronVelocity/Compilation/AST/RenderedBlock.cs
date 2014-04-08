@@ -8,6 +8,8 @@ namespace IronVelocity.Compilation.AST
 {
     public class RenderedBlock : VelocityExpression
     {
+        private readonly ParameterExpression _output;
+
         public RenderedBlock(INode node, VelocityExpressionBuilder builder)
         {
             if (node == null)
@@ -18,11 +20,14 @@ namespace IronVelocity.Compilation.AST
                 throw new ArgumentOutOfRangeException("node");
 
             Children = builder.GetBlockExpressions(node);
+            
+            _output = builder.OutputParameter;
         }
 
-        public RenderedBlock(IEnumerable<Expression> expressions)
+        public RenderedBlock(IEnumerable<Expression> expressions, VelocityExpressionBuilder builder)
         {
             Children = expressions.ToList();
+            _output = builder.OutputParameter;
         }
 
 
@@ -59,7 +64,14 @@ namespace IronVelocity.Compilation.AST
             if (expression.Type != typeof(string))
                 expression = Expression.Call(expression, MethodHelpers.ToStringMethodInfo);
 
-            return Expression.Call(Constants.OutputParameter, MethodHelpers.AppendMethodInfo, expression);
+            try
+            {
+                return Expression.Call(_output, MethodHelpers.AppendMethodInfo, expression);
+            }
+            catch
+            {
+                throw;
+            }
         }
 
 
