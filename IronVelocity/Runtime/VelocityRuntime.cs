@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation;
+using IronVelocity.Compilation.AST;
 using IronVelocity.Compilation.Directives;
 using NVelocity.Runtime;
 using NVelocity.Runtime.Directive;
@@ -61,8 +62,7 @@ namespace IronVelocity
                 if (ast == null)
                     throw new InvalidProgramException("Unable to parse ast");
 
-                var converter = new VelocityASTConverter(_directiveHandlers);
-                var expr = converter.BuildExpressionTree(ast, fileName);
+                var expr = new RenderedBlock(ast, new VelocityExpressionBuilder(_directiveHandlers));
 
                 return Expression.Lambda<VelocityTemplateMethod>(expr, typeName, new[] { Constants.InputParameter, Constants.OutputParameter });
             }

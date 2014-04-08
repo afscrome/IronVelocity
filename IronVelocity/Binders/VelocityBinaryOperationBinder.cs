@@ -58,7 +58,7 @@ namespace IronVelocity.Binders
 
         }
 
-        public DynamicMetaObject Compare(DynamicMetaObject target, DynamicMetaObject arg, Func<Expression, Expression, Expression> generator)
+        private DynamicMetaObject Compare(DynamicMetaObject target, DynamicMetaObject arg, Func<Expression, Expression, Expression> generator)
         {
             Expression left, right, mainExpression;
             MakeArgumentsCompatible(target, arg, out left, out right);
@@ -84,7 +84,7 @@ namespace IronVelocity.Binders
 
             return new DynamicMetaObject(
                     VelocityExpressions.ConvertIfNeeded(mainExpression, ReturnType),
-                    GetArgRestriction(target).Merge(GetArgRestriction(arg))
+                    DeduceArgumentRestrictions(target).Merge(DeduceArgumentRestrictions(arg))
                 );
 
         }
@@ -107,11 +107,11 @@ namespace IronVelocity.Binders
             }
             return new DynamicMetaObject(
                     VelocityExpressions.ConvertIfNeeded(mainExpression, ReturnType),
-                    GetArgRestriction(target).Merge(GetArgRestriction(arg))
+                    DeduceArgumentRestrictions(target).Merge(DeduceArgumentRestrictions(arg))
                 );
         }
 
-        private BindingRestrictions GetArgRestriction(DynamicMetaObject value)
+        private static BindingRestrictions DeduceArgumentRestrictions(DynamicMetaObject value)
         {
             if (value.Value != null)
                 return BindingRestrictions.GetTypeRestriction(value.Expression, value.RuntimeType);

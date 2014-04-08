@@ -27,7 +27,7 @@ namespace IronVelocity.Compilation.AST
             //Subsequent arguments are the parameters
             for (int i = 1; i < node.ChildrenCount; i++)
             {
-                arguments.Add(ConversionHelpers.Operand(node.GetChild(i)));
+                arguments.Add(VelocityExpressionBuilder.Operand(node.GetChild(i)));
             }
             Arguments = arguments;
             Target = target;

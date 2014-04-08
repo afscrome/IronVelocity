@@ -37,7 +37,7 @@ namespace IronVelocity.Compilation.AST
                 if (ast == null)
                     return Expression.Constant(Value);
 
-                var expressions =  new VelocityASTConverter(null).GetBlockExpressions(ast, false)
+                var expressions =  new VelocityExpressionBuilder(null).GetBlockExpressions(ast)
                     .Where(x => x.Type != typeof(void))
                     .ToArray();
 

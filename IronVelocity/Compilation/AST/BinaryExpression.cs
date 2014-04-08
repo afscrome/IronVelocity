@@ -19,8 +19,8 @@ namespace IronVelocity.Compilation.AST
                 throw new NotImplementedException("Expected exactly two children for a binary expression");
 
 
-            Left = ConversionHelpers.Operand(node.GetChild(0));
-            Right = ConversionHelpers.Operand(node.GetChild(1));
+            Left = VelocityExpressionBuilder.Operand(node.GetChild(0));
+            Right = VelocityExpressionBuilder.Operand(node.GetChild(1));
 
         }
 

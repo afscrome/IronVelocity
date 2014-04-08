@@ -34,6 +34,9 @@ namespace IronVelocity.Compilation.AST
     {
         public SymbolInformation(INode node)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             StartLine = node.FirstToken.BeginLine +1;
             StartColumn = node.FirstToken.BeginColumn;
             EndLine = node.LastToken.EndLine + 1;

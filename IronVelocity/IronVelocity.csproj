@@ -65,7 +65,7 @@
     <Compile Include="Compilation\AST\DictionaryString.cs" />
     <Compile Include="Compilation\AST\DynamicInvokeExpression.cs" />
     <Compile Include="Compilation\AST\DynamicGetMemberExpression.cs" />
-    <Compile Include="Compilation\AST\ConversionHelpers.cs" />
+    <Compile Include="Compilation\VelocityExpressionBuilder.cs" />
     <Compile Include="Compilation\AST\RenderedBlock.cs" />
     <Compile Include="Compilation\AST\VariableReference.cs" />
     <Compile Include="Compilation\AST\VelocityExpression.cs" />
@@ -91,7 +91,6 @@
     <Compile Include="Compilation\VelocityExpressions.cs" />
     <Compile Include="Extensions\INodeExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Compilation\VelocityASTConverter.cs" />
     <Compile Include="Runtime\Comparators.cs" />
     <Compile Include="Runtime\VelocityRuntime.cs" />
   </ItemGroup>

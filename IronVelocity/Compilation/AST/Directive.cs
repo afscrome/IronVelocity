@@ -12,8 +12,10 @@ namespace IronVelocity.Compilation.AST
     {
         public string Name { get; private set; }
         public ASTDirective Node { get; private set; }
+        private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers;
+        private readonly VelocityExpressionBuilder _builder;
 
-        public Directive(INode node)
+        public Directive(INode node, IDictionary<Type, DirectiveExpressionBuilder> handlers, VelocityExpressionBuilder builder)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -22,8 +24,16 @@ namespace IronVelocity.Compilation.AST
             if (directive == null)
                 throw new ArgumentOutOfRangeException("node");
 
+            if (handlers == null)
+                throw new ArgumentNullException("handlers");
+
+            if (builder == null)
+                throw new ArgumentNullException("builder");
+
             Name = directive.DirectiveName;
             Node = directive;
+            _directiveHandlers = handlers;
+            _builder = builder;
         }
 
         protected override Expression ReduceInternal()
@@ -33,25 +43,10 @@ namespace IronVelocity.Compilation.AST
 
             DirectiveExpressionBuilder builder;
             if (_directiveHandlers.TryGetValue(Node.Directive.GetType(), out builder))
-                return builder.Build(Node);
+                return builder.Build(Node, _builder);
             else
                 throw new NotSupportedException(String.Format(CultureInfo.InvariantCulture, "Unable to handle directive type '{0}'", Node.DirectiveName));
         }
-
-
-        private static readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
-        {
-            {typeof(Foreach), new ForEachDirectiveExpressionBuilder()},
-            {typeof(ForeachBeforeAllSection), new ForEachSectionExpressionBuilder(ForEachSection.BeforeAll)},
-            {typeof(ForeachBeforeSection), new ForEachSectionExpressionBuilder(ForEachSection.Before)},
-            {typeof(ForeachEachSection), new ForEachSectionExpressionBuilder(ForEachSection.Each)},
-            {typeof(ForeachOddSection), new ForEachSectionExpressionBuilder(ForEachSection.Odd)},
-            {typeof(ForeachEvenSection), new ForEachSectionExpressionBuilder(ForEachSection.Even)},
-            {typeof(ForeachBetweenSection), new ForEachSectionExpressionBuilder(ForEachSection.Between)},
-            {typeof(ForeachAfterSection), new ForEachSectionExpressionBuilder(ForEachSection.After)},
-            {typeof(ForeachAfterAllSection), new ForEachSectionExpressionBuilder(ForEachSection.AfterAll)},
-            {typeof(ForeachNoDataSection), new ForEachSectionExpressionBuilder(ForEachSection.NoData)},
-        };
 
         public override Type Type { get { return typeof(void); } }
     }

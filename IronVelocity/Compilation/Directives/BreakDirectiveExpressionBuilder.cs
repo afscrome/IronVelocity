@@ -1,11 +1,13 @@
-﻿using System;
+﻿using IronVelocity.Compilation.AST;
+using NVelocity.Runtime.Parser.Node;
+using System;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.Directives
 {
     public class BreakDirectiveExpressionBuilder : DirectiveExpressionBuilder
     {
-        public override Expression Build(NVelocity.Runtime.Parser.Node.ASTDirective node)
+        public override Expression Build(ASTDirective node, VelocityExpressionBuilder builder)
         {
             throw new NotImplementedException();
         }

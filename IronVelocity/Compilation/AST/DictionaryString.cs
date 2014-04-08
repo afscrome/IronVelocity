@@ -9,13 +9,11 @@ namespace IronVelocity.Compilation.AST
 {
     public class DictionaryString : VelocityExpression
     {
-        private readonly VelocityASTConverter _converter;
         public string Value { get; set; }
 
         public DictionaryString(string value)
         {
             Value = value;
-            _converter = new VelocityASTConverter(null);
         }
 
         protected override Expression ReduceInternal()
@@ -23,10 +21,10 @@ namespace IronVelocity.Compilation.AST
             char[] contents = Value.ToCharArray();
             int lastIndex;
 
-            return RecursiveBuildDictionary(contents, 2, out lastIndex, _converter);
+            return RecursiveBuildDictionary(contents, 2, out lastIndex);
         }
 
-        private Expression RecursiveBuildDictionary(char[] contents, int fromIndex, out int lastIndex, VelocityASTConverter converter)
+        private Expression RecursiveBuildDictionary(char[] contents, int fromIndex, out int lastIndex)
         {
             // key=val, key='val', key=$val, key=${val}, key='id$id'
 
@@ -91,7 +89,7 @@ namespace IronVelocity.Compilation.AST
                         }
                         else if (c == '{')
                         {
-                            Expression nestedHash = RecursiveBuildDictionary(contents, i + 1, out i, converter);
+                            Expression nestedHash = RecursiveBuildDictionary(contents, i + 1, out i);
                             ProcessDictEntry(hash, sbKeyBuilder, nestedHash);
                             inKey = false;
                             valueStarted = false;

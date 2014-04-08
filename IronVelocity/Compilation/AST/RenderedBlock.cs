@@ -8,7 +8,7 @@ namespace IronVelocity.Compilation.AST
 {
     public class RenderedBlock : VelocityExpression
     {
-        public RenderedBlock(INode node)
+        public RenderedBlock(INode node, VelocityExpressionBuilder builder)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -17,7 +17,7 @@ namespace IronVelocity.Compilation.AST
             if (!(node is ASTBlock || node is ASTprocess))
                 throw new ArgumentOutOfRangeException("node");
 
-            Children = ConversionHelpers.GetBlockExpressions(node);
+            Children = builder.GetBlockExpressions(node);
         }
 
         public RenderedBlock(IEnumerable<Expression> expressions)

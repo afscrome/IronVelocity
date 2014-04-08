@@ -15,7 +15,7 @@ namespace IronVelocity.Compilation.Directives
         private static readonly PropertyInfo _currentPropertyInfo = typeof(IEnumerator).GetProperty("Current");
 
 
-        public override Expression Build(ASTDirective node)
+        public override Expression Build(ASTDirective node, VelocityExpressionBuilder builder)
         {
 
             if (node == null)
@@ -31,20 +31,13 @@ namespace IronVelocity.Compilation.Directives
             if (inNode == null || !inNode.Literal.Equals("in"))
                 throw new ArgumentOutOfRangeException("node");
 
-            var loopVariable = VelocityASTConverter.Reference(node.GetChild(0), false);
+            var loopVariable = new DynamicReference(node.GetChild(0));
 
-            //TODO: Hack until Foreach is moved to an Extension expression node
-            var temp = loopVariable as IronVelocity.Compilation.AST.DynamicReference;
-            if (temp != null)
-                loopVariable = temp.Value;
-            var temp2 = loopVariable as IronVelocity.Compilation.AST.VariableReference;
-            if (temp2 != null)
-                loopVariable = temp2.Reduce();
-            var enumerable =  AST.ConversionHelpers.Operand(node.GetChild(2));
-            
+            var enumerable = VelocityExpressionBuilder.Operand(node.GetChild(2));
+
             var parts = new List<Expression>[9];
             var currentSection = ForEachSection.Each;
-            foreach (var expression in AST.ConversionHelpers.GetBlockExpressions(node.GetChild(3)))
+            foreach (var expression in builder.GetBlockExpressions(node.GetChild(3)))
             {
                 var seperator = expression as Directive;
                 if (seperator != null)
@@ -63,7 +56,7 @@ namespace IronVelocity.Compilation.Directives
 
             }
 
-            var index = new AST.VariableReference("velocityCount").Reduce();
+            var index = new VariableReference("velocityCount");
 
 
             //For the first item, output the #BeforeAll template, for all others #Between
@@ -126,6 +119,9 @@ namespace IronVelocity.Compilation.Directives
             if (enumerable.Type != typeof(IEnumerable))
                 enumerable = Expression.TypeAs(enumerable, typeof(IEnumerable));
 
+            currentIndex = currentIndex.ReduceExtensions();
+            currentItem = currentItem.ReduceExtensions();
+
             var enumerator = Expression.Parameter(typeof(IEnumerator), "enumerator");
             var @break = Expression.Label("break");
             var @continue = Expression.Label("continue");
@@ -134,6 +130,19 @@ namespace IronVelocity.Compilation.Directives
             var originalItemValue = Expression.Parameter(currentItem.Type, "foreachOriginalItem");
             var originalIndex = Expression.Parameter(currentItem.Type, "foreachOriginalVelocityIndex");
 
+            var foreachLoop = Expression.Loop(
+                    Expression.IfThenElse(
+                        Expression.IsTrue(Expression.Call(enumerator, _moveNextMethodInfo)),
+                        Expression.Block(
+                            Expression.Assign(currentItem, Expression.Property(enumerator, _currentPropertyInfo)),
+                            Expression.Assign(currentIndex, VelocityExpressions.ConvertIfNeeded(Expression.PreIncrementAssign(localIndex), currentIndex.Type)),
+                            body
+                        ),
+                        Expression.Break(@break)
+                    ),
+                    @break,
+                    @continue
+                );
 
             var loop = Expression.IfThenElse(
                 Expression.TypeIs(enumerable, typeof(IEnumerable)),                
@@ -149,19 +158,7 @@ namespace IronVelocity.Compilation.Directives
                 //Get the enumerator
                             Expression.Assign(enumerator, Expression.Call(enumerable, _enumeratorMethodInfo)),
                 // Loop through the enumerator
-                            Expression.Loop(
-                                Expression.IfThenElse(
-                                    Expression.IsTrue(Expression.Call(enumerator, _moveNextMethodInfo)),
-                                    Expression.Block(
-                                        Expression.Assign(currentItem, Expression.Property(enumerator, _currentPropertyInfo)),
-                                        Expression.Assign(currentIndex, VelocityExpressions.ConvertIfNeeded(Expression.PreIncrementAssign(localIndex), currentIndex.Type)),
-                                        body
-                                    ),
-                                    Expression.Break(@break)
-                                ),
-                                @break,
-                                @continue
-                            ),
+                            foreachLoop,
                             loopSuffix,
   //                      )
   //                  ),
@@ -184,7 +181,7 @@ namespace IronVelocity.Compilation.Directives
             _part = part;
         }
 
-        public override Expression Build(ASTDirective node)
+        public override Expression Build(ASTDirective node, VelocityExpressionBuilder builder)
         {
             return new ForEachPartSeparatorExpression(_part);
         }

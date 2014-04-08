@@ -1,4 +1,5 @@
-﻿using NVelocity.Runtime.Parser;
+﻿using IronVelocity.Compilation.Directives;
+using NVelocity.Runtime.Parser;
 using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections.Generic;
@@ -12,14 +13,19 @@ namespace IronVelocity.Compilation.AST
     /// <summary>
     /// TODO: I don't like this class - refactor.
     /// </summary>
-    public static class ConversionHelpers
+    public class VelocityExpressionBuilder
     {
-
         private static readonly Expression TrueExpression = Expression.Constant(true);
         private static readonly Expression FalseExpression = Expression.Constant(false);
 
+        private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers;
 
-        public static IReadOnlyCollection<Expression> GetBlockExpressions(INode node)
+        public VelocityExpressionBuilder(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers)
+        {
+            _directiveHandlers = directiveHandlers ?? new Dictionary<Type, DirectiveExpressionBuilder>();
+        }
+
+        public IReadOnlyCollection<Expression> GetBlockExpressions(INode node)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -48,13 +54,13 @@ namespace IronVelocity.Compilation.AST
                         expr = new DynamicReference(child);
                         break;
                     case ParserTreeConstants.IF_STATEMENT:
-                        expr = new IfStatement(child);
+                        expr = new IfStatement(child, this);
                         break;
                     case ParserTreeConstants.SET_DIRECTIVE:
                         expr = Set(child);
                         break;
                     case ParserTreeConstants.DIRECTIVE:
-                        expr = new Directive(child);
+                        expr = new Directive(child, _directiveHandlers, this);
                         break;
                     case ParserTreeConstants.COMMENT:
                         continue;
@@ -206,115 +212,6 @@ namespace IronVelocity.Compilation.AST
 
             return generator(left, right, implementation);
         }
-
-        private static Expression BinaryComparisonExpression(Func<Expression, Expression, bool, MethodInfo, Expression> generator, INode node, MethodInfo implementation)
-        {
-            Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
-
-            // The expression tree will fail if the types don't *exactly* match the types on the method signature
-            // So ensure everything is converted to object
-            left = VelocityExpressions.ConvertIfNeeded(left, typeof(object));
-            right = VelocityExpressions.ConvertIfNeeded(right, typeof(object));
-
-            return  generator(left, right, false, implementation);
-        }
-
-
-        #region Logical Comparators
-
-        /// <summary>
-        /// Builds an equals expression from an ASTLTNode
-        /// </summary>
-        /// <param name="node">The ASTLTNode to build the less than Expression from</param>
-        /// <returns>An expression representing the less than operation</returns>
-        private static Expression LessThan(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTLTNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryComparisonExpression(Expression.LessThan, node, MethodHelpers.LessThanMethodInfo);
-        }
-
-
-        private static Expression LessThanOrEqual(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTLENode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryComparisonExpression(Expression.LessThanOrEqual, node, MethodHelpers.LessThanOrEqualMethodInfo);
-        }
-
-        /// <summary>
-        /// Builds a greater than expression from an ASTGTNode
-        /// </summary>
-        /// <param name="node">The ASTGTNode to build the greater than Expression from</param>
-        /// <returns>An expression representing the greater than operation</returns>
-        private static Expression GreaterThan(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTGTNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryComparisonExpression(Expression.GreaterThan, node, MethodHelpers.GreaterThanMethodInfo);
-        }
-        /// <summary>
-        /// Builds a greater than or equal to expression from an ASTGENode
-        /// </summary>
-        /// <param name="node">The ASTGENode to build the equals Expression from</param>
-        /// <returns>An expression representing the greater than or equal to operation</returns>
-        private static Expression GreaterThanOrEqual(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTGENode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryComparisonExpression(Expression.GreaterThanOrEqual, node, MethodHelpers.GreaterThanOrEqualMethodInfo);
-        }
-
-        /// <summary>
-        /// Builds an equals expression from an ASTEQNode
-        /// </summary>
-        /// <param name="node">The ASTEQNode to build the equals Expression from</param>
-        /// <returns>An expression representing the equals operation</returns>
-        private static Expression Equal(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTEQNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryComparisonExpression(Expression.Equal, node, MethodHelpers.EqualMethodInfo);
-        }
-
-        /// <summary>
-        /// Builds a not equal expression from an ASTNENode
-        /// </summary>
-        /// <param name="node">The ASTNENode to build the not equal Expression from</param>
-        /// <returns>An expression representing the not equal  operation</returns>
-        private static Expression NotEqual(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTNENode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryComparisonExpression(Expression.NotEqual, node, MethodHelpers.NotEqualMethodInfo);
-        }
-
-        #endregion
 
         #region Logical
 
