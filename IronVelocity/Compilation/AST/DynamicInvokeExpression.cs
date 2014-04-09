@@ -34,7 +34,7 @@ namespace IronVelocity.Compilation.AST
             Name = node.FirstToken.Image;
         }
 
-        protected override Expression ReduceInternal()
+        public override Expression Reduce()
         {
             var args = new Expression[Arguments.Count + 1];
             args[0] = Target;

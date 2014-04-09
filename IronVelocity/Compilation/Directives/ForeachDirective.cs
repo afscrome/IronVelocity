@@ -11,13 +11,14 @@ using System.Threading.Tasks;
 
 namespace IronVelocity.Compilation.Directives
 {
-    public class ForeachDirective : Directive
+    public class ForeachDirective : CustomDirective
     {
         private static readonly MethodInfo _enumeratorMethodInfo = typeof(IEnumerable).GetMethod("GetEnumerator", new Type[] { });
         private static readonly MethodInfo _moveNextMethodInfo = typeof(IEnumerator).GetMethod("MoveNext", new Type[] { });
         private static readonly PropertyInfo _currentPropertyInfo = typeof(IEnumerator).GetProperty("Current");
 
         private readonly VelocityExpressionBuilder _builder;
+        private readonly LabelTarget _break = Expression.Label("break");
 
         public ForeachDirective(ASTDirective node, VelocityExpressionBuilder builder)
             : base(node, builder)
@@ -89,7 +90,7 @@ namespace IronVelocity.Compilation.Directives
         }
 
 
-        private static Expression ForeachExpression(Expression enumerable, Expression body, Expression currentItem, Expression currentIndex, Expression loopSuffix, Expression noData)
+        private Expression ForeachExpression(Expression enumerable, Expression body, Expression currentItem, Expression currentIndex, Expression loopSuffix, Expression noData)
         {
             if (enumerable == null)
                 throw new ArgumentNullException("enumerable");
@@ -112,7 +113,6 @@ namespace IronVelocity.Compilation.Directives
             currentItem = currentItem.ReduceExtensions();
 
             var enumerator = Expression.Parameter(typeof(IEnumerator), "enumerator");
-            var @break = Expression.Label("break");
             var @continue = Expression.Label("continue");
 
             var localIndex = Expression.Parameter(typeof(int), "foreachIndex");
@@ -127,9 +127,9 @@ namespace IronVelocity.Compilation.Directives
                             Expression.Assign(currentIndex, VelocityExpressions.ConvertIfNeeded(Expression.PreIncrementAssign(localIndex), currentIndex.Type)),
                             body
                         ),
-                        Expression.Break(@break)
+                        Expression.Break(_break)
                     ),
-                    @break,
+                    _break,
                     @continue
                 );
 
@@ -190,5 +190,13 @@ namespace IronVelocity.Compilation.Directives
 
         }
 
+
+        public override Expression ProcessChildDirective(string name, INode node)
+        {
+            if (name == "break")
+                return Expression.Break(_break);
+            else
+                return null;
+        }
     }
 }

@@ -25,7 +25,7 @@ namespace IronVelocity.Compilation.AST
             Name = name;
         }
 
-        protected override Expression ReduceInternal()
+        public override Expression Reduce()
         {
             //TODO: allow for reuse of callsites
             return Expression.Dynamic(

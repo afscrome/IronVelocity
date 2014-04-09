@@ -26,7 +26,7 @@ namespace IronVelocity.Compilation.AST
                 : VelocityStringType.Constant;
         }
 
-        protected override Expression ReduceInternal()
+        public override Expression Reduce()
         {
             switch (StringType)
             {

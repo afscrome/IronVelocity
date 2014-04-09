@@ -10,7 +10,7 @@ namespace IronVelocity.Compilation.AST
         {
         }
 
-        protected override Expression ReduceInternal()
+        public override Expression Reduce()
         {
             return Expression.Call(null, MethodHelpers.IntegerRangeMethodInfo,
                     VelocityExpressions.ConvertIfNeeded(Left, typeof(object)),

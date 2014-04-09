@@ -42,7 +42,7 @@ namespace IronVelocity.Compilation.AST
             }
         }
 
-        protected override Expression ReduceInternal()
+        public override Expression Reduce()
         {
             return Value;
         }
@@ -57,7 +57,7 @@ namespace IronVelocity.Compilation.AST
                 Reference = reference;
         }
 
-        protected override Expression ReduceInternal()
+        public override Expression Reduce()
         {
             if (Reference.MetaData.Escaped)
             {

@@ -12,7 +12,7 @@ namespace IronVelocity.Compilation.AST
     {
         public string Name { get; private set; }
         public ASTDirective Node { get; private set; }
-        private readonly VelocityExpressionBuilder _builder;
+        protected VelocityExpressionBuilder Builder { get; private set; }
 
         protected Directive(INode node, VelocityExpressionBuilder builder)
         {
@@ -28,7 +28,7 @@ namespace IronVelocity.Compilation.AST
 
             Name = directive.DirectiveName;
             Node = directive;
-            _builder = builder;
+            Builder = builder;
         }
 
         public override Type Type { get { return typeof(void); } }

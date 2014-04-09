@@ -54,6 +54,7 @@
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />
     <Compile Include="Compilation\AST\BinaryExpression.cs" />
+    <Compile Include="Compilation\AST\CustomDirective.cs" />
     <Compile Include="Compilation\AST\SetDirective.cs" />
     <Compile Include="Compilation\AST\BinaryMathematicalExpression.cs" />
     <Compile Include="Compilation\AST\Directive.cs" />

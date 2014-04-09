@@ -4,10 +4,12 @@ namespace IronVelocity.Runtime
 {
     public static class BooleanCoercion
     {
-        public static bool CoerceToBoolean(dynamic value)
+        public static bool CoerceToBoolean(object value)
         {
-            try { return value; }
-            catch (RuntimeBinderException) { return ((object)value) != null; }
+            if (value is bool)
+                return (bool)value;
+            else
+                return ((object)value) != null;
         }
     }
 }

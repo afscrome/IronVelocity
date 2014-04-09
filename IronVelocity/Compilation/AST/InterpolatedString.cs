@@ -17,7 +17,7 @@ namespace IronVelocity.Compilation.AST
 
         private static MethodInfo _stringConcatMethodInfo = typeof(string).GetMethod("Concat", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object[]) }, null);
 
-        protected override Expression ReduceInternal()
+        public override Expression Reduce()
         {
             //TODO; Refactor to share with VelocityExpressionTreeBuilder, or reuse the same parser
             var parser = new NVelocity.Runtime.RuntimeInstance().CreateNewParser();

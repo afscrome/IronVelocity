@@ -17,7 +17,7 @@ namespace IronVelocity.Compilation.AST
             _literal = node.Literal;
         }
 
-        protected override Expression ReduceInternal()
+        public override Expression Reduce()
         {
             return Expression.Constant(_literal);
         }

@@ -19,17 +19,14 @@ namespace IronVelocity.Compilation.AST
         private static readonly Expression FalseExpression = Expression.Constant(false);
 
         private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers;
-
-        private ParameterExpression _outputParameter = Constants.OutputParameter;
-        public ParameterExpression OutputParameter
-        {
-            get { return _outputParameter; }
-            set { _outputParameter = value; }
-        }
+        public ParameterExpression OutputParameter { get; set; }
+        public Stack<CustomDirective> CustomDirectives { get; private set; }
 
         public VelocityExpressionBuilder(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers)
         {
             _directiveHandlers = directiveHandlers ?? new Dictionary<Type, DirectiveExpressionBuilder>();
+            OutputParameter = Constants.OutputParameter;
+            CustomDirectives = new Stack<CustomDirective>();
         }
 
         public IReadOnlyCollection<Expression> GetBlockExpressions(INode node)
@@ -41,8 +38,7 @@ namespace IronVelocity.Compilation.AST
             if (!(node is ASTBlock || node is ASTprocess))
                 throw new ArgumentOutOfRangeException("node");
 
-            var expressions = new List<Expression>();
-
+            var expressions = new List<Expression>(node.ChildrenCount);
 
             foreach (var child in node.GetChildren())
             {
@@ -67,24 +63,7 @@ namespace IronVelocity.Compilation.AST
                         expr = Set(child);
                         break;
                     case ParserTreeConstants.DIRECTIVE:
-                        var directive = (ASTDirective)child;
-
-                        if (directive.DirectiveName == "macro")
-                            throw new NotSupportedException("TODO: #macro support");
-                        if (directive.DirectiveName == "include")
-                            throw new NotSupportedException("TODO: #include support");
-                        if (directive.DirectiveName == "parse")
-                            throw new NotSupportedException("TODO: #parse support");
-                        if (directive.DirectiveName == "literal")
-                            throw new NotSupportedException("TODO: #literal support");
-
-                        DirectiveExpressionBuilder builder;
-                        if (directive.Directive != null && _directiveHandlers.TryGetValue(directive.Directive.GetType(), out builder))
-                        {
-                            expr = builder.Build(directive, this);
-                        }
-                        else
-                            expr = new UnrecognisedDirective(directive, this);
+                        expr = Directive(child);
                         break;
                     case ParserTreeConstants.COMMENT:
                         continue;
@@ -98,6 +77,35 @@ namespace IronVelocity.Compilation.AST
             }
 
             return expressions;
+        }
+
+        public Expression Directive(INode child)
+        {
+            var directiveNode = (ASTDirective)child;
+
+            if (directiveNode.DirectiveName == "macro")
+                throw new NotSupportedException("TODO: #macro support");
+            if (directiveNode.DirectiveName == "include")
+                throw new NotSupportedException("TODO: #include support");
+            if (directiveNode.DirectiveName == "parse")
+                throw new NotSupportedException("TODO: #parse support");
+            if (directiveNode.DirectiveName == "literal")
+                throw new NotSupportedException("TODO: #literal support");
+
+            DirectiveExpressionBuilder builder;
+            foreach (var customDirective in CustomDirectives)
+            {
+                var expr = customDirective.ProcessChildDirective(directiveNode.DirectiveName, directiveNode);
+                if (expr != null)
+                    return expr;
+            }
+
+            if (directiveNode.Directive != null && _directiveHandlers.TryGetValue(directiveNode.Directive.GetType(), out builder))
+            {
+                return builder.Build(directiveNode, this);
+            }
+            else
+                return new UnrecognisedDirective(directiveNode, this);
         }
 
 

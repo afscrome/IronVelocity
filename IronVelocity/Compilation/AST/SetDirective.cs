@@ -11,7 +11,7 @@ namespace IronVelocity.Compilation.AST
         {
         }
 
-        protected override Expression ReduceInternal()
+        public override Expression Reduce()
         {
             var left = Left;
             var right = Right;

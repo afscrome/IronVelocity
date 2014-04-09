@@ -16,7 +16,7 @@ namespace IronVelocity.Compilation.AST
             Value = value;
         }
 
-        protected override Expression ReduceInternal()
+        public override Expression Reduce()
         {
             char[] contents = Value.ToCharArray();
             int lastIndex;

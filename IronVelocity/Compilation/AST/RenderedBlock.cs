@@ -33,7 +33,7 @@ namespace IronVelocity.Compilation.AST
 
         public IReadOnlyCollection<Expression> Children { get; private set; }
     
-        protected override Expression ReduceInternal()
+        public override Expression Reduce()
         {
             if (!Children.Any())
                 return Expression.Default(typeof(void));

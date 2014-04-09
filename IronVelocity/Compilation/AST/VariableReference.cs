@@ -12,7 +12,7 @@ namespace IronVelocity.Compilation.AST
         }
 
         private static readonly PropertyInfo _indexerProperty = typeof(VelocityContext).GetProperty("Item", typeof(Expression), new[] { typeof(string) });
-        protected override Expression ReduceInternal()
+        public override Expression Reduce()
         {
             return Expression.MakeIndex(Constants.InputParameter, _indexerProperty, new[] { Expression.Constant(Name) });
         }

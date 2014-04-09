@@ -66,7 +66,7 @@ namespace IronVelocity.Compilation.AST
 
             return expr;
         }
-        protected override Expression ReduceInternal()
+        public override Expression Reduce()
         {
             return Value;
         }

@@ -10,8 +10,6 @@ namespace IronVelocity.Compilation.Directives
 {
     public class ForEachDirectiveExpressionBuilder : DirectiveExpressionBuilder
     {
-
-
         public override Expression Build(ASTDirective node, VelocityExpressionBuilder builder)
         {
             return new ForeachDirective(node, builder);

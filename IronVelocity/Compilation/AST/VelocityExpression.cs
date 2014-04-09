@@ -14,20 +14,13 @@ namespace IronVelocity.Compilation.AST
         {
             if (node == null)
                 throw new ArgumentNullException("node");
-
-
         }
 
-        public override Expression Reduce()
-        {
-            return ReduceInternal();
-        }
+        public abstract override Expression Reduce();
 
         public override bool CanReduce { get { return true; } }
         public override ExpressionType NodeType { get { return ExpressionType.Extension; } }
         public override Type Type { get { return typeof(object); } }
-
-        protected abstract Expression ReduceInternal();
     }
 
     public class SymbolInformation
