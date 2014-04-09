@@ -96,7 +96,6 @@
     <Compile Include="Compilation\VelocityExpressions.cs" />
     <Compile Include="Extensions\INodeExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Runtime\Comparators.cs" />
     <Compile Include="Runtime\VelocityRuntime.cs" />
   </ItemGroup>
   <ItemGroup>

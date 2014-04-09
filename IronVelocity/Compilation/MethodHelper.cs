@@ -18,12 +18,5 @@ namespace IronVelocity.Compilation
         public static readonly MethodInfo ReduceBigIntegerMethodInfo = typeof(VelocityBinaryOperationBinder).GetMethod("ReduceBigInteger", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(BigInteger) }, null);
 
         public static readonly MethodInfo BooleanCoercionMethodInfo = typeof(BooleanCoercion).GetMethod("CoerceToBoolean", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object) }, null);
-
-        public static readonly MethodInfo LessThanMethodInfo = typeof(Comparators).GetMethod("LessThan", new[] { typeof(object), typeof(object) });
-        public static readonly MethodInfo LessThanOrEqualMethodInfo = typeof(Comparators).GetMethod("LessThanOrEqual", new[] { typeof(object), typeof(object) });
-        public static readonly MethodInfo GreaterThanMethodInfo = typeof(Comparators).GetMethod("GreaterThan", new[] { typeof(object), typeof(object) });
-        public static readonly MethodInfo GreaterThanOrEqualMethodInfo = typeof(Comparators).GetMethod("GreaterThanOrEqual", new[] { typeof(object), typeof(object) });
-        public static readonly MethodInfo EqualMethodInfo = typeof(Comparators).GetMethod("Equal", new[] { typeof(object), typeof(object) });
-        public static readonly MethodInfo NotEqualMethodInfo = typeof(Comparators).GetMethod("NotEqual", new[] { typeof(object), typeof(object) });
     }
 }
