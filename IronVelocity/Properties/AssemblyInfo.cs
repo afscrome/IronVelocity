@@ -9,7 +9,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("IronVelocity")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("TODO")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("IronVelocity")]
@@ -20,4 +20,3 @@ using System.Runtime.InteropServices;
 
 
 [assembly: AssemblyVersion("1.0.*")]
-[assembly: InternalsVisibleTo("IronVelocity.VisualStudio")]
