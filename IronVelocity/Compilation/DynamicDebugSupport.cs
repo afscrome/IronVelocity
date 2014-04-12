@@ -40,10 +40,13 @@ namespace IronVelocity.Compilation
                 if (extension != null && extension.Symbols != null && extension.Symbols != _currentSymbol)
                 {
                     _currentSymbol = extension.Symbols;
-                    node = Expression.Block(
+                    return base.VisitBlock(
+                        Expression.Block(
                             Expression.DebugInfo(_symbolDocument, _currentSymbol.StartLine, _currentSymbol.StartColumn, _currentSymbol.EndLine, _currentSymbol.EndColumn),
                             node
-                        );
+                        )
+                    );
+
                 }
             }
             return base.VisitExtension(node);

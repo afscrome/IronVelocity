@@ -14,6 +14,8 @@ namespace IronVelocity.Compilation.AST
         {
             if (node == null)
                 throw new ArgumentNullException("node");
+
+            Symbols = new SymbolInformation(node);
         }
 
         public abstract override Expression Reduce();
