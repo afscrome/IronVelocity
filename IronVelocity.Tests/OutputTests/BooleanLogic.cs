@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System.Collections.Generic;
 using Tests;
 
 namespace IronVelocity.Tests.OutputTests
@@ -58,20 +59,35 @@ namespace IronVelocity.Tests.OutputTests
         [Test]
         public void OrSecondOperandNotEvaluatedIfFirstIsTrue()
         {
-            var input = "#set($x = '')#if(true || $x.IndexOf($y))pass#else\r\nfail#end";
+            var input = "#if(true || $x.Fail())pass#else\r\nfail#end";
             var expected = "pass";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            var context = new Dictionary<string, object>{
+                { "x", new ShortCircuitHelper()}
+            };
+            Utility.TestExpectedMarkupGenerated(input, expected, context);
         }
 
         [Test]
         public void AndSecondOperandNotEvaluatedIfFirstIsFalse()
         {
-            var input = "#set($x = '')#if(false && $x.IndexOf($y))fail#else\r\npass#end";
+            var input = "#if(false && $x.Fail())fail#else\r\npass#end";
             var expected = "pass";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            var context = new Dictionary<string, object>{
+                { "x", new ShortCircuitHelper()}
+            };
+
+            Utility.TestExpectedMarkupGenerated(input, expected, context);
         }
-      
+
+        private class ShortCircuitHelper
+        {
+            public void Fail()
+            {
+                Assert.Fail("Second operand was executed when it shouldn't have been");
+            }
+        }
+
     }
 }
