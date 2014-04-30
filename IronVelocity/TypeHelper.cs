@@ -5,19 +5,33 @@ namespace IronVelocity
 {
     public static class TypeHelper
     {
-
         public static bool IsNumeric(Type type)
+        {
+            return IsInteger(type) || IsNonIntegerNumeric(type);
+        }
+
+        public static bool IsNonIntegerNumeric(Type type)
+        {
+            switch (Type.GetTypeCode(type))
+            {
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public static bool IsInteger(Type type)
         {
             switch (Type.GetTypeCode(type))
             {
                 case TypeCode.Byte:
-                case TypeCode.Decimal:
-                case TypeCode.Double:
                 case TypeCode.Int16:
                 case TypeCode.Int32:
                 case TypeCode.Int64:
                 case TypeCode.SByte:
-                case TypeCode.Single:
                 case TypeCode.UInt16:
                 case TypeCode.UInt32:
                 case TypeCode.UInt64:

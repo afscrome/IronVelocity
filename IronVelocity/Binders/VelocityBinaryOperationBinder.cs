@@ -190,7 +190,7 @@ namespace IronVelocity.Binders
             if (result != null)
                 return result;
 
-            Expression left, right, mainExpression;
+            Expression left, right, mainExpression = null;
             MakeArgumentsCompatible(target, arg, out left, out right);
 
             if (TypeHelper.IsNumeric(left.Type) && TypeHelper.IsNumeric(right.Type))
@@ -220,14 +220,9 @@ namespace IronVelocity.Binders
                 }
                 catch (InvalidOperationException)
                 {
-                    mainExpression = null;
                 }
 
-                if (mainExpression == null)
-                {
-                    mainExpression = Expression.Default(this.ReturnType);
-                }
-                else
+                if (mainExpression != null)
                 {
                     if (Operation == ExpressionType.Divide || Operation == ExpressionType.Modulo)
                     {
@@ -246,7 +241,8 @@ namespace IronVelocity.Binders
                     }
                 }
             }
-            else
+
+            if (mainExpression == null)
             {
                 mainExpression = Expression.Default(ReturnType);
             }
@@ -258,15 +254,22 @@ namespace IronVelocity.Binders
                 );
         }
 
+        private static Expression ConvertToBigIntegerIfPossible(Expression expression)
+        {
+            ConstructorInfo constructor;
+            if (_bigIntConstructors.TryGetValue(expression.Type, out constructor))
+                return Expression.New(constructor, expression);
+            else
+                return expression;
+        }
+
         private Expression AddOverflowHandler(Expression main, Expression left, Expression right)
         {
-            //If we can't convert either of the inputs to BigIntegers, we can't do any overflow handling
-            ConstructorInfo leftConstructor, rightConstructor;
-            if (!_bigIntConstructors.TryGetValue(left.Type, out leftConstructor) || !_bigIntConstructors.TryGetValue(right.Type, out rightConstructor))
-                return main;
+            left = ConvertToBigIntegerIfPossible(left);
+            right = ConvertToBigIntegerIfPossible(right);
 
-            left = Expression.New(leftConstructor, left);
-            right = Expression.New(rightConstructor, right);
+            if (left.Type != right.Type && left.Type != typeof(BigInteger))
+                return main;
 
             Expression oveflowHandler;
             switch (Operation)
@@ -333,6 +336,16 @@ namespace IronVelocity.Binders
                 rightExpression = Expression.Call(rightExpression, MethodHelpers.ToStringMethodInfo);
             else if (rightType == typeof(string) && (leftType == typeof(char) || leftType.IsEnum))
                 leftExpression = Expression.Call(leftExpression, MethodHelpers.ToStringMethodInfo);
+            else if (leftType != rightType && TypeHelper.IsInteger(leftType) && TypeHelper.IsInteger(rightType))
+            {
+                var leftBigInt = ConvertToBigIntegerIfPossible(leftExpression);
+                var rightBigInt = ConvertToBigIntegerIfPossible(rightExpression);
+                if (leftBigInt.Type == rightBigInt.Type)
+                {
+                    leftExpression = leftBigInt;
+                    rightExpression = rightBigInt;
+                }
+            }
         }
 
 
