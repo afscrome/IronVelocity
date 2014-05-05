@@ -89,8 +89,6 @@ namespace IronVelocity.Compilation.AST
                 throw new NotSupportedException("TODO: #include support");
             if (directiveNode.DirectiveName == "parse")
                 throw new NotSupportedException("TODO: #parse support");
-            if (directiveNode.DirectiveName == "literal")
-                throw new NotSupportedException("TODO: #literal support");
 
             DirectiveExpressionBuilder builder;
             foreach (var customDirective in CustomDirectives)

@@ -18,6 +18,7 @@ namespace IronVelocity
         private static readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
         {
             {typeof(Foreach), new ForEachDirectiveExpressionBuilder()},
+            {typeof(Literal), new LiteralDirectiveExpressionBuilder()},
         };
 
         public VelocityRuntime(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers)

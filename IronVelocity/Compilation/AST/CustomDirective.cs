@@ -16,7 +16,10 @@ namespace IronVelocity.Compilation.AST
         {
         }
 
-        public abstract Expression ProcessChildDirective(string name, INode node);
+        public virtual Expression ProcessChildDirective(string name, INode node)
+        {
+            return null;
+        }
 
         public override Expression Reduce()
         {
