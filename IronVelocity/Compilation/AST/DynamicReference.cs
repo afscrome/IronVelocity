@@ -6,7 +6,7 @@ namespace IronVelocity.Compilation.AST
 {
     public class DynamicReference : VelocityExpression
     {
-        public ASTReferenceMetadata MetaData { get; private set; }
+        public ASTReferenceMetadata Metadata { get; private set; }
         private readonly INode _node;
         public Expression Value { get; private set; }
 
@@ -20,14 +20,14 @@ namespace IronVelocity.Compilation.AST
             if (refNode == null)
                 throw new ArgumentOutOfRangeException("node");
 
-            MetaData = new ASTReferenceMetadata(refNode);
+            Metadata = new ASTReferenceMetadata(refNode);
             _node = node;
 
-            if (MetaData.RefType == ASTReferenceMetadata.ReferenceType.Runt)
-                Value = Expression.Constant(MetaData.RootString);
+            if (Metadata.RefType == ASTReferenceMetadata.ReferenceType.Runt)
+                Value = Expression.Constant(Metadata.RootString);
             else
             {
-                Value = new VariableReference(MetaData.RootString);
+                Value = new VariableReference(Metadata.RootString);
 
                 for (int i = 0; i < _node.ChildrenCount; i++)
                 {
@@ -59,18 +59,18 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            if (Reference.MetaData.Escaped)
+            if (Reference.Metadata.Escaped)
             {
                 return Expression.Condition(
                     Expression.NotEqual(Reference, Expression.Constant(null, Reference.Type)),
-                    Expression.Constant(Reference.MetaData.EscapePrefix + Reference.MetaData.NullString),
-                    Expression.Constant(Reference.MetaData.EscapePrefix + "\\" + Reference.MetaData.NullString)
+                    Expression.Constant(Reference.Metadata.EscapePrefix + Reference.Metadata.NullString),
+                    Expression.Constant(Reference.Metadata.EscapePrefix + "\\" + Reference.Metadata.NullString)
                 );
             }
             else
             {
-                var prefix = Reference.MetaData.EscapePrefix + Reference.MetaData.MoreString;
-                var NullValue = Expression.Constant(Reference.MetaData.EscapePrefix + prefix + Reference.MetaData.NullString);
+                var prefix = Reference.Metadata.EscapePrefix + Reference.Metadata.MoreString;
+                var NullValue = Expression.Constant(Reference.Metadata.EscapePrefix + prefix + Reference.Metadata.NullString);
 
                 //If the literal has not been escaped (has an empty prefix), then we can return a simple Coalesce expression
                 if (String.IsNullOrEmpty(prefix))

@@ -16,6 +16,9 @@ namespace IronVelocity.Compilation.Directives
         public LiteralDirective(ASTDirective node, VelocityExpressionBuilder builder)
             : base(node, builder)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             if (node.ChildrenCount != 1)
                 throw new ArgumentOutOfRangeException("node");
 

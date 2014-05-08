@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace IronVelocity.Compilation.Directives
 {
-    public class ForEachDirectiveExpressionBuilder : DirectiveExpressionBuilder
+    public class ForeachDirectiveExpressionBuilder : DirectiveExpressionBuilder
     {
         public override Expression Build(ASTDirective node, VelocityExpressionBuilder builder)
         {
@@ -17,35 +17,35 @@ namespace IronVelocity.Compilation.Directives
 
     }
 
-    public class ForEachSectionExpressionBuilder : DirectiveExpressionBuilder
+    public class ForeachSectionExpressionBuilder : DirectiveExpressionBuilder
     {
-        private readonly ForEachSection _part;
-        public ForEachSectionExpressionBuilder(ForEachSection part)
+        private readonly ForeachSection _part;
+        public ForeachSectionExpressionBuilder(ForeachSection part)
         {
             _part = part;
         }
 
         public override Expression Build(ASTDirective node, VelocityExpressionBuilder builder)
         {
-            return new ForEachPartSeparatorExpression(_part);
+            return new ForeachPartSeparatorExpression(_part);
         }
 
     }
 
-    public class ForEachPartSeparatorExpression : Expression
+    public class ForeachPartSeparatorExpression : Expression
     {
-        public ForEachPartSeparatorExpression(ForEachSection part)
+        public ForeachPartSeparatorExpression(ForeachSection part)
         {
             Part = part;
         }
-        public ForEachSection Part { get; private set; }
+        public ForeachSection Part { get; private set; }
 
         public override Type Type { get { return typeof(void); } }
         public override ExpressionType NodeType { get { return ExpressionType.Extension; } }
         public override bool CanReduce { get { return false; } }
     }
 
-    public enum ForEachSection : int
+    public enum ForeachSection : int
     {
         Each = 0,
         BeforeAll = 1,

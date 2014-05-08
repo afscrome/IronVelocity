@@ -52,30 +52,30 @@ namespace IronVelocity.Compilation.Directives
             //For the first item, output the #BeforeAll template, for all others #Between
             var bodyPrefix = Expression.IfThenElse(
                     Expression.Equal(Expression.Convert(index, typeof(int)), Expression.Constant(1)),
-                    GetExpressionBlock(parts[(int)ForEachSection.BeforeAll]),
-                    GetExpressionBlock(parts[(int)ForEachSection.Between])
+                    GetExpressionBlock(parts[(int)ForeachSection.BeforeAll]),
+                    GetExpressionBlock(parts[(int)ForeachSection.Between])
                 );
 
             var oddEven = Expression.IfThenElse(
                 Expression.Equal(Expression.Constant(0), Expression.Modulo(VelocityExpressions.ConvertIfNeeded(index, typeof(int)), Expression.Constant(2))),
-                GetExpressionBlock(parts[(int)ForEachSection.Even]),
-                GetExpressionBlock(parts[(int)ForEachSection.Odd])
+                GetExpressionBlock(parts[(int)ForeachSection.Even]),
+                GetExpressionBlock(parts[(int)ForeachSection.Odd])
                 );
 
-            var noData = GetExpressionBlock(parts[(int)ForEachSection.NoData]);
+            var noData = GetExpressionBlock(parts[(int)ForeachSection.NoData]);
             var loopSuffix = Expression.IfThenElse(
                     Expression.Equal(Expression.Constant(0), VelocityExpressions.ConvertIfNeeded(index, typeof(int))),
                     noData,
-                    GetExpressionBlock(parts[(int)ForEachSection.AfterAll])
+                    GetExpressionBlock(parts[(int)ForeachSection.AfterAll])
                 );
 
 
             var bodyExpressions = new List<Expression>();
             bodyExpressions.Add(bodyPrefix);
-            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForEachSection.Before]));
+            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForeachSection.Before]));
             bodyExpressions.Add(oddEven);
-            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForEachSection.Each]));
-            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForEachSection.After]));
+            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForeachSection.Each]));
+            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForeachSection.After]));
 
             var body = Expression.Block(bodyExpressions);
             return ForeachExpression(enumerable, body, loopVariable, index, loopSuffix, noData);
@@ -165,14 +165,14 @@ namespace IronVelocity.Compilation.Directives
         private ICollection<Expression>[] GetParts()
         {
             var parts = new List<Expression>[9];
-            var currentSection = ForEachSection.Each;
+            var currentSection = ForeachSection.Each;
             
             foreach (var expression in _builder.GetBlockExpressions(Node.GetChild(3)))
             {
                 var seperator = expression as Directive;
                 if (seperator != null)
                 {
-                    ForEachSection section;
+                    ForeachSection section;
                     if (Enum.TryParse(seperator.Name, true, out section))
                     {
                         currentSection = section;

@@ -33,11 +33,17 @@ namespace IronVelocity.Compilation
 
         public static Expression ConvertIfNeeded(DynamicMetaObject obj)
         {
+            if (obj == null)
+                throw new ArgumentNullException("obj");
+
             return ConvertIfNeeded(obj.Expression, obj.RuntimeType ?? typeof(object));
         }
 
         public static Expression ConvertIfNeeded(DynamicMetaObject obj, Type to)
         {
+            if (obj == null)
+                throw new ArgumentNullException("obj");
+
             return ConvertIfNeeded(obj.Expression, obj.RuntimeType, to);
         }
 

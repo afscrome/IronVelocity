@@ -7,12 +7,10 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text;
 
 namespace IronVelocity.Compilation.AST
 {
-    /// <summary>
-    /// TODO: I don't like this class - refactor.
-    /// </summary>
     public class VelocityExpressionBuilder
     {
         private static readonly Expression TrueExpression = Expression.Constant(true);
@@ -22,10 +20,15 @@ namespace IronVelocity.Compilation.AST
         public ParameterExpression OutputParameter { get; set; }
         public Stack<CustomDirective> CustomDirectives { get; private set; }
 
-        public VelocityExpressionBuilder(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers)
+        public IDictionary<Type, DirectiveExpressionBuilder> DirectiveHandlers
+        {
+            get { return new Dictionary<Type, DirectiveExpressionBuilder>(_directiveHandlers); }
+        }
+
+        public VelocityExpressionBuilder(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers, string parameterName = "_output")
         {
             _directiveHandlers = directiveHandlers ?? new Dictionary<Type, DirectiveExpressionBuilder>();
-            OutputParameter = Constants.OutputParameter;
+            OutputParameter = Expression.Parameter(typeof(StringBuilder), parameterName);
             CustomDirectives = new Stack<CustomDirective>();
         }
 
@@ -71,7 +74,6 @@ namespace IronVelocity.Compilation.AST
                     default:
                         throw new NotSupportedException("Node type not supported in a block: " + child.GetType().Name);
                 }
-
 
                 expressions.Add(expr);
             }

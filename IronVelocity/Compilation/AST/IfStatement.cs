@@ -41,13 +41,13 @@ namespace IronVelocity.Compilation.AST
                     var innerCondition = VelocityExpressionBuilder.Expr(child.GetChild(0));
                     var innerContent = new RenderedBlock(child.GetChild(1), builder);
 
-                    falseContent = If(child, innerCondition, innerContent, falseContent);
+                    falseContent = If(innerCondition, innerContent, falseContent);
                 }
                 else
 
                     throw new InvalidOperationException("Expected: ASTElseStatement, Actual: " + child.GetType().Name);
             }
-            Value = If(node, condition, trueContent, falseContent);
+            Value = If(condition, trueContent, falseContent);
         }
 
 
@@ -55,7 +55,7 @@ namespace IronVelocity.Compilation.AST
         /// Helper to build an If or an IfElse statement based on whether we have the falseContent block is not null
         /// </summary>
         /// <returns></returns>
-        private static Expression If(INode node, Expression condition, Expression trueContent, Expression falseContent)
+        private static Expression If(Expression condition, Expression trueContent, Expression falseContent)
         {
             if (condition.Type != typeof(bool))
                 condition = VelocityExpressions.CoerceToBoolean(condition);

@@ -17,7 +17,7 @@ namespace IronVelocity
         internal readonly RuntimeInstance _runtimeService;
         private static readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
         {
-            {typeof(Foreach), new ForEachDirectiveExpressionBuilder()},
+            {typeof(Foreach), new ForeachDirectiveExpressionBuilder()},
             {typeof(Literal), new LiteralDirectiveExpressionBuilder()},
         };
 
@@ -45,7 +45,13 @@ namespace IronVelocity
             _runtimeService.Init(properties);
         }
 
-        private Expression<VelocityTemplateMethod> GetExpressionTree(string input, string typeName, string fileName)
+        public VelocityTemplateMethod CompileTemplate(string input, string typeName, string fileName, bool debugMode)
+        {
+            var tree = GetExpressionTree(input, typeName);
+            return VelocityCompiler.CompileWithSymbols(tree, typeName, debugMode, fileName);
+        }
+
+        private Expression<VelocityTemplateMethod> GetExpressionTree(string input, string typeName)
         {
             var parser = _runtimeService.CreateNewParser();
             using (var reader = new StringReader(input))
@@ -54,18 +60,11 @@ namespace IronVelocity
                 if (ast == null)
                     throw new InvalidProgramException("Unable to parse ast");
 
-                var expr = new RenderedBlock(ast, new VelocityExpressionBuilder(_directiveHandlers));
+                var builder = new VelocityExpressionBuilder(_directiveHandlers);
+                var expr = new RenderedBlock(ast, builder);
 
-                return Expression.Lambda<VelocityTemplateMethod>(expr, typeName, new[] { Constants.InputParameter, Constants.OutputParameter });
+                return Expression.Lambda<VelocityTemplateMethod>(expr, typeName, new[] { Constants.InputParameter, builder.OutputParameter });
             }
         }
-
-
-        public VelocityTemplateMethod CompileTemplate(string input, string typeName, string fileName, bool debugMode)
-        {
-            var tree = GetExpressionTree(input, typeName, fileName);
-            return VelocityCompiler.CompileWithSymbols(tree, typeName, debugMode, fileName);
-        }
-
     }
 }

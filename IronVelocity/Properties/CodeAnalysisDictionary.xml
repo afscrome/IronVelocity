@@ -5,6 +5,8 @@
       <Word>ast</Word>
       <Word>renderable</Word>
       <Word>ASTElseStatement</Word>
+      <Word>Unrecognised</Word>
+      <Word>Foreach</Word>
     </Recognized>
   </Words>
   <Acronyms>

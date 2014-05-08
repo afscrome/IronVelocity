@@ -15,6 +15,9 @@ namespace IronVelocity.Compilation.AST
             if (node == null)
                 throw new ArgumentNullException("node");
 
+            if (builder == null)
+                throw new ArgumentNullException("builder");
+
             //ASTprocess is a special case for the root, otherwise it behaves exactly like ASTBlock
             if (!(node is ASTBlock || node is ASTprocess))
                 throw new ArgumentOutOfRangeException("node");
@@ -26,6 +29,12 @@ namespace IronVelocity.Compilation.AST
 
         public RenderedBlock(IEnumerable<Expression> expressions, VelocityExpressionBuilder builder)
         {
+            if (expressions == null)
+                throw new ArgumentNullException("expressions");
+            
+            if (builder == null)
+                throw new ArgumentNullException("builder");
+
             Children = expressions.ToList();
             _output = builder.OutputParameter;
         }
