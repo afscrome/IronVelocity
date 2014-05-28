@@ -44,7 +44,7 @@ namespace IronVelocity.Runtime
 
         public void Add(object key, object value)
         {
-            _values.Add(key, value);
+            _values[key] = value;
         }
 
         public void Clear()
@@ -97,7 +97,7 @@ namespace IronVelocity.Runtime
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
         void ICollection<KeyValuePair<object, object>>.Add(KeyValuePair<object, object> item)
         {
-            ((ICollection<KeyValuePair<object, object>>)_values).Add(item);
+            this.Add(item.Key, item.Value);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
