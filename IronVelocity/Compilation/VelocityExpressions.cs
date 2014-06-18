@@ -77,6 +77,9 @@ namespace IronVelocity.Compilation
             if (expression == null)
                 throw new ArgumentNullException("expression");
 
+            if (expression.Type == typeof(bool))
+                return expression;
+
             expression = ConvertIfNeeded(expression, typeof(object));
 
             return Expression.Convert(expression, typeof(bool), MethodHelpers.BooleanCoercionMethodInfo);
