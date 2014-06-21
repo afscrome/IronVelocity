@@ -61,7 +61,7 @@ namespace IronVelocity.Compilation
             var siteType = _callSiteType.MakeGenericType(delegateType);
 
             var callSiteField = Expression.Field(null,
-                _builder.DefineField("callsite$0", siteType, FieldAttributes.Static | FieldAttributes.Public)
+                _builder.DefineField("callsite$0", siteType, FieldAttributes.Static | FieldAttributes.PrivateScope)
             );
 
             //First argument is the callsite
