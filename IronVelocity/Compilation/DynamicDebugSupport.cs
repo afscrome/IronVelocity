@@ -65,9 +65,9 @@ namespace IronVelocity.Compilation
             );
 
             //First argument is the callsite
-            var arguments = new[] { callSiteField }
-                //Need to recursively visit remaining arguments
-                .Concat(node.Arguments.Select(Visit));
+            var arguments = new Expression[node.Arguments.Count + 1];
+            arguments[0] = callSiteField;
+            node.Arguments.CopyTo(arguments, 1);
 
             var invoke = Expression.Call(
                      Expression.Field(
