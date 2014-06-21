@@ -51,6 +51,12 @@ namespace IronVelocity
             return VelocityCompiler.CompileWithSymbols(tree, typeName, debugMode, fileName);
         }
 
+        public VelocityAsyncTemplateMethod CompileAsyncTemplate(string input, string typeName, string fileName, bool debugMode)
+        {
+            var tree = GetExpressionTree(input, typeName);
+            return VelocityAsyncCompiler.CompileWithSymbols(tree, typeName, debugMode, fileName);
+        }
+
         private Expression<VelocityTemplateMethod> GetExpressionTree(string input, string typeName)
         {
             var parser = _runtimeService.CreateNewParser();

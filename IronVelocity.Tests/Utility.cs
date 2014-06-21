@@ -7,23 +7,20 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Tests
 {
     public static class Utility
     {
-        public static VelocityTemplateMethod BuildGenerator(string input, IDictionary<string, object> environment = null, string fileName = "")
-        {
-            var runtime = new VelocityRuntime(null);
-            return runtime.CompileTemplate(input, "TestExpression", fileName, true);
-        }
 
         public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, string fileName = "")
         {
-            VelocityTemplateMethod action = null;
+            VelocityAsyncTemplateMethod action = null;
             try
             {
-                action = BuildGenerator(input, environment, fileName);
+                var runtime = new VelocityRuntime(null);
+                action = runtime.CompileAsyncTemplate(input, "TestExpression", fileName, true);
             }
             catch (NotSupportedException ex)
             {
@@ -36,7 +33,13 @@ namespace Tests
             if (ctx == null)
                 ctx = new VelocityContext(environment);
 
-            action(ctx, builder);
+            var task = action(ctx, builder);
+            task.Wait();
+
+            if (task.IsFaulted)
+                throw task.Exception;
+            if (task.Status != TaskStatus.RanToCompletion)
+                throw new InvalidOperationException();
 
             return NormaliseLineEndings(builder.ToString());
         }
