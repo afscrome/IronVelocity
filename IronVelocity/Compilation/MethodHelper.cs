@@ -2,8 +2,10 @@
 using IronVelocity.Runtime;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Numerics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace IronVelocity.Compilation
@@ -18,5 +20,10 @@ namespace IronVelocity.Compilation
         public static readonly MethodInfo ReduceBigIntegerMethodInfo = typeof(VelocityBinaryOperationBinder).GetMethod("ReduceBigInteger", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(BigInteger) }, null);
 
         public static readonly MethodInfo BooleanCoercionMethodInfo = typeof(BooleanCoercion).GetMethod("CoerceToBoolean", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object) }, null);
+
+        public static readonly MethodInfo SetAsyncMethodBuilderStateMachine = typeof(AsyncTaskMethodBuilder).GetMethod("SetStateMachine", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(IAsyncStateMachine) }, null);
+
+        public static readonly ConstructorInfo DebuggableAttributeConstructorInfo = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
+        public static readonly ConstructorInfo DebuggerHiddenConstructorInfo = typeof(DebuggerHiddenAttribute).GetConstructor((new Type[] { }));
     }
 }

@@ -1,5 +1,7 @@
 ﻿using IronVelocity.Compilation;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace IronVelocity.Tests
 {
@@ -34,10 +36,29 @@ namespace IronVelocity.Tests
         {
             Assert.NotNull(MethodHelpers.StringConcatMethodInfo);
         }
+
         [Test]
         public void BooleanCoercion()
         {
             Assert.NotNull(MethodHelpers.BooleanCoercionMethodInfo);
+        }
+
+        [Test]
+        public void SetAsyncMethodBuilderStateMachine()
+        {
+            Assert.NotNull(MethodHelpers.SetAsyncMethodBuilderStateMachine);
+        }
+
+        [Test]
+        public void DebuggableAttributeConstructorInfo()
+        {
+            Assert.NotNull(MethodHelpers.DebuggableAttributeConstructorInfo);
+        }
+
+        [Test]
+        public void DebuggerHiddenConstructorInfo()
+        {
+            Assert.NotNull(MethodHelpers.DebuggerHiddenConstructorInfo);
         }
     }
 }

@@ -25,16 +25,17 @@ namespace IronVelocity.Compilation
             return CompileWithSymbols(expressionTree, name, assemblyBuilder, debugMode, fileName);
         }
 
-        
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification="Final cast will fail if the Expression does not conform to VelocityAsyncTemplateMethod's signature")]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "Final cast will fail if the Expression does not conform to VelocityAsyncTemplateMethod's signature")]
         public static VelocityAsyncTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, AssemblyBuilder assemblyBuilder, bool debugMode, string fileName)
         {
 
             var syncMethod = VelocityCompiler.CompileWithSymbols(expressionTree, name, assemblyBuilder, debugMode, fileName);
 
 
-            return (VelocityAsyncTemplateMethod)((VelocityContext context, StringBuilder output) => {
-                var stateMachine = new VelocityAsyncStateMachine(){
+            return (VelocityAsyncTemplateMethod)((VelocityContext context, StringBuilder output) =>
+            {
+                var stateMachine = new VelocityAsyncStateMachine()
+                {
                     Method = syncMethod,
                     Context = context,
                     Output = output
@@ -46,6 +47,57 @@ namespace IronVelocity.Compilation
             });
 
         }
+
+        internal static Type BuildStateMachine(TypeBuilder typeBuilder)
+        {
+
+            var asyncTaskMethodBuilder = typeBuilder.DefineField("AsyncTaskMethodBuilder", typeof(AsyncTaskMethodBuilder), FieldAttributes.Public);
+
+            BuildSetStateMachineMethod(typeBuilder, asyncTaskMethodBuilder);
+            BuildMoveNextMethod(typeBuilder);
+
+            typeBuilder.AddInterfaceImplementation(typeof(IAsyncStateMachine));
+
+            var compiledType = typeBuilder.CreateType();
+
+            return compiledType;   
+        }
+
+        internal static void BuildSetStateMachineMethod(TypeBuilder typeBuilder, FieldInfo stateMachineField)
+        {
+            var setStateMachineMethodBuilder = typeBuilder.DefineMethod("SetStateMachine",
+                MethodAttributes.Public | MethodAttributes.Virtual,
+                CallingConventions.HasThis,
+                typeof(void),
+                new[] { typeof(IAsyncStateMachine) }
+            );
+
+            var debuggerHiddenAttributeBuilder = new CustomAttributeBuilder(MethodHelpers.DebuggerHiddenConstructorInfo, new object[0]);
+            setStateMachineMethodBuilder.SetCustomAttribute(debuggerHiddenAttributeBuilder);
+
+            var ilGen = setStateMachineMethodBuilder.GetILGenerator();
+            //Emit: AsyncMethodBuilder.SetStateMachine(stateMachine);
+            ilGen.Emit(OpCodes.Ldarg_0);
+            ilGen.Emit(OpCodes.Ldflda, stateMachineField);
+            ilGen.Emit(OpCodes.Ldarg_1);
+            ilGen.EmitCall(OpCodes.Call, MethodHelpers.SetAsyncMethodBuilderStateMachine, null);
+            ilGen.Emit(OpCodes.Ret);            
+        }
+
+        internal static void BuildMoveNextMethod(TypeBuilder typeBuilder)
+        {
+            var moveNextMethodBuilder = typeBuilder.DefineMethod("MoveNext",
+                MethodAttributes.Public | MethodAttributes.Virtual,
+                CallingConventions.HasThis,
+                typeof(void),
+                Type.EmptyTypes
+            );
+
+            var ilGen = moveNextMethodBuilder.GetILGenerator();
+            ilGen.Emit(OpCodes.Ret);
+        }
+
+
 
 
         [CompilerGenerated]
