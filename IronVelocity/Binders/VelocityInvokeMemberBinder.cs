@@ -6,11 +6,14 @@ using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace IronVelocity.Binders
 {
     public class VelocityInvokeMemberBinder : InvokeMemberBinder
     {
+        private readonly bool _supportAsync = true;
+
         public VelocityInvokeMemberBinder(String name, CallInfo callInfo)
             : base(name, true, callInfo)
         {
@@ -38,7 +41,7 @@ namespace IronVelocity.Binders
                 return Defer(target);
 
             // If the target has a null value, then we won't be able to get any fields or properties, so escape early
-            // Failure to escape early like this do this results in an infinite loop
+            // Failure to escape early like this results in an infinite loop
             if (target.Value == null)
             {
                 return new DynamicMetaObject(
@@ -103,7 +106,13 @@ namespace IronVelocity.Binders
                             );
                     }
                 }
-
+                if (_supportAsync)
+                {
+                    if (method.ReturnType == typeof(Task))
+                    {
+                        throw new NotImplementedException("TODO: Support Async Task");
+                    }
+                }
 
                 result = Expression.Call(
                     VelocityExpressions.ConvertReturnTypeIfNeeded(target, method),

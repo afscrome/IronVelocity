@@ -10,10 +10,13 @@ using System.Threading.Tasks;
 namespace IronVelocity.Compilation
 {
     public delegate Task VelocityAsyncTemplateMethod(VelocityContext context, StringBuilder builder);
+
+
     public static class VelocityAsyncCompiler
     {
         private const string _methodName = "Execute";
-        private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(StringBuilder) };
+        private static readonly Type[] _signature = new[] {typeof(AsyncTaskMethodBuilder), typeof(int).MakeByRefType(), typeof(VelocityContext), typeof(StringBuilder) };
+        private delegate void VelocityAsyncTemplateMethodInternal(AsyncTaskMethodBuilder asyncTaskMethodBuilder, out int state, VelocityContext context, StringBuilder builder);
 
 
         public static VelocityAsyncTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, bool debugMode, string fileName)
@@ -28,15 +31,13 @@ namespace IronVelocity.Compilation
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "Final cast will fail if the Expression does not conform to VelocityAsyncTemplateMethod's signature")]
         public static VelocityAsyncTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, AssemblyBuilder assemblyBuilder, bool debugMode, string fileName)
         {
-
-            var syncMethod = VelocityCompiler.CompileWithSymbols(expressionTree, name, assemblyBuilder, debugMode, fileName);
-
+            var syncMethod = CompileStateMachineMoveNext(expressionTree, name, assemblyBuilder, debugMode, fileName);
 
             return (VelocityAsyncTemplateMethod)((VelocityContext context, StringBuilder output) =>
             {
                 var stateMachine = new VelocityAsyncStateMachine()
                 {
-                    Method = syncMethod,
+                    TemplateMethod = syncMethod,
                     Context = context,
                     Output = output
                 };
@@ -48,71 +49,59 @@ namespace IronVelocity.Compilation
 
         }
 
-        internal static Type BuildStateMachine(TypeBuilder typeBuilder)
+        private static VelocityAsyncTemplateMethodInternal CompileStateMachineMoveNext(Expression<VelocityTemplateMethod> expressionTree, string name, AssemblyBuilder assemblyBuilder, bool debugMode, string fileName)
         {
+            if (assemblyBuilder == null)
+                throw new ArgumentNullException("assemblyBuilder");
 
-            var asyncTaskMethodBuilder = typeBuilder.DefineField("AsyncTaskMethodBuilder", typeof(AsyncTaskMethodBuilder), FieldAttributes.Public);
+            var args = new ParameterExpression[] {Constants.AsyncTaskMethodBuilderParameter, Constants.AsyncStateParameter, expressionTree.Parameters[0], expressionTree.Parameters[1] };
+            var moduleBuilder = assemblyBuilder.DefineDynamicModule(name, true);
 
-            BuildSetStateMachineMethod(typeBuilder, asyncTaskMethodBuilder);
-            BuildMoveNextMethod(typeBuilder);
+            if (debugMode)
+            {
+                VelocityCompiler.AddDebugAttributes(assemblyBuilder, moduleBuilder);
+            }
 
-            typeBuilder.AddInterfaceImplementation(typeof(IAsyncStateMachine));
+            var typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public);
+
+            var meth = typeBuilder.DefineMethod(
+                    _methodName + "Async",
+                    MethodAttributes.Public | MethodAttributes.Static,
+                    typeof(void),
+                    _signature);
+
+
+            var reducer = new DynamicToExplicitCallSiteConvertor(typeBuilder, fileName);
+
+            expressionTree = (Expression<VelocityTemplateMethod>)reducer.Visit(expressionTree);
+            var asyncExpressionTree = Expression.Lambda<VelocityAsyncTemplateMethodInternal>(expressionTree.Body, args);
+
+            var debugInfo = DebugInfoGenerator.CreatePdbGenerator();
+            asyncExpressionTree.CompileToMethod(meth, debugInfo);
 
             var compiledType = typeBuilder.CreateType();
+            var compiledMethod = compiledType.GetMethod(meth.Name, _signature);
+            return (VelocityAsyncTemplateMethodInternal)Delegate.CreateDelegate(typeof(VelocityAsyncTemplateMethodInternal), compiledMethod);
 
-            return compiledType;   
+
         }
-
-        internal static void BuildSetStateMachineMethod(TypeBuilder typeBuilder, FieldInfo stateMachineField)
-        {
-            var setStateMachineMethodBuilder = typeBuilder.DefineMethod("SetStateMachine",
-                MethodAttributes.Public | MethodAttributes.Virtual,
-                CallingConventions.HasThis,
-                typeof(void),
-                new[] { typeof(IAsyncStateMachine) }
-            );
-
-            var debuggerHiddenAttributeBuilder = new CustomAttributeBuilder(MethodHelpers.DebuggerHiddenConstructorInfo, new object[0]);
-            setStateMachineMethodBuilder.SetCustomAttribute(debuggerHiddenAttributeBuilder);
-
-            var ilGen = setStateMachineMethodBuilder.GetILGenerator();
-            //Emit: AsyncMethodBuilder.SetStateMachine(stateMachine);
-            ilGen.Emit(OpCodes.Ldarg_0);
-            ilGen.Emit(OpCodes.Ldflda, stateMachineField);
-            ilGen.Emit(OpCodes.Ldarg_1);
-            ilGen.EmitCall(OpCodes.Call, MethodHelpers.SetAsyncMethodBuilderStateMachine, null);
-            ilGen.Emit(OpCodes.Ret);            
-        }
-
-        internal static void BuildMoveNextMethod(TypeBuilder typeBuilder)
-        {
-            var moveNextMethodBuilder = typeBuilder.DefineMethod("MoveNext",
-                MethodAttributes.Public | MethodAttributes.Virtual,
-                CallingConventions.HasThis,
-                typeof(void),
-                Type.EmptyTypes
-            );
-
-            var ilGen = moveNextMethodBuilder.GetILGenerator();
-            ilGen.Emit(OpCodes.Ret);
-        }
-
-
 
 
         [CompilerGenerated]
         private struct VelocityAsyncStateMachine : IAsyncStateMachine
         {
-            public VelocityTemplateMethod Method;
+            public VelocityAsyncTemplateMethodInternal TemplateMethod;
             public VelocityContext Context;
             public StringBuilder Output;
+            public int State;
             public AsyncTaskMethodBuilder AsyncMethodBuilder;
+
 
             public void MoveNext()
             {
                 try
                 {
-                    Method(Context, Output);
+                    TemplateMethod(AsyncMethodBuilder, out State, Context, Output);
                 }
                 catch (Exception ex)
                 {

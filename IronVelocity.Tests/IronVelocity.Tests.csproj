@@ -51,7 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Async\AsyncTests.cs" />
+    <Compile Include="OutputTests\AsyncTests.cs" />
     <Compile Include="Binders\MathematicalBinaryOperationBinderTests\AdditionTests.cs">
       <SubType>Code</SubType>
     </Compile>

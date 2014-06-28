@@ -34,14 +34,7 @@ namespace IronVelocity.Compilation
 
             if (debugMode)
             {
-                var debugAttributes =
-                    DebuggableAttribute.DebuggingModes.Default |
-                    DebuggableAttribute.DebuggingModes.DisableOptimizations;
-
-                var constructor = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
-                var cab = new CustomAttributeBuilder(constructor, new object[] { debugAttributes });
-                assemblyBuilder.SetCustomAttribute(cab);
-                moduleBuilder.SetCustomAttribute(cab);
+                AddDebugAttributes(assemblyBuilder, moduleBuilder);
             }
 
             var typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public);
@@ -64,6 +57,19 @@ namespace IronVelocity.Compilation
             var compiledMethod = compiledType.GetMethod(_methodName, _signature);
             return (VelocityTemplateMethod)Delegate.CreateDelegate(typeof(VelocityTemplateMethod), compiledMethod);
         }
+
+        public static void AddDebugAttributes(AssemblyBuilder assemblyBuilder, ModuleBuilder moduleBuilder)
+        {
+            var debugAttributes =
+                DebuggableAttribute.DebuggingModes.Default |
+                DebuggableAttribute.DebuggingModes.DisableOptimizations;
+
+            var constructor = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
+            var cab = new CustomAttributeBuilder(constructor, new object[] { debugAttributes });
+            assemblyBuilder.SetCustomAttribute(cab);
+            moduleBuilder.SetCustomAttribute(cab);
+        }
+
 
     }
 }
