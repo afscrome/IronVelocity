@@ -75,6 +75,7 @@
     <Compile Include="OutputTests\Directive.cs" />
     <Compile Include="OutputTests\Foreach.cs" />
     <Compile Include="OutputTests\BooleanLogic.cs" />
+    <Compile Include="OutputTests\Globals.cs" />
     <Compile Include="OutputTests\Strings.cs" />
     <Compile Include="Regression\ForeachBreakTest.cs" />
     <Compile Include="Regression\ForeachTest.cs" />

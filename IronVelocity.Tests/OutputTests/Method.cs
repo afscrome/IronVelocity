@@ -17,13 +17,25 @@ namespace IronVelocity.Tests.OutputTests
         }
 
         [Test]
-        public void MethodWithSingleArgument()
+        public void MethodWithConstantArgument()
         {
             var input = "$test.test(23)";
             var expected = "23";
             var env = new Dictionary<string, object>();
             env["test"] = new Test();
 
+
+            Utility.TestExpectedMarkupGenerated(input, expected, env);
+        }
+
+        [Test]
+        public void MethodWithVariableArgument()
+        {
+            var input = "$test.test($x)";
+            var expected = "54";
+            var env = new Dictionary<string, object>();
+            env["test"] = new Test();
+            env["x"] = 54;
 
             Utility.TestExpectedMarkupGenerated(input, expected, env);
         }

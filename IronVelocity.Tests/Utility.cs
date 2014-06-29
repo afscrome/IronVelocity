@@ -14,13 +14,14 @@ namespace Tests
     public static class Utility
     {
 
-        public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, string fileName = "")
+        public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, string fileName = "", IDictionary<string, object> globals = null)
         {
-            VelocityAsyncTemplateMethod action = null;
+            //VelocityAsyncTemplateMethod action = null;
+            VelocityTemplateMethod action = null;
             try
             {
-                var runtime = new VelocityRuntime(null);
-                action = runtime.CompileAsyncTemplate(input, "TestExpression", fileName, true);
+                var runtime = new VelocityRuntime(null, globals);
+                action = runtime.CompileTemplate(input, "TestExpression", fileName, true);
             }
             catch (NotSupportedException ex)
             {
@@ -33,21 +34,24 @@ namespace Tests
             if (ctx == null)
                 ctx = new VelocityContext(environment);
 
-            var task = action(ctx, builder);
+            /*var task = action(ctx, builder);
             task.Wait();
 
             if (task.IsFaulted)
                 throw task.Exception;
             if (task.Status != TaskStatus.RanToCompletion)
                 throw new InvalidOperationException();
+            */
+            action(ctx, builder);
 
             return NormaliseLineEndings(builder.ToString());
         }
 
-        public static void TestExpectedMarkupGenerated(string input, string expectedOutput, IDictionary<string, object> environment = null, string fileName = "")
+        public static void TestExpectedMarkupGenerated(string input, string expectedOutput, IDictionary<string, object> environment = null, string fileName = "", bool isGlobalEnvironment = false)
         {
             expectedOutput = NormaliseLineEndings(expectedOutput);
-            var generatedOutput = GetNormalisedOutput(input, environment, fileName);
+            var globals = isGlobalEnvironment ? environment : null;
+            var generatedOutput = GetNormalisedOutput(input, environment, fileName, globals);
 
             Assert.AreEqual(expectedOutput, generatedOutput);
         }

@@ -125,7 +125,7 @@ namespace IronVelocity.Tests.Async
                                 return;
                         }
 
-                    Label_GetResult: // target of state=1
+                    Label_GetResult: 
                         result = _awaiter.GetResult();
                     }
                     catch (Exception e)

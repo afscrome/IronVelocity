@@ -23,7 +23,7 @@ namespace IronVelocity.Compilation.AST
                 throw new ArgumentOutOfRangeException("node");
 
             Children = builder.GetBlockExpressions(node);
-            
+
             _output = builder.OutputParameter;
         }
 
@@ -31,7 +31,7 @@ namespace IronVelocity.Compilation.AST
         {
             if (expressions == null)
                 throw new ArgumentNullException("expressions");
-            
+
             if (builder == null)
                 throw new ArgumentNullException("builder");
 
@@ -41,7 +41,7 @@ namespace IronVelocity.Compilation.AST
 
 
         public IReadOnlyCollection<Expression> Children { get; private set; }
-    
+
         public override Expression Reduce()
         {
             if (!Children.Any())
@@ -57,12 +57,7 @@ namespace IronVelocity.Compilation.AST
         {
             if (expression.Type == typeof(void))
             {
-                var directive = expression as Directive;
-                if (directive != null && directive.Node.Directive == null)
-                    expression = Expression.Constant(directive.Node.Literal);
-                else
-                    return expression;
-
+                return expression;
             }
 
             var reference = expression as DynamicReference;
@@ -73,14 +68,7 @@ namespace IronVelocity.Compilation.AST
             if (expression.Type != typeof(string))
                 expression = Expression.Call(expression, MethodHelpers.ToStringMethodInfo);
 
-            try
-            {
-                return Expression.Call(_output, MethodHelpers.AppendMethodInfo, expression);
-            }
-            catch
-            {
-                throw;
-            }
+            return Expression.Call(_output, MethodHelpers.AppendMethodInfo, expression);
         }
 
 

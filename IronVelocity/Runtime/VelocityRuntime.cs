@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace IronVelocity
@@ -15,13 +16,16 @@ namespace IronVelocity
     public class VelocityRuntime
     {
         internal readonly RuntimeInstance _runtimeService;
+        private readonly VelocityCompiler _compiler;
+        private readonly IReadOnlyDictionary<string, object> _globals;
+
         private static readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
         {
             {typeof(Foreach), new ForeachDirectiveExpressionBuilder()},
             {typeof(Literal), new LiteralDirectiveExpressionBuilder()},
         };
 
-        public VelocityRuntime(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers)
+        public VelocityRuntime(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers, IDictionary<string, object> globals)
         {
             _runtimeService = new RuntimeInstance();
 
@@ -43,12 +47,19 @@ namespace IronVelocity
                 properties.AddProperty("userdirective", userDirectives);
             }
             _runtimeService.Init(properties);
+
+            if (globals == null)
+                globals = new Dictionary<string, object>();
+
+            _globals = new Dictionary<string, object>(globals, StringComparer.OrdinalIgnoreCase);
+            _compiler = new VelocityCompiler(_globals.ToDictionary(x => x.Key, x=> x.Value.GetType()));
+            
         }
 
         public VelocityTemplateMethod CompileTemplate(string input, string typeName, string fileName, bool debugMode)
         {
             var tree = GetExpressionTree(input, typeName);
-            return VelocityCompiler.CompileWithSymbols(tree, typeName, debugMode, fileName);
+            return _compiler.CompileWithSymbols(tree, typeName, debugMode, fileName);
         }
 
         public VelocityAsyncTemplateMethod CompileAsyncTemplate(string input, string typeName, string fileName, bool debugMode)
@@ -57,7 +68,7 @@ namespace IronVelocity
             return VelocityAsyncCompiler.CompileWithSymbols(tree, typeName, debugMode, fileName);
         }
 
-        private Expression<VelocityTemplateMethod> GetExpressionTree(string input, string typeName)
+        internal Expression<VelocityTemplateMethod> GetExpressionTree(string input, string typeName)
         {
             var parser = _runtimeService.CreateNewParser();
             using (var reader = new StringReader(input))

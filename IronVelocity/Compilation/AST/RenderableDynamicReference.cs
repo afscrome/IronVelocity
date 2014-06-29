@@ -7,39 +7,63 @@ using System.Threading.Tasks;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class RenderableDynamicReference : VelocityExpression
+    public class RenderableDynamicReference : RenderableExpression
     {
-        public DynamicReference Reference { get; private set; }
+        public DynamicReference Reference { get { return (DynamicReference)Expression; } }
 
         public RenderableDynamicReference(DynamicReference reference)
+            : base(reference, reference.Metadata)
         {
-            Reference = reference;
+
+        }
+    }
+
+    public class RenderableExpression : VelocityExpression
+    {
+        public Expression Expression { get; private set; }
+        public ASTReferenceMetadata Metadata {get; private set;}
+
+        public RenderableExpression(Expression expression, ASTReferenceMetadata metadata)
+        {
+            Expression = expression;
+            Metadata = metadata;
         }
 
         public override Expression Reduce()
         {
-            if (Reference.Metadata.Escaped)
+            if (Metadata.Escaped)
             {
                 return Expression.Condition(
-                    Expression.NotEqual(Reference, Expression.Constant(null, Reference.Type)),
-                    Expression.Constant(Reference.Metadata.EscapePrefix + Reference.Metadata.NullString),
-                    Expression.Constant(Reference.Metadata.EscapePrefix + "\\" + Reference.Metadata.NullString)
+                    Expression.NotEqual(Expression, Expression.Constant(null, Expression.Type)),
+                    Expression.Constant(Metadata.EscapePrefix + Metadata.NullString),
+                    Expression.Constant(Metadata.EscapePrefix + "\\" + Metadata.NullString)
                 );
             }
             else
             {
-                var prefix = Reference.Metadata.EscapePrefix + Reference.Metadata.MoreString;
-                var NullValue = Expression.Constant(Reference.Metadata.EscapePrefix + prefix + Reference.Metadata.NullString);
+                var prefix = Metadata.EscapePrefix + Metadata.MoreString;
+                var NullValue = Expression.Constant(Metadata.EscapePrefix + prefix + Metadata.NullString);
+
+                //TODO: work a way around this if possible
+                //For static typing
+
+                var expression = Expression;
+                if (!Expression.Type.IsAssignableFrom(typeof(string)))
+                {
+                    expression = VelocityExpressions.ConvertIfNeeded(expression, typeof(object));
+                }
 
                 //If the literal has not been escaped (has an empty prefix), then we can return a simple Coalesce expression
                 if (String.IsNullOrEmpty(prefix))
-                    return Expression.Coalesce(Reference, NullValue);
+                    return expression.Type.IsValueType
+                        ? expression
+                        : Expression.Coalesce(expression, NullValue);
 
                 //Otherwise we have to do a slightly more complicated result
                 var _evaulatedResult = Expression.Parameter(typeof(object), "tempEvaulatedResult");
                 return Expression.Block(
                     new[] { _evaulatedResult },
-                    Expression.Assign(_evaulatedResult, Reference),
+                    Expression.Assign(_evaulatedResult, expression),
                     Expression.Condition(
                         Expression.NotEqual(_evaulatedResult, Expression.Constant(null, _evaulatedResult.Type)),
                         Expression.Call(
@@ -53,7 +77,7 @@ namespace IronVelocity.Compilation.AST
             }
         }
 
-        //public override Type Type { get { return typeof(string); } }
+        //public override Type Type { get { return typeof(void); } }
     }
 
 }

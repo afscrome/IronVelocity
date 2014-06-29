@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -9,23 +10,33 @@ using System.Text;
 namespace IronVelocity.Compilation
 {
     public delegate void VelocityTemplateMethod(VelocityContext context, StringBuilder builder);
-    public static class VelocityCompiler
+    public class VelocityCompiler
     {
         private const string _methodName = "Execute";
         private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(StringBuilder) };
 
+        private readonly IReadOnlyDictionary<string, Type> _globals;
 
-        public static VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, bool debugMode, string fileName)
+        public VelocityCompiler(IDictionary<string, Type> globals)
+        {
+            if (globals != null)
+            {
+                _globals = new Dictionary<string, Type>(globals, StringComparer.OrdinalIgnoreCase);
+            }
+        }
+
+
+        public VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, bool debugMode, string fileName)
         {
             var assemblyName = new AssemblyName("Widgets");
             //RunAndCollect allows this assembly to be garbage collected when finished with - http://msdn.microsoft.com/en-us/library/dd554932(VS.100).aspx
             var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
-            //TODO: use debug mode from web.config rather than debugger attached
+
             return CompileWithSymbols(expressionTree, name, assemblyBuilder, debugMode, fileName);
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification="Final cast will fail if the Expression does not conform to VelocityTemplateMethod's signature")]
-        public static VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, AssemblyBuilder assemblyBuilder, bool debugMode, string fileName)
+        public VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, AssemblyBuilder assemblyBuilder, bool debugMode, string fileName)
         {
             if (assemblyBuilder == null)
                 throw new ArgumentNullException("assemblyBuilder");
@@ -45,10 +56,14 @@ namespace IronVelocity.Compilation
                     typeof(void),
                     _signature);
 
+            if (_globals != null && _globals.Count > 0)
+            {
+                var staticTypeVisitor = new StaticGlobalVisitor(_globals);
+                expressionTree = (Expression<VelocityTemplateMethod>)staticTypeVisitor.Visit(expressionTree);
+            }
 
-            var reducer = new DynamicToExplicitCallSiteConvertor(typeBuilder, fileName);
-
-            expressionTree = (Expression<VelocityTemplateMethod>)reducer.Visit(expressionTree);
+            var debugVisitor = new DynamicToExplicitCallSiteConvertor(typeBuilder, fileName);
+            expressionTree = (Expression<VelocityTemplateMethod>)debugVisitor.Visit(expressionTree);
 
             var debugInfo = DebugInfoGenerator.CreatePdbGenerator();
             expressionTree.CompileToMethod(meth, debugInfo);

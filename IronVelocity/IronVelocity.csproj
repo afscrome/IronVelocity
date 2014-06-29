@@ -73,6 +73,7 @@
     </Compile>
     <Compile Include="Compilation\Directives\LiteralDirective.cs" />
     <Compile Include="Compilation\Directives\LiteralDirectiveExpressionBuilder.cs" />
+    <Compile Include="Compilation\StaticGlobalVisitor.cs" />
     <Compile Include="Compilation\VelocityAsyncCompiler.cs" />
     <Compile Include="Compilation\VelocityExpressionBuilder.cs" />
     <Compile Include="Compilation\AST\RenderedBlock.cs" />

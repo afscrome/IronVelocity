@@ -14,7 +14,7 @@ namespace IronVelocity.Tests
         }
 
         [Test]
-        public void ToString()
+        public new void ToString()
         {
             Assert.NotNull(MethodHelpers.ToStringMethodInfo);
         }
