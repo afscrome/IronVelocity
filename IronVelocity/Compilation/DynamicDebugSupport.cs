@@ -67,7 +67,10 @@ namespace IronVelocity.Compilation
             //First argument is the callsite
             var arguments = new Expression[node.Arguments.Count + 1];
             arguments[0] = callSiteField;
-            node.Arguments.CopyTo(arguments, 1);
+            for (int i = 0; i < node.Arguments.Count; i++)
+            {
+                arguments[i + 1] = Visit(node.Arguments[i]);
+            }
 
             var invoke = Expression.Call(
                      Expression.Field(
