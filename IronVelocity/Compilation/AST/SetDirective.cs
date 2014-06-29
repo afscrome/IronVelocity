@@ -49,6 +49,10 @@ namespace IronVelocity.Compilation.AST
                 *     }
                 */
 
+            //However, if the expression is guaranteed to be a value type, why bother?
+            if (right.Type.IsValueType)
+                return Expression.Assign(left, right);
+
             var tempResult = Expression.Parameter(right.Type);
             return Expression.Block(new[] { tempResult },
                 //Store the result of the right hand side in to a temporary variable
