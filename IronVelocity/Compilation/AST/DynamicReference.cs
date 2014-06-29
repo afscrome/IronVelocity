@@ -1,5 +1,6 @@
 ﻿using NVelocity.Runtime.Parser.Node;
 using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
@@ -7,10 +8,68 @@ namespace IronVelocity.Compilation.AST
     public class DynamicReference : VelocityExpression
     {
         public ASTReferenceMetadata Metadata { get; private set; }
+        //public Expression Value { get; private set; }
+        public VariableReference BaseVariable { get; private set; }
+
+        private IReadOnlyCollection<INode> Additional { get; set; }
+
+        public DynamicReference(INode node)
+            : base(node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            var refNode = node as ASTReference;
+            if (refNode == null)
+                throw new ArgumentOutOfRangeException("node");
+
+            Metadata = new ASTReferenceMetadata(refNode);
+
+            BaseVariable = new VariableReference(Metadata.RootString);
+
+            var additional = new List<INode>(node.ChildrenCount);
+
+            for (int i = 0; i < node.ChildrenCount; i++)
+            {
+                var child = node.GetChild(i);
+                if (child is ASTIdentifier || child is ASTMethod)
+                    additional.Add(child);
+                else
+                    throw new NotSupportedException("Node type not supported in a Reference: " + child.GetType().Name);
+            }
+
+            Additional = additional;
+        }
+
+        public override Expression Reduce()
+        {
+            if (Metadata.RefType == ASTReferenceMetadata.ReferenceType.Runt)
+                return Expression.Constant(Metadata.RootString);
+
+            Expression value = BaseVariable;
+
+            foreach (var child in Additional)
+            {
+                if (child is ASTIdentifier)
+                    value = new DynamicGetMemberExpression(child, value); //new DynamicGetMemberExpression(child.FirstToken.Image, value);
+                else if (child is ASTMethod)
+                    value = new DynamicInvokeExpression(child, value);
+                else
+                    throw new NotSupportedException("Node type not supported in a Reference: " + child.GetType().Name);
+            }
+
+            return value;
+        }
+    }
+
+
+    public class DynamicReferenceOriginal : VelocityExpression
+    {
+        public ASTReferenceMetadata Metadata { get; private set; }
         private readonly INode _node;
         public Expression Value { get; private set; }
 
-        public DynamicReference(INode node)
+        public DynamicReferenceOriginal(INode node)
             : base(node)
         {
             if (node == null)
@@ -46,54 +105,5 @@ namespace IronVelocity.Compilation.AST
         {
             return Value;
         }
-    }
-
-    public class RenderableDynamicReference : VelocityExpression
-    {
-        public DynamicReference Reference { get; private set; }
-
-        public RenderableDynamicReference(DynamicReference reference)
-        {
-                Reference = reference;
-        }
-
-        public override Expression Reduce()
-        {
-            if (Reference.Metadata.Escaped)
-            {
-                return Expression.Condition(
-                    Expression.NotEqual(Reference, Expression.Constant(null, Reference.Type)),
-                    Expression.Constant(Reference.Metadata.EscapePrefix + Reference.Metadata.NullString),
-                    Expression.Constant(Reference.Metadata.EscapePrefix + "\\" + Reference.Metadata.NullString)
-                );
-            }
-            else
-            {
-                var prefix = Reference.Metadata.EscapePrefix + Reference.Metadata.MoreString;
-                var NullValue = Expression.Constant(Reference.Metadata.EscapePrefix + prefix + Reference.Metadata.NullString);
-
-                //If the literal has not been escaped (has an empty prefix), then we can return a simple Coalesce expression
-                if (String.IsNullOrEmpty(prefix))
-                    return Expression.Coalesce(Reference, NullValue);
-
-                //Otherwise we have to do a slightly more complicated result
-                var _evaulatedResult = Expression.Parameter(typeof(object), "tempEvaulatedResult");
-                return Expression.Block(
-                    new[] { _evaulatedResult },
-                    Expression.Assign(_evaulatedResult, Reference),
-                    Expression.Condition(
-                        Expression.NotEqual(_evaulatedResult, Expression.Constant(null, _evaulatedResult.Type)),
-                        Expression.Call(
-                            MethodHelpers.StringConcatMethodInfo,
-                            Expression.Convert(Expression.Constant(prefix), typeof(object)),
-                            VelocityExpressions.ConvertIfNeeded(_evaulatedResult, typeof(object))
-                        ),
-                        NullValue
-                    )
-                );
-            }
-        }
-
-        //public override Type Type { get { return typeof(string); } }
     }
 }

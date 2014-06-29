@@ -19,7 +19,7 @@ namespace IronVelocity.Compilation.AST
             var reference = left as DynamicReference;
             if (reference != null)
             {
-                left = reference.Value;
+                left = reference.Reduce();
                 var member = left as DynamicGetMemberExpression;
                 if (member != null)
                 {
