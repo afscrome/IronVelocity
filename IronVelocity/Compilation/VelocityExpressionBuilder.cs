@@ -115,6 +115,8 @@ namespace IronVelocity.Compilation.AST
         }
 
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity",
+            Justification="Cannot really be simplified any furhter - it's just a massive switch statement creating an AST node based on the node type")]
         public static Expression Operand(INode node)
         {
             if (node == null)
