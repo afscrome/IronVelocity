@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class BinaryMathematicalExpression : BinaryExpression
+    public class BinaryMathematicalExpression : VelocityBinaryExpression
     {
         public BinaryMathematicalExpression(INode node, MathematicalOperation op)
             :base(node)
@@ -58,7 +58,6 @@ namespace IronVelocity.Compilation.AST
                     return ExpressionType.GreaterThan;
                 case MathematicalOperation.GreaterThanOrEqual:
                     return ExpressionType.GreaterThanOrEqual;
-                    break;
                 default:
                     throw new ArgumentOutOfRangeException("op");
             }

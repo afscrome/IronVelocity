@@ -7,13 +7,13 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class DynamicInvokeExpression : VelocityExpression
+    public class MethodInvocationExpression : VelocityExpression
     {
         public Expression Target {get; private set;}
         public string Name { get; private set; }
         public IReadOnlyList<Expression> Arguments { get; private set; }
 
-        public DynamicInvokeExpression(INode node, Expression target)
+        public MethodInvocationExpression(INode node, Expression target)
             :base(node)
         {
             if (node == null)

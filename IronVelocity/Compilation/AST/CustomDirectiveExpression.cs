@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace IronVelocity.Compilation.AST
 {
-    public abstract class CustomDirective : Directive
+    public abstract class CustomDirectiveExpression : Directive
     {
 
-        protected CustomDirective(ASTDirective node, VelocityExpressionBuilder builder)
+        protected CustomDirectiveExpression(ASTDirective node, VelocityExpressionBuilder builder)
             : base(node, builder)
         {
         }

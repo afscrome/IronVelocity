@@ -3,7 +3,7 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class IntegerRangeExpression : BinaryExpression
+    public class IntegerRangeExpression : VelocityBinaryExpression
     {
         public IntegerRangeExpression(INode node)
             : base(node)

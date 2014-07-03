@@ -7,14 +7,13 @@ using System.Threading.Tasks;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class RenderableDynamicReference : RenderableExpression
+    public class RenderableVelocityReference : RenderableExpression
     {
-        public DynamicReference Reference { get { return (DynamicReference)Expression; } }
+        public ReferenceExpression Reference { get { return (ReferenceExpression)Expression; } }
 
-        public RenderableDynamicReference(DynamicReference reference)
+        public RenderableVelocityReference(ReferenceExpression reference)
             : base(reference, reference.Metadata)
         {
-
         }
     }
 

@@ -6,11 +6,11 @@ using System.Reflection;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class InterpolatedString : VelocityExpression
+    public class InterpolatedStringExpression : VelocityExpression
     {
         public string Value { get; private set; }
 
-        public InterpolatedString(string value)
+        public InterpolatedStringExpression(string value)
         {
             Value = value;
         }

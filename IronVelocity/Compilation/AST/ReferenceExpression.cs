@@ -6,15 +6,15 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class DynamicReference : VelocityExpression
+    public class ReferenceExpression : VelocityExpression
     {
         public ASTReferenceMetadata Metadata { get; private set; }
         //public Expression Value { get; private set; }
-        public VariableReference BaseVariable { get; private set; }
+        public VariableExpression BaseVariable { get; private set; }
 
         public IReadOnlyCollection<Expression> Additional { get; private set; }
 
-        public DynamicReference(INode node)
+        public ReferenceExpression(INode node)
             : base(node)
         {
             if (node == null)
@@ -26,7 +26,7 @@ namespace IronVelocity.Compilation.AST
 
             Metadata = new ASTReferenceMetadata(refNode);
 
-            BaseVariable = new VariableReference(Metadata.RootString);
+            BaseVariable = new VariableExpression(Metadata.RootString);
 
             var additional = new List<Expression>(node.ChildrenCount);
 
@@ -35,9 +35,9 @@ namespace IronVelocity.Compilation.AST
             {
                 var child = node.GetChild(i);
                 if (child is ASTIdentifier)
-                    soFar = new DynamicGetMemberExpression(child, soFar);
+                    soFar = new PropertyAccessExpression(child, soFar);
                 else if (child is ASTMethod)
-                    soFar = new DynamicInvokeExpression(child, soFar);
+                    soFar = new MethodInvocationExpression(child, soFar);
                 else
                     throw new NotSupportedException("Node type not supported in a Reference: " + child.GetType().Name);
 

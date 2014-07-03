@@ -4,12 +4,12 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class VelocityString : VelocityExpression
+    public class StringExpression : VelocityExpression
     {
         public VelocityStringType StringType { get; private set; }
         public string Value { get; set; }
 
-        public VelocityString(INode node)
+        public StringExpression(INode node)
             : base(node)
         {
             if (node == null)
@@ -33,9 +33,9 @@ namespace IronVelocity.Compilation.AST
                 case VelocityStringType.Constant:
                     return Expression.Constant(Value);
                 case VelocityStringType.Dictionary:
-                    return new DictionaryString(Value);
+                    return new DictionaryStringExpression(Value);
                 case VelocityStringType.Interpolated:
-                    return new InterpolatedString(Value);
+                    return new InterpolatedStringExpression(Value);
                 default:
                     throw new InvalidOperationException();
             }

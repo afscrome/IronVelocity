@@ -67,5 +67,20 @@ namespace IronVelocity.Compilation.AST
         {
             return !(left == right);
         }
+
+        public override int GetHashCode()
+        {
+            unchecked // Overflow is fine, just wrap
+            {
+                int hash = 17;
+                // Suitable nullity checks etc, of course :)
+                hash *= 23 + StartLine.GetHashCode();
+                hash *= 23 + StartColumn.GetHashCode();
+                hash *= 23 + EndLine.GetHashCode();
+                hash *= 23 + EndColumn.GetHashCode();
+                return hash;
+            }
+        }
+
     }
 }

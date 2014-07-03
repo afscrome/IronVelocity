@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace IronVelocity.Compilation.Directives
 {
-    public class LiteralDirective : CustomDirective
+    public class LiteralDirective : CustomDirectiveExpression
     {
         private readonly string _literal;
         private readonly VelocityExpressionBuilder _builder;

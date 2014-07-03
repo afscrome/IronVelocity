@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace IronVelocity.Compilation.Directives
 {
-    public class ForeachDirective : CustomDirective
+    public class ForeachDirective : CustomDirectiveExpression
     {
         private static readonly MethodInfo _enumeratorMethodInfo = typeof(IEnumerable).GetMethod("GetEnumerator", new Type[] { });
         private static readonly MethodInfo _moveNextMethodInfo = typeof(IEnumerator).GetMethod("MoveNext", new Type[] { });
@@ -41,12 +41,12 @@ namespace IronVelocity.Compilation.Directives
 
         protected override Expression ReduceInternal()
         {
-            var loopVariable = new DynamicReference(Node.GetChild(0));
+            var loopVariable = new ReferenceExpression(Node.GetChild(0));
 
             var enumerable = VelocityExpressionBuilder.Operand(Node.GetChild(2));
 
 
-            var index = new VariableReference("velocityCount");
+            var index = new VariableExpression("velocityCount");
             var parts = GetParts();
 
             //For the first item, output the #BeforeAll template, for all others #Between

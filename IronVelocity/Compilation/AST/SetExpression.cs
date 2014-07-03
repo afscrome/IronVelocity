@@ -4,12 +4,12 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class DynamicSetMemberExpression : VelocityExpression
+    public class SetExpression : VelocityExpression
     {
         public Expression Target { get; private set; }
         public Expression Value { get; private set; }
         public string Name { get; private set; }
-        public DynamicSetMemberExpression(string name, Expression target, Expression value)
+        public SetExpression(string name, Expression target, Expression value)
         {
             if (String.IsNullOrEmpty(name))
                 throw new ArgumentOutOfRangeException("name");

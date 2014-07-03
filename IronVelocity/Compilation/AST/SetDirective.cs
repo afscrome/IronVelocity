@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class SetDirective : BinaryExpression
+    public class SetDirective : VelocityBinaryExpression
     {
         public SetDirective(INode node)
             : base(node)
@@ -16,14 +16,14 @@ namespace IronVelocity.Compilation.AST
             var left = Left;
             var right = Right;
 
-            var reference = left as DynamicReference;
+            var reference = left as ReferenceExpression;
             if (reference != null)
             {
                 left = reference.Reduce();
-                var member = left as DynamicGetMemberExpression;
+                var member = left as PropertyAccessExpression;
                 if (member != null)
                 {
-                    return new DynamicSetMemberExpression(member.Name, member.Target, right);
+                    return new SetExpression(member.Name, member.Target, right);
                 }
             }
 
@@ -36,7 +36,7 @@ namespace IronVelocity.Compilation.AST
 
                 right = Expression.Convert(right, left.Type);
             }
-            if (left is VariableReference)
+            if (left is VariableExpression)
                 left = left.Reduce();
 
 

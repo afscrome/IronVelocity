@@ -5,11 +5,11 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class DynamicGetMemberExpression : VelocityExpression
+    public class PropertyAccessExpression : VelocityExpression
     {
         public Expression Target {get; private set;}
         public string Name { get; private set; }
-        public DynamicGetMemberExpression(INode node, Expression target)
+        public PropertyAccessExpression(INode node, Expression target)
             : base(node)
         {
             if (node == null)

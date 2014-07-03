@@ -60,9 +60,9 @@ namespace IronVelocity.Compilation.AST
                 return expression;
             }
 
-            var reference = expression as DynamicReference;
+            var reference = expression as ReferenceExpression;
             if (reference != null)
-                expression = new RenderableDynamicReference(reference);
+                expression = new RenderableVelocityReference(reference);
 
 
             if (expression.Type != typeof(string))

@@ -18,18 +18,24 @@ namespace IronVelocity.Compilation.AST
 
         private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers;
         public ParameterExpression OutputParameter { get; set; }
-        public Stack<CustomDirective> CustomDirectives { get; private set; }
+        public Stack<CustomDirectiveExpression> CustomDirectives { get; private set; }
 
         public IDictionary<Type, DirectiveExpressionBuilder> DirectiveHandlers
         {
             get { return new Dictionary<Type, DirectiveExpressionBuilder>(_directiveHandlers); }
         }
 
-        public VelocityExpressionBuilder(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers, string parameterName = "_output")
+
+        public VelocityExpressionBuilder(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers)
+            : this (directiveHandlers, "_output")
+        {
+        }
+
+        public VelocityExpressionBuilder(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers, string parameterName)
         {
             _directiveHandlers = directiveHandlers ?? new Dictionary<Type, DirectiveExpressionBuilder>();
             OutputParameter = Expression.Parameter(typeof(StringBuilder), parameterName);
-            CustomDirectives = new Stack<CustomDirective>();
+            CustomDirectives = new Stack<CustomDirectiveExpression>();
         }
 
         public IReadOnlyCollection<Expression> GetBlockExpressions(INode node)
@@ -57,7 +63,7 @@ namespace IronVelocity.Compilation.AST
                         expr = Expression.Constant(child.Literal);
                         break;
                     case ParserTreeConstants.REFERENCE:
-                        expr = new DynamicReference(child);
+                        expr = new ReferenceExpression(child);
                         break;
                     case ParserTreeConstants.IF_STATEMENT:
                         expr = new IfStatement(child, this);
@@ -124,7 +130,7 @@ namespace IronVelocity.Compilation.AST
                     return Expression.Constant(int.Parse(node.Literal, CultureInfo.InvariantCulture)); ;
 
                 case ParserTreeConstants.STRING_LITERAL:
-                    return new VelocityString(node);
+                    return new StringExpression(node);
                 case ParserTreeConstants.AND_NODE:
                     return And(node);
                 //return new BinaryMathematicalExpression(node, MathematicalOperation.And);
@@ -163,7 +169,7 @@ namespace IronVelocity.Compilation.AST
                 case ParserTreeConstants.ASSIGNMENT:
                     return new SetDirective(node);
                 case ParserTreeConstants.REFERENCE:
-                    return new DynamicReference(node);
+                    return new ReferenceExpression(node);
                 case ParserTreeConstants.OBJECT_ARRAY:
                     return Array(node);
                 case ParserTreeConstants.INTEGER_RANGE:

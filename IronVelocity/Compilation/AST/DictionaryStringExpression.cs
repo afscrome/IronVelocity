@@ -7,11 +7,11 @@ using System.Text;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class DictionaryString : VelocityExpression
+    public class DictionaryStringExpression : VelocityExpression
     {
         public string Value { get; set; }
 
-        public DictionaryString(string value)
+        public DictionaryStringExpression(string value)
         {
             Value = value;
         }
@@ -210,8 +210,8 @@ namespace IronVelocity.Compilation.AST
         {
             Expression expr;
             var content = value.ToString().Trim();
-            if (VelocityString.DetermineStringType(content) == VelocityStringType.Interpolated)
-                expr = new InterpolatedString(content);
+            if (StringExpression.DetermineStringType(content) == VelocityStringType.Interpolated)
+                expr = new InterpolatedStringExpression(content);
             else
             {
                 if (isTextContent)

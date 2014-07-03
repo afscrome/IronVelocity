@@ -21,7 +21,7 @@ namespace IronVelocity.Compilation
 
         protected override Expression VisitExtension(Expression node)
         {
-            var renderableReference = node as RenderableDynamicReference;
+            var renderableReference = node as RenderableVelocityReference;
             if (renderableReference != null)
                 return VisitRenderableReference(renderableReference);
 
@@ -29,8 +29,11 @@ namespace IronVelocity.Compilation
         }
 
 
-        protected virtual Expression VisitRenderableReference(RenderableDynamicReference node)
+        protected virtual Expression VisitRenderableReference(RenderableVelocityReference node)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             var reference = node.Reference;
             var variable = reference.BaseVariable;
             Type staticType;
@@ -41,7 +44,7 @@ namespace IronVelocity.Compilation
 
             //return base.VisitExtension(node);
 
-            if (reference.Additional.OfType<DynamicInvokeExpression>().Any())
+            if (reference.Additional.OfType<MethodInvocationExpression>().Any())
                 return base.VisitExtension(node);
 
             bool isStatic = true;
@@ -49,14 +52,14 @@ namespace IronVelocity.Compilation
 
             foreach (var child in reference.Additional)
             {
-                var getMember = child as DynamicGetMemberExpression;
+                var getMember = child as PropertyAccessExpression;
                 if (getMember != null)
                 {
                     soFar = Expression.Property(soFar, getMember.Name);
                     continue;
                 }
 
-                var invoke = child as DynamicInvokeExpression;
+                var invoke = child as MethodInvocationExpression;
                 if (invoke != null)
                 {
                     throw new NotImplementedException();

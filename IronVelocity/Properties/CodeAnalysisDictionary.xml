@@ -7,6 +7,7 @@
       <Word>ASTElseStatement</Word>
       <Word>Unrecognised</Word>
       <Word>Foreach</Word>
+      <Word>globals</Word>
     </Recognized>
   </Words>
   <Acronyms>

@@ -4,12 +4,12 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public abstract class BinaryExpression : VelocityExpression
+    public abstract class VelocityBinaryExpression : VelocityExpression
     {
         public Expression Left { get; private set; }
         public Expression Right { get; private set; }
 
-        protected BinaryExpression(INode node)
+        protected VelocityBinaryExpression(INode node)
             : base(node)
         {
             if (node == null)

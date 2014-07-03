@@ -3,10 +3,10 @@ using System.Reflection;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class VariableReference : VelocityExpression
+    public class VariableExpression : VelocityExpression
     {
         public string Name { get; private set; }
-        public VariableReference(string name)
+        public VariableExpression(string name)
         {
             Name = name;
         }
