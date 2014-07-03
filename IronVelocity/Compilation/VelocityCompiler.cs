@@ -62,8 +62,6 @@ namespace IronVelocity.Compilation
                 expressionTree = (Expression<VelocityTemplateMethod>)staticTypeVisitor.Visit(expressionTree);
             }
 
-            return expressionTree.Compile();
-
             var debugVisitor = new DynamicToExplicitCallSiteConvertor(typeBuilder, fileName);
             expressionTree = (Expression<VelocityTemplateMethod>)debugVisitor.Visit(expressionTree);
 

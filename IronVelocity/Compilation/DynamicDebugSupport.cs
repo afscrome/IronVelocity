@@ -104,7 +104,8 @@ namespace IronVelocity.Compilation
         private static readonly ConstructorInfo _getMemberBinderConstructor = typeof(VelocityGetMemberBinder).GetConstructor(new[] { typeof(string) });
         private static readonly ConstructorInfo _setMemberBinderConstructor = typeof(VelocitySetMemberBinder).GetConstructor(new[] { typeof(string) });
         private static readonly ConstructorInfo _invokeMemberBinderConstructor = typeof(VelocityInvokeMemberBinder).GetConstructor(new[] { typeof(string), typeof(CallInfo) });
-        private static readonly ConstructorInfo _binaryOperationBinderConstructor = typeof(VelocityBinaryMathematicalOperationBinder).GetConstructor(new[] { typeof(ExpressionType) });
+        private static readonly ConstructorInfo _binaryMathematicalOperationBinderConstructor = typeof(VelocityBinaryMathematicalOperationBinder).GetConstructor(new[] { typeof(ExpressionType) });
+        private static readonly ConstructorInfo _binaryLogicalOperationBinderConstructor = typeof(VelocityBinaryLogicalOperationBinder).GetConstructor(new[] { typeof(LogicalOperation) });
 
         private static Expression _emptyStringArray = Expression.NewArrayInit(typeof(string));
 
@@ -148,11 +149,20 @@ namespace IronVelocity.Compilation
                         );
                     }
                     else {
-                        var binary = binder as VelocityBinaryMathematicalOperationBinder;
-                        if (binary != null)
+                        var logical = binder as VelocityBinaryLogicalOperationBinder;
+                        if (logical != null)
                         {
-                            var type = Expression.Constant(binary.Operation);
-                            return Expression.New(_binaryOperationBinderConstructor, type);
+                            var type = Expression.Constant(logical.Operation);
+                            return Expression.New(_binaryLogicalOperationBinderConstructor, type);
+                        }
+                        else
+                        {
+                            var mathematical = binder as VelocityBinaryMathematicalOperationBinder;
+                            if (mathematical != null)
+                            {
+                                var type = Expression.Constant(mathematical.Operation);
+                                return Expression.New(_binaryMathematicalOperationBinderConstructor, type);
+                            }
                         }
                     }
 
