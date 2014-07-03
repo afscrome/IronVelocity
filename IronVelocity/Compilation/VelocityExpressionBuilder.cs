@@ -50,7 +50,7 @@ namespace IronVelocity.Compilation.AST
 
             var expressions = new List<Expression>(node.ChildrenCount);
 
-            foreach (var child in node.GetChildren())
+            foreach (var child in GetChildNodes(node))
             {
                 Expression expr;
                 switch (child.Type)
@@ -223,7 +223,7 @@ namespace IronVelocity.Compilation.AST
             if (!(node is ASTObjectArray))
                 throw new ArgumentOutOfRangeException("node");
 
-            var elements = node.GetChildren()
+            var elements = GetChildNodes(node)
                 .Select(Operand);
 
             return Expression.New(MethodHelpers.ListConstructorInfo, Expression.NewArrayInit(typeof(object), elements));
@@ -298,5 +298,14 @@ namespace IronVelocity.Compilation.AST
 
 
         #endregion
+
+        private static IEnumerable<INode> GetChildNodes(INode node)
+        {
+            for (int i = 0; i < node.ChildrenCount; i++)
+            {
+                yield return node.GetChild(i);
+            };
+        }
+
     }
 }

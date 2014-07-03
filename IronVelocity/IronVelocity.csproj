@@ -102,7 +102,6 @@
     <Compile Include="TypeHelper.cs" />
     <Compile Include="VelocityContext.cs" />
     <Compile Include="Compilation\VelocityExpressions.cs" />
-    <Compile Include="Extensions\INodeExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runtime\VelocityRuntime.cs" />
   </ItemGroup>
