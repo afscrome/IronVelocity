@@ -62,11 +62,14 @@ namespace IronVelocity.Compilation
                 expressionTree = (Expression<VelocityTemplateMethod>)staticTypeVisitor.Visit(expressionTree);
             }
 
+            return expressionTree.Compile();
+
             var debugVisitor = new DynamicToExplicitCallSiteConvertor(typeBuilder, fileName);
             expressionTree = (Expression<VelocityTemplateMethod>)debugVisitor.Visit(expressionTree);
 
             var debugInfo = DebugInfoGenerator.CreatePdbGenerator();
             expressionTree.CompileToMethod(meth, debugInfo);
+
 
             var compiledType = typeBuilder.CreateType();
             var compiledMethod = compiledType.GetMethod(_methodName, _signature);

@@ -47,12 +47,15 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Binders\BinaryOperationHelper.cs" />
     <Compile Include="Binders\ReflectionHelper.cs" />
-    <Compile Include="Binders\VelocityBinaryOperationBinder.cs" />
+    <Compile Include="Binders\VelocityBinaryLogicalOperationBinder.cs" />
+    <Compile Include="Binders\VelocityBinaryMathematicalOperationBinder.cs" />
     <Compile Include="Binders\VelocitySetMemberBinder.cs" />
     <Compile Include="Compilation\ASTReferenceMetaData.cs" />
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />
+    <Compile Include="Compilation\AST\BinaryLogicalExpression.cs" />
     <Compile Include="Compilation\AST\VelocityBinaryExpression.cs" />
     <Compile Include="Compilation\AST\CustomDirectiveExpression.cs" />
     <Compile Include="Compilation\AST\RenderableVelocityReference.cs" />

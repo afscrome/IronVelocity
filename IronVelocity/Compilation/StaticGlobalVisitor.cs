@@ -38,7 +38,21 @@ namespace IronVelocity.Compilation
             var variable = reference.BaseVariable;
             Type staticType;
 
-            //TODO: can we staticly type more than just global variables?
+
+            /*
+             * TODO: can we staticly type more than just global variables?
+             * 
+             * e.g. in the following, it would be safe to staticly type $x as an int?
+             *      #set($x = 123)
+             *      $x.ToString()
+             *  
+             * problems comes with how we use subviews in zimbra
+             *      #set($x = 123)
+             *      $core_v2_widget.Render('test.vm')
+             *      $x.ToString()
+             * 
+             * test.vm may set $x to be a non integer value
+             */
             if (!_globalTypeMap.TryGetValue(variable.Name, out staticType))
                 return base.VisitExtension(node);
 

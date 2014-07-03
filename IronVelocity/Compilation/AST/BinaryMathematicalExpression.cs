@@ -2,13 +2,14 @@
 using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace IronVelocity.Compilation.AST
 {
     public class BinaryMathematicalExpression : VelocityBinaryExpression
     {
         public BinaryMathematicalExpression(INode node, MathematicalOperation op)
-            :base(node)
+            : base(node)
         {
             Operation = op;
             ExpressionType = MathematicalOperationToExpressionType(op);
@@ -19,7 +20,8 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            var binder = new VelocityBinaryOperationBinder(ExpressionType);
+            var binder = new VelocityBinaryMathematicalOperationBinder(ExpressionType);
+
             return Expression.Dynamic(
                 binder,
                 binder.ReturnType,
@@ -42,26 +44,12 @@ namespace IronVelocity.Compilation.AST
                     return ExpressionType.Divide;
                 case MathematicalOperation.Modulo:
                     return ExpressionType.Modulo;
-                case MathematicalOperation.And:
-                    return ExpressionType.And;
-                case MathematicalOperation.Or:
-                    return ExpressionType.Or;
-                case MathematicalOperation.Equal:
-                    return ExpressionType.Equal;
-                case MathematicalOperation.NotEqual:
-                    return ExpressionType.NotEqual;
-                case MathematicalOperation.LessThan:
-                    return ExpressionType.LessThan;
-                case MathematicalOperation.LessThanOrEqual:
-                    return ExpressionType.LessThanOrEqual;
-                case MathematicalOperation.GreaterThan:
-                    return ExpressionType.GreaterThan;
-                case MathematicalOperation.GreaterThanOrEqual:
-                    return ExpressionType.GreaterThanOrEqual;
                 default:
                     throw new ArgumentOutOfRangeException("op");
             }
         }
+
+
     }
 
     public enum MathematicalOperation
@@ -71,13 +59,5 @@ namespace IronVelocity.Compilation.AST
         Multiply,
         Divide,
         Modulo,
-        And,
-        Or,
-        Equal,
-        NotEqual,
-        LessThan,
-        LessThanOrEqual,
-        GreaterThan,
-        GreaterThanOrEqual
     }
 }

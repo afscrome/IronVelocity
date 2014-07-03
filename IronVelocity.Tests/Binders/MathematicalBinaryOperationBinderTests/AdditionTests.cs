@@ -40,7 +40,7 @@ namespace IronVelocity.Tests.Runtime
 
         private object Test(object left, object right)
         {
-            var binder = new VelocityBinaryOperationBinder(ExpressionType.Add);
+            var binder = new VelocityBinaryMathematicalOperationBinder(ExpressionType.Add);
 
             return Utility.BinderTests(binder, left, right);
         }

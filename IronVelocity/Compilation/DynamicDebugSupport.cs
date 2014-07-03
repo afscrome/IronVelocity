@@ -23,6 +23,7 @@ namespace IronVelocity.Compilation
         private readonly TypeBuilder _builder;
         private readonly SymbolDocumentInfo _symbolDocument;
         private SymbolInformation _currentSymbol;
+        private int callSiteId = 0;
 
         public DynamicToExplicitCallSiteConvertor(TypeBuilder typeBuilder, string fileName)
         {
@@ -61,7 +62,7 @@ namespace IronVelocity.Compilation
             var siteType = _callSiteType.MakeGenericType(delegateType);
 
             var callSiteField = Expression.Field(null,
-                _builder.DefineField("callsite$0", siteType, FieldAttributes.Static | FieldAttributes.PrivateScope)
+                _builder.DefineField("callsite$" + callSiteId++, siteType, FieldAttributes.Static | FieldAttributes.PrivateScope)
             );
 
             //First argument is the callsite
@@ -103,7 +104,7 @@ namespace IronVelocity.Compilation
         private static readonly ConstructorInfo _getMemberBinderConstructor = typeof(VelocityGetMemberBinder).GetConstructor(new[] { typeof(string) });
         private static readonly ConstructorInfo _setMemberBinderConstructor = typeof(VelocitySetMemberBinder).GetConstructor(new[] { typeof(string) });
         private static readonly ConstructorInfo _invokeMemberBinderConstructor = typeof(VelocityInvokeMemberBinder).GetConstructor(new[] { typeof(string), typeof(CallInfo) });
-        private static readonly ConstructorInfo _binaryOperationBinderConstructor = typeof(VelocityBinaryOperationBinder).GetConstructor(new[] { typeof(ExpressionType) });
+        private static readonly ConstructorInfo _binaryOperationBinderConstructor = typeof(VelocityBinaryMathematicalOperationBinder).GetConstructor(new[] { typeof(ExpressionType) });
 
         private static Expression _emptyStringArray = Expression.NewArrayInit(typeof(string));
 
@@ -147,7 +148,7 @@ namespace IronVelocity.Compilation
                         );
                     }
                     else {
-                        var binary = binder as VelocityBinaryOperationBinder;
+                        var binary = binder as VelocityBinaryMathematicalOperationBinder;
                         if (binary != null)
                         {
                             var type = Expression.Constant(binary.Operation);

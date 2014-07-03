@@ -1,4 +1,5 @@
-﻿using IronVelocity.Compilation.Directives;
+﻿using IronVelocity.Binders;
+using IronVelocity.Compilation.Directives;
 using NVelocity.Runtime.Parser;
 using NVelocity.Runtime.Parser.Node;
 using System;
@@ -135,26 +136,26 @@ namespace IronVelocity.Compilation.AST
                     return new StringExpression(node);
                 case ParserTreeConstants.AND_NODE:
                     return And(node);
-                //return new BinaryMathematicalExpression(node, MathematicalOperation.And);
+                    //return new BinaryLogicalExpression(node, LogicalOperation.And);
                 case ParserTreeConstants.OR_NODE:
                     return Or(node);
-                //return new BinaryMathematicalExpression(node, MathematicalOperation.Or);
+                    //return new BinaryLogicalExpression(node, LogicalOperation.Or);
                 case ParserTreeConstants.NOT_NODE:
                     return Not(node);
 
                 //Comparison
                 case ParserTreeConstants.LT_NODE:
-                    return new BinaryMathematicalExpression(node, MathematicalOperation.LessThan);
+                    return new BinaryLogicalExpression(node, LogicalOperation.LessThan);
                 case ParserTreeConstants.LE_NODE:
-                    return new BinaryMathematicalExpression(node, MathematicalOperation.LessThanOrEqual);
+                    return new BinaryLogicalExpression(node, LogicalOperation.LessThanOrEqual);
                 case ParserTreeConstants.GT_NODE:
-                    return new BinaryMathematicalExpression(node, MathematicalOperation.GreaterThan);
+                    return new BinaryLogicalExpression(node, LogicalOperation.GreaterThan);
                 case ParserTreeConstants.GE_NODE:
-                    return new BinaryMathematicalExpression(node, MathematicalOperation.GreaterThanOrEqual);
+                    return new BinaryLogicalExpression(node, LogicalOperation.GreaterThanOrEqual);
                 case ParserTreeConstants.EQ_NODE:
-                    return new BinaryMathematicalExpression(node, MathematicalOperation.Equal);
+                    return new BinaryLogicalExpression(node, LogicalOperation.Equal);
                 case ParserTreeConstants.NE_NODE:
-                    return new BinaryMathematicalExpression(node, MathematicalOperation.NotEqual);
+                    return new BinaryLogicalExpression(node, LogicalOperation.NotEqual);
 
                 //Mathematical Operations
                 case ParserTreeConstants.ADD_NODE:

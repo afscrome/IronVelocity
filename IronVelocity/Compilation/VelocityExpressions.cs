@@ -80,6 +80,9 @@ namespace IronVelocity.Compilation
             if (expression.Type == typeof(bool))
                 return expression;
 
+            else if (expression.Type.IsValueType)
+                return Expression.Constant(true);
+
             expression = ConvertIfNeeded(expression, typeof(object));
 
             return Expression.Convert(expression, typeof(bool), MethodHelpers.BooleanCoercionMethodInfo);

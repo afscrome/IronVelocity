@@ -32,6 +32,12 @@ namespace IronVelocity.Tests
         }
 
         [Test]
+        public void ReduceBigInteger()
+        {
+            Assert.NotNull(MethodHelpers.ReduceBigIntegerMethodInfo);
+        }
+
+        [Test]
         public void StringConcat()
         {
             Assert.NotNull(MethodHelpers.StringConcatMethodInfo);
