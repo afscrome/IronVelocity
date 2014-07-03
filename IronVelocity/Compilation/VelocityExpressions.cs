@@ -36,7 +36,7 @@ namespace IronVelocity.Compilation
             if (obj == null)
                 throw new ArgumentNullException("obj");
 
-            return ConvertIfNeeded(obj.Expression, obj.RuntimeType ?? typeof(object));
+            return ConvertIfNeeded(obj.Expression, obj.LimitType ?? typeof(object));
         }
 
         public static Expression ConvertIfNeeded(DynamicMetaObject obj, Type to)
@@ -44,7 +44,7 @@ namespace IronVelocity.Compilation
             if (obj == null)
                 throw new ArgumentNullException("obj");
 
-            return ConvertIfNeeded(obj.Expression, obj.RuntimeType, to);
+            return ConvertIfNeeded(obj.Expression, obj.LimitType, to);
         }
 
         public static Expression ConvertIfNeeded(Expression expression, Type from, Type to)
@@ -88,6 +88,18 @@ namespace IronVelocity.Compilation
             return Expression.Convert(expression, typeof(bool), MethodHelpers.BooleanCoercionMethodInfo);
         }
 
+
+        public static Expression ConvertParameterIfNeeded(Expression expr, ParameterInfo info)
+        {
+            if (expr == null)
+                throw new ArgumentNullException("expr");
+
+            if (info == null)
+                throw new ArgumentNullException("info");
+
+            return ConvertIfNeeded(expr, info.ParameterType);
+        }
+        [Obsolete]
         public static Expression ConvertParameterIfNeeded(DynamicMetaObject target, ParameterInfo info)
         {
             if (target == null)

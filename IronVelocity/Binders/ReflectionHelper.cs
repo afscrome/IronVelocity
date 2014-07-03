@@ -57,26 +57,30 @@ namespace IronVelocity.Binders
             return null;
 
         }
-
         public static Expression MemberExpression(string name, DynamicMetaObject target)
         {
-            if (target == null)
-                throw new ArgumentNullException("target");
+            return MemberExpression(name, target.LimitType, target.Expression);
+        }
+
+
+        public static Expression MemberExpression(string name, Type type, Expression expression)
+        {
+
 
             MemberInfo member = null;
             try
             {
-                member = ReflectionHelper.GetMember(name, target.LimitType, false);
+                member = ReflectionHelper.GetMember(name, type, false);
             }
             catch (AmbiguousMatchException)
             {
                 try
                 {
-                    member = ReflectionHelper.GetMember(name, target.LimitType, true);
+                    member = ReflectionHelper.GetMember(name, type, true);
                 }
                 catch (AmbiguousMatchException)
                 {
-                    Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Ambiguous match for member '{0}' on type '{1}'", name, target.LimitType.AssemblyQualifiedName), "Velocity");
+                    Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Ambiguous match for member '{0}' on type '{1}'", name, type.AssemblyQualifiedName), "Velocity");
                 }
             }
 
@@ -84,16 +88,17 @@ namespace IronVelocity.Binders
             if (member == null)
             {
                 //If no matching property or field, fall back to indexer with string param
-                var indexer = target.LimitType.GetProperty("Item", _caseSensitiveBindingFlags, null, null, new[] { typeof(string) }, null);
+                var indexer = type.GetProperty("Item", _caseSensitiveBindingFlags, null, null, new[] { typeof(string) }, null);
                 if (indexer == null)
                 {
-                    Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Unable to resolve Property '{0}' on type '{1}'", name, target.LimitType.AssemblyQualifiedName), "Velocity");
+                    Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Unable to resolve Property '{0}' on type '{1}'", name, type.AssemblyQualifiedName), "Velocity");
                     return null;
                 }
                 else
                 {
                     return Expression.MakeIndex(
-                            VelocityExpressions.ConvertReturnTypeIfNeeded(target, indexer),
+                        //VelocityExpressions.ConvertReturnTypeIfNeeded(target, indexer),
+                            VelocityExpressions.ConvertIfNeeded(expression, indexer.DeclaringType),
                             (PropertyInfo)indexer,
                             new[] { Expression.Constant(name) }
                         );
@@ -105,7 +110,8 @@ namespace IronVelocity.Binders
                 if (property != null)
                 {
                     return Expression.Property(
-                            VelocityExpressions.ConvertReturnTypeIfNeeded(target, member),
+                        //VelocityExpressions.ConvertReturnTypeIfNeeded(target, member),
+                            VelocityExpressions.ConvertIfNeeded(expression, property.DeclaringType),
                             property
                         );
                 }
@@ -115,7 +121,8 @@ namespace IronVelocity.Binders
                     if (field != null)
                     {
                         return Expression.Field(
-                                VelocityExpressions.ConvertReturnTypeIfNeeded(target, member),
+                            //VelocityExpressions.ConvertReturnTypeIfNeeded(target, member),
+                                VelocityExpressions.ConvertIfNeeded(expression, field.DeclaringType),
                                 field
                             );
                     }
@@ -320,6 +327,66 @@ namespace IronVelocity.Binders
         {
             return parameter != null
                 && parameter.GetCustomAttributes<ParamArrayAttribute>().Any();
+        }
+
+
+        public static Expression ConvertMethodParamaters(MethodInfo method, Expression target, DynamicMetaObject[] args)//, Type[] argTypeArray)
+        {
+            var parameters = method.GetParameters();
+            var lastParameter = parameters.LastOrDefault();
+            bool hasParamsArray = ReflectionHelper.IsParameterArrayArgument(lastParameter);
+
+            int trivialParams = hasParamsArray
+                ? parameters.Length - 1
+                : parameters.Length;
+
+            var argTypeArray = args
+                .Select(x => x.Value == null ? null : x.LimitType)
+                .ToArray();
+
+
+            var argExpressions = new Expression[parameters.Length];
+            for (int i = 0; i < trivialParams; i++)
+            {
+                var parameter = parameters[i];
+                argExpressions[i] = VelocityExpressions.ConvertParameterIfNeeded(args[i], parameter);
+            }
+            if (hasParamsArray)
+            {
+                int lastIndex = argExpressions.Length - 1;
+                //Check if the array has been explicitly passed, rather than as individual elements
+                if (args.Length == parameters.Length
+                    && ReflectionHelper.CanBeImplicitlyConverted(argTypeArray.Last(), lastParameter.ParameterType)
+                    && argTypeArray.Last() != null)
+                {
+                    argExpressions[lastIndex] = VelocityExpressions.ConvertParameterIfNeeded(args[lastIndex], lastParameter);
+                }
+                else
+                {
+                    var elementType = lastParameter.ParameterType.GetElementType();
+                    argExpressions[lastIndex] = Expression.NewArrayInit(
+                        elementType,
+                        args.Skip(lastIndex)
+                            .Select(x => VelocityExpressions.ConvertIfNeeded(x, elementType))
+                        );
+                }
+            }
+
+            Expression result = Expression.Call(
+                VelocityExpressions.ConvertIfNeeded(target, method.DeclaringType),
+                method,
+                argExpressions
+            );
+
+            if (method.ReturnType == typeof(void))
+            {
+                result = Expression.Block(
+                    result,
+                    Expression.Constant(String.Empty)
+                );
+            }
+
+            return VelocityExpressions.BoxIfNeeded(result);
         }
 
     }
