@@ -34,7 +34,8 @@ namespace IronVelocity.Runtime
             }
             set
             {
-                _values[key] = value;
+                if (value != null)
+                    _values[key] = value;
             }
         }
 

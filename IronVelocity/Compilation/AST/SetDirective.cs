@@ -36,7 +36,9 @@ namespace IronVelocity.Compilation.AST
 
                 right = Expression.Convert(right, left.Type);
             }
-            if (left is VariableExpression)
+
+            bool isVariableExpression = left is VariableExpression;
+            if (isVariableExpression)
                 left = left.Reduce();
 
 
@@ -49,9 +51,10 @@ namespace IronVelocity.Compilation.AST
                 *     }
                 */
 
-            //However, if the expression is guaranteed to be a value type, why bother?
-            if (right.Type.IsValueType)
-                return Expression.Assign(left, right);
+            //However, if the expression is guaranteed to be a value type (i.e. not nullable), why bother?
+            //Similarly if it's a variable expression, the null handling is handled in side the setter
+            if (Right.Type.IsValueType || isVariableExpression)
+                return Expression.Block(typeof(void), Expression.Assign(left, right));
 
             var tempResult = Expression.Parameter(right.Type);
             return Expression.Block(new[] { tempResult },
