@@ -65,10 +65,11 @@ namespace IronVelocity.Compilation.AST
                 expression = new RenderableVelocityReference(reference);
 
 
-            if (expression.Type != typeof(string))
-                expression = Expression.Call(expression, MethodHelpers.ToStringMethodInfo);
+            var method = expression.Type == typeof(string)
+                ? MethodHelpers.AppendStringMethodInfo
+                : MethodHelpers.AppendMethodInfo;
 
-            return Expression.Call(_output, MethodHelpers.AppendMethodInfo, expression);
+            return Expression.Call(_output, method, expression);
         }
 
 

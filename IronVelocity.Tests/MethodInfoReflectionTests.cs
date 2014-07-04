@@ -12,6 +12,11 @@ namespace IronVelocity.Tests
         {
             Assert.NotNull(MethodHelpers.AppendMethodInfo);
         }
+        [Test]
+        public void AppendString()
+        {
+            Assert.NotNull(MethodHelpers.AppendStringMethodInfo);
+        }
 
         [Test]
         public new void ToString()
