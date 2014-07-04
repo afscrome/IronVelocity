@@ -13,6 +13,8 @@ namespace IronVelocity.Compilation.Directives
 {
     public class ForeachDirective : CustomDirectiveExpression
     {
+        private static readonly DefaultExpression _defaultVoidReturn = Expression.Default(typeof(void));
+
         private static readonly MethodInfo _enumeratorMethodInfo = typeof(IEnumerable).GetMethod("GetEnumerator", new Type[] { });
         private static readonly MethodInfo _moveNextMethodInfo = typeof(IEnumerator).GetMethod("MoveNext", new Type[] { });
         private static readonly PropertyInfo _currentPropertyInfo = typeof(IEnumerator).GetProperty("Current");
@@ -49,33 +51,67 @@ namespace IronVelocity.Compilation.Directives
             var index = new VariableExpression("velocityCount");
             var parts = GetParts();
 
-            //For the first item, output the #BeforeAll template, for all others #Between
-            var bodyPrefix = Expression.IfThenElse(
-                    Expression.Equal(Expression.Convert(index, typeof(int)), Expression.Constant(1)),
-                    GetExpressionBlock(parts[(int)ForeachSection.BeforeAll]),
-                    GetExpressionBlock(parts[(int)ForeachSection.Between])
-                );
-
-            var oddEven = Expression.IfThenElse(
-                Expression.Equal(Expression.Constant(0), Expression.Modulo(VelocityExpressions.ConvertIfNeeded(index, typeof(int)), Expression.Constant(2))),
-                GetExpressionBlock(parts[(int)ForeachSection.Even]),
-                GetExpressionBlock(parts[(int)ForeachSection.Odd])
-                );
-
-            var noData = GetExpressionBlock(parts[(int)ForeachSection.NoData]);
-            var loopSuffix = Expression.IfThenElse(
-                    Expression.Equal(Expression.Constant(0), VelocityExpressions.ConvertIfNeeded(index, typeof(int))),
-                    noData,
-                    GetExpressionBlock(parts[(int)ForeachSection.AfterAll])
-                );
-
 
             var bodyExpressions = new List<Expression>();
-            bodyExpressions.Add(bodyPrefix);
-            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForeachSection.Before]));
-            bodyExpressions.Add(oddEven);
-            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForeachSection.Each]));
-            bodyExpressions.Add(GetExpressionBlock(parts[(int)ForeachSection.After]));
+
+            //For the first item, output the #BeforeAll template, for all others #Between
+            var beforeAll = GetExpressionBlock(parts[(int)ForeachSection.BeforeAll]);
+            var between = GetExpressionBlock(parts[(int)ForeachSection.Between]);
+            if (beforeAll != null || between != null)
+            {
+                bodyExpressions.Add(
+                    Expression.IfThenElse(
+                        Expression.Equal(Expression.Convert(index, typeof(int)), Expression.Constant(1)),
+                        beforeAll ?? _defaultVoidReturn,
+                        between ?? _defaultVoidReturn
+                    )
+                );
+            }
+
+            //Next comes the #Before template
+            var before = GetExpressionBlock(parts[(int)ForeachSection.Before]);
+            if (before != null)
+                bodyExpressions.Add(before);
+
+
+            //Next come the #Odd / #Even 
+            var even = GetExpressionBlock(parts[(int)ForeachSection.Even]);
+            var odd = GetExpressionBlock(parts[(int)ForeachSection.Odd]);
+            if (even != null || odd != null)
+            {
+                bodyExpressions.Add(
+                    Expression.IfThenElse(
+                        Expression.Equal(Expression.Constant(0), Expression.Modulo(VelocityExpressions.ConvertIfNeeded(index, typeof(int)), Expression.Constant(2))),
+                        even ?? _defaultVoidReturn,
+                        odd ?? _defaultVoidReturn
+                     )
+                );
+            }
+
+            // Next up #each
+            var each = GetExpressionBlock(parts[(int)ForeachSection.Each]);
+            if (each != null)
+                bodyExpressions.Add(each);
+
+            // Finally comes #after
+            var after = GetExpressionBlock(parts[(int)ForeachSection.After]);
+            if (after != null)
+                bodyExpressions.Add(after);
+
+
+            //After the loop, we want to render #AfterAll if there were results, otherwise #NoData
+            Expression loopSuffix = null;
+            var noData = GetExpressionBlock(parts[(int)ForeachSection.NoData]);
+            var afterAll = GetExpressionBlock(parts[(int)ForeachSection.AfterAll]);
+            if (noData != null || afterAll != null)
+            {
+                loopSuffix = Expression.IfThenElse(
+                    Expression.Equal(Expression.Constant(0), VelocityExpressions.ConvertIfNeeded(index, typeof(int))),
+                    noData ?? _defaultVoidReturn,
+                    afterAll ?? _defaultVoidReturn
+                );
+            }
+
 
             var body = Expression.Block(bodyExpressions);
             return ForeachExpression(enumerable, body, loopVariable, index, loopSuffix, noData);
@@ -84,7 +120,7 @@ namespace IronVelocity.Compilation.Directives
         private Expression GetExpressionBlock(IEnumerable<Expression> expressions)
         {
             if (expressions == null)
-                return Expression.Default(typeof(void));
+                return null;
             else
                 return new RenderedBlock(expressions, _builder);
         }
@@ -133,29 +169,36 @@ namespace IronVelocity.Compilation.Directives
                     @continue
                 );
 
+            var loopBody = new List<Expression>();
+            //Store original item & index to revert to after the loop
+            loopBody.Add(Expression.Assign(originalItemValue, currentItem));
+            loopBody.Add(Expression.Assign(originalIndex, currentIndex));
+
+            //Initalise the index
+            loopBody.Add(Expression.Assign(currentIndex, VelocityExpressions.ConvertIfNeeded(Expression.Assign(localIndex, Expression.Constant(0)), currentIndex.Type)));
+            //Can only attempt foreach if the input implements IEnumerable
+            //Get the enumerator
+            loopBody.Add(Expression.Assign(enumerator, Expression.Call(enumerable, _enumeratorMethodInfo)));
+
+
+            // Loop through the enumerator
+            loopBody.Add(foreachLoop);
+            if (loopSuffix != null)
+                loopBody.Add(loopSuffix);
+
+            //Revert current item & index to original values
+            loopBody.Add(Expression.Assign(currentIndex, originalIndex));
+            loopBody.Add(Expression.Assign(currentItem, originalItemValue));
+
+
             var loop = Expression.IfThenElse(
                 Expression.TypeIs(enumerable, typeof(IEnumerable)),
                 Expression.Block(
                     typeof(void),
                     new[] { enumerator, localIndex, originalItemValue, originalIndex },
-                //Store original item & index to revert to after the loop
-                    Expression.Assign(originalItemValue, currentItem),
-                    Expression.Assign(originalIndex, currentIndex),
-                //Initalise the index
-                    Expression.Assign(currentIndex, VelocityExpressions.ConvertIfNeeded(Expression.Assign(localIndex, Expression.Constant(0)), currentIndex.Type)),
-                //Can only attempt foreach if the input implements IEnumerable
-                //Get the enumerator
-                            Expression.Assign(enumerator, Expression.Call(enumerable, _enumeratorMethodInfo)),
-                // Loop through the enumerator
-                            foreachLoop,
-                            loopSuffix,
-                //                      )
-                //                  ),
-                //Revert current item & index to original values
-                    Expression.Assign(currentIndex, originalIndex),
-                    Expression.Assign(currentItem, originalItemValue)
+                    loopBody
                 ),
-                noData
+                noData ?? _defaultVoidReturn
                 );
 
             return loop;
@@ -166,7 +209,7 @@ namespace IronVelocity.Compilation.Directives
         {
             var parts = new List<Expression>[9];
             var currentSection = ForeachSection.Each;
-            
+
             foreach (var expression in _builder.GetBlockExpressions(Node.GetChild(3)))
             {
                 var seperator = expression as Directive;
