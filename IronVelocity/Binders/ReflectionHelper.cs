@@ -59,6 +59,20 @@ namespace IronVelocity.Binders
         }
         public static Expression MemberExpression(string name, DynamicMetaObject target)
         {
+            // Also if the value is typeof(ENUM), then return the relevant enumerated type
+            if (target.Value is Type)
+            {
+                var valueType = (Type)target.Value;
+                if (valueType.IsEnum)
+                {
+                    try
+                    {
+                        return Expression.Constant(Enum.Parse(valueType, name, true), valueType);
+                    }
+                    catch (ArgumentException) { }
+                }
+            }
+
             return MemberExpression(name, target.LimitType, target.Expression);
         }
 
@@ -66,6 +80,14 @@ namespace IronVelocity.Binders
         public static Expression MemberExpression(string name, Type type, Expression expression)
         {
 
+            var targetType = type;
+            if (targetType.IsPrimitive || targetType == typeof(string) || targetType == typeof(decimal))
+            {
+                if (name.Equals("to_quote", StringComparison.OrdinalIgnoreCase))
+                    return VelocityStrings.EscapeDoubleQuote(expression);
+                else if (name.Equals("to_squote", StringComparison.OrdinalIgnoreCase))
+                    return VelocityStrings.EscapeSingleQuote(expression);
+            }            
 
             MemberInfo member = null;
             try

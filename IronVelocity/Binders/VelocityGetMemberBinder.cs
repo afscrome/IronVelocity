@@ -32,31 +32,7 @@ namespace IronVelocity.Binders
                 );
             }
 
-            //NVelocity has two special case 'properties' for use on identifiers
-            Expression result = null;
-            var targetType = target.LimitType;
-            if (targetType.IsPrimitive || targetType == typeof(string) || targetType == typeof(decimal))
-            {
-                if (Name.Equals("to_quote", StringComparison.OrdinalIgnoreCase))
-                    result = VelocityStrings.EscapeDoubleQuote(target.Expression);
-                else if (Name.Equals("to_squote", StringComparison.OrdinalIgnoreCase))
-                    result = VelocityStrings.EscapeSingleQuote(target.Expression);
-            }
-            // Also if the value is typeof(ENUM), then return the relevant enumerated type
-            else if (target.Value is Type)
-            {
-                var valueType = (Type)target.Value;
-                if (valueType.IsEnum)
-                {
-                    try {
-                        result = Expression.Constant(Enum.Parse(valueType, Name, true), valueType);
-                    }
-                    catch(ArgumentException) { }
-                }
-            }
-            
-            if (result == null)
-                result = ReflectionHelper.MemberExpression(Name, target);
+            var result = ReflectionHelper.MemberExpression(Name, target);
 
             if (result == null)
             {
