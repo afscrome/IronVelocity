@@ -7,6 +7,7 @@ using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -73,12 +74,19 @@ namespace IronVelocity
             var parser = _runtimeService.CreateNewParser();
             using (var reader = new StringReader(input))
             {
+                var stopwatch = new Stopwatch();
+                stopwatch.Start();
                 var ast = parser.Parse(reader, null) as ASTprocess;
+                stopwatch.Stop();
+                Debug.WriteLine("IronVelocity: Parsing {0}: {1}ms", typeName, stopwatch.ElapsedMilliseconds);
                 if (ast == null)
                     throw new InvalidProgramException("Unable to parse ast");
 
                 var builder = new VelocityExpressionBuilder(_directiveHandlers);
+                stopwatch.Restart();
                 var expr = new RenderedBlock(ast, builder);
+                stopwatch.Stop();
+                Debug.WriteLine("IronVelocity: Converting To DLR AST {0}: {1}ms", typeName, stopwatch.ElapsedMilliseconds);
 
                 return Expression.Lambda<VelocityTemplateMethod>(expr, typeName, new[] { Constants.InputParameter, builder.OutputParameter });
             }

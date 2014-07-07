@@ -32,6 +32,7 @@ namespace IronVelocity.Compilation
             //RunAndCollect allows this assembly to be garbage collected when finished with - http://msdn.microsoft.com/en-us/library/dd554932(VS.100).aspx
             var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
 
+
             return CompileWithSymbols(expressionTree, name, assemblyBuilder, debugMode, fileName);
         }
 
@@ -56,17 +57,30 @@ namespace IronVelocity.Compilation
                     typeof(void),
                     _signature);
 
+            var stopwatch = new Stopwatch();
+
             if (_globals != null && _globals.Count > 0)
             {
                 var staticTypeVisitor = new StaticGlobalVisitor(_globals);
+                stopwatch.Start();
                 expressionTree = (Expression<VelocityTemplateMethod>)staticTypeVisitor.Visit(expressionTree);
+                stopwatch.Stop();
+                Debug.WriteLine("IronVelocity: Optimising Template {0}: {1}ms", name, stopwatch.ElapsedMilliseconds);
             }
 
             var debugVisitor = new DynamicToExplicitCallSiteConvertor(typeBuilder, fileName);
+
+            stopwatch.Restart();
             expressionTree = (Expression<VelocityTemplateMethod>)debugVisitor.Visit(expressionTree);
+            stopwatch.Stop();
+            Debug.WriteLine("IronVelocity: Adding Debug Info to Template {0}: {1}ms", name, stopwatch.ElapsedMilliseconds);
 
             var debugInfo = DebugInfoGenerator.CreatePdbGenerator();
+
+            stopwatch.Restart();
             expressionTree.CompileToMethod(meth, debugInfo);
+            stopwatch.Stop();
+            Debug.WriteLine("IronVelocity: Compiling Template {0}: {1}ms", name, stopwatch.ElapsedMilliseconds);
 
 
             var compiledType = typeBuilder.CreateType();
