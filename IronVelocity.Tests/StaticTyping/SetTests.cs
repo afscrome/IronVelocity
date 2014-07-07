@@ -85,7 +85,7 @@ namespace IronVelocity.Tests.StaticTyping
         {
             input = "#set($result = "+ input + ")";
 
-            var outputContext = Utility.Evaluate(input, context);
+            var outputContext = Utility.Evaluate(input, context, globals: context);
 
             CollectionAssert.Contains(outputContext.Keys, "result");
             Assert.IsInstanceOf<T>(outputContext["result"]);

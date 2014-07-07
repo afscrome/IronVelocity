@@ -94,7 +94,7 @@ namespace IronVelocity.Tests.StaticTyping
         {
             input = "#set($array = " + input + ")";
 
-            var outputContext = Utility.Evaluate(input, context);
+            var outputContext = Utility.Evaluate(input, context, globals: context);
 
             CollectionAssert.Contains(outputContext.Keys, "array");
             Assert.IsInstanceOf<IList<object>>(outputContext["array"]);

@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Binders\ReflectionHelper\IsNullableTypeTests.cs" />
     <Compile Include="StaticTyping\DictionaryTests.cs" />
+    <Compile Include="StaticTyping\If.cs" />
     <Compile Include="StaticTyping\SetTests.cs" />
     <Compile Include="StaticTyping\ObjectArrayTests.cs" />
     <Compile Include="OutputTests\AsyncTests.cs" />

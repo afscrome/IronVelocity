@@ -94,7 +94,7 @@ namespace IronVelocity.Tests.StaticTyping
         {
             input = "#set($dictionary = \"" + input + "\")";
 
-            var outputContext = Utility.Evaluate(input, context);
+            var outputContext = Utility.Evaluate(input, context, globals:context);
 
             CollectionAssert.Contains(outputContext.Keys, "dictionary");
             Assert.IsInstanceOf<IDictionary<object, object>>(outputContext["dictionary"]);
