@@ -32,6 +32,7 @@ namespace IronVelocity.Compilation
 
             return Expression.Dynamic(node.Binder, node.Type, args);
         }
+        
 
         protected override Expression VisitConditional(ConditionalExpression node)
         {
@@ -44,10 +45,11 @@ namespace IronVelocity.Compilation
             if (renderableReference != null)
                 return VisitRenderableReference(renderableReference);
 
+            /*
             var reference = node as ReferenceExpression;
             if (reference != null)
                 return VisitReference(reference);
-
+            */
             var setDirective = node as SetDirective;
             if (setDirective != null)
                 return VisitSetDirective(setDirective);
@@ -60,6 +62,33 @@ namespace IronVelocity.Compilation
             if (dictionary != null)
                 return VisitDictionaryExpression(dictionary);
 
+            var variable = node as VariableExpression;
+            if (variable != null)
+                return VisitVariable(variable);
+
+            var property = node as PropertyAccessExpression;
+            if (property != null)
+                return VisitPropertyAccess(property);
+
+            var method = node as MethodInvocationExpression;
+            if (method != null)
+                return VisitMethodInvocationExpression(method);
+
+            return base.VisitExtension(node);
+        }
+
+        protected virtual Expression VisitBinaryLogicalExpression(BinaryLogicalExpression node)
+        {
+            var left = Visit(node.Left);
+            var right = Visit(node.Right);
+
+            if (left.Type == typeof(bool) && right.Type == typeof(bool))
+            {
+                if (node.Operation == LogicalOperation.And)
+                    return Expression.AndAlso(left, right);
+                else if (node.Operation == LogicalOperation.Or)
+                    return Expression.OrElse(left, right);
+            }
             return base.VisitExtension(node);
         }
 
@@ -90,12 +119,8 @@ namespace IronVelocity.Compilation
 
         protected virtual Expression VisitSetDirective(SetDirective node)
         {
-            var leftReference = node.Left as ReferenceExpression;
-            if(leftReference != null)
-            {
-                if (!leftReference.Additional.Any() && _globalTypeMap.ContainsKey(leftReference.BaseVariable.Name))
+            if (node.Left is GlobalVariableExpression)
                     throw new InvalidOperationException("Cannot assign to a global variable");
-            }
 
             var left = Visit(node.Left);
             var right = Visit(node.Right);
@@ -105,125 +130,55 @@ namespace IronVelocity.Compilation
                 right = VelocityExpressions.ConvertIfNeeded(right, left.Type);
             }
 
-            return Expression.Assign(left, right);
+            return Expression.Assign(left.ReduceExtensions(), right);
         }
 
         protected virtual Expression VisitRenderableReference(RenderableVelocityReference node)
         {
-            var reducedRef = Visit(node.Reference);
+            var reducedRef = Visit(node.Expression);
 
-            return reducedRef == node
-                ? base.VisitExtension(node)
-                : new RenderableExpression(reducedRef, node.Metadata);
+            return node.Update(reducedRef);
         }
 
 
-        protected virtual Expression VisitReference(ReferenceExpression node)
+        protected virtual Expression VisitVariable(VariableExpression node)
         {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            var reference = node;
-            var variable = reference.BaseVariable;
             Type staticType;
-
-
-            /*
-             * TODO: can we staticly type more than just global variables?
-             * 
-             * e.g. in the following, it would be safe to staticly type $x as an int?
-             *      #set($x = 123)
-             *      $x.ToString()
-             *  
-             * problems comes with how we use subviews in zimbra
-             *      #set($x = 123)
-             *      $core_v2_widget.Render('test.vm')
-             *      $x.ToString()
-             * 
-             * test.vm may set $x to be a non integer value
-             */
-            if (!_globalTypeMap.TryGetValue(variable.Name, out staticType) || typeof(IDynamicMetaObjectProvider).IsAssignableFrom(staticType))
+            if (!_globalTypeMap.TryGetValue(node.Name, out staticType) || typeof(IDynamicMetaObjectProvider).IsAssignableFrom(staticType))
                 return base.VisitExtension(node);
 
-            //Further methods / properties introduce some interesting problems
-            //Particularly in the case that the object returned is a sub type, or interface implementation
-            // Should be safe to continue if the return type is sealed or a value type.  Maybe other scenarios?
-            if (reference.Additional != null && reference.Additional.Count > 1)
-                return base.VisitExtension(node);
+            return new GlobalVariableExpression(node, staticType);
+        }
 
+        protected virtual Expression VisitPropertyAccess(PropertyAccessExpression node)
+        {
+            var target = Visit(node.Target);
 
+            return node.Update(target);
+        }
 
-            Expression soFar = VelocityExpressions.ConvertIfNeeded(variable.Reduce(), staticType);
-
-            foreach (var child in reference.Additional)
+        protected virtual Expression VisitMethodInvocationExpression(MethodInvocationExpression node)
+        {
+            var target = Visit(node.Target);
+            var args = new Expression[node.Arguments.Count];
+            for (int i = 0; i < args.Length; i++)
             {
-                var getMember = child as PropertyAccessExpression;
-                if (getMember != null)
-                {
-                    soFar = ReflectionHelper.MemberExpression(getMember.Name, soFar.Type, soFar);
-                    //TODO: Handle scenario property isn't there
-                    // Use partial static typing?
-                    // Short circuit execution of entire expression?
-                    if (soFar == null)
-                    {
-                        return typeof(IDynamicMetaObjectProvider).IsAssignableFrom(getMember.Type)
-                            ? base.VisitExtension(node)
-                            : Constants.NullExpression;
-
-                    }
-                    continue;
-                }
-
-                var invoke = child as MethodInvocationExpression;
-                if (invoke != null)
-                {
-                    var args = invoke.Arguments.Select(x => Visit(x)).ToArray(); ;
-
-
-                    //TODO: If we can't staticly type part, return a partial static typed expression rather than 100% dynamic
-                    if (args.Any(x => !IsConstantType(x)))
-                        return base.VisitExtension(node);
-
-                    var method = ReflectionHelper.ResolveMethod(soFar.Type, invoke.Name, GetArgumentTypes(args));
-
-                    //TODO: If we can't resolve a method, should probably short circuit and return null right away
-                    if (method == null)
-                    {
-                        return typeof(IDynamicMetaObjectProvider).IsAssignableFrom(invoke.Type)
-                            ? base.VisitExtension(node)
-                            : Constants.NullExpression;
-                    }
-                    else
-                    {
-                        soFar = ReflectionHelper.ConvertMethodParamaters(method, soFar, args.Select(x => new DynamicMetaObject(x, BindingRestrictions.Empty)).ToArray());
-                    }
-                }
-                else
-                {
-                    throw new NotSupportedException("Node type not supported in a Reference: " + child.GetType().Name);
-                }
-
+                args[i] = Visit(node.Arguments[i]);
             }
 
-            return base.Visit(soFar);
+            return node.Update(target, args);
         }
 
 
-        private Type[] GetArgumentTypes (IReadOnlyList<Expression> expressions)
+
+
+
+        public static bool IsConstantType(Expression expression)
         {
-            var types = new Type[expressions.Count];
+            if (typeof(IDynamicMetaObjectProvider).IsAssignableFrom(expression.Type))
+                return false;
 
-            for (int i = 0; i < expressions.Count; i++)
-            {
-                types[i] = expressions[i].Type;
-            }
-
-            return types;
-        }
-
-        private bool IsConstantType(Expression expression)
-        {
-            if (expression is ConstantExpression)
+            if (expression is ConstantExpression || expression is GlobalVariableExpression)
                 return true;
 
             //Interpolated & dictionary strings will always return the same type
@@ -236,7 +191,8 @@ namespace IronVelocity.Compilation
 
             if (expression.Type == typeof(void))
                 return true;
-                
+
+
             //If the type is sealed, there
             if (expression.Type.IsSealed)
                 return true;

@@ -72,22 +72,13 @@ namespace IronVelocity.Compilation
         }
 
 
+        [Obsolete]
         public static Expression CoerceToBoolean(Expression expression)
         {
             return new AST.CoerceToBooleanExpression(expression);
         }
 
 
-        public static Expression ConvertParameterIfNeeded(Expression expr, ParameterInfo info)
-        {
-            if (expr == null)
-                throw new ArgumentNullException("expr");
-
-            if (info == null)
-                throw new ArgumentNullException("info");
-
-            return ConvertIfNeeded(expr, info.ParameterType);
-        }
         [Obsolete]
         public static Expression ConvertParameterIfNeeded(DynamicMetaObject target, ParameterInfo info)
         {
@@ -100,46 +91,6 @@ namespace IronVelocity.Compilation
             var expr = target.Expression;
             return ConvertIfNeeded(expr, target.LimitType, info.ParameterType);
         }
-
-        public static Expression ConvertReturnTypeIfNeeded(DynamicMetaObject target, MemberInfo member)
-        {
-            if (target == null)
-                throw new ArgumentNullException("target");
-
-            if (member == null)
-                throw new ArgumentNullException("member");
-
-            var expr = target.Expression;
-
-            return ConvertIfNeeded(expr, member.DeclaringType);
-        }
-
-        private static readonly Type _dictionaryType = typeof(RuntimeDictionary);
-        private static readonly ConstructorInfo _dictionaryConstructorInfo = _dictionaryType.GetConstructor(new[] { typeof(int) });
-        private static readonly MethodInfo _dictionaryAddMemberInfo = _dictionaryType.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string), typeof(object) }, null);
-        public static Expression Dictionary(IDictionary<string, Expression> input)
-        {
-
-            if (input == null)
-                throw new ArgumentNullException("input");
-
-            var dictionaryInit = Expression.New(
-                    _dictionaryConstructorInfo,
-                    Expression.Constant(input.Count)
-                );
-
-            if (!input.Any())
-                return dictionaryInit;
-
-            var initializers = input.Select(x => Expression.ElementInit(
-                _dictionaryAddMemberInfo,
-                Expression.Constant(x.Key),
-                VelocityExpressions.ConvertIfNeeded(x.Value, typeof(object))
-            ));
-
-            return Expression.ListInit(dictionaryInit, initializers);
-        }
-
 
     }
 }

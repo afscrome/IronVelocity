@@ -57,7 +57,7 @@ namespace IronVelocity.Compilation.AST
         /// <returns></returns>
         private static Expression If(Expression condition, Expression trueContent, Expression falseContent)
         {
-            condition = VelocityExpressions.CoerceToBoolean(condition);
+            condition = new CoerceToBooleanExpression(condition);
 
             var constant = condition as ConstantExpression;
             if (constant != null && constant.Type == typeof(bool))

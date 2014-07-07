@@ -58,6 +58,7 @@
     <Compile Include="Compilation\AST\BinaryLogicalExpression.cs" />
     <Compile Include="Compilation\AST\CoerceToBooleanExpression.cs" />
     <Compile Include="Compilation\AST\DictionaryExpression.cs" />
+    <Compile Include="Compilation\AST\GlobalVariableExpression.cs" />
     <Compile Include="Compilation\AST\ObjectArrayExpression.cs" />
     <Compile Include="Compilation\AST\VelocityBinaryExpression.cs" />
     <Compile Include="Compilation\AST\CustomDirectiveExpression.cs" />

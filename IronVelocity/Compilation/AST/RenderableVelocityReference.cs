@@ -15,6 +15,9 @@ namespace IronVelocity.Compilation.AST
             : base(reference, reference.Metadata)
         {
         }
+
+
+
     }
 
     public class RenderableExpression : VelocityExpression
@@ -76,7 +79,12 @@ namespace IronVelocity.Compilation.AST
             }
         }
 
-        //public override Type Type { get { return typeof(void); } }
+        public Expression Update(Expression expression)
+        {
+            return Expression == expression
+                ? this
+                : new RenderableExpression(expression, Metadata);
+        }
     }
 
 }

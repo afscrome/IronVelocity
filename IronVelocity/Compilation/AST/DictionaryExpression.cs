@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -10,9 +11,13 @@ namespace IronVelocity.Compilation.AST
 {
     public class DictionaryExpression : VelocityExpression
     {
-        public IDictionary<string, Expression> Values { get; private set; }
+        private static readonly Type _dictionaryType = typeof(RuntimeDictionary);
+        private static readonly ConstructorInfo _dictionaryConstructorInfo = _dictionaryType.GetConstructor(new[] { typeof(int) });
+        private static readonly MethodInfo _dictionaryAddMemberInfo = _dictionaryType.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string), typeof(object) }, null);
 
-        public DictionaryExpression(IDictionary<string, Expression> values)
+        public IReadOnlyDictionary<string, Expression> Values { get; private set; }
+
+        public DictionaryExpression(IReadOnlyDictionary<string, Expression> values)
         {
             if (values == null)
                 throw new ArgumentNullException("values");
@@ -22,7 +27,21 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            return VelocityExpressions.Dictionary(Values);
+            var dictionaryInit = Expression.New(
+                    _dictionaryConstructorInfo,
+                    Expression.Constant(Values.Count)
+                );
+
+            if (!Values.Any())
+                return dictionaryInit;
+
+            var initializers = Values.Select(x => Expression.ElementInit(
+                _dictionaryAddMemberInfo,
+                Expression.Constant(x.Key),
+                VelocityExpressions.ConvertIfNeeded(x.Value, typeof(object))
+            ));
+
+            return Expression.ListInit(dictionaryInit, initializers);
         }
 
         public override Type Type { get { return typeof(RuntimeDictionary); } }

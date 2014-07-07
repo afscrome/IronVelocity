@@ -28,7 +28,7 @@ namespace IronVelocity.Compilation.AST
 
 
         public VelocityExpressionBuilder(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers)
-            : this (directiveHandlers, "_output")
+            : this (directiveHandlers, "$output")
         {
         }
 

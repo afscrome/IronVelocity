@@ -7,7 +7,7 @@ namespace IronVelocity.Compilation.AST
 {
     public class PropertyAccessExpression : VelocityExpression
     {
-        public Expression Target {get; private set;}
+        public Expression Target { get; private set; }
         public string Name { get; private set; }
         public PropertyAccessExpression(INode node, Expression target)
             : base(node)
@@ -22,14 +22,41 @@ namespace IronVelocity.Compilation.AST
             Name = node.Literal;
         }
 
+        private Expression _staticExpression;
+        private readonly Type _type = typeof(object);
+
+        private PropertyAccessExpression(Expression target, string name, SymbolInformation symbolInformation)
+        {
+            Target = target;
+            Name = name;
+            Symbols = symbolInformation;
+
+            if (StaticGlobalVisitor.IsConstantType(Target))
+            {
+                _staticExpression = ReflectionHelper.MemberExpression(Name, Target.Type, Target)
+                    ?? Constants.NullExpression;
+                _type = _staticExpression.Type;
+            }
+        }
+
         public override Expression Reduce()
         {
-            //TODO: allow for reuse of callsites
-            return Expression.Dynamic(
-                new VelocityGetMemberBinder(Name),
-                typeof(object),
-                Target
-            );
+            return _staticExpression
+                ?? Expression.Dynamic(
+                    new VelocityGetMemberBinder(Name),
+                    typeof(object),
+                    Target
+                );
         }
+
+        public Expression Update(Expression target)
+        {
+            if (target == Target)
+                return this;
+
+            return new PropertyAccessExpression(target, Name, Symbols);
+        }
+
+        public override Type Type { get { return _type; } }
     }
 }
