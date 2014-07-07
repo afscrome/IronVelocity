@@ -47,7 +47,7 @@ namespace IronVelocity.Compilation
             return ConvertIfNeeded(obj.Expression, obj.LimitType, to);
         }
 
-        public static Expression ConvertIfNeeded(Expression expression, Type from, Type to)
+        private static Expression ConvertIfNeeded(Expression expression, Type from, Type to)
         {
             if (expression == null)
                 throw new ArgumentNullException("expression");
@@ -74,18 +74,7 @@ namespace IronVelocity.Compilation
 
         public static Expression CoerceToBoolean(Expression expression)
         {
-            if (expression == null)
-                throw new ArgumentNullException("expression");
-
-            if (expression.Type == typeof(bool))
-                return expression;
-
-            else if (expression.Type.IsValueType)
-                return Expression.Constant(true);
-
-            expression = ConvertIfNeeded(expression, typeof(object));
-
-            return Expression.Convert(expression, typeof(bool), MethodHelpers.BooleanCoercionMethodInfo);
+            return new AST.CoerceToBooleanExpression(expression);
         }
 
 

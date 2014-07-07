@@ -13,21 +13,43 @@ namespace Tests
 {
     public static class Utility
     {
-
-        public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, string fileName = "", IDictionary<string, object> globals = null)
+        public static VelocityTemplateMethod CompileTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {
             //VelocityAsyncTemplateMethod action = null;
             VelocityTemplateMethod action = null;
             try
             {
                 var runtime = new VelocityRuntime(null, globals);
-                action = runtime.CompileTemplate(input, "TestExpression", fileName, true);
+                return runtime.CompileTemplate(input, "TestExpression", fileName, true);
             }
             catch (NotSupportedException ex)
             {
                 //Temporary for dev to separate those tests failing due to errors from those due to not being implemented yet
                 Assert.Inconclusive(ex.Message);
+                throw new NotImplementedException();
             }
+        }
+
+        public static IDictionary<string, object> Evaluate(string input, IDictionary<string, object> environment, string fileName = "", IDictionary<string, object> globals = null)
+        {
+            if (globals == null && environment != null)
+                globals = environment.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
+
+            var action = CompileTemplate(input, fileName, globals);
+
+            var builder = new StringBuilder();
+            var ctx = environment as VelocityContext;
+            if (ctx == null)
+                ctx = new VelocityContext(environment);
+            
+            action(ctx, builder);
+
+            return ctx;
+        }
+
+        public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, string fileName = "", IDictionary<string, object> globals = null)
+        {
+            var action = CompileTemplate(input, fileName, globals);
 
             var builder = new StringBuilder();
             var ctx = environment as VelocityContext;
@@ -47,7 +69,7 @@ namespace Tests
             return NormaliseLineEndings(builder.ToString());
         }
 
-        public static void TestExpectedMarkupGenerated(string input, string expectedOutput, IDictionary<string, object> environment = null, string fileName = "", bool isGlobalEnvironment = false)
+        public static void TestExpectedMarkupGenerated(string input, string expectedOutput, IDictionary<string, object> environment = null, string fileName = "", bool isGlobalEnvironment = true)
         {
             expectedOutput = NormaliseLineEndings(expectedOutput);
             var globals = isGlobalEnvironment ? environment : null;

@@ -20,11 +20,10 @@ namespace IronVelocity.Compilation.AST
         {
             char[] contents = Value.ToCharArray();
             int lastIndex;
-
             return RecursiveBuildDictionary(contents, 2, out lastIndex);
         }
 
-        private Expression RecursiveBuildDictionary(char[] contents, int fromIndex, out int lastIndex)
+        private DictionaryExpression RecursiveBuildDictionary(char[] contents, int fromIndex, out int lastIndex)
         {
             // key=val, key='val', key=$val, key=${val}, key='id$id'
 
@@ -89,8 +88,8 @@ namespace IronVelocity.Compilation.AST
                         }
                         else if (c == '{')
                         {
-                            Expression nestedHash = RecursiveBuildDictionary(contents, i + 1, out i);
-                            ProcessDictEntry(hash, sbKeyBuilder, nestedHash);
+                            var value = RecursiveBuildDictionary(contents, i + 1, out i);
+                            ProcessDictEntry(hash, sbKeyBuilder, value);
                             inKey = false;
                             valueStarted = false;
                             inTransition = true;
@@ -176,8 +175,7 @@ namespace IronVelocity.Compilation.AST
                 }
             }
 
-            //return hash;
-            return VelocityExpressions.Dictionary(hash);
+            return new DictionaryExpression(hash);
         }
 
         private static void ProcessDictEntry(IDictionary<string, Expression> map, StringBuilder keyBuilder, Expression value)

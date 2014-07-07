@@ -174,7 +174,7 @@ namespace IronVelocity.Compilation.AST
                 case ParserTreeConstants.REFERENCE:
                     return new ReferenceExpression(node);
                 case ParserTreeConstants.OBJECT_ARRAY:
-                    return Array(node);
+                    return new ObjectArrayExpression(node);
                 case ParserTreeConstants.INTEGER_RANGE:
                     return new IntegerRangeExpression(node);
                 case ParserTreeConstants.EXPRESSION:
@@ -215,19 +215,6 @@ namespace IronVelocity.Compilation.AST
             return Operand(child);
         }
 
-        private static Expression Array(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTObjectArray))
-                throw new ArgumentOutOfRangeException("node");
-
-            var elements = GetChildNodes(node)
-                .Select(Operand);
-
-            return Expression.New(MethodHelpers.ListConstructorInfo, Expression.NewArrayInit(typeof(object), elements));
-        }
 
         private static void GetBinaryExpressionOperands(INode node, out Expression left, out Expression right)
         {

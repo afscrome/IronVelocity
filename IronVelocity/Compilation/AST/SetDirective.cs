@@ -1,4 +1,5 @@
-﻿using NVelocity.Runtime.Parser.Node;
+﻿using IronVelocity.Binders;
+using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Linq.Expressions;
 
@@ -53,7 +54,7 @@ namespace IronVelocity.Compilation.AST
 
             //However, if the expression is guaranteed to be a value type (i.e. not nullable), why bother?
             //Similarly if it's a variable expression, the null handling is handled in side the setter
-            if (Right.Type.IsValueType || isVariableExpression)
+            if (isVariableExpression || !ReflectionHelper.IsNullableType(right.Type))
                 return Expression.Block(typeof(void), Expression.Assign(left, right));
 
             var tempResult = Expression.Parameter(right.Type);

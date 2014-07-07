@@ -57,8 +57,15 @@ namespace IronVelocity.Compilation.AST
         /// <returns></returns>
         private static Expression If(Expression condition, Expression trueContent, Expression falseContent)
         {
-            if (condition.Type != typeof(bool))
-                condition = VelocityExpressions.CoerceToBoolean(condition);
+            condition = VelocityExpressions.CoerceToBoolean(condition);
+
+            var constant = condition as ConstantExpression;
+            if (constant != null && constant.Type == typeof(bool))
+            {
+                return (bool)constant.Value
+                    ? trueContent
+                    : falseContent ?? Expression.Default(typeof(void));
+            }
 
             var expr = falseContent != null
                 ? Expression.IfThenElse(condition, trueContent, falseContent)
@@ -66,6 +73,7 @@ namespace IronVelocity.Compilation.AST
 
             return expr;
         }
+
         public override Expression Reduce()
         {
             return Value;

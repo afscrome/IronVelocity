@@ -411,6 +411,14 @@ namespace IronVelocity.Binders
             return VelocityExpressions.BoxIfNeeded(result);
         }
 
+        public static bool IsNullableType(Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException("type");
+
+            return !(type.IsValueType && Nullable.GetUnderlyingType(type) == null);
+        }
+
     }
 
     public enum MethodSpecificityComparison

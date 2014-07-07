@@ -69,7 +69,7 @@ namespace IronVelocity.Binders
                     throw new InvalidOperationException();
             }
 
-            var left = CoerceToBoolean(target);
+            var left =  CoerceToBoolean(target);
             var right = CoerceToBoolean(arg);
 
             Expression expression = null;
@@ -137,9 +137,9 @@ namespace IronVelocity.Binders
         {
             if (value.Value == null)
                 return null;
-            else if (value.RuntimeType == typeof(bool) || value.RuntimeType == typeof(bool?))
+            else if (value.LimitType == typeof(bool) || value.LimitType == typeof(bool?))
                 return VelocityExpressions.ConvertIfNeeded(value);
-            else if (value.Expression.Type.IsValueType || value.RuntimeType.IsValueType)
+            else if (!ReflectionHelper.IsNullableType(value.LimitType))
                 return Expression.Constant(true);
             else
                 return Expression.NotEqual(value.Expression, Expression.Constant(null, value.Expression.Type));

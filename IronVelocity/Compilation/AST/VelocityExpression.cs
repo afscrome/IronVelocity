@@ -6,7 +6,7 @@ namespace IronVelocity.Compilation.AST
 {
     public abstract class VelocityExpression : Expression
     {
-        public SymbolInformation Symbols { get; private set; }
+        public SymbolInformation Symbols { get; protected set; }
 
         protected VelocityExpression() { }
 
