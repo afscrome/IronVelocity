@@ -16,6 +16,7 @@ namespace IronVelocity.Compilation.AST
         private static readonly MethodInfo _dictionaryAddMemberInfo = _dictionaryType.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string), typeof(object) }, null);
 
         public IReadOnlyDictionary<string, Expression> Values { get; private set; }
+        public override Type Type { get { return typeof(RuntimeDictionary); } }
 
         public DictionaryExpression(IReadOnlyDictionary<string, Expression> values)
         {
@@ -43,7 +44,30 @@ namespace IronVelocity.Compilation.AST
 
             return Expression.ListInit(dictionaryInit, initializers);
         }
+       
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            var args = Values.ToDictionary(x => x.Key, x =>visitor.Visit(x.Value));
 
-        public override Type Type { get { return typeof(RuntimeDictionary); } }
+            bool changed = true;
+
+            var visitedValues = new Dictionary<string, Expression>(Values.Count);
+            foreach (var pair in Values)
+            {
+                var value = visitor.Visit(pair.Value);
+                if (value != pair.Value)
+                {
+                    changed = true;
+                }
+                visitedValues[pair.Key] = value;
+            }
+
+            var result = changed 
+                ? new DictionaryExpression(visitedValues)
+                : this;
+
+            return result;
+        }
+        
     }
 }

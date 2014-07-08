@@ -60,6 +60,7 @@
     <Compile Include="Compilation\AST\DictionaryExpression.cs" />
     <Compile Include="Compilation\AST\GlobalVariableExpression.cs" />
     <Compile Include="Compilation\AST\ObjectArrayExpression.cs" />
+    <Compile Include="Compilation\AST\SetVariableExpression.cs" />
     <Compile Include="Compilation\AST\VelocityBinaryExpression.cs" />
     <Compile Include="Compilation\AST\CustomDirectiveExpression.cs" />
     <Compile Include="Compilation\AST\RenderableVelocityReference.cs" />
@@ -67,7 +68,7 @@
     <Compile Include="Compilation\AST\BinaryMathematicalExpression.cs" />
     <Compile Include="Compilation\AST\Directive.cs" />
     <Compile Include="Compilation\AST\ReferenceExpression.cs" />
-    <Compile Include="Compilation\AST\SetExpression.cs" />
+    <Compile Include="Compilation\AST\SetMemberExpression.cs" />
     <Compile Include="Compilation\AST\IfStatement.cs" />
     <Compile Include="Compilation\AST\IntegerRangeExpression.cs" />
     <Compile Include="Compilation\AST\InterpolatedStringExpression.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Compilation\AST\StringExpression.cs" />
     <Compile Include="Compilation\Directives\MacroScope.cs" />
     <Compile Include="Compilation\MethodHelper.cs" />
+    <Compile Include="Compilation\VelocityExpressionVisitor.cs" />
     <Compile Include="Compilation\VelocityString.cs">
       <SubType>Code</SubType>
     </Compile>

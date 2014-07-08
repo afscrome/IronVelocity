@@ -65,7 +65,7 @@ namespace IronVelocity.Compilation
                 stopwatch.Start();
                 expressionTree = (Expression<VelocityTemplateMethod>)staticTypeVisitor.Visit(expressionTree);
                 stopwatch.Stop();
-                Debug.WriteLine("IronVelocity: Optimising Template {0}: {1}ms", name, stopwatch.ElapsedMilliseconds);
+                Trace.WriteLine(String.Format("IronVelocity,Optimising,{0},{1}", name, stopwatch.ElapsedMilliseconds));
             }
 
             var debugVisitor = new DynamicToExplicitCallSiteConvertor(typeBuilder, fileName);
@@ -73,14 +73,14 @@ namespace IronVelocity.Compilation
             stopwatch.Restart();
             expressionTree = (Expression<VelocityTemplateMethod>)debugVisitor.Visit(expressionTree);
             stopwatch.Stop();
-            Debug.WriteLine("IronVelocity: Adding Debug Info to Template {0}: {1}ms", name, stopwatch.ElapsedMilliseconds);
+            Trace.WriteLine(String.Format("IronVelocity,Adding Debug Info to Template,{0},{1}", name, stopwatch.ElapsedMilliseconds));
 
             var debugInfo = DebugInfoGenerator.CreatePdbGenerator();
 
             stopwatch.Restart();
             expressionTree.CompileToMethod(meth, debugInfo);
             stopwatch.Stop();
-            Debug.WriteLine("IronVelocity: Compiling Template {0}: {1}ms", name, stopwatch.ElapsedMilliseconds);
+            Trace.WriteLine(String.Format("IronVelocity,Compiling,{0},{1}", name, stopwatch.ElapsedMilliseconds));
 
 
             var compiledType = typeBuilder.CreateType();

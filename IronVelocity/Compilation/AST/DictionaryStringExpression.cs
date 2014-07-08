@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IronVelocity.Runtime;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -10,6 +11,7 @@ namespace IronVelocity.Compilation.AST
     public class DictionaryStringExpression : VelocityExpression
     {
         public string Value { get; set; }
+        public override Type Type { get { return typeof(RuntimeDictionary); } }
 
         public DictionaryStringExpression(string value)
         {

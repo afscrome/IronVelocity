@@ -8,6 +8,9 @@ namespace IronVelocity.Compilation.AST
 {
     public class BinaryMathematicalExpression : VelocityBinaryExpression
     {
+        public MathematicalOperation Operation { get; private set; }
+        public ExpressionType ExpressionType { get; private set; }
+
         public BinaryMathematicalExpression(INode node, MathematicalOperation op)
             : base(node)
         {
@@ -15,8 +18,13 @@ namespace IronVelocity.Compilation.AST
             ExpressionType = MathematicalOperationToExpressionType(op);
         }
 
-        public MathematicalOperation Operation { get; private set; }
-        public ExpressionType ExpressionType { get; private set; }
+        private BinaryMathematicalExpression(Expression left, Expression right, SymbolInformation symbols, MathematicalOperation op)
+            : base(left, right, symbols)
+        {
+            Operation = op;
+            ExpressionType = MathematicalOperationToExpressionType(op);
+        }
+
 
         public override Expression Reduce()
         {
@@ -29,6 +37,15 @@ namespace IronVelocity.Compilation.AST
                 Right
             );
         }
+
+        public override Expression Update(Expression left, Expression right)
+        {
+            if (Left == left && Right == right)
+                return this;
+            else
+                return new BinaryMathematicalExpression(left, right, Symbols, Operation);
+        }
+
 
         public static ExpressionType MathematicalOperationToExpressionType(MathematicalOperation op)
         {

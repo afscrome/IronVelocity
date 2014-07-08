@@ -17,24 +17,16 @@ namespace Tests
         {
             //VelocityAsyncTemplateMethod action = null;
             VelocityTemplateMethod action = null;
-            try
-            {
-                var runtime = new VelocityRuntime(null, globals);
-                return runtime.CompileTemplate(input, "TestExpression", fileName, true);
-            }
-            catch (NotSupportedException ex)
-            {
-                //Temporary for dev to separate those tests failing due to errors from those due to not being implemented yet
-                Assert.Inconclusive(ex.Message);
-                throw new NotImplementedException();
-            }
+            var runtime = new VelocityRuntime(null, globals);
+            return runtime.CompileTemplate(input, "TestExpression", fileName, true);
         }
 
         public static IDictionary<string, object> Evaluate(string input, IDictionary<string, object> environment, string fileName = "", IDictionary<string, object> globals = null)
         {
+            /*
             if (globals == null && environment != null)
                 globals = environment.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
-
+            */
             var action = CompileTemplate(input, fileName, globals);
 
             var builder = new StringBuilder();
@@ -49,6 +41,9 @@ namespace Tests
 
         public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, string fileName = "", IDictionary<string, object> globals = null)
         {
+            if (globals == null && environment != null)
+                globals = environment.Where(x => x.Value != null).ToDictionary(x => x.Key, x=> x.Value);
+
             var action = CompileTemplate(input, fileName, globals);
 
             var builder = new StringBuilder();

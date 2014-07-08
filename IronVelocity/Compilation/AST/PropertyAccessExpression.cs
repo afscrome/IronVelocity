@@ -7,8 +7,13 @@ namespace IronVelocity.Compilation.AST
 {
     public class PropertyAccessExpression : VelocityExpression
     {
+        private readonly Expression _staticExpression;
+        private readonly Type _type = typeof(object);
+
         public Expression Target { get; private set; }
         public string Name { get; private set; }
+        public override Type Type { get { return _type; } }
+
         public PropertyAccessExpression(INode node, Expression target)
             : base(node)
         {
@@ -22,8 +27,6 @@ namespace IronVelocity.Compilation.AST
             Name = node.Literal;
         }
 
-        private Expression _staticExpression;
-        private readonly Type _type = typeof(object);
 
         private PropertyAccessExpression(Expression target, string name, SymbolInformation symbolInformation)
         {
@@ -57,6 +60,5 @@ namespace IronVelocity.Compilation.AST
             return new PropertyAccessExpression(target, Name, Symbols);
         }
 
-        public override Type Type { get { return _type; } }
     }
 }

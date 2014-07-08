@@ -10,9 +10,13 @@ namespace IronVelocity.Compilation.AST
 {
     public class MethodInvocationExpression : VelocityExpression
     {
-        public Expression Target {get; private set;}
+        private readonly Expression _staticExpression;
+        private readonly Type _type = typeof(object);
+
+        public Expression Target { get; private set; }
         public string Name { get; private set; }
         public IReadOnlyList<Expression> Arguments { get; private set; }
+        public override Type Type { get { return _type; } } 
 
         public MethodInvocationExpression(INode node, Expression target)
             :base(node)
@@ -34,9 +38,6 @@ namespace IronVelocity.Compilation.AST
             Target = target;
             Name = node.FirstToken.Image;
         }
-
-        private readonly Expression _staticExpression;
-        private readonly Type _type = typeof(object);
 
         private MethodInvocationExpression(Expression target, string name, IReadOnlyList<Expression> arguments, SymbolInformation symbols)
         {
@@ -97,8 +98,6 @@ namespace IronVelocity.Compilation.AST
 
             return types;
         }
-
-        public override Type Type { get { return _type;} } 
 
     }
 }

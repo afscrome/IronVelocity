@@ -9,6 +9,10 @@ namespace IronVelocity.Compilation.AST
             : base(node)
         {
         }
+        private IntegerRangeExpression(Expression left, Expression right, SymbolInformation symbols)
+            : base(left, right, symbols)
+        {            
+        }
 
         public override Expression Reduce()
         {
@@ -17,5 +21,15 @@ namespace IronVelocity.Compilation.AST
                     VelocityExpressions.ConvertIfNeeded(Right, typeof(object))
                     );
         }
+
+        public override Expression Update(Expression left, Expression right)
+        {
+            if (Left == left && Right == right)
+                return this;
+            else
+                return new IntegerRangeExpression(left, right, Symbols);
+        }
+
+
     }
 }

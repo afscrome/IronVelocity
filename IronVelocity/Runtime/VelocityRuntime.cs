@@ -78,7 +78,7 @@ namespace IronVelocity
                 stopwatch.Start();
                 var ast = parser.Parse(reader, null) as ASTprocess;
                 stopwatch.Stop();
-                Debug.WriteLine("IronVelocity: Parsing {0}: {1}ms", typeName, stopwatch.ElapsedMilliseconds);
+                Trace.WriteLine(String.Format("IronVelocity,Parsing,{0},{1}", typeName, stopwatch.ElapsedMilliseconds));
                 if (ast == null)
                     throw new InvalidProgramException("Unable to parse ast");
 
@@ -86,7 +86,7 @@ namespace IronVelocity
                 stopwatch.Restart();
                 var expr = new RenderedBlock(ast, builder);
                 stopwatch.Stop();
-                Debug.WriteLine("IronVelocity: Converting To DLR AST {0}: {1}ms", typeName, stopwatch.ElapsedMilliseconds);
+                Trace.WriteLine(String.Format("IronVelocity,Converting to DLR AST,{0},{1}", typeName, stopwatch.ElapsedMilliseconds));
 
                 return Expression.Lambda<VelocityTemplateMethod>(expr, typeName, new[] { Constants.InputParameter, builder.OutputParameter });
             }

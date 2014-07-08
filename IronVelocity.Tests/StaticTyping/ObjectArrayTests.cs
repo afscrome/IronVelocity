@@ -67,6 +67,36 @@ namespace IronVelocity.Tests.StaticTyping
         }
 
         [Test]
+        public void ArrayElementWithPropertyAccessor()
+        {
+            var value = "hello world";
+            var input = "[$value.Length]";
+
+            var context = new Dictionary<string, object>();
+            context.Add("value", value);
+
+            var result = Test(input, context);
+
+            Assert.AreEqual(1, result.Count);
+            CollectionAssert.Contains(result, value.Length);
+        }
+
+        [Test]
+        public void ArrayElementWithMethodCall()
+        {
+            var value = 45;
+            var input = "[$value.ToString()]";
+
+            var context = new Dictionary<string, object>();
+            context.Add("value", value);
+
+            var result = Test(input, context);
+
+            Assert.AreEqual(1, result.Count);
+            CollectionAssert.Contains(result, value.ToString());
+        }
+
+        [Test]
         public void ArrayWithMixedItems()
         {
             var reference = new StringBuilder();

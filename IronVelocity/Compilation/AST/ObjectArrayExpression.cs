@@ -10,7 +10,8 @@ namespace IronVelocity.Compilation.AST
 {
     public class ObjectArrayExpression : VelocityExpression
     {
-        public IReadOnlyCollection<Expression> Arguments { get; private set; }
+        public IReadOnlyList<Expression> Values { get; private set; }
+        public override Type Type { get { return typeof(IList<object>); } }
 
         public ObjectArrayExpression(INode node)
         {
@@ -20,28 +21,28 @@ namespace IronVelocity.Compilation.AST
             if (!(node is ASTObjectArray))
                 throw new ArgumentOutOfRangeException("node");
 
-            Arguments = GetChildNodes(node)
+            Values = GetChildNodes(node)
                 .Select(VelocityExpressionBuilder.Operand)
-                .Select(x => VelocityExpressions.ConvertIfNeeded(x, typeof(object)))
-                .ToList();
+                .ToArray();
         }
 
-        private ObjectArrayExpression(SymbolInformation symbols, IReadOnlyCollection<Expression> args)
+        private ObjectArrayExpression(SymbolInformation symbols, IReadOnlyList<Expression> args)
         {
             Symbols = symbols;
-            Arguments = args;
+            Values = args;
         }
 
 
         public override System.Linq.Expressions.Expression Reduce()
         {
-            return Expression.New(MethodHelpers.ListConstructorInfo, Expression.NewArrayInit(typeof(object), Arguments));
+            var objValues = Values.Select(x => VelocityExpressions.ConvertIfNeeded(x, typeof(object)));
+            return Expression.New(MethodHelpers.ListConstructorInfo, Expression.NewArrayInit(typeof(object), objValues));
         }
 
 
-        public ObjectArrayExpression Update(IReadOnlyCollection<Expression> arguments)
+        public ObjectArrayExpression Update(IReadOnlyList<Expression> arguments)
         {
-            if (arguments == Arguments)
+            if (arguments == Values)
                 return this;
 
             return new ObjectArrayExpression(Symbols, arguments);
@@ -54,6 +55,28 @@ namespace IronVelocity.Compilation.AST
             {
                 yield return node.GetChild(i);
             };
+        }
+
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            bool changed = false;
+
+            var visitedValues = new Expression[Values.Count];
+            for (int i = 0; i < visitedValues.Length; i++)
+            {
+                var value = visitor.Visit(Values[i]);
+                if (value != Values[i])
+                {
+                    changed = true;
+                }
+                visitedValues[i] = value;
+            }
+
+            var result = changed ?
+                Update(visitedValues)
+                : this;
+
+            return visitor.Visit(result.ReduceAndCheck());
         }
 
     }

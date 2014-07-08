@@ -8,13 +8,21 @@ namespace IronVelocity.Compilation.AST
 {
     public class BinaryLogicalExpression : VelocityBinaryExpression
     {
+        public LogicalOperation Operation { get; private set; }
+        public override Type Type { get { return typeof(bool); } }
+
         public BinaryLogicalExpression(INode node, LogicalOperation op)
             :base(node)
         {
             Operation = op;
         }
 
-        public LogicalOperation Operation { get; private set; }
+        private BinaryLogicalExpression(Expression left, Expression right, SymbolInformation symbols, LogicalOperation op)
+            : base(left, right, symbols)
+        {
+            Operation = op;
+        }
+
 
         public override Expression Reduce()
         {
@@ -28,13 +36,15 @@ namespace IronVelocity.Compilation.AST
             );
         }
 
-        public override Type Type
+        public override Expression Update(Expression left, Expression right)
         {
-            get
-            {
-                return typeof(bool);
-            }
+            if (Left == left && Right == right)
+                return this;
+            else
+                return new BinaryLogicalExpression(left, right, Symbols, Operation);
         }
+ 
+
     }
 
 

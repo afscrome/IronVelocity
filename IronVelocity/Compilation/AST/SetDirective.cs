@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Binders;
 using NVelocity.Runtime.Parser.Node;
 using System;
+using System.Dynamic;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
@@ -12,22 +13,36 @@ namespace IronVelocity.Compilation.AST
         {
         }
 
+        private SetDirective(Expression left, Expression right, SymbolInformation symbols)
+            : base(left,right,symbols)
+        {
+        }
+
+        public override Type Type { get { return typeof(void); } }
+
+        public override Expression Update(Expression left, Expression right)
+        {
+            if (Left == left && Right == right)
+                return this;
+
+            if (left is GlobalVariableExpression)
+                throw new NotSupportedException("Cannot assign to a global variable");
+
+            return new SetDirective(left, right, Symbols);
+        }
+        
+
         public override Expression Reduce()
         {
             var left = Left;
             var right = Right;
 
-            var reference = left as ReferenceExpression;
-            if (reference != null)
+  
+            var getMember = left as PropertyAccessExpression;
+            if (getMember != null)
             {
-                left = reference.Reduce();
-                var member = left as PropertyAccessExpression;
-                if (member != null)
-                {
-                    return new SetExpression(member.Name, member.Target, right);
-                }
+                    return new SetMemberExpression(getMember.Name, getMember.Target, right);
             }
-
 
             if (left.Type != right.Type)
             {
@@ -35,7 +50,7 @@ namespace IronVelocity.Compilation.AST
                 if (!left.Type.IsAssignableFrom(right.Type))
                     throw new InvalidOperationException("Cannot assign from type '{0}' to '{1}'");
 
-                right = Expression.Convert(right, left.Type);
+                right = VelocityExpressions.ConvertIfNeeded(right, left.Type);
             }
 
             bool isVariableExpression = left is VariableExpression;
@@ -70,6 +85,18 @@ namespace IronVelocity.Compilation.AST
             );
         }
 
-        public override Type Type { get { return typeof(void); } }
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            var left = visitor.Visit(Left);
+            var right = visitor.Visit(Right);
+
+            if (left is GlobalVariableExpression)
+                throw new InvalidOperationException("Cannot assign to a global variable");
+
+
+            var node = Update(left, right);
+
+            return node;
+        }
     }
 }

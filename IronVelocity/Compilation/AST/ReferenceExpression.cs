@@ -56,6 +56,16 @@ namespace IronVelocity.Compilation.AST
                 ? Additional.Last()
                 : BaseVariable;
         }
+
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            var baseVariable = visitor.Visit(BaseVariable);
+            if (baseVariable == BaseVariable)
+                return base.VisitChildren(visitor);
+
+
+            return visitor.Visit(this.ReduceAndCheck());
+        }
     }
 
 }
