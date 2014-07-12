@@ -25,6 +25,12 @@ namespace IronVelocity.Binders
 
         public static void MakeArgumentsCompatible(DynamicMetaObject leftObject, DynamicMetaObject rightObject, out Expression leftExpression, out Expression rightExpression)
         {
+            if (leftObject == null)
+                throw new ArgumentNullException("leftObject");
+
+            if (rightObject == null)
+                throw new ArgumentNullException("rightObject");
+
             var leftType = leftObject.RuntimeType ?? typeof(object);
             var rightType = rightObject.RuntimeType ?? typeof(object);
 
@@ -56,6 +62,9 @@ namespace IronVelocity.Binders
 
         public static Expression ConvertToBigIntegerIfPossible(Expression expression)
         {
+            if (expression == null)
+                throw new ArgumentNullException("expression");
+
             ConstructorInfo constructor;
             if (_bigIntConstructors.TryGetValue(expression.Type, out constructor))
                 return Expression.New(constructor, expression);
@@ -79,6 +88,9 @@ namespace IronVelocity.Binders
 
         public static BindingRestrictions DeduceArgumentRestrictions(DynamicMetaObject value)
         {
+            if (value == null)
+                throw new ArgumentNullException("value");
+
             if (value.Value != null)
                 return BindingRestrictions.GetTypeRestriction(value.Expression, value.RuntimeType);
             else

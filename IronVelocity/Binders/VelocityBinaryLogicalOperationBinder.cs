@@ -25,6 +25,13 @@ namespace IronVelocity.Binders
         
         public override DynamicMetaObject Bind(DynamicMetaObject target, DynamicMetaObject[] args)
         {
+            if (target == null)
+                throw new ArgumentNullException("target");
+
+            if (args == null)
+                throw new ArgumentNullException("args");
+
+
             if (args.Length != 1)
                 throw new ArgumentOutOfRangeException("args");
 

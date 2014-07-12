@@ -59,6 +59,9 @@ namespace IronVelocity.Compilation.AST
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            if (visitor == null)
+                throw new ArgumentNullException("visitor");
+
             bool changed = false;
 
             var visitedValues = new Expression[Values.Count];

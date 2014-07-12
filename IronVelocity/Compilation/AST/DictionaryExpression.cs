@@ -47,7 +47,8 @@ namespace IronVelocity.Compilation.AST
        
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
-            var args = Values.ToDictionary(x => x.Key, x =>visitor.Visit(x.Value));
+            if (visitor == null)
+                throw new ArgumentNullException("visitor");
 
             bool changed = true;
 

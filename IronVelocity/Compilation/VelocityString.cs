@@ -16,11 +16,11 @@ namespace IronVelocity.Compilation
     {
         private static MethodInfo _escapeQuoteMethodInfo = typeof(VelocityStrings).GetMethod("EscapeQuotes", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(char) }, null);
 
-        public static string EscapeQuotes(object obj, char quoteChar)
+        internal static string EscapeQuotes(object value, char quoteChar)
         {
-            var type = obj.GetType();
+            var type = value.GetType();
             if (type.IsPrimitive || type == typeof(string) || type == typeof(decimal))
-                return string.Concat(quoteChar, obj.ToString().Replace(quoteChar.ToString(), "\\" + quoteChar), quoteChar);
+                return string.Concat(quoteChar, value.ToString().Replace(quoteChar.ToString(), "\\" + quoteChar), quoteChar);
             else
                 return null;
 

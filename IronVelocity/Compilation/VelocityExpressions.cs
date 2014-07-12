@@ -72,14 +72,15 @@ namespace IronVelocity.Compilation
         }
 
 
-        [Obsolete]
         public static Expression CoerceToBoolean(Expression expression)
         {
+            if (expression.Type == typeof(bool) || expression.Type == typeof(bool?))
+                return expression;
+
             return new AST.CoerceToBooleanExpression(expression);
         }
 
 
-        [Obsolete]
         public static Expression ConvertParameterIfNeeded(DynamicMetaObject target, ParameterInfo info)
         {
             if (target == null)

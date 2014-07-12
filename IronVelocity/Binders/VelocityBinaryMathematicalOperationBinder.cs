@@ -23,9 +23,11 @@ namespace IronVelocity.Binders
 
         public override DynamicMetaObject FallbackBinaryOperation(DynamicMetaObject target, DynamicMetaObject arg, DynamicMetaObject errorSuggestion)
         {
+            if (target == null)
+                throw new ArgumentNullException("target");
+
             if (arg == null)
                 throw new ArgumentNullException("arg");
-
 
             if (!target.HasValue)
                 throw new InvalidOperationException();

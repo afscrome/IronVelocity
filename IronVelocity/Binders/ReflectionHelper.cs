@@ -59,6 +59,9 @@ namespace IronVelocity.Binders
         }
         public static Expression MemberExpression(string name, DynamicMetaObject target)
         {
+            if (target == null)
+                throw new ArgumentNullException("target");
+
             // Also if the value is typeof(ENUM), then return the relevant enumerated type
             if (target.Value is Type)
             {
@@ -79,9 +82,13 @@ namespace IronVelocity.Binders
 
         public static Expression MemberExpression(string name, Type type, Expression expression)
         {
+            if (type == null)
+                throw new ArgumentNullException("type");
 
-            var targetType = type;
-            if (targetType.IsPrimitive || targetType == typeof(string) || targetType == typeof(decimal))
+            if (name == null)
+                throw new ArgumentNullException("name");
+
+            if (type.IsPrimitive || type == typeof(string) || type == typeof(decimal))
             {
                 if (name.Equals("to_quote", StringComparison.OrdinalIgnoreCase))
                     return VelocityStrings.EscapeDoubleQuote(expression);
@@ -352,8 +359,14 @@ namespace IronVelocity.Binders
         }
 
 
-        public static Expression ConvertMethodParamaters(MethodInfo method, Expression target, DynamicMetaObject[] args)//, Type[] argTypeArray)
+        public static Expression ConvertMethodParameters(MethodInfo method, Expression target, DynamicMetaObject[] args)//, Type[] argTypeArray)
         {
+            if (method == null)
+                throw new ArgumentNullException("method");
+
+            if (args == null)
+                throw new ArgumentNullException("args");
+
             var parameters = method.GetParameters();
             var lastParameter = parameters.LastOrDefault();
             bool hasParamsArray = ReflectionHelper.IsParameterArrayArgument(lastParameter);

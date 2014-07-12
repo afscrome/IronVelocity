@@ -73,7 +73,7 @@ namespace IronVelocity.Binders
             }
             else
             {
-                result = ReflectionHelper.ConvertMethodParamaters(method, target.Expression, args);
+                result = ReflectionHelper.ConvertMethodParameters(method, target.Expression, args);
 
                 //Not keen on returning empty string, but this maintains consistency with NVelocity.
                 // Otherwise returning void fails with an exception because the DLR can't convert 

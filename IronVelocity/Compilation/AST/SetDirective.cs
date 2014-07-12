@@ -87,6 +87,9 @@ namespace IronVelocity.Compilation.AST
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            if (visitor == null)
+                throw new ArgumentNullException("visitor");
+
             var left = visitor.Visit(Left);
             var right = visitor.Visit(Right);
 

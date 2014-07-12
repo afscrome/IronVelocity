@@ -23,6 +23,9 @@ namespace IronVelocity.Compilation
 
         protected override Expression VisitDynamic(DynamicExpression node)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             var args = new Expression[node.Arguments.Count];
 
             for (int i = 0; i < node.Arguments.Count; i++)
@@ -35,7 +38,9 @@ namespace IronVelocity.Compilation
 
         protected override Expression VisitExtension(Expression node)
         {
-  
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             var variable = node as VariableExpression;
             if (variable != null)
                 return VisitVariable(variable);
@@ -53,6 +58,9 @@ namespace IronVelocity.Compilation
 
         protected virtual Expression VisitBinaryLogicalExpression(BinaryLogicalExpression node)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             var left = Visit(node.Left);
             var right = Visit(node.Right);
 
@@ -71,6 +79,9 @@ namespace IronVelocity.Compilation
 
         protected virtual Expression VisitVariable(VariableExpression node)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             Type staticType;
             if (!_globalTypeMap.TryGetValue(node.Name, out staticType) || typeof(IDynamicMetaObjectProvider).IsAssignableFrom(staticType))
                 return base.VisitExtension(node);
@@ -80,13 +91,18 @@ namespace IronVelocity.Compilation
 
         protected virtual Expression VisitPropertyAccess(PropertyAccessExpression node)
         {
-            var target = Visit(node.Target);
+            if (node == null)
+                throw new ArgumentNullException("node");
 
+            var target = Visit(node.Target);
             return node.Update(target);
         }
 
         protected virtual Expression VisitMethodInvocationExpression(MethodInvocationExpression node)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             var target = Visit(node.Target);
             var args = new Expression[node.Arguments.Count];
             for (int i = 0; i < args.Length; i++)
@@ -103,6 +119,9 @@ namespace IronVelocity.Compilation
 
         public static bool IsConstantType(Expression expression)
         {
+            if (expression == null)
+                throw new ArgumentNullException("expression");
+
             if (typeof(IDynamicMetaObjectProvider).IsAssignableFrom(expression.Type))
                 return false;
 

@@ -52,7 +52,7 @@ namespace IronVelocity.Compilation.AST
 
                 _staticExpression = method == null
                     ? Constants.NullExpression
-                    : ReflectionHelper.ConvertMethodParamaters(method, target, Arguments.Select(x => new DynamicMetaObject(x, BindingRestrictions.Empty)).ToArray());
+                    : ReflectionHelper.ConvertMethodParameters(method, target, Arguments.Select(x => new DynamicMetaObject(x, BindingRestrictions.Empty)).ToArray());
 
                 _type = _staticExpression.Type;
             }
@@ -87,7 +87,7 @@ namespace IronVelocity.Compilation.AST
             return new MethodInvocationExpression(target, Name, arguments, Symbols);
         }
 
-        private Type[] GetArgumentTypes(IReadOnlyList<Expression> expressions)
+        private static Type[] GetArgumentTypes(IReadOnlyList<Expression> expressions)
         {
             var types = new Type[expressions.Count];
 

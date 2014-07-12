@@ -1,5 +1,6 @@
 ﻿using NVelocity.Exception;
 using NVelocity.Runtime.Parser.Node;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -70,6 +71,9 @@ namespace IronVelocity.Compilation.AST
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
+            if (visitor == null)
+                throw new ArgumentNullException("visitor");
+
             bool changed = false;
 
             var visitedValues = new Expression[Parts.Count];
