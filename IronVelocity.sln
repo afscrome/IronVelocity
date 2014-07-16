@@ -30,18 +30,13 @@ Global
 		{726B0C17-F16B-4761-88DF-17EDABE5C534}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{726B0C17-F16B-4761-88DF-17EDABE5C534}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{726B0C17-F16B-4761-88DF-17EDABE5C534}.Release|Any CPU.Build.0 = Release|Any CPU
-		{59F1BC28-3EBA-46E6-97B2-7E85BC4EFE22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{59F1BC28-3EBA-46E6-97B2-7E85BC4EFE22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{59F1BC28-3EBA-46E6-97B2-7E85BC4EFE22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{59F1BC28-3EBA-46E6-97B2-7E85BC4EFE22}.Release|Any CPU.Build.0 = Release|Any CPU
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		VisualSVNWorkingCopyRoot = .
-	EndGlobalSection
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
 	EndGlobalSection
 EndGlobal

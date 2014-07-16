@@ -21,6 +21,11 @@ namespace IronVelocity.Compilation
             _globalTypeMap = globalTypeMap;
         }
 
+        public override Expression Visit(Expression node)
+        {
+            return base.Visit(node);
+        }
+
         protected override Expression VisitDynamic(DynamicExpression node)
         {
             if (node == null)
@@ -53,7 +58,7 @@ namespace IronVelocity.Compilation
             if (method != null)
                 return VisitMethodInvocationExpression(method);
             
-            return base.VisitExtension(node);
+            return VisitChildren(node);
         }
 
         protected virtual Expression VisitBinaryLogicalExpression(BinaryLogicalExpression node)
@@ -71,7 +76,7 @@ namespace IronVelocity.Compilation
                 else if (node.Operation == LogicalOperation.Or)
                     return Expression.OrElse(left, right);
             }
-            return base.VisitExtension(node);
+            return VisitChildren(node);
         }
 
 
@@ -84,7 +89,7 @@ namespace IronVelocity.Compilation
 
             Type staticType;
             if (!_globalTypeMap.TryGetValue(node.Name, out staticType) || typeof(IDynamicMetaObjectProvider).IsAssignableFrom(staticType))
-                return base.VisitExtension(node);
+                return VisitChildren(node);
 
             return new GlobalVariableExpression(node, staticType);
         }
