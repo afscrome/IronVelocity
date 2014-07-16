@@ -17,13 +17,8 @@ namespace IronVelocity.Compilation
 
         private readonly IReadOnlyDictionary<string, Type> _globalTypeMap;
         public StaticGlobalVisitor(IReadOnlyDictionary<string, Type> globalTypeMap)
-        {            
-            _globalTypeMap = globalTypeMap;
-        }
-
-        public override Expression Visit(Expression node)
         {
-            return base.Visit(node);
+            _globalTypeMap = globalTypeMap;
         }
 
         protected override Expression VisitDynamic(DynamicExpression node)
@@ -57,8 +52,8 @@ namespace IronVelocity.Compilation
             var method = node as MethodInvocationExpression;
             if (method != null)
                 return VisitMethodInvocationExpression(method);
-            
-            return VisitChildren(node);
+
+            return base.VisitExtension(node);
         }
 
         protected virtual Expression VisitBinaryLogicalExpression(BinaryLogicalExpression node)
@@ -76,7 +71,7 @@ namespace IronVelocity.Compilation
                 else if (node.Operation == LogicalOperation.Or)
                     return Expression.OrElse(left, right);
             }
-            return VisitChildren(node);
+            return base.VisitExtension(node);
         }
 
 
@@ -89,7 +84,7 @@ namespace IronVelocity.Compilation
 
             Type staticType;
             if (!_globalTypeMap.TryGetValue(node.Name, out staticType) || typeof(IDynamicMetaObjectProvider).IsAssignableFrom(staticType))
-                return VisitChildren(node);
+                return base.VisitExtension(node);
 
             return new GlobalVariableExpression(node, staticType);
         }
@@ -139,7 +134,7 @@ namespace IronVelocity.Compilation
                 return true;
 
             //if (expression is MethodCallExpression || expression is PropertyAccessExpression || expression is MemberExpression)
-                //return true;
+            //return true;
 
             if (expression.Type == typeof(void))
                 return true;
