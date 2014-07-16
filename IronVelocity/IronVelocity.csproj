@@ -112,7 +112,9 @@
     <Compile Include="Runtime\VelocityRuntime.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="IronVelocity.nuspec" />
+    <None Include="IronVelocity.nuspec">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
