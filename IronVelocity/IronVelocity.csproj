@@ -90,7 +90,6 @@
     <Compile Include="Compilation\AST\StringExpression.cs" />
     <Compile Include="Compilation\Directives\MacroScope.cs" />
     <Compile Include="Compilation\MethodHelper.cs" />
-    <Compile Include="Compilation\VelocityExpressionVisitor.cs" />
     <Compile Include="Compilation\VelocityString.cs">
       <SubType>Code</SubType>
     </Compile>
