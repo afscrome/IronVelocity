@@ -33,8 +33,22 @@ namespace IronVelocity.Tests.Async
         }
 
 
+        [Test]
+        public void AsyncTask_IsContinued()
+        {
+            var input = "Before $x.AsyncTask() After";
+            var expected = "Before  After";
 
-        private class AsyncObj
+            var asyncObj = new AsyncObj();
+            var context = new Dictionary<string, object>{
+                { "x", asyncObj}
+            };
+
+            Utility.TestExpectedMarkupGenerated(input, expected, context);
+            Assert.True(asyncObj.HasRun);
+        }
+
+        public class AsyncObj
         {
             public bool HasRun { get; set; }
 

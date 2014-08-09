@@ -51,9 +51,14 @@ namespace IronVelocity.Binders
             }
 
             // If an argument has a null value, use a null type so that the resolution algorithm can do implicit null conversions
-            var argTypeArray = args
-                .Select(x => x.Value == null ? null: x.LimitType)
-                .ToArray();
+            var argTypeArray = new Type[args.Length];
+            for (int i = 0; i < args.Length; i++)
+			{
+                var arg = args[i];
+    			 argTypeArray[i] = arg.Value == null
+                     ? null
+                     : arg.LimitType;
+			}
 
             MethodInfo method;
             Expression result;

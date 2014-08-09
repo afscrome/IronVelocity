@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Binders;
+using IronVelocity.Reflection;
 using NUnit.Framework;
 using System;
 
@@ -10,7 +11,7 @@ namespace IronVelocity.Tests.Binders
     /// </summary>
     public class ImplicitConversionSupportTests
     {
-
+        private readonly IArgumentConverter _conversionHelper = new ArgumentConverter();
         //TODO: 6.1.3??  - Implicit enumeration conversions
         //TODO: 6.1.4??  - Implicit nullable conversions
         //TODO: 6.1.6??  - Implicit reference conversions
@@ -28,7 +29,7 @@ namespace IronVelocity.Tests.Binders
         [TestCase(typeof(Child), TestName = "Identity Conversion: Custom")]
         public void IdentityConversion(Type type)
         {
-            var result = ReflectionHelper.CanBeImplicitlyConverted(type, type);
+            var result = _conversionHelper.CanBeConverted(type, type);
             Assert.IsTrue(result);
         }
 
@@ -36,23 +37,23 @@ namespace IronVelocity.Tests.Binders
 
         //6.1.5
         [Test]
-        public void NullLiteralConversion()
+        public void NullLiteralConversion_SucceedesWithReferenceType()
         {
-            var result = ReflectionHelper.CanBeImplicitlyConverted(null, typeof(Child));
+            var result = _conversionHelper.CanBeConverted(null, typeof(Child));
             Assert.IsTrue(result);
         }
 
         [Test]
         public void NullLiteralConversion_FailsWithPrimitive()
         {
-            var result = ReflectionHelper.CanBeImplicitlyConverted(null, typeof(int));
+            var result = _conversionHelper.CanBeConverted(null, typeof(int));
             Assert.IsFalse(result);
         }
 
         [Test]
         public void NullLiteralConversion_FailsWithValueType()
         {
-            var result = ReflectionHelper.CanBeImplicitlyConverted(null, typeof(Guid));
+            var result = _conversionHelper.CanBeConverted(null, typeof(Guid));
             Assert.IsFalse(result);
         }
 
@@ -60,14 +61,15 @@ namespace IronVelocity.Tests.Binders
         [Test]
         public void BoxingConversion_Unboxing()
         {
-            var result = ReflectionHelper.CanBeImplicitlyConverted<int, object>();
+            var result = _conversionHelper.CanBeConverted(typeof(int), typeof(object));
             Assert.IsTrue(result);
         }
 
         [Test]
         public void BoxingConversion_Boxing()
         {
-            var result = ReflectionHelper.CanBeImplicitlyConverted<int, object>();
+            Assert.Inconclusive("Don't think this test is right...");
+            var result = _conversionHelper.CanBeConverted(typeof(int), typeof(object));
             Assert.IsTrue(result);
 
         }
@@ -209,7 +211,7 @@ namespace IronVelocity.Tests.Binders
         [TestCase(typeof(double),  typeof(decimal), false, TestName = "Primitive Implicit Conversion: double to decimal")]
         public void NumericConversionTests(Type from, Type to, bool expected)
         {
-            var result = ReflectionHelper.CanBeImplicitlyConverted(from, to);
+            var result = _conversionHelper.CanBeConverted(from, to);
             if (expected)
                 Assert.IsTrue(result);
             else

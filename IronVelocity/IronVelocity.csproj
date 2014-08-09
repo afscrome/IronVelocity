@@ -99,6 +99,13 @@
     <Compile Include="Compilation\Directives\ForeachDirectiveExpressionBuilder.cs" />
     <Compile Include="Compilation\DynamicDebugSupport.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="Reflection\ArgumentConverter.cs" />
+    <Compile Include="Reflection\IArgumentConverter.cs" />
+    <Compile Include="Reflection\IMemberResolver.cs" />
+    <Compile Include="Reflection\IMethodResolver.cs" />
+    <Compile Include="Reflection\MethodSpecificityComparison.cs" />
+    <Compile Include="Reflection\MemberResolver.cs" />
+    <Compile Include="Reflection\VelocityMethodResolver.cs" />
     <Compile Include="Runtime\BooleanCoercion.cs" />
     <Compile Include="Runtime\IntegerRange.cs" />
     <Compile Include="Runtime\RuntimeDictionary.cs" />

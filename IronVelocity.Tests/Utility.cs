@@ -13,10 +13,16 @@ namespace Tests
 {
     public static class Utility
     {
+        public static VelocityAsyncTemplateMethod CompileAsyncTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
+        {
+            VelocityAsyncTemplateMethod action = null;
+            var runtime = new VelocityRuntime(null, globals);
+            return runtime.CompileAsyncTemplate(input, "TestExpression", fileName, true);
+        }
+
         public static VelocityTemplateMethod CompileTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {
-            //VelocityAsyncTemplateMethod action = null;
-            VelocityTemplateMethod action = null;
+           VelocityTemplateMethod action = null;
             var runtime = new VelocityRuntime(null, globals);
             return runtime.CompileTemplate(input, "TestExpression", fileName, true);
         }
@@ -33,7 +39,7 @@ namespace Tests
             var ctx = environment as VelocityContext;
             if (ctx == null)
                 ctx = new VelocityContext(environment);
-            
+
             action(ctx, builder);
 
             return ctx;
@@ -51,7 +57,10 @@ namespace Tests
             if (ctx == null)
                 ctx = new VelocityContext(environment);
 
-            /*var task = action(ctx, builder);
+            action(ctx,builder);
+            
+            /*
+            var task = action(ctx, builder);
             task.Wait();
 
             if (task.IsFaulted)
@@ -59,7 +68,6 @@ namespace Tests
             if (task.Status != TaskStatus.RanToCompletion)
                 throw new InvalidOperationException();
             */
-            action(ctx, builder);
 
             return NormaliseLineEndings(builder.ToString());
         }

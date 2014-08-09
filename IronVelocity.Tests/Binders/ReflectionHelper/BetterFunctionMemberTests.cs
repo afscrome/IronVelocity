@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Binders;
+using IronVelocity.Reflection;
 using NUnit.Framework;
 using System;
 
@@ -6,6 +7,7 @@ namespace IronVelocity.Tests.Binders
 {
     public class BetterFunctionMemberTests
     {
+        private readonly MethodResolver _methodResolver = new MethodResolver(new ArgumentConverter());
 
         [TestCase("String", "Object", TestName="String_BetterThan_Object")]
         [TestCase("Int", "Long", TestName = "Int_BetterThan_Long")]
@@ -17,10 +19,10 @@ namespace IronVelocity.Tests.Binders
             var left = typeof(TestMethods).GetMethod(betterName);
             var right = typeof(TestMethods).GetMethod(worseName);
 
-            var result = ReflectionHelper.IsBetterFunctionMember(left, right);
+            var result = _methodResolver.IsBetterFunctionMember(left, right);
             Assert.AreEqual(MethodSpecificityComparison.Better, result);
 
-            var inverse = ReflectionHelper.IsBetterFunctionMember(right, left);
+            var inverse = _methodResolver.IsBetterFunctionMember(right, left);
             Assert.AreEqual(MethodSpecificityComparison.Worse, inverse);
         }
 
@@ -30,10 +32,10 @@ namespace IronVelocity.Tests.Binders
             var left = typeof(TestMethods).GetMethod(leftName);
             var right = typeof(TestMethods).GetMethod(rightName);
 
-            var result1 = ReflectionHelper.IsBetterFunctionMember(left, right);
+            var result1 = _methodResolver.IsBetterFunctionMember(left, right);
             Assert.AreEqual(MethodSpecificityComparison.Incomparable, result1);
 
-            var result2 = ReflectionHelper.IsBetterFunctionMember(right, left);
+            var result2 = _methodResolver.IsBetterFunctionMember(right, left);
             Assert.AreEqual(MethodSpecificityComparison.Incomparable, result2);
         }
 
