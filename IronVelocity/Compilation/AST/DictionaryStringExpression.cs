@@ -210,8 +210,16 @@ namespace IronVelocity.Compilation.AST
         {
             Expression expr;
             var content = value.ToString().Trim();
-            if (StringExpression.DetermineStringType(content) == VelocityStringType.Interpolated)
-                expr = new InterpolatedStringExpression(content);
+            if (content.Contains('$'))
+            {
+                var interpolated = new InterpolatedStringExpression(content);
+                if (isTextContent)
+                    expr = interpolated;
+                else if (interpolated.Parts.Count == 1)
+                    expr = interpolated.Parts.First();
+                else
+                    throw new InvalidOperationException();
+            }
             else
             {
                 if (isTextContent)

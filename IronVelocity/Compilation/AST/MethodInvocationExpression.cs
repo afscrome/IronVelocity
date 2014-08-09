@@ -80,7 +80,7 @@ namespace IronVelocity.Compilation.AST
             );
         }
 
-        public Expression Update(Expression target, IReadOnlyList<Expression> arguments)
+        public MethodInvocationExpression Update(Expression target, IReadOnlyList<Expression> arguments)
         {
             if (target == Target && arguments == Arguments)
                 return this;

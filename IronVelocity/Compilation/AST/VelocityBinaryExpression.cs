@@ -31,7 +31,7 @@ namespace IronVelocity.Compilation.AST
             Symbols = symbols;
         }
 
-        public abstract Expression Update(Expression left, Expression right);
+        public abstract VelocityBinaryExpression Update(Expression left, Expression right);
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {
@@ -41,7 +41,7 @@ namespace IronVelocity.Compilation.AST
             var left = visitor.Visit(Left);
             var right = visitor.Visit(Right);
 
-            return visitor.Visit(Update(left, right).ReduceAndCheck());
+            return Update(left, right);
         }
 
 

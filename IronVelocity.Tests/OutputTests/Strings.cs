@@ -16,7 +16,7 @@ namespace IronVelocity.Tests.OutputTests
         }
 
         [Test]
-        public void JQueryIdSelectorWithSubstitution()
+        public void InterpolatedJQueryIdSelector()
         {
             var context = new Dictionary<string, object>(){
                 {"x", "myId"}
@@ -39,14 +39,11 @@ namespace IronVelocity.Tests.OutputTests
         [TestCase("%{key='&&&'  }")]
         [TestCase("%{key=  '&&&'  }")]
         //NonEx
-        public void DictionaryTest_with_KeyWhitespace(string dictTemplate)
+        public void DictionaryTest_with_KeyValueWhitespace(string dictTemplate)
         {
-            //Velocity dictionaries are slightly screwed up in that they ignore leading & trailing whitespace in a key
-            var values = new[] { "value" };//, "  me", "you  ", "   us  " };
-
-            foreach (var value in values)
+            foreach (var keyValue in new[] { "value",  "  me", "you  ", "   us  " })
             {
-                var dictString = dictTemplate.Replace("&&&", value);
+                var dictString = dictTemplate.Replace("&&&", keyValue);
                 var script = "#set($dict = \"" + dictString + "\")".Replace("&&&", dictString);
 
                 var env = new VelocityContext();
@@ -57,7 +54,7 @@ namespace IronVelocity.Tests.OutputTests
                 var dict = (IDictionary<object, object>)env["dict"];
                 CollectionAssert.Contains(dict.Keys, "key");
 
-                Assert.AreEqual(value, dict["key"]);
+                Assert.AreEqual(keyValue.Trim(), dict["key"]);
             }
 
         }
@@ -101,6 +98,30 @@ namespace IronVelocity.Tests.OutputTests
 
         }
 
+        [TestCase("'hello world'", "hello world")]
+        [TestCase("'hello $x world'", "hello beautiful world")]
+        [TestCase("'$i'", "72")]
+        [TestCase("'$i$i'", "7272")]
+        [TestCase("'$i$i'", "7272")]
+        [TestCase("97", (int)97)]
+        [TestCase("44.67", (float)44.67)]
+        public void DictionaryTest_with_Constant(string input, object expected)
+        {
+            var env = new VelocityContext();
+            env["i"] = 72;
+            env["x"] = "beautiful";
+
+            var script = "#set($dict = \"%{ key = " + input + "}\")";
+
+            Utility.GetNormalisedOutput(script, env);
+
+            var dict = (IDictionary<object, object>)env["dict"];
+            CollectionAssert.Contains(dict.Keys, "key");
+
+            var value = dict["key"];
+            Assert.IsInstanceOf(expected.GetType(), value);
+            Assert.AreEqual(dict["key"], value);
+        }
 
     }
 }

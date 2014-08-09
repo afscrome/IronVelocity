@@ -9,7 +9,8 @@ namespace IronVelocity.Compilation.AST
     public class RenderedBlock : VelocityExpression
     {
         private readonly ParameterExpression _output;
-
+        public override Type Type { get { return typeof(void); } }
+        
         public RenderedBlock(INode node, VelocityExpressionBuilder builder)
         {
             if (node == null)
@@ -74,6 +75,5 @@ namespace IronVelocity.Compilation.AST
 
 
 
-        public override Type Type { get { return typeof(void); } }
     }
 }

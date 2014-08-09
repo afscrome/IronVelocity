@@ -8,6 +8,8 @@ namespace IronVelocity.Compilation.AST
 {
     public class SetDirective : VelocityBinaryExpression
     {
+        public override Type Type { get { return typeof(void); } }
+
         public SetDirective(INode node)
             : base(node)
         {
@@ -18,9 +20,8 @@ namespace IronVelocity.Compilation.AST
         {
         }
 
-        public override Type Type { get { return typeof(void); } }
 
-        public override Expression Update(Expression left, Expression right)
+        public override VelocityBinaryExpression Update(Expression left, Expression right)
         {
             if (Left == left && Right == right)
                 return this;
@@ -52,6 +53,9 @@ namespace IronVelocity.Compilation.AST
 
                 right = VelocityExpressions.ConvertIfNeeded(right, left.Type);
             }
+
+            if (left is ReferenceExpression)
+                left = left.Reduce();
 
             bool isVariableExpression = left is VariableExpression;
             if (isVariableExpression)
@@ -91,15 +95,12 @@ namespace IronVelocity.Compilation.AST
                 throw new ArgumentNullException("visitor");
 
             var left = visitor.Visit(Left);
-            var right = visitor.Visit(Right);
-
             if (left is GlobalVariableExpression)
                 throw new InvalidOperationException("Cannot assign to a global variable");
 
+            var right = visitor.Visit(Right);
 
-            var node = Update(left, right);
-
-            return node;
+            return Update(left, right);
         }
     }
 }

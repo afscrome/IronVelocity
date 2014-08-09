@@ -7,6 +7,9 @@ namespace IronVelocity.Compilation.AST
     public abstract class VelocityExpression : Expression
     {
         public SymbolInformation Symbols { get; protected set; }
+        public override bool CanReduce { get { return true; } }
+        public override ExpressionType NodeType { get { return ExpressionType.Extension; } }
+        public override Type Type { get { return typeof(object); } }
 
         protected VelocityExpression() { }
 
@@ -19,10 +22,6 @@ namespace IronVelocity.Compilation.AST
         }
 
         public abstract override Expression Reduce();
-
-        public override bool CanReduce { get { return true; } }
-        public override ExpressionType NodeType { get { return ExpressionType.Extension; } }
-        public override Type Type { get { return typeof(object); } }
     }
 
     public class SymbolInformation
@@ -70,10 +69,9 @@ namespace IronVelocity.Compilation.AST
 
         public override int GetHashCode()
         {
-            unchecked // Overflow is fine, just wrap
+            unchecked
             {
                 int hash = 17;
-                // Suitable nullity checks etc, of course :)
                 hash *= 23 + StartLine.GetHashCode();
                 hash *= 23 + StartColumn.GetHashCode();
                 hash *= 23 + EndLine.GetHashCode();

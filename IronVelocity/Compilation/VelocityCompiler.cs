@@ -63,7 +63,7 @@ namespace IronVelocity.Compilation
             {
                 var staticTypeVisitor = new StaticGlobalVisitor(_globals);
                 stopwatch.Start();
-                expressionTree = (Expression<VelocityTemplateMethod>)staticTypeVisitor.Visit(expressionTree);
+                expressionTree = staticTypeVisitor.VisitAndConvert(expressionTree, "Static Conversion");
                 stopwatch.Stop();
                 Trace.WriteLine(String.Format("IronVelocity,Optimising,{0},{1}", name, stopwatch.ElapsedMilliseconds));
             }
@@ -71,7 +71,7 @@ namespace IronVelocity.Compilation
             var debugVisitor = new DynamicToExplicitCallSiteConvertor(typeBuilder, fileName);
 
             stopwatch.Restart();
-            expressionTree = (Expression<VelocityTemplateMethod>)debugVisitor.Visit(expressionTree);
+            expressionTree = debugVisitor.VisitAndConvert(expressionTree, "DynamicMethod Debug");
             stopwatch.Stop();
             Trace.WriteLine(String.Format("IronVelocity,Adding Debug Info to Template,{0},{1}", name, stopwatch.ElapsedMilliseconds));
 

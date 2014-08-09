@@ -79,7 +79,7 @@ namespace IronVelocity.Compilation.AST
             }
         }
 
-        public Expression Update(Expression expression)
+        public RenderableExpression Update(Expression expression)
         {
             return Expression == expression
                 ? this

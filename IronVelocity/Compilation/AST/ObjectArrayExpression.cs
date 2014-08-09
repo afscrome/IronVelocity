@@ -79,6 +79,7 @@ namespace IronVelocity.Compilation.AST
                 Update(visitedValues)
                 : this;
 
+            //return result;
             return visitor.Visit(result.ReduceAndCheck());
         }
 

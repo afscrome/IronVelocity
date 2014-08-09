@@ -12,7 +12,7 @@ namespace IronVelocity.Compilation.AST
     {
         public string Value { get; private set; }
         public IReadOnlyList<Expression> Parts { get; set; }
-        //public override System.Type Type { get { return typeof(string); } }
+        public override Type Type { get { return typeof(string); } }
 
 
         public InterpolatedStringExpression(string value)
@@ -54,7 +54,12 @@ namespace IronVelocity.Compilation.AST
         public override Expression Reduce()
         {
             if (Parts.Count == 1)
-                return Parts[0];
+            {
+                var element = Parts[0];
+                return element.Type == typeof(string)
+                    ? element
+                    : Expression.Call(element, MethodHelpers.ToStringMethodInfo);
+            }
             else
             {
                 var objParts = Parts.Select(x => VelocityExpressions.ConvertIfNeeded(x, typeof(object)));
@@ -62,7 +67,7 @@ namespace IronVelocity.Compilation.AST
             }
         }
 
-        public Expression Update(IReadOnlyList<Expression> parts)
+        public InterpolatedStringExpression Update(IReadOnlyList<Expression> parts)
         {
             return parts == Parts
                 ? this

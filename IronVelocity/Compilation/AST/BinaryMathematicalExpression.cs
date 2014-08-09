@@ -38,7 +38,7 @@ namespace IronVelocity.Compilation.AST
             );
         }
 
-        public override Expression Update(Expression left, Expression right)
+        public override VelocityBinaryExpression Update(Expression left, Expression right)
         {
             if (Left == left && Right == right)
                 return this;

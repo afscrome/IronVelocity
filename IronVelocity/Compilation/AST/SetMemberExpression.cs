@@ -9,6 +9,8 @@ namespace IronVelocity.Compilation.AST
         public Expression Target { get; private set; }
         public Expression Value { get; private set; }
         public string Name { get; private set; }
+        public override Type Type { get { return typeof(void); } }
+
         public SetMemberExpression(string name, Expression target, Expression value)
         {
             if (String.IsNullOrEmpty(name))
@@ -36,6 +38,5 @@ namespace IronVelocity.Compilation.AST
             );
         }
 
-        public override Type Type { get { return typeof(void); } }
     }
 }

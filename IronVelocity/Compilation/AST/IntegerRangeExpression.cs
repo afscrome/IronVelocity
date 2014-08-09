@@ -1,10 +1,14 @@
 ﻿using NVelocity.Runtime.Parser.Node;
+using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
     public class IntegerRangeExpression : VelocityBinaryExpression
     {
+        public override Type Type { get { return typeof(IList<int>); } }
+
         public IntegerRangeExpression(INode node)
             : base(node)
         {
@@ -14,6 +18,7 @@ namespace IronVelocity.Compilation.AST
         {            
         }
 
+
         public override Expression Reduce()
         {
             return Expression.Call(null, MethodHelpers.IntegerRangeMethodInfo,
@@ -22,7 +27,7 @@ namespace IronVelocity.Compilation.AST
                     );
         }
 
-        public override Expression Update(Expression left, Expression right)
+        public override VelocityBinaryExpression Update(Expression left, Expression right)
         {
             if (Left == left && Right == right)
                 return this;

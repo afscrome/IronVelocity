@@ -52,7 +52,7 @@ namespace IronVelocity.Compilation.AST
                 );
         }
 
-        public Expression Update(Expression target)
+        public PropertyAccessExpression Update(Expression target)
         {
             if (target == Target)
                 return this;

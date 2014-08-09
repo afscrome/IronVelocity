@@ -50,7 +50,7 @@ namespace IronVelocity.Compilation
 
                 }
             }
-            return base.VisitExtension(node);
+            return base.Visit(node.ReduceExtensions());
         }
 
         protected override Expression VisitDynamic(DynamicExpression node)
