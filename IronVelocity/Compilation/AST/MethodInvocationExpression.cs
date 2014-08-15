@@ -32,7 +32,7 @@ namespace IronVelocity.Compilation.AST
             //Subsequent arguments are the parameters
             for (int i = 1; i < node.ChildrenCount; i++)
             {
-                arguments[i - 1] = (VelocityExpressionBuilder.Operand(node.GetChild(i)));
+                arguments[i - 1] = (VelocityExpression.Operand(node.GetChild(i)));
             }
             Arguments = arguments;
             Target = target;

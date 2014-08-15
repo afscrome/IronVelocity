@@ -10,12 +10,8 @@ namespace IronVelocity.Compilation.AST
     {
         public override Type Type { get { return typeof(void); } }
 
-        public SetDirective(INode node)
-            : base(node)
-        {
-        }
 
-        private SetDirective(Expression left, Expression right, SymbolInformation symbols)
+        public SetDirective(Expression left, Expression right, SymbolInformation symbols)
             : base(left,right,symbols)
         {
         }

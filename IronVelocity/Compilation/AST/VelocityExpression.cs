@@ -4,7 +4,7 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public abstract class VelocityExpression : Expression
+    public abstract partial class VelocityExpression : Expression
     {
         public SymbolInformation Symbols { get; protected set; }
         public override bool CanReduce { get { return true; } }

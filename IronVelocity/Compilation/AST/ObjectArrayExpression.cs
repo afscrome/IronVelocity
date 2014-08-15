@@ -13,27 +13,14 @@ namespace IronVelocity.Compilation.AST
         public IReadOnlyList<Expression> Values { get; private set; }
         public override Type Type { get { return typeof(IList<object>); } }
 
-        public ObjectArrayExpression(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTObjectArray))
-                throw new ArgumentOutOfRangeException("node");
-
-            Values = GetChildNodes(node)
-                .Select(VelocityExpressionBuilder.Operand)
-                .ToArray();
-        }
-
-        private ObjectArrayExpression(SymbolInformation symbols, IReadOnlyList<Expression> args)
+        public ObjectArrayExpression(SymbolInformation symbols, IReadOnlyList<Expression> args)
         {
             Symbols = symbols;
             Values = args;
         }
 
 
-        public override System.Linq.Expressions.Expression Reduce()
+        public override Expression Reduce()
         {
             var objValues = Values.Select(x => VelocityExpressions.ConvertIfNeeded(x, typeof(object)));
             return Expression.New(MethodHelpers.ListConstructorInfo, Expression.NewArrayInit(typeof(object), objValues));
@@ -48,14 +35,6 @@ namespace IronVelocity.Compilation.AST
             return new ObjectArrayExpression(Symbols, arguments);
         }
 
-
-        private static IEnumerable<INode> GetChildNodes(INode node)
-        {
-            for (int i = 0; i < node.ChildrenCount; i++)
-            {
-                yield return node.GetChild(i);
-            };
-        }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
         {

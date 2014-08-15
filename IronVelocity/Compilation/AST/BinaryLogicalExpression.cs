@@ -11,13 +11,8 @@ namespace IronVelocity.Compilation.AST
         public LogicalOperation Operation { get; private set; }
         public override Type Type { get { return typeof(bool); } }
 
-        public BinaryLogicalExpression(INode node, LogicalOperation op)
-            :base(node)
-        {
-            Operation = op;
-        }
 
-        private BinaryLogicalExpression(Expression left, Expression right, SymbolInformation symbols, LogicalOperation op)
+        internal BinaryLogicalExpression(Expression left, Expression right, SymbolInformation symbols, LogicalOperation op)
             : base(left, right, symbols)
         {
             Operation = op;

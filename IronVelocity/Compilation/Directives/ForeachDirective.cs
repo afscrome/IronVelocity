@@ -45,7 +45,7 @@ namespace IronVelocity.Compilation.Directives
         {
             var loopVariable = new ReferenceExpression(Node.GetChild(0));
 
-            var enumerable = VelocityExpressionBuilder.Operand(Node.GetChild(2));
+            var enumerable = VelocityExpression.Operand(Node.GetChild(2));
 
 
             var index = new VariableExpression("velocityCount");

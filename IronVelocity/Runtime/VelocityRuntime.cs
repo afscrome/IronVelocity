@@ -20,7 +20,7 @@ namespace IronVelocity
         private readonly VelocityCompiler _compiler;
         private readonly IReadOnlyDictionary<string, object> _globals;
 
-        private static readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
+        private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
         {
             {typeof(Foreach), new ForeachDirectiveExpressionBuilder()},
             {typeof(Literal), new LiteralDirectiveExpressionBuilder()},
@@ -56,6 +56,7 @@ namespace IronVelocity
             _compiler = new VelocityCompiler(_globals.ToDictionary(x => x.Key, x=> x.Value.GetType()));
             
         }
+
 
         public VelocityTemplateMethod CompileTemplate(string input, string typeName, string fileName, bool debugMode)
         {

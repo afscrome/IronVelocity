@@ -9,20 +9,6 @@ namespace IronVelocity.Compilation.AST
         public Expression Left { get; private set; }
         public Expression Right { get; private set; }
 
-        protected VelocityBinaryExpression(INode node)
-            : base(node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (node.ChildrenCount != 2)
-                throw new NotImplementedException("Expected exactly two children for a binary expression");
-
-
-            Left = VelocityExpressionBuilder.Operand(node.GetChild(0));
-            Right = VelocityExpressionBuilder.Operand(node.GetChild(1));
-
-        }
 
         protected VelocityBinaryExpression(Expression left, Expression right, SymbolInformation symbols)
         {

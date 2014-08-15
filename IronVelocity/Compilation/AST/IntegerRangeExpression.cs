@@ -9,11 +9,7 @@ namespace IronVelocity.Compilation.AST
     {
         public override Type Type { get { return typeof(IList<int>); } }
 
-        public IntegerRangeExpression(INode node)
-            : base(node)
-        {
-        }
-        private IntegerRangeExpression(Expression left, Expression right, SymbolInformation symbols)
+        public IntegerRangeExpression(Expression left, Expression right, SymbolInformation symbols)
             : base(left, right, symbols)
         {            
         }

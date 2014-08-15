@@ -11,14 +11,7 @@ namespace IronVelocity.Compilation.AST
         public MathematicalOperation Operation { get; private set; }
         public ExpressionType ExpressionType { get; private set; }
 
-        public BinaryMathematicalExpression(INode node, MathematicalOperation op)
-            : base(node)
-        {
-            Operation = op;
-            ExpressionType = MathematicalOperationToExpressionType(op);
-        }
-
-        private BinaryMathematicalExpression(Expression left, Expression right, SymbolInformation symbols, MathematicalOperation op)
+        public BinaryMathematicalExpression(Expression left, Expression right, SymbolInformation symbols, MathematicalOperation op)
             : base(left, right, symbols)
         {
             Operation = op;
