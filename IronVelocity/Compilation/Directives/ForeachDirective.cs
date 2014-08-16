@@ -43,7 +43,7 @@ namespace IronVelocity.Compilation.Directives
 
         protected override Expression ReduceInternal()
         {
-            var loopVariable = new ReferenceExpression(Node.GetChild(0));
+            var loopVariable = VelocityExpression.Reference(Node.GetChild(0));
 
             var enumerable = VelocityExpression.Operand(Node.GetChild(2));
 

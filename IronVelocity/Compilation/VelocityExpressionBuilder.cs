@@ -65,7 +65,7 @@ namespace IronVelocity.Compilation.AST
                         expr = Expression.Constant(child.Literal);
                         break;
                     case ParserTreeConstants.REFERENCE:
-                        expr = new ReferenceExpression(child);
+                        expr = VelocityExpression.Reference(child);
                         break;
                     case ParserTreeConstants.IF_STATEMENT:
                         expr = new IfStatement(child, this);

@@ -129,7 +129,7 @@ namespace IronVelocity.Compilation
                 return true;
 
             //Interpolated & dictionary strings will always return the same type
-            if (expression is StringExpression || expression is InterpolatedStringExpression || expression is DictionaryStringExpression
+            if (expression is InterpolatedStringExpression || expression is DictionaryStringExpression
                 || expression is DictionaryExpression || expression is ObjectArrayExpression)
                 return true;
 

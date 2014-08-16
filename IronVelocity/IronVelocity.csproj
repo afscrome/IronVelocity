@@ -86,7 +86,6 @@
     <Compile Include="Compilation\AST\RenderedBlock.cs" />
     <Compile Include="Compilation\AST\VariableExpression.cs" />
     <Compile Include="Compilation\AST\VelocityExpression.cs" />
-    <Compile Include="Compilation\AST\StringExpression.cs" />
     <Compile Include="Compilation\Directives\MacroScope.cs" />
     <Compile Include="Compilation\MethodHelper.cs" />
     <Compile Include="Compilation\VelocityString.cs">

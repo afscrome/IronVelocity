@@ -21,22 +21,16 @@ namespace IronVelocity.Compilation.AST
 
         public static SetDirective Set(INode node)
         {
-            if (!(node is ASTAssignment))
-                throw new ArgumentOutOfRangeException("node");
-
             Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
+            GetBinaryExpressionOperands<ASTAssignment>(node, out left, out right);
 
             return new SetDirective(left, right, new SymbolInformation(node));
         }
 
         public static IntegerRangeExpression IntegerRange(INode node)
         {
-            if (!(node is ASTIntegerRange))
-                throw new ArgumentOutOfRangeException("node");
-
             Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
+            GetBinaryExpressionOperands<ASTIntegerRange>(node, out left, out right);
 
             return new IntegerRangeExpression(left, right, new SymbolInformation(node));
         }
@@ -57,66 +51,44 @@ namespace IronVelocity.Compilation.AST
 
 
         #region Comparison Expressions
+
         public static BinaryLogicalExpression LessThan(INode node)
         {
-            if (!(node is ASTLTNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryLogical(node, LogicalOperation.LessThan);
+            return BinaryLogical<ASTLTNode>(node, LogicalOperation.LessThan);
         }
 
         public static BinaryLogicalExpression GreaterThan(INode node)
         {
-            if (!(node is ASTGTNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryLogical(node, LogicalOperation.GreaterThan);
+            return BinaryLogical<ASTGTNode>(node, LogicalOperation.GreaterThan);
         }
 
         public static BinaryLogicalExpression LessThanOrEqual(INode node)
         {
-            if (!(node is ASTLENode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryLogical(node, LogicalOperation.LessThanOrEqual);
+            return BinaryLogical<ASTLENode>(node, LogicalOperation.LessThanOrEqual);
         }
 
         public static BinaryLogicalExpression GreaterThanOrEqual(INode node)
         {
-            if (!(node is ASTGENode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryLogical(node, LogicalOperation.GreaterThanOrEqual);
+            return BinaryLogical<ASTGENode>(node, LogicalOperation.GreaterThanOrEqual);
         }
 
         public static BinaryLogicalExpression Equal(INode node)
         {
-            if (!(node is ASTEQNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryLogical(node, LogicalOperation.Equal);
+            return BinaryLogical<ASTEQNode>(node, LogicalOperation.Equal);
         }
 
         public static BinaryLogicalExpression NotEqual(INode node)
         {
-            if (!(node is ASTNENode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryLogical(node, LogicalOperation.NotEqual);
+            return BinaryLogical<ASTNENode>(node, LogicalOperation.NotEqual);
         }
 
-        private static BinaryLogicalExpression BinaryLogical(INode node, LogicalOperation operation)
+        private static BinaryLogicalExpression BinaryLogical<T>(INode node, LogicalOperation operation)
+            where T : INode
         {
-            if (node == null)
-                throw new ArgumentNullException("node");
+            Expression left, right;
+            GetBinaryExpressionOperands<T>(node, out left, out right);
 
-            if (node.ChildrenCount != 2)
-                throw new NotImplementedException("Expected exactly two children for a binary expression");
-
-            var left = Operand(node.GetChild(0));
-            var right = Operand(node.GetChild(1));
-
-            return new BinaryLogicalExpression(left,right, new SymbolInformation(node), operation);
+            return new BinaryLogicalExpression(left, right, new SymbolInformation(node), operation);
         }
         #endregion
 
@@ -135,31 +107,19 @@ namespace IronVelocity.Compilation.AST
 
         private static Expression And(INode node)
         {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTAndNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryBooleanExpression(Expression.AndAlso, node);
+            return BinaryBooleanExpression<ASTAndNode>(Expression.AndAlso, node);
         }
 
         private static Expression Or(INode node)
         {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (!(node is ASTOrNode))
-                throw new ArgumentOutOfRangeException("node");
-
-
-            return BinaryBooleanExpression(Expression.OrElse, node);
+            return BinaryBooleanExpression<ASTOrNode>(Expression.OrElse, node);
         }
 
-        private static Expression BinaryBooleanExpression(Func<Expression, Expression, Expression> generator, INode node)
+        private static Expression BinaryBooleanExpression<T>(Func<Expression, Expression, Expression> generator, INode node)
+            where T : INode
         {
             Expression left, right;
-            GetBinaryExpressionOperands(node, out left, out right);
+            GetBinaryExpressionOperands<T>(node, out left, out right);
 
             // The expression tree will fail if the types don't *exactly* match the types on the method signature
             // So ensure everything is converted to object
@@ -169,77 +129,153 @@ namespace IronVelocity.Compilation.AST
             return generator(left, right);
         }
 
-        private static void GetBinaryExpressionOperands(INode node, out Expression left, out Expression right)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (node.ChildrenCount != 2)
-                throw new ArgumentOutOfRangeException("Expected exactly two children for a binary expression");
-
-            left = Operand(node.GetChild(0));
-            right = Operand(node.GetChild(1));
-        }
-
         #endregion
 
         #region Mathematical Expressions
 
         public static Expression Add(INode node)
         {
-            if (!(node is ASTAddNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryMathematical(node, MathematicalOperation.Add);
+            return BinaryMathematical<ASTAddNode>(node, MathematicalOperation.Add);
         }
 
         public static Expression Subtract(INode node)
         {
-            if (!(node is ASTSubtractNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryMathematical(node, MathematicalOperation.Subtract);
+            return BinaryMathematical<ASTSubtractNode>(node, MathematicalOperation.Subtract);
         }
 
         public static Expression Multiply(INode node)
         {
-            if (!(node is ASTMulNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryMathematical(node, MathematicalOperation.Multiply);
+            return BinaryMathematical<ASTMulNode>(node, MathematicalOperation.Multiply);
         }
 
         public static Expression Divide(INode node)
         {
-            if (!(node is ASTDivNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryMathematical(node, MathematicalOperation.Divide);
+            return BinaryMathematical<ASTDivNode>(node, MathematicalOperation.Divide);
         }
 
 
         public static Expression Modulo(INode node)
         {
-            if (!(node is ASTModNode))
-                throw new ArgumentOutOfRangeException("node");
-
-            return BinaryMathematical(node, MathematicalOperation.Modulo);
+            return BinaryMathematical<ASTModNode>(node, MathematicalOperation.Modulo);
         }
 
-        private static BinaryMathematicalExpression BinaryMathematical(INode node, MathematicalOperation operation)
+        private static BinaryMathematicalExpression BinaryMathematical<T>(INode node, MathematicalOperation operation)
+            where T : INode
         {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (node.ChildrenCount != 2)
-                throw new NotImplementedException("Expected exactly two children for a binary expression");
-
-            var left = Operand(node.GetChild(0));
-            var right = Operand(node.GetChild(1));
+            Expression left, right;
+            GetBinaryExpressionOperands<T>(node, out left, out right);
 
             return new BinaryMathematicalExpression(left, right, new SymbolInformation(node), operation);
         }
         #endregion
+
+
+
+        public static ReferenceExpression Reference(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            var refNode = node as ASTReference;
+            if (refNode == null)
+                throw new ArgumentOutOfRangeException("node");
+
+            //return new ReferenceExpression(node);
+
+            var metadata = new ASTReferenceMetadata(refNode);
+
+            var baseVariable = new VariableExpression(metadata.RootString);
+
+            var additional = new List<Expression>(node.ChildrenCount);
+
+            Expression soFar = baseVariable;
+            for (int i = 0; i < node.ChildrenCount; i++)
+            {
+                var child = node.GetChild(i);
+                if (child is ASTIdentifier)
+                    soFar = Property(child, soFar);
+                else if (child is ASTMethod)
+                    soFar = Method(child, soFar);
+                else
+                    throw new NotSupportedException("Node type not supported in a Reference: " + child.GetType().Name);
+
+                additional.Add(soFar);
+            }
+
+            return new ReferenceExpression(metadata, baseVariable, additional);
+
+        }
+
+        public static MethodInvocationExpression Method(INode node, Expression target)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (target == null)
+                throw new ArgumentNullException("target");
+
+
+            var arguments = new Expression[node.ChildrenCount - 1];
+            //Subsequent arguments are the parameters
+            for (int i = 1; i < node.ChildrenCount; i++)
+            {
+                arguments[i - 1] = (Operand(node.GetChild(i)));
+            }
+
+            return new MethodInvocationExpression(target, node.FirstToken.Image, arguments, new SymbolInformation(node));
+        }
+
+
+        public static Expression Property(INode node, Expression target)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (target == null)
+                throw new ArgumentNullException("target");
+
+            return new PropertyAccessExpression(target, node.Literal, new SymbolInformation(node));
+        }
+
+        public static Expression NVelocityString(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTStringLiteral))
+                throw new ArgumentOutOfRangeException("node");
+
+            var value = node.Literal.Substring(1, node.Literal.Length - 2);
+
+            var isDoubleQuoted = node.Literal.StartsWith("\"", StringComparison.Ordinal);
+            var stringType = isDoubleQuoted
+                ? DetermineStringType(value)
+                : VelocityStringType.Constant;
+
+            switch (stringType)
+            {
+                case VelocityStringType.Constant:
+                    return Expression.Constant(value);
+                case VelocityStringType.Dictionary:
+                    return new DictionaryStringExpression(value);
+                case VelocityStringType.Interpolated:
+                    return new InterpolatedStringExpression(value);
+                default:
+                    throw new InvalidOperationException();
+            }
+        }
+
+        public static VelocityStringType DetermineStringType(string value)
+        {
+            if (value == null)
+                return VelocityStringType.Constant;
+            if (value.StartsWith("%{", StringComparison.Ordinal) && value.EndsWith("}", StringComparison.Ordinal))
+                return VelocityStringType.Dictionary;
+            if (value.IndexOfAny(new[] { '$', '#' }) != -1)
+                return VelocityStringType.Interpolated;
+            else
+                return VelocityStringType.Constant;
+        }
 
         public static Expression Expr(INode node)
         {
@@ -270,7 +306,7 @@ namespace IronVelocity.Compilation.AST
                 case ParserTreeConstants.NUMBER_LITERAL:
                     return Expression.Constant(int.Parse(node.Literal, CultureInfo.InvariantCulture)); ;
                 case ParserTreeConstants.STRING_LITERAL:
-                    return new StringExpression(node);
+                    return NVelocityString(node);
 
                 //Boolean
                 case ParserTreeConstants.AND_NODE:
@@ -310,7 +346,7 @@ namespace IronVelocity.Compilation.AST
                 case ParserTreeConstants.ASSIGNMENT:
                     return Set(node);
                 case ParserTreeConstants.REFERENCE:
-                    return new ReferenceExpression(node);
+                    return Reference(node);
                 case ParserTreeConstants.OBJECT_ARRAY:
                     return ObjectArray(node);
                 case ParserTreeConstants.INTEGER_RANGE:
@@ -323,6 +359,28 @@ namespace IronVelocity.Compilation.AST
             }
         }
 
+        private static void GetBinaryExpressionOperands<T>(INode node, out Expression left, out Expression right)
+            where T : INode
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
 
+            if (!(node is T))
+                throw new ArgumentOutOfRangeException("node");
+
+            if (node.ChildrenCount != 2)
+                throw new ArgumentOutOfRangeException("Expected exactly two children for a binary expression");
+
+            left = Operand(node.GetChild(0));
+            right = Operand(node.GetChild(1));
+        }
+
+
+        public enum VelocityStringType
+        {
+            Constant,
+            Dictionary,
+            Interpolated
+        }
     }
 }
