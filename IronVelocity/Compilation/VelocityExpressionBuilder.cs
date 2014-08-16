@@ -50,8 +50,9 @@ namespace IronVelocity.Compilation.AST
 
             var expressions = new List<Expression>(node.ChildrenCount);
 
-            foreach (var child in GetChildNodes(node))
+            for (int i = 0; i < node.ChildrenCount; i++)
             {
+                var child = node.GetChild(i);
                 Expression expr;
                 switch (child.Type)
                 {
@@ -70,7 +71,7 @@ namespace IronVelocity.Compilation.AST
                         expr = new IfStatement(child, this);
                         break;
                     case ParserTreeConstants.SET_DIRECTIVE:
-                        expr = Set(child);
+                        expr = SetDirective(child);
                         break;
                     case ParserTreeConstants.DIRECTIVE:
                         expr = Directive(child);
@@ -88,9 +89,12 @@ namespace IronVelocity.Compilation.AST
             return expressions;
         }
 
-        public Expression Directive(INode child)
+        public Expression Directive(INode node)
         {
-            var directiveNode = (ASTDirective)child;
+            var directiveNode = (ASTDirective)node;
+
+            if (directiveNode == null)
+                throw new ArgumentOutOfRangeException("node");
 
             if (directiveNode.DirectiveName == "macro")
                 throw new NotSupportedException("TODO: #macro support");
@@ -114,17 +118,7 @@ namespace IronVelocity.Compilation.AST
             else
                 return new UnrecognisedDirective(directiveNode, this);
         }
-
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity",
-            Justification="Cannot really be simplified any furhter - it's just a massive switch statement creating an AST node based on the node type")]
-        public static Expression Operand(INode node)
-        {
-            return VelocityExpression.Operand(node);
-        }
-
-
-        private static Expression Set(INode node)
+        private static Expression SetDirective(INode node)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -135,25 +129,7 @@ namespace IronVelocity.Compilation.AST
             if (node.ChildrenCount != 1)
                 throw new ArgumentOutOfRangeException("node", "Expected only one child");
 
-            return Expr(node.GetChild(0));
+            return VelocityExpression.Expr(node.GetChild(0));
         }
-
-
-        public static Expression Expr(INode node)
-        {
-            return VelocityExpression.Expr(node);
-        }
-
-
-
-
-        private static IEnumerable<INode> GetChildNodes(INode node)
-        {
-            for (int i = 0; i < node.ChildrenCount; i++)
-            {
-                yield return node.GetChild(i);
-            };
-        }
-
     }
 }
