@@ -1,5 +1,4 @@
 ﻿using IronVelocity.Binders;
-using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Linq.Expressions;
 
@@ -14,21 +13,7 @@ namespace IronVelocity.Compilation.AST
         public string Name { get; private set; }
         public override Type Type { get { return _type; } }
 
-        public PropertyAccessExpression(INode node, Expression target)
-            : base(node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (target == null)
-                throw new ArgumentNullException("target");
-
-            Target = target;
-            Name = node.Literal;
-        }
-
-
-        private PropertyAccessExpression(Expression target, string name, SymbolInformation symbolInformation)
+        public PropertyAccessExpression(Expression target, string name, SymbolInformation symbolInformation)
         {
             Target = target;
             Name = name;

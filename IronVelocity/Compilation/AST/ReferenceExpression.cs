@@ -1,5 +1,4 @@
-﻿using NVelocity.Runtime.Parser.Node;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -14,36 +13,10 @@ namespace IronVelocity.Compilation.AST
 
         public IReadOnlyCollection<Expression> Additional { get; private set; }
 
-        public ReferenceExpression(INode node)
-            : base(node)
+        public ReferenceExpression(ASTReferenceMetadata metadata, VariableExpression baseVariable, IReadOnlyCollection<Expression> additional)
         {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            var refNode = node as ASTReference;
-            if (refNode == null)
-                throw new ArgumentOutOfRangeException("node");
-
-            Metadata = new ASTReferenceMetadata(refNode);
-
-            BaseVariable = new VariableExpression(Metadata.RootString);
-
-            var additional = new List<Expression>(node.ChildrenCount);
-
-            Expression soFar = BaseVariable;
-            for (int i = 0; i < node.ChildrenCount; i++)
-            {
-                var child = node.GetChild(i);
-                if (child is ASTIdentifier)
-                    soFar = new PropertyAccessExpression(child, soFar);
-                else if (child is ASTMethod)
-                    soFar = new MethodInvocationExpression(child, soFar);
-                else
-                    throw new NotSupportedException("Node type not supported in a Reference: " + child.GetType().Name);
-
-                additional.Add(soFar);
-            }
-
+            Metadata = metadata;
+            BaseVariable = baseVariable;
             Additional = additional;
         }
 

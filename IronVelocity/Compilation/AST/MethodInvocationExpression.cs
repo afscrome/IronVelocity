@@ -1,5 +1,4 @@
 ﻿using IronVelocity.Binders;
-using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -18,28 +17,7 @@ namespace IronVelocity.Compilation.AST
         public IReadOnlyList<Expression> Arguments { get; private set; }
         public override Type Type { get { return _type; } } 
 
-        public MethodInvocationExpression(INode node, Expression target)
-            :base(node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (target == null)
-                throw new ArgumentNullException("target");
-
-
-            var arguments = new Expression[node.ChildrenCount - 1];
-            //Subsequent arguments are the parameters
-            for (int i = 1; i < node.ChildrenCount; i++)
-            {
-                arguments[i - 1] = (VelocityExpression.Operand(node.GetChild(i)));
-            }
-            Arguments = arguments;
-            Target = target;
-            Name = node.FirstToken.Image;
-        }
-
-        private MethodInvocationExpression(Expression target, string name, IReadOnlyList<Expression> arguments, SymbolInformation symbols)
+        public MethodInvocationExpression(Expression target, string name, IReadOnlyList<Expression> arguments, SymbolInformation symbols)
         {
             Target = target;
             Name = name;

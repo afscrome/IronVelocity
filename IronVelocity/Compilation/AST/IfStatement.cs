@@ -18,7 +18,7 @@ namespace IronVelocity.Compilation.AST
                 throw new ArgumentOutOfRangeException("node");
 
 
-            var condition = VelocityExpressionBuilder.Expr(node.GetChild(0));
+            var condition = VelocityExpression.Expr(node.GetChild(0));
             var trueContent = new RenderedBlock(node.GetChild(1), builder);
             Expression falseContent = null;
 
@@ -38,7 +38,7 @@ namespace IronVelocity.Compilation.AST
                 }
                 else if (child is ASTElseIfStatement)
                 {
-                    var innerCondition = VelocityExpressionBuilder.Expr(child.GetChild(0));
+                    var innerCondition = VelocityExpression.Expr(child.GetChild(0));
                     var innerContent = new RenderedBlock(child.GetChild(1), builder);
 
                     falseContent = If(innerCondition, innerContent, falseContent);
