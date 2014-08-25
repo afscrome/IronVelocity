@@ -186,7 +186,7 @@ namespace IronVelocity.Compilation.AST
 
             if (key.StartsWith("$", StringComparison.OrdinalIgnoreCase))
             {
-                throw new NotSupportedException("Dictionary keys must be strings");
+                throw new NotImplementedException("Dictionary keys must be constants");
                 /*
                 object keyVal = EvaluateInPlace(key.ToString());
 

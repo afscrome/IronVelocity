@@ -1,6 +1,8 @@
 ﻿using IronVelocity.Binders;
 using NUnit.Framework;
 using System;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using Tests;
 
 namespace IronVelocity.Tests.Binders
@@ -12,7 +14,7 @@ namespace IronVelocity.Tests.Binders
         public void ClassSetPropertyNameIsExactMatch()
         {
             var input = new BasicClass();
-            test(input, "Property", "abc123");
+            TestAssignmentOnReferenceType(input, "Property", "abc123");
             Assert.AreEqual("abc123", input.Property);
         }
 
@@ -20,7 +22,7 @@ namespace IronVelocity.Tests.Binders
         public void ClassSetPropertyNameDiffersInCase()
         {
             var input = new BasicClass();
-            test(input, "pRoPeRtY", "other");
+            TestAssignmentOnReferenceType(input, "pRoPeRtY", "other");
             Assert.AreEqual("other", input.Property);
         }
 
@@ -28,7 +30,7 @@ namespace IronVelocity.Tests.Binders
         public void ClassSetPropertyDoesNotExist()
         {
             var input = new BasicClass();
-            test(input, "NonExistant", "other");
+            TestAssignmentOnReferenceType(input, "NonExistant", "other");
             //How to test?
             Assert.Inconclusive();
         }
@@ -37,7 +39,7 @@ namespace IronVelocity.Tests.Binders
         public void ClassSetPropertyWithInvalidType()
         {
             var input = new BasicClass();
-            test(input, "Property", true);
+            TestAssignmentOnReferenceType(input, "Property", true);
             Assert.AreEqual("Success!", input.Property);
         }
 
@@ -46,7 +48,7 @@ namespace IronVelocity.Tests.Binders
         {
             var input = new BasicClass();
             var result = Guid.NewGuid();
-            test(input, "ValueType", result);
+            TestAssignmentOnReferenceType(input, "ValueType", result);
             Assert.AreEqual(result, input.ValueType);
         }
 
@@ -54,40 +56,41 @@ namespace IronVelocity.Tests.Binders
         public void ClassSetPrimitiveProperty()
         {
             var input = new BasicClass();
-            test(input, "Primitive", 123);
+            TestAssignmentOnReferenceType(input, "Primitive", 123);
             Assert.AreEqual(123, input.Primitive);
         }
 
+        private void TestAssignmentOnReferenceType<TTarget, TValue>(TTarget input, string memberName, TValue value)
+            where TTarget : class
+        {
+            var binder = new VelocitySetMemberBinder(memberName);
+
+            Utility.BinderTests(binder, input, value);
+        }
+
+
         #region Struct
         [Test]
-        //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
         public void StructSetPropertyNameIsExactMatch()
         {
-            Assert.Inconclusive("TODO: Rewrite - the current struct test is invalid as structs get coppied whilst being passed around, so the test modifies the copy, not the object we assert against");
-
             var input = new BasicStruct("initial");
-            test(input, "Property", "abc123");
+            TestAssignmentOnStruct(ref input, "Property", "abc123");
             Assert.AreEqual("abc123", input.Property);
         }
 
         [Test]
-        //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
         public void StructSetPropertyNameDiffersInCase()
         {
-            Assert.Inconclusive("TODO: Rewrite - the current struct test is invalid as structs get coppied whilst being passed around, so the test modifies the copy, not the object we assert against");
-
             var input = new BasicStruct("initial");
-            test(input, "pRoPeRtY", "other");
+            TestAssignmentOnStruct(ref input, "pRoPeRtY", "other");
             Assert.AreEqual("other", input.Property);
         }
 
         [Test]
-        //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
         public void StructSetPropertyDoesNotExist()
         {
-            Assert.Inconclusive("TODO: Rewrite - the current struct test is invalid as structs get coppied whilst being passed around, so the test modifies the copy, not the object we assert against");
             var input = new BasicStruct("initial");
-            test(input, "NonExistant", "other");
+            TestAssignmentOnStruct(ref input, "NonExistant", "other");
             //How to test?
             Assert.Inconclusive();
         }
@@ -95,40 +98,58 @@ namespace IronVelocity.Tests.Binders
         [Test]
         public void StructSetPropertyWithInvalidType()
         {
-            Assert.Inconclusive("TODO: Rewrite - the current struct test is invalid as structs get coppied whilst being passed around, so the test modifies the copy, not the object we assert against");
-
             var input = new BasicStruct("Success!");
-            test(input, "Property", true);
+            TestAssignmentOnStruct(ref input, "Property", true);
             Assert.AreEqual("Success!", input.Property);
         }
 
         [Test]
-        //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
         public void StructSetValueTypeProperty()
         {
-            Assert.Inconclusive("TODO: Rewrite - the current struct test is invalid as structs get coppied whilst being passed around, so the test modifies the copy, not the object we assert against");
             var input = new BasicStruct("initial");
             var result = Guid.NewGuid();
-            test(input, "ValueType", result);
+            TestAssignmentOnStruct(ref input, "ValueType", result);
             Assert.AreEqual(result, input.ValueType);
         }
 
         [Test]
-        //[Ignore("TODO: Setting to a struct works in 'BoxTestWithPropertySet' test, so why not here?")]
         public void StructSetPrimitiveProperty()
         {
-            Assert.Inconclusive("TODO: Rewrite - the current struct test is invalid as structs get coppied whilst being passed around, so the test modifies the copy, not the object we assert against");
             var input = new BasicStruct("initial");
-            test(input, "Primitive", 123);
+            TestAssignmentOnStruct(ref input, "Primitive", 123);
             Assert.AreEqual(123, input.Primitive);
         }
         #endregion
 
-        private void test<TInput,TValue>(TInput input, string memberName, TValue value)
+
+        private delegate void StructByReferenceExecution<T>(ref T input) where T: struct;
+        private delegate void StructByReferenceDynamicDelegate<TTarget, TValue>(CallSite callSite, ref TTarget target, TValue value) where TTarget : struct;
+
+        private void TestAssignmentOnStruct<TTarget, TValue>(ref TTarget input, string memberName, TValue value)
+            where TTarget : struct
         {
+            // Remember that structs are copied when passed into another method.  If we're not careful about how we can construct this test
+            // we can end up with a scenario in which the tests can never pass because we're modifying a copy of the struct, not the original
+            // meaning our assertions fail because the modifications were made on a copy
+            // Be VERY CAREFUL modifying this method to ensure you don't accidently introduce such a regression.
+            
+            // To avoid this, we need to do two things
+            // 1. Rather than quoting the value, pass it as a ByRef parameter into a dynamic method
+            // 2. When creating the Dynamic Expression using the binder,we need to use Expression.MakeDynamic() rather than Expression.Dynamic()
+            //    The delegate created by Expression.Dynamic() doesn't support ByRef parameters, hence why we have to make the delegate ourselves.
+            //    See https://dlr.codeplex.com/discussions/69200 for more details.
+
+            
             var binder = new VelocitySetMemberBinder(memberName);
 
-            Utility.BinderTests(binder, input, value);
+            var methodParameter = Expression.Parameter(typeof(TTarget).MakeByRefType());
+            var delegateType = typeof(StructByReferenceDynamicDelegate<TTarget, TValue>);
+            var setExpression = Expression.MakeDynamic(delegateType, binder, methodParameter, Expression.Constant(value));
+            //var setExpression = Expression.Dynamic(binder, typeof(void), structByRefParam, Expression.Constant(value));
+
+            var lambda = Expression.Lambda<StructByReferenceExecution<TTarget>>(setExpression, false, new[] {methodParameter});
+            var method = lambda.Compile();
+            method(ref input);
         }
 
         public class BasicClass

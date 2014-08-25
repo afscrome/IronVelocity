@@ -181,6 +181,11 @@ namespace IronVelocity.Binders
                 else
                 {
                     mainExpression = Expression.Constant(false);
+
+                    if (target.RuntimeType == typeof(string) && arg.RuntimeType == typeof(string))
+                    {
+                        throw new NotImplementedException("TODO: implement alphabetic comparison???");
+                    }
                 }
             }
 
