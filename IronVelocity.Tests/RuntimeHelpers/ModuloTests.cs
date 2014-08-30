@@ -26,16 +26,13 @@ namespace IronVelocity.Tests.Runtime
         }
 
         [Test]
-        public void ModuloOperatorOverload()
+        public void ModuloOperatorOverloadNotSupported()
         {
-            Assert.Inconclusive("TODO: Determine support for custom operators");
-
             var left = new OverloadedModulo(6);
             var right = new OverloadedModulo(5);
             var result = Test(left, right);
 
-            Assert.IsInstanceOf<OverloadedModulo>(result);
-            Assert.AreEqual(1, ((OverloadedModulo)result).Value);
+            Assert.Null(result);
         }
 
         private object Test(object left, object right)

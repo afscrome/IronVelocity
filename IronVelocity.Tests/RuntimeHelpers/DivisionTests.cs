@@ -25,16 +25,13 @@ namespace IronVelocity.Tests.Runtime
         }
 
         [Test]
-        public void DivisionOperatorOverload()
+        public void DivisionOperatorOverloadNotSupported()
         {
-            Assert.Inconclusive("TODO: Determine support for custom operators");
-
             var left = new OverloadedDivision(6);
             var right = new OverloadedDivision(3);
             var result = Test(left, right);
 
-            Assert.IsInstanceOf<OverloadedDivision>(result);
-            Assert.AreEqual(2, ((OverloadedDivision)result).Value);
+            Assert.Null(result);
         }
 
 

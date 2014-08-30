@@ -1,5 +1,4 @@
-﻿using IronVelocity.Binders;
-using IronVelocity.Reflection;
+﻿using IronVelocity.Reflection;
 using NUnit.Framework;
 using System;
 using System.Reflection;

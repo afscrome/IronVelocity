@@ -1,5 +1,4 @@
-﻿using Microsoft.CSharp.RuntimeBinder;
-
+﻿
 namespace IronVelocity.Runtime
 {
     public static class BooleanCoercion

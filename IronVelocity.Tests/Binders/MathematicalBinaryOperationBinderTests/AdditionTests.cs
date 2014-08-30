@@ -26,16 +26,13 @@ namespace IronVelocity.Tests.Runtime
         }
 
         [Test]
-        public void AdditionOperatorOverload()
+        public void AdditionOperatorOverloadNotSupported()
         {
-            Assert.Inconclusive("TODO: Determine support for custom operators");
-
             var left = new OverloadedAdd(1);
             var right = new OverloadedAdd(3);
             var result = Test(left, right);
 
-            Assert.IsInstanceOf<OverloadedAdd>(result);
-            Assert.AreEqual(4, ((OverloadedAdd)result).Value);
+            Assert.Null(result);
         }
 
         private object Test(object left, object right)

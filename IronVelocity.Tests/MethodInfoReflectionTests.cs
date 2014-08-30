@@ -1,7 +1,5 @@
 ﻿using IronVelocity.Compilation;
 using NUnit.Framework;
-using System.Collections.Generic;
-using System.Reflection;
 
 namespace IronVelocity.Tests
 {

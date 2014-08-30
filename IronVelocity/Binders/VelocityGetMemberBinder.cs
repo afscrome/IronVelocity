@@ -1,7 +1,6 @@
 ﻿using IronVelocity.Compilation;
 using System;
 using System.Dynamic;
-using System.Linq.Expressions;
 
 namespace IronVelocity.Binders
 {

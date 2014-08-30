@@ -1,12 +1,9 @@
-﻿using IronVelocity.Compilation;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Binders
 {

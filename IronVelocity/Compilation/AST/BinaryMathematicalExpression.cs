@@ -1,7 +1,6 @@
 ﻿using IronVelocity.Binders;
 using System;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 
 namespace IronVelocity.Compilation.AST
 {

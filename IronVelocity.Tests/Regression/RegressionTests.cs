@@ -97,7 +97,7 @@ namespace IronVelocity.Tests.Regression
         public void RegressionTest(string testName)
         {
             if (testName == "vm_test1")
-                Assert.Inconclusive("Do not yet support global velocimacros");
+                Assert.Ignore("Do not yet support global velocimacros");
 
             var inputFile = Path.Combine(_base, testName + ".vm");
             var expectedOutputFile = Path.Combine(_base, "Expected", testName + ".cmp");
@@ -111,8 +111,16 @@ namespace IronVelocity.Tests.Regression
             var input = File.ReadAllText(inputFile);
             var expectedOutput = File.ReadAllText(expectedOutputFile);
 
-
-            var output = Utility.GetNormalisedOutput(input, _environment, inputFile);
+            string output;
+            try
+            {
+                output = Utility.GetNormalisedOutput(input, _environment, inputFile);
+            }
+            catch (NotSupportedException ex)
+            {
+                Assert.Ignore(ex.Message);
+                return;
+            }
             expectedOutput = Utility.NormaliseLineEndings(expectedOutput);
 
             try
@@ -137,11 +145,8 @@ namespace IronVelocity.Tests.Regression
                 foreach (var file in Directory.GetFiles(_base, "*.vm"))
                 {
                     var name = Path.GetFileNameWithoutExtension(file);
-                    yield return new TestCaseData(
-                        name
-                        )
+                    yield return new TestCaseData(name)
                         .SetName("Regression Test: " + name + ".vm");
-
                 }
             }
         }

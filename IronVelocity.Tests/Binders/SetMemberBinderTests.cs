@@ -32,7 +32,7 @@ namespace IronVelocity.Tests.Binders
             var input = new BasicClass();
             TestAssignmentOnReferenceType(input, "NonExistant", "other");
             //How to test?
-            Assert.Inconclusive();
+            Assert.Ignore("TODO: How to Test");
         }
 
         [Test]
@@ -92,7 +92,7 @@ namespace IronVelocity.Tests.Binders
             var input = new BasicStruct("initial");
             TestAssignmentOnStruct(ref input, "NonExistant", "other");
             //How to test?
-            Assert.Inconclusive();
+            Assert.Ignore("TODO: How to test");
         }
 
         [Test]

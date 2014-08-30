@@ -1,6 +1,5 @@
 ﻿using IronVelocity.Compilation.AST;
 using NVelocity.Runtime.Parser.Node;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.Directives

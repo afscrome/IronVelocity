@@ -78,9 +78,9 @@ namespace NVelocity.Test
 		}
 
 		[Test]
+        [Ignore("TODO: NVelocity specific exception type, determine alternative")]
 		public void CorrectExceptionThrownOnInvocationException()
 		{
-            Assert.Inconclusive("TODO: Investigate Support");
 			try
 			{
 				Eval("$test.ThrowException");

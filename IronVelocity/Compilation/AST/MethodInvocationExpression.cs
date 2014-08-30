@@ -19,6 +19,15 @@ namespace IronVelocity.Compilation.AST
 
         public MethodInvocationExpression(Expression target, string name, IReadOnlyList<Expression> arguments, SymbolInformation symbols)
         {
+            if (target == null)
+                throw new ArgumentNullException("target");
+
+            if (String.IsNullOrEmpty(name))
+                throw new ArgumentOutOfRangeException("name");
+
+            if (arguments == null)
+                throw new ArgumentOutOfRangeException("arguments");
+
             Target = target;
             Name = name;
             Arguments = arguments;

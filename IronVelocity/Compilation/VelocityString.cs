@@ -18,6 +18,9 @@ namespace IronVelocity.Compilation
 
         public static string EscapeQuotes(object value, char quoteChar)
         {
+            if (value == null)
+                return null;
+
             var type = value.GetType();
             if (type.IsPrimitive || type == typeof(string) || type == typeof(decimal))
                 return string.Concat(quoteChar, value.ToString().Replace(quoteChar.ToString(), "\\" + quoteChar), quoteChar);

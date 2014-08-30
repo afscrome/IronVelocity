@@ -1,5 +1,4 @@
-﻿using IronVelocity.Binders;
-using IronVelocity.Reflection;
+﻿using IronVelocity.Reflection;
 using NUnit.Framework;
 using System;
 
@@ -61,14 +60,14 @@ namespace IronVelocity.Tests.Binders
         [Test]
         public void BoxingConversion_Unboxing()
         {
-            var result = _conversionHelper.CanBeConverted(typeof(int), typeof(object));
+            Assert.Ignore("Don't think this is right");
+            var result = _conversionHelper.CanBeConverted(typeof(object), typeof(int));
             Assert.IsTrue(result);
         }
 
         [Test]
         public void BoxingConversion_Boxing()
         {
-            Assert.Inconclusive("Don't think this test is right...");
             var result = _conversionHelper.CanBeConverted(typeof(int), typeof(object));
             Assert.IsTrue(result);
 

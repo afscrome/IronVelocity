@@ -1,20 +1,15 @@
-﻿using IronVelocity.Compilation;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Net.Sockets;
-using System.Reflection;
-using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 using Tests;
 
 namespace IronVelocity.Tests.Async
 {
     [TestFixture]
+    [Ignore("Async work in progress")]
     public class GeneratedTypeTests
     {
         [Test]
@@ -76,14 +71,14 @@ namespace IronVelocity.Tests.Async
                 return;
             }
 
-            public async Task<int> TaskOfPrimativeRanToCompletion()
+            public Task<int> TaskOfPrimativeRanToCompletion()
             {
-                return 76;
+                return Task.FromResult(76);
             }
 
-            public async Task<Guid> TaskOfValueTypeRanToCompletion()
+            public Task<Guid> TaskOfValueTypeRanToCompletion()
             {
-                return new Guid("0b3b9ba1-2964-4de0-a3ff-626b19d91fe8"); ;
+                return Task.FromResult(new Guid("0b3b9ba1-2964-4de0-a3ff-626b19d91fe8"));
             }
 
         }

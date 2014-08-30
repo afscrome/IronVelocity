@@ -2,7 +2,6 @@
 using IronVelocity.Compilation.AST;
 using System;
 using System.Dynamic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;

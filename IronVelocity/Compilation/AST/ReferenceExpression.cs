@@ -11,7 +11,7 @@ namespace IronVelocity.Compilation.AST
         //public Expression Value { get; private set; }
         public VariableExpression BaseVariable { get; private set; }
 
-        public IReadOnlyCollection<Expression> Additional { get; private set; }
+        private IReadOnlyCollection<Expression> Additional { get;  set; }
 
         public ReferenceExpression(ASTReferenceMetadata metadata, VariableExpression baseVariable, IReadOnlyCollection<Expression> additional)
         {

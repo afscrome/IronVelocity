@@ -25,16 +25,13 @@ namespace IronVelocity.Tests.Runtime
         }
 
         [Test]
-        public void SubtractionOperatorOverload()
+        public void SubtractionOperatorOverloadNotSupported()
         {
-            Assert.Inconclusive("TODO: Determine support for custom operators");
-
             var left = new OverloadedSubtraction(1);
             var right = new OverloadedSubtraction(3);
             var result = Test(left, right);
 
-            Assert.IsInstanceOf<OverloadedSubtraction>(result);
-            Assert.AreEqual(-2, ((OverloadedSubtraction)result).Value);
+            Assert.Null(result);
         }
 
 

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Dynamic;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace IronVelocity.Reflection
 {

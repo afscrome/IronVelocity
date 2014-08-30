@@ -1,15 +1,10 @@
 ﻿using IronVelocity.Binders;
-using IronVelocity.Compilation.AST;
 using NVelocity.Runtime.Parser;
 using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Compilation.AST
 {
@@ -180,7 +175,6 @@ namespace IronVelocity.Compilation.AST
             if (refNode == null)
                 throw new ArgumentOutOfRangeException("node");
 
-            //return new ReferenceExpression(node);
 
             var metadata = new ASTReferenceMetadata(refNode);
 

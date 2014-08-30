@@ -15,6 +15,9 @@ namespace IronVelocity.Reflection
 
         public MemberInfo GetMember(string name, Type type, bool caseSensitive)
         {
+            if (type == null)
+                throw new ArgumentNullException("type");
+
             var flags = caseSensitive
                 ? _caseSensitiveBindingFlags
                 : _caseInsensitiveBindingFlags;

@@ -1,21 +1,15 @@
-﻿using IronVelocity.Binders;
-using IronVelocity.Compilation.Directives;
+﻿using IronVelocity.Compilation.Directives;
 using NVelocity.Runtime.Parser;
 using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Text;
 
 namespace IronVelocity.Compilation.AST
 {
     public class VelocityExpressionBuilder
     {
-        private static readonly Expression TrueExpression = Expression.Constant(true);
-        private static readonly Expression FalseExpression = Expression.Constant(false);
 
         private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers;
         public ParameterExpression OutputParameter { get; set; }
