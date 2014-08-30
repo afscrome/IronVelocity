@@ -10,10 +10,16 @@ namespace IronVelocity.Compilation.AST
 {
     public abstract class CustomDirectiveExpression : Directive
     {
+        private readonly VelocityExpressionBuilder _builder;
+        protected CustomDirectiveExpression(VelocityExpressionBuilder builder) 
+        {
+            _builder = builder;
+        }
 
         protected CustomDirectiveExpression(ASTDirective node, VelocityExpressionBuilder builder)
             : base(node, builder)
         {
+            _builder = builder;
         }
 
         public virtual Expression ProcessChildDirective(string name, INode node)
@@ -23,14 +29,14 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            Builder.CustomDirectives.Push(this);
+            _builder.CustomDirectives.Push(this);
             try
             {
                 return ReduceInternal();
             }
             finally
             {
-                Builder.CustomDirectives.Pop();
+                _builder.CustomDirectives.Pop();
             }
         }
 

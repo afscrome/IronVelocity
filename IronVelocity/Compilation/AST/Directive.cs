@@ -14,6 +14,12 @@ namespace IronVelocity.Compilation.AST
         public ASTDirective Node { get; private set; }
         protected VelocityExpressionBuilder Builder { get; private set; }
 
+        protected Directive()
+        {
+
+        }
+
+        [Obsolete]
         protected Directive(INode node, VelocityExpressionBuilder builder)
         {
             if (node == null)
