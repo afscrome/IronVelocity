@@ -70,7 +70,6 @@
     <Compile Include="Compilation\AST\Directive.cs" />
     <Compile Include="Compilation\AST\ReferenceExpression.cs" />
     <Compile Include="Compilation\AST\SetMemberExpression.cs" />
-    <Compile Include="Compilation\AST\IfStatement.cs" />
     <Compile Include="Compilation\AST\IntegerRangeExpression.cs" />
     <Compile Include="Compilation\AST\InterpolatedStringExpression.cs" />
     <Compile Include="Compilation\AST\DictionaryStringExpression.cs" />

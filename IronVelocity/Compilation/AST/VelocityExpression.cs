@@ -13,7 +13,7 @@ namespace IronVelocity.Compilation.AST
 
         protected VelocityExpression() { }
 
-        [Obsolete]
+        [Obsolete("remove", true)]
         protected VelocityExpression(INode node)
         {
             if (node == null)

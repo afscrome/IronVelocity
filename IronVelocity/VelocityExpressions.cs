@@ -14,6 +14,52 @@ namespace IronVelocity.Compilation.AST
         private static readonly Expression FalseExpression = Expression.Constant(false);
 
 
+        public static Expression IfDirective(INode node, VelocityExpressionBuilder builder)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (!(node is ASTIfStatement))
+                throw new ArgumentOutOfRangeException("node");
+
+
+            if (node.ChildrenCount < 2)
+                throw new ArgumentOutOfRangeException("node", "Expected at least 2 children");
+
+
+            var condition = new CoerceToBooleanExpression(VelocityExpression.Expr(node.GetChild(0)));
+            var trueContent = new RenderedBlock(node.GetChild(1), builder);
+            Expression falseContent = Expression.Default(typeof(void));
+
+            //Build the false expression recursively from the bottom up
+            for (int i = node.ChildrenCount - 1; i > 1; i--)
+            {
+                var child = node.GetChild(i);
+                if (child is ASTElseStatement)
+                {
+                    if (i != node.ChildrenCount - 1)
+                        throw new InvalidOperationException("ASTElseStatement may only be the last child of an ASTIfStatement");
+
+                    if (child.ChildrenCount != 1)
+                        throw new InvalidOperationException("Expected ASTElseStatement to only have 1 child");
+
+                    falseContent = new RenderedBlock(child.GetChild(0), builder);
+                }
+                else if (child is ASTElseIfStatement)
+                {
+                    var innerCondition = new CoerceToBooleanExpression(VelocityExpression.Expr(child.GetChild(0)));
+                    var innerContent = new RenderedBlock(child.GetChild(1), builder);
+
+                    falseContent = Expression.IfThenElse(innerCondition, innerContent, falseContent);
+                }
+                else
+
+                    throw new InvalidOperationException("Expected: ASTElseStatement, Actual: " + child.GetType().Name);
+            }
+
+            return Expression.IfThenElse(condition, trueContent, falseContent);
+        }
+
         public static SetDirective Set(INode node)
         {
             Expression left, right;

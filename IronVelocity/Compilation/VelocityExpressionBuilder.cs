@@ -62,7 +62,7 @@ namespace IronVelocity.Compilation.AST
                         expr = VelocityExpression.Reference(child);
                         break;
                     case ParserTreeConstants.IF_STATEMENT:
-                        expr = new IfStatement(child, this);
+                        expr = VelocityExpression.IfDirective(child, this);
                         break;
                     case ParserTreeConstants.SET_DIRECTIVE:
                         expr = SetDirective(child);
