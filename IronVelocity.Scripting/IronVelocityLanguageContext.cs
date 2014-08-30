@@ -1,8 +1,6 @@
 ﻿using IronVelocity.Compilation.Directives;
 using Microsoft.Scripting;
-using Microsoft.Scripting.Hosting;
 using Microsoft.Scripting.Runtime;
-using NVelocity.Runtime;
 using NVelocity.Runtime.Directive;
 using NVelocity.Runtime.Parser.Node;
 using System;
@@ -13,9 +11,8 @@ namespace IronVelocity.Scripting
 {
     public class IronVelocityLanguageContext : LanguageContext
     {
-        private static readonly Guid _vendorId;
-        private static readonly Guid _languageId;
-        private readonly RuntimeInstance _runtimeService;
+        private static readonly Guid _vendorId = new Guid("c76b7fff-2a38-46a7-b430-3fd4b30741a6");
+        private static readonly Guid _languageId = new Guid("0dd151f0-4f1e-4260-a6b0-5aa9874d3cad");
         private readonly VelocityCompilerOptions _options;
         private readonly Scope _globals;
         private static readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
@@ -47,6 +44,16 @@ namespace IronVelocity.Scripting
             return _options;
         }
 
+
+        public override ScopeExtension CreateScopeExtension(Scope scope)
+        {
+            return base.CreateScopeExtension(scope);
+        }
+
+        public override int ExecuteProgram(SourceUnit program)
+        {
+            return base.ExecuteProgram(program);
+        }
 
         public override ScriptCode CompileSourceCode(SourceUnit sourceUnit, CompilerOptions options, ErrorSink errorSink)
         {
