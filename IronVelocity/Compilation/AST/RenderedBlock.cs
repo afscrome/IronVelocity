@@ -46,7 +46,7 @@ namespace IronVelocity.Compilation.AST
         public override Expression Reduce()
         {
             if (!Children.Any())
-                return Expression.Default(typeof(void));
+                return Constants.EmptyExpression;
 
             var convertedExpressions = Children
                 .Select(Output);

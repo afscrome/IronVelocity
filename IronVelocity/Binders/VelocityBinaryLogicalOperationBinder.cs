@@ -122,7 +122,7 @@ namespace IronVelocity.Binders
                 throw new InvalidOperationException();
 
             if (expression == null)
-                expression = Expression.Constant(false);
+                expression = Constants.False;
 
             if (restrictions == null)
             {
@@ -144,7 +144,7 @@ namespace IronVelocity.Binders
             else if (value.LimitType == typeof(bool) || value.LimitType == typeof(bool?))
                 return VelocityExpressions.ConvertIfNeeded(value);
             else if (!ReflectionHelper.IsNullableType(value.LimitType))
-                return Expression.Constant(true);
+                return Constants.True;
             else
                 return Expression.NotEqual(value.Expression, Expression.Constant(null, value.Expression.Type));
         }
@@ -177,7 +177,7 @@ namespace IronVelocity.Binders
                 }
                 else
                 {
-                    mainExpression = Expression.Constant(false);
+                    mainExpression = Constants.False;
 
                     if (target.RuntimeType == typeof(string) && arg.RuntimeType == typeof(string))
                     {

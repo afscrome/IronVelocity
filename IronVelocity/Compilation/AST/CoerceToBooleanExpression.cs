@@ -24,7 +24,7 @@ namespace IronVelocity.Compilation.AST
                 return expression;
 
             else if (expression.Type.IsValueType)
-                return Expression.Constant(true);
+                return Constants.True;
 
             expression = VelocityExpressions.ConvertIfNeeded(expression, typeof(object));
 

@@ -46,6 +46,7 @@
     </Reference>
     <Reference Include="NVelocity">
       <HintPath>..\packages\Castle.NVelocity.1.1.1\lib\net40\NVelocity.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -56,7 +57,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AsyncInterpreter.cs" />
     <Compile Include="IronVelocityLanguageContext.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

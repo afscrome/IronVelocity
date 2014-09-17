@@ -5,16 +5,14 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class AdvancedForeachExpression : VelocityExpression
+    public class TemplatedForeachExpression : VelocityExpression
     {
-        private static readonly DefaultExpression _defaultVoidReturn = Expression.Default(typeof(void));
+        private static readonly Expression _constantOne = Expression.Constant(1);
+        private static readonly Expression _constantTwo = Expression.Constant(2);
 
         private readonly LabelTarget _break;
 
         private readonly ParameterExpression _internalIndex = Expression.Parameter(typeof(int), "foreachIndex");
-        private static readonly ConstantExpression _constantZero = Expression.Constant(0);
-        private static readonly ConstantExpression _constantOne = Expression.Constant(1);
-        private static readonly ConstantExpression _constantTwo = Expression.Constant(2);
 
         public Expression Enumerable { get; private set; }
         public Expression LoopVariable { get; private set; }
@@ -32,10 +30,13 @@ namespace IronVelocity.Compilation.AST
         public Expression NoData { get; private set; }
 
 
-        public AdvancedForeachExpression(Expression enumerable, Expression loopVariable, Expression beforeAll, Expression before, Expression odd, Expression even, Expression between, Expression after, Expression afterAll, Expression each, Expression noData, LabelTarget breakLabel, Expression loopIndex)
+        public TemplatedForeachExpression(Expression enumerable, Expression loopVariable, Expression beforeAll, Expression before, Expression odd, Expression even, Expression between, Expression after, Expression afterAll, Expression each, Expression noData, LabelTarget breakLabel, Expression loopIndex)
         {
             if (enumerable == null)
                 throw new ArgumentNullException("enumerable");
+            if (!typeof(IEnumerable).IsAssignableFrom(enumerable.Type))
+                throw new ArgumentOutOfRangeException("enumerable must be IEnumerable");
+
             if (loopVariable == null)
                 throw new ArgumentNullException("loopVariable");
             if (loopIndex == null)
@@ -61,19 +62,19 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            var enumerator = Expression.Parameter(typeof(IEnumerator), "enumerator");
+            var localEnumerable = Expression.Parameter(typeof(IEnumerable), "enumerable");
             var @continue = Expression.Label("continue");
 
 
             var body = new List<Expression>();
 
             //Initalise the index to 0
-            Expression indexInitalise = Expression.Assign(_internalIndex, _constantZero);
+            Expression indexInitalise = Expression.Assign(_internalIndex, Constants.Zero);
             if (LoopIndex != null)
                 indexInitalise = Expression.Assign(LoopIndex, VelocityExpressions.ConvertIfNeeded(indexInitalise, LoopIndex.Type));
             body.Add(indexInitalise);
 
-            // Do the main loop - this hcnales the #BeforeAll, #Before,#Odd,#Even,#After & #Each templates
+            // Do the main loop - this handles the #BeforeAll, #Before,#Odd,#Even,#After & #Each templates
             body.Add(new ForeachExpression(Enumerable, BuildItemBody(), LoopVariable, _break));
 
 
@@ -81,23 +82,17 @@ namespace IronVelocity.Compilation.AST
             if (NoData != null || AfterAll != null)
             {
                 body.Add(Expression.IfThenElse(
-                    Expression.Equal(Expression.Constant(0), VelocityExpressions.ConvertIfNeeded(_internalIndex, typeof(int))),
-                    NoData ?? _defaultVoidReturn,
-                    AfterAll ?? _defaultVoidReturn
+                    Expression.Equal(_internalIndex, Constants.Zero),
+                    NoData ?? Constants.EmptyExpression,
+                    AfterAll ?? Constants.EmptyExpression
                 ));
             }
 
-            var loop = Expression.IfThenElse(
-                Expression.TypeIs(Enumerable, typeof(IEnumerable)),
-                Expression.Block(
+            return Expression.Block(
                     typeof(void),
-                    new[] { enumerator, _internalIndex, },
+                    new[] { _internalIndex, },
                     body
-                ),
-                NoData ?? _defaultVoidReturn
                 );
-
-            return loop;
         }
 
 
@@ -118,8 +113,8 @@ namespace IronVelocity.Compilation.AST
                 bodyExpressions.Add(
                     Expression.IfThenElse(
                         Expression.Equal(_internalIndex, _constantOne),
-                        BeforeAll ?? _defaultVoidReturn,
-                        Between ?? _defaultVoidReturn
+                        BeforeAll ?? Constants.EmptyExpression,
+                        Between ?? Constants.EmptyExpression
                     )
                 );
             }
@@ -134,9 +129,9 @@ namespace IronVelocity.Compilation.AST
             {
                 bodyExpressions.Add(
                     Expression.IfThenElse(
-                        Expression.Equal(_constantZero, Expression.Modulo(_internalIndex, _constantTwo)),
-                        Even ?? _defaultVoidReturn,
-                        Odd ?? _defaultVoidReturn
+                        Expression.Equal(Constants.Zero, Expression.Modulo(_internalIndex, _constantTwo)),
+                        Even ?? Constants.EmptyExpression,
+                        Odd ?? Constants.EmptyExpression
                      )
                 );
             }

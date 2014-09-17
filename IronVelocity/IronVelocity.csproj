@@ -55,7 +55,7 @@
     <Compile Include="Compilation\ASTReferenceMetaData.cs" />
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />
-    <Compile Include="Compilation\AST\AdvancedForeachExpression.cs" />
+    <Compile Include="Compilation\AST\TemplatedForeachExpression.cs" />
     <Compile Include="Compilation\AST\BinaryLogicalExpression.cs" />
     <Compile Include="Compilation\AST\CoerceToBooleanExpression.cs" />
     <Compile Include="Compilation\AST\DictionaryExpression.cs" />

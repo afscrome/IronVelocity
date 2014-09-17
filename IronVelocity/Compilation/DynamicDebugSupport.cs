@@ -85,7 +85,7 @@ namespace IronVelocity.Compilation
             return Expression.Block(
                 //Initalise CallSite if it hasn't already been so
                 Expression.IfThen(
-                    Expression.Equal(callSiteField, Expression.Constant(null)),
+                    Expression.Equal(callSiteField, Constants.NullExpression),
                     Expression.Assign(
                         callSiteField,
                             Expression.Call(

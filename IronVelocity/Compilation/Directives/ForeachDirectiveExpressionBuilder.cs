@@ -14,33 +14,6 @@ namespace IronVelocity.Compilation.Directives
 
     }
 
-    public class ForeachSectionExpressionBuilder : DirectiveExpressionBuilder
-    {
-        private readonly ForeachSection _part;
-        public ForeachSectionExpressionBuilder(ForeachSection part)
-        {
-            _part = part;
-        }
-
-        public override Expression Build(ASTDirective node, VelocityExpressionBuilder builder)
-        {
-            return new ForeachPartSeparatorExpression(_part);
-        }
-
-    }
-
-    public class ForeachPartSeparatorExpression : Expression
-    {
-        public ForeachPartSeparatorExpression(ForeachSection part)
-        {
-            Part = part;
-        }
-        public ForeachSection Part { get; private set; }
-
-        public override Type Type { get { return typeof(void); } }
-        public override ExpressionType NodeType { get { return ExpressionType.Extension; } }
-        public override bool CanReduce { get { return false; } }
-    }
 
     public enum ForeachSection : int
     {

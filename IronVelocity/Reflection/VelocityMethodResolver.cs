@@ -10,6 +10,7 @@ namespace IronVelocity.Reflection
 {
     public class MethodResolver : IMethodResolver
     {
+        public static readonly Expression _voidReturnValue = Expression.Constant(String.Empty);
         private readonly IArgumentConverter _conversionHelper;
         public MethodResolver(IArgumentConverter conversionHelper)
         {
@@ -74,7 +75,7 @@ namespace IronVelocity.Reflection
             {
                 result = Expression.Block(
                     result,
-                    Expression.Constant(String.Empty)
+                    _voidReturnValue
                 );
             }
 

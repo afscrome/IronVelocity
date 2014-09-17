@@ -67,7 +67,7 @@ namespace IronVelocity.Compilation.AST
                         Expression.Call(
                             MethodHelpers.StringConcatMethodInfo,
                             Expression.Convert(Expression.Constant(prefix), typeof(object)),
-                            VelocityExpressions.ConvertIfNeeded(_evaulatedResult, typeof(object))
+                            _evaulatedResult
                         ),
                         NullValue
                     )

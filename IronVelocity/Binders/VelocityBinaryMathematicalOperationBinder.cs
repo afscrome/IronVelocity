@@ -79,7 +79,7 @@ namespace IronVelocity.Binders
                         if (!TypeHelper.SupportsDivisionByZero(right.Type))
                         {
                             mainExpression = Expression.Condition(
-                                    Expression.Equal(right, VelocityExpressions.ConvertIfNeeded(Expression.Constant(0), right.Type)),
+                                    Expression.Equal(right, VelocityExpressions.ConvertIfNeeded(Constants.Zero, right.Type)),
                                     Expression.Default(ReturnType),
                                     VelocityExpressions.ConvertIfNeeded(mainExpression, ReturnType)
                                 );

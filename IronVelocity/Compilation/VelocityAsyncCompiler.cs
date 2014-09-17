@@ -16,7 +16,7 @@ namespace IronVelocity.Compilation
     {
         private const string _methodName = "Execute";
         private static readonly Type[] _signature = new[] {typeof(AsyncTaskMethodBuilder), typeof(int).MakeByRefType(), typeof(VelocityContext), typeof(StringBuilder) };
-        private delegate void VelocityAsyncTemplateMethodInternal(AsyncTaskMethodBuilder asyncTaskMethodBuilder, out int state, VelocityContext context, StringBuilder builder);
+        private delegate void VelocityAsyncTemplateMethodInternal(AsyncTaskMethodBuilder asyncTaskMethodBuilder, ref int state, VelocityContext context, StringBuilder builder);
 
 
         public static VelocityAsyncTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, bool debugMode, string fileName)
@@ -101,7 +101,7 @@ namespace IronVelocity.Compilation
             {
                 try
                 {
-                    TemplateMethod(AsyncMethodBuilder, out State, Context, Output);
+                    TemplateMethod(AsyncMethodBuilder, ref State, Context, Output);
                 }
                 catch (Exception ex)
                 {

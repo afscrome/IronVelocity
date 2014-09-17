@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Compilation.AST;
 using NVelocity.Runtime.Parser.Node;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 
@@ -10,7 +11,7 @@ namespace IronVelocity.Compilation.Directives
     {
         private readonly LabelTarget _break = Expression.Label("break");
         private readonly VelocityExpressionBuilder _builder;
-
+        private static readonly Expression _nullEnumerable = Expression.Constant(null, typeof(IEnumerable));
 
         public Expression Enumerable { get; private set; }
         public Expression CurrentIndex { get; private set; }
@@ -84,11 +85,17 @@ namespace IronVelocity.Compilation.Directives
 
         protected override Expression ReduceInternal()
         {
+            var originalItemValue = Expression.Parameter(CurrentItem.Type, "foreachOriginalItem");
+            var originalIndex = Expression.Parameter(CurrentItem.Type, "foreachOriginalVelocityIndex");
+
+            //Need to store hte enumerable in a local variable so we don't end up computing it twice (once with the TypeAs check, and again with the execution)
+            var localEnumerable = Expression.Parameter(typeof(IEnumerable));
+
             var body = _builder.GetBlockExpressions(_body);
             var parts = GetParts(body);
 
-            var forEach = new AdvancedForeachExpression(
-                enumerable: Enumerable,
+            var forEach = new TemplatedForeachExpression(
+                enumerable: localEnumerable,
                 loopVariable: CurrentItem,
                 loopIndex: CurrentIndex,
                 breakLabel: _break,
@@ -104,10 +111,9 @@ namespace IronVelocity.Compilation.Directives
                 );
 
 
-            var originalItemValue = Expression.Parameter(CurrentItem.Type, "foreachOriginalItem");
-            var originalIndex = Expression.Parameter(CurrentItem.Type, "foreachOriginalVelocityIndex");
 
-            return Expression.Block(
+
+            var loopExecution = Expression.Block(
                 typeof(void),
                 new[] { originalIndex, originalItemValue },
                 Expression.Assign(originalItemValue, CurrentItem),
@@ -115,8 +121,19 @@ namespace IronVelocity.Compilation.Directives
                 forEach,
                 Expression.Assign(CurrentIndex, originalIndex),
                 Expression.Assign(CurrentItem, originalItemValue)
-
                 );
+
+
+            return Expression.Block(
+                new[] { localEnumerable },
+                Expression.Assign(localEnumerable, Expression.TypeAs(Enumerable, typeof(IEnumerable))),
+                Expression.IfThenElse(
+                    Expression.Equal(localEnumerable, _nullEnumerable),
+                    forEach.NoData ?? Constants.EmptyExpression,
+                    loopExecution
+                )
+            );
+
         }
     }
 
