@@ -26,8 +26,11 @@ namespace IronVelocity.Tests
 
 
         [Test]
-        public void BoxTestWithProperySet()
+        public void BoxTestWithProperyAssignment()
         {
+            //Currently fails because $x is being boxed when returned from the Set expression, so we're actually 
+            // setting the value on a copy of the object, not the original
+
             var context = new Dictionary<string, object>();
             context["x"] = new TestStruct();
             Utility.TestExpectedMarkupGenerated("#set($x.ManualInt = 5)$x.ManualInt", "5", context);
@@ -37,7 +40,7 @@ namespace IronVelocity.Tests
         }
 
         [Test]
-        public void BoxTestWithMethod()
+        public void BoxTestWithMethodInternalMutation()
         {
             var context = new Dictionary<string, object>();
             context["x"] = new TestStruct();

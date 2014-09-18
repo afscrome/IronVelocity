@@ -32,6 +32,8 @@ namespace IronVelocity.Compilation.AST
             var left = Left;
             var right = Right;
 
+            if (left is ReferenceExpression)
+                left = left.Reduce();
   
             var getMember = left as PropertyAccessExpression;
             if (getMember != null)
@@ -48,8 +50,7 @@ namespace IronVelocity.Compilation.AST
                 right = VelocityExpressions.ConvertIfNeeded(right, left.Type);
             }
 
-            if (left is ReferenceExpression)
-                left = left.Reduce();
+
 
             bool isVariableExpression = left is VariableExpression;
             if (isVariableExpression)

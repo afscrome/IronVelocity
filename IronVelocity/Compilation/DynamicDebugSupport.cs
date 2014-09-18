@@ -27,9 +27,10 @@ namespace IronVelocity.Compilation
         public DynamicToExplicitCallSiteConvertor(TypeBuilder typeBuilder, string fileName)
         {
             _builder = typeBuilder;
-            if (!String.IsNullOrEmpty(fileName)) { 
-            _symbolDocument = Expression.SymbolDocument(fileName);
-                }
+            if (!String.IsNullOrEmpty(fileName))
+            {
+                _symbolDocument = Expression.SymbolDocument(fileName);
+            }
         }
 
         protected override Expression VisitExtension(Expression node)
@@ -72,20 +73,9 @@ namespace IronVelocity.Compilation
                 arguments[i + 1] = Visit(node.Arguments[i]);
             }
 
-            var invoke = Expression.Call(
-                     Expression.Field(
-                         callSiteField,
-                          siteType.GetField("Target")
-                     ),
-                     delegateType.GetMethod("Invoke"),
-                     arguments
-                 );
 
-
-            return Expression.Block(
-                //Initalise CallSite if it hasn't already been so
-                Expression.IfThen(
-                    Expression.Equal(callSiteField, Constants.NullExpression),
+            var callSiteInit = Expression.Coalesce(
+                callSiteField,
                     Expression.Assign(
                         callSiteField,
                             Expression.Call(
@@ -93,18 +83,27 @@ namespace IronVelocity.Compilation
                              CreateBinderExpression(node.Binder, node.Arguments.Count)
                             )
                      )
-                ),
-                //Now invoke the call site.
-                invoke
-             );
+                );
+
+            return Expression.Call(
+                     Expression.Field(
+                         callSiteInit,
+                          siteType.GetField("Target")
+                     ),
+                     delegateType.GetMethod("Invoke"),
+                     arguments
+                 );
+
 
         }
 
-        private static readonly ConstructorInfo _getMemberBinderConstructor = typeof(VelocityGetMemberBinder).GetConstructor(new[] { typeof(string) });
-        private static readonly ConstructorInfo _setMemberBinderConstructor = typeof(VelocitySetMemberBinder).GetConstructor(new[] { typeof(string) });
-        private static readonly ConstructorInfo _invokeMemberBinderConstructor = typeof(VelocityInvokeMemberBinder).GetConstructor(new[] { typeof(string), typeof(CallInfo) });
-        private static readonly ConstructorInfo _binaryMathematicalOperationBinderConstructor = typeof(VelocityBinaryMathematicalOperationBinder).GetConstructor(new[] { typeof(ExpressionType) });
-        private static readonly ConstructorInfo _binaryLogicalOperationBinderConstructor = typeof(VelocityBinaryLogicalOperationBinder).GetConstructor(new[] { typeof(LogicalOperation) });
+
+        private static readonly PropertyInfo _binderHelperInstanceProperty = typeof(BinderHelper).GetProperty("Instance", BindingFlags.Static | BindingFlags.Public);
+        private static readonly MethodInfo _getMemberBinderMethod = typeof(BinderHelper).GetMethod("GetGetMemberBinder", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(string) }, null);
+        private static readonly MethodInfo _setMemberBinderMethod = typeof(BinderHelper).GetMethod("GetSetMemberBinder", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(string) }, null);
+        private static readonly MethodInfo _invokeMemberBinderMethod = typeof(BinderHelper).GetMethod("GetInvokeMemberBinder", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(string), typeof(int) }, null);
+        private static readonly MethodInfo _logicalOperationBinderMethod = typeof(BinderHelper).GetMethod("GetBinaryLogicalOperationBinder", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(LogicalOperation) }, null);
+        private static readonly MethodInfo _mathematicalOperationBinderMethod = typeof(BinderHelper).GetMethod("GetBinaryMathematicalOperationBinder", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(ExpressionType) }, null);
 
         private static Expression _emptyStringArray = Expression.NewArrayInit(typeof(string));
 
@@ -114,10 +113,11 @@ namespace IronVelocity.Compilation
             if (getBinder != null)
             {
                 var name = getBinder.Name;
-                return Expression.New(
-                    _getMemberBinderConstructor,
+                return Expression.Call(
+                    Expression.Property(null, _binderHelperInstanceProperty),
+                    _getMemberBinderMethod,
                     Expression.Constant(name)
-                );
+                    );
             }
             else
             {
@@ -126,14 +126,12 @@ namespace IronVelocity.Compilation
                 {
                     var name = invokeBinder.Name;
 
-                    return Expression.New(
-                        _invokeMemberBinderConstructor,
+
+                    return Expression.Call(
+                        Expression.Property(null, _binderHelperInstanceProperty),
+                        _invokeMemberBinderMethod,
                         Expression.Constant(name),
-                        Expression.New(
-                            _callInfoConstructor,
-                            Expression.Constant(argCount),
-                            _emptyStringArray
-                        )
+                        Expression.Constant(argCount)
                     );
                 }
                 else
@@ -142,25 +140,34 @@ namespace IronVelocity.Compilation
                     if (setBinder != null)
                     {
                         var name = setBinder.Name;
-                        return Expression.New(
-                            _setMemberBinderConstructor,
+
+                        return Expression.Call(
+                            Expression.Property(null, _binderHelperInstanceProperty),
+                            _setMemberBinderMethod,
                             Expression.Constant(name)
-                        );
+                            );
                     }
-                    else {
+                    else
+                    {
                         var logical = binder as VelocityBinaryLogicalOperationBinder;
                         if (logical != null)
                         {
-                            var type = Expression.Constant(logical.Operation);
-                            return Expression.New(_binaryLogicalOperationBinderConstructor, type);
+                            return Expression.Call(
+                                Expression.Property(null, _binderHelperInstanceProperty),
+                                _logicalOperationBinderMethod,
+                                Expression.Constant(logical.Operation)
+                                );
                         }
                         else
                         {
                             var mathematical = binder as VelocityBinaryMathematicalOperationBinder;
                             if (mathematical != null)
                             {
-                                var type = Expression.Constant(mathematical.Operation);
-                                return Expression.New(_binaryMathematicalOperationBinderConstructor, type);
+                                return Expression.Call(
+                                    Expression.Property(null, _binderHelperInstanceProperty),
+                                    _mathematicalOperationBinderMethod,
+                                    Expression.Constant(mathematical.Operation)
+                                    );
                             }
                         }
                     }

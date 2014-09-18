@@ -87,9 +87,20 @@ namespace IronVelocity.Binders
                 // DLR does not handle boxing to make primitives objects, so do it ourselves
             }
 
+            var restrictions = BindingRestrictions.GetTypeRestriction(target.Expression, target.LimitType);
+
+            foreach (var arg in args)
+	        {
+                var argRestriction = arg.Value == null
+                    ? BindingRestrictions.GetInstanceRestriction(arg.Expression, null)
+                    : BindingRestrictions.GetTypeRestriction(arg.Expression, arg.LimitType);
+
+                restrictions = restrictions.Merge(argRestriction);
+	        }
+
             return new DynamicMetaObject(
                 result,
-                BindingRestrictions.GetTypeRestriction(target.Expression, target.LimitType)
+                restrictions
             );
         }
 

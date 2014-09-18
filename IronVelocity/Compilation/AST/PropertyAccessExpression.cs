@@ -31,7 +31,7 @@ namespace IronVelocity.Compilation.AST
         {
             return _staticExpression
                 ?? Expression.Dynamic(
-                    new VelocityGetMemberBinder(Name),
+                    BinderHelper.Instance.GetGetMemberBinder(Name),
                     typeof(object),
                     Target
                 );

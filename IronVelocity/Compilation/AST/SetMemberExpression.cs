@@ -31,7 +31,7 @@ namespace IronVelocity.Compilation.AST
         {
             //TODO: allow for reuse of callsites
             return Expression.Dynamic(
-                new VelocitySetMemberBinder(Name),
+                BinderHelper.Instance.GetSetMemberBinder(Name),
                 typeof(void),
                 Target,
                 Value
