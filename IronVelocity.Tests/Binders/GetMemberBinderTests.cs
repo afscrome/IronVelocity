@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System;
 using System.Linq.Expressions;
+using Tests;
 
 namespace IronVelocity.Tests.Binders
 {
@@ -256,14 +257,7 @@ namespace IronVelocity.Tests.Binders
         private object test(object input, string memberName)
         {
             var binder = new VelocityGetMemberBinder(memberName);
-
-            var value = Expression.Constant(input);
-            var expression = Expression.Dynamic(binder, typeof(object), value);
-
-            var action = Expression.Lambda<Func<object>>(expression)
-                .Compile();
-
-            return action();
+            return Utility.BinderTests(binder, input);
         }
 
         public class BasicClass : IExplicit, IConflict

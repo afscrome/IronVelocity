@@ -46,9 +46,6 @@ namespace Tests
 
         public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, string fileName = "", IDictionary<string, object> globals = null)
         {
-            if (globals == null && environment != null)
-                globals = environment.Where(x => x.Value != null).ToDictionary(x => x.Key, x=> x.Value);
-
             var action = CompileTemplate(input, fileName, globals);
 
             var builder = new StringBuilder();
@@ -96,11 +93,6 @@ namespace Tests
         {
             var expression = Expression.Dynamic(binder, typeof(object), args.Select(Expression.Constant));
 
-            return EvaluateExpression(expression);
-        }
-
-        public static object EvaluateExpression(Expression expression)
-        {
             var action = Expression.Lambda<Func<object>>(expression)
                 .Compile();
 
