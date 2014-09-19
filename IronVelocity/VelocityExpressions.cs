@@ -12,10 +12,6 @@ namespace IronVelocity.Compilation.AST
 {
     public static class NVelocityExpressions
     {
-        private static readonly Expression TrueExpression = Expression.Constant(true);
-        private static readonly Expression FalseExpression = Expression.Constant(false);
-
-
         public static Expression IfDirective(INode node, VelocityExpressionBuilder builder)
         {
             if (node == null)
@@ -24,9 +20,11 @@ namespace IronVelocity.Compilation.AST
             if (!(node is ASTIfStatement))
                 throw new ArgumentOutOfRangeException("node");
 
-
             if (node.ChildrenCount < 2)
                 throw new ArgumentOutOfRangeException("node", "Expected at least 2 children");
+
+            if (builder == null)
+                throw new ArgumentOutOfRangeException("builder");
 
 
             var condition = new CoerceToBooleanExpression(Expr(node.GetChild(0)));
@@ -64,6 +62,9 @@ namespace IronVelocity.Compilation.AST
 
         public static SetDirective Set(INode node)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             if (node.Type != ParserTreeConstants.SET_DIRECTIVE)
                 throw new ArgumentOutOfRangeException("node");
 
@@ -378,9 +379,9 @@ namespace IronVelocity.Compilation.AST
             switch (node.Type)
             {
                 case ParserTreeConstants.TRUE:
-                    return TrueExpression;
+                    return Constants.True;
                 case ParserTreeConstants.FALSE:
-                    return FalseExpression;
+                    return Constants.False;
                 case ParserTreeConstants.NUMBER_LITERAL:
                     return Expression.Constant(int.Parse(node.Literal, CultureInfo.InvariantCulture)); ;
                 case ParserTreeConstants.STRING_LITERAL:
@@ -447,7 +448,7 @@ namespace IronVelocity.Compilation.AST
                 throw new ArgumentOutOfRangeException("node");
 
             if (node.ChildrenCount != 2)
-                throw new ArgumentOutOfRangeException("Expected exactly two children for a binary expression");
+                throw new ArgumentOutOfRangeException("node", "Expected exactly two children for a binary expression");
 
             left = Operand(node.GetChild(0));
             right = Operand(node.GetChild(1));

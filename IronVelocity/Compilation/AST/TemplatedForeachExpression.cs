@@ -35,7 +35,7 @@ namespace IronVelocity.Compilation.AST
             if (enumerable == null)
                 throw new ArgumentNullException("enumerable");
             if (!typeof(IEnumerable).IsAssignableFrom(enumerable.Type))
-                throw new ArgumentOutOfRangeException("enumerable must be IEnumerable");
+                throw new ArgumentOutOfRangeException("enumerable");
 
             if (loopVariable == null)
                 throw new ArgumentNullException("loopVariable");
@@ -62,10 +62,6 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            var localEnumerable = Expression.Parameter(typeof(IEnumerable), "enumerable");
-            var @continue = Expression.Label("continue");
-
-
             var body = new List<Expression>();
 
             //Initalise the index to 0

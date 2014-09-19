@@ -9,8 +9,6 @@ namespace IronVelocity.Binders
 {
     public class VelocityInvokeMemberBinder : InvokeMemberBinder
     {
-        private readonly bool _supportAsync = true;
-
         public VelocityInvokeMemberBinder(String name, CallInfo callInfo)
             : base(name, true, callInfo)
         {

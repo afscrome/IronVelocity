@@ -17,7 +17,6 @@ namespace IronVelocity.Compilation
     public class DynamicToExplicitCallSiteConvertor : ExpressionVisitor
     {
         private static Type _callSiteType = typeof(CallSite<>);
-        private static ConstructorInfo _callInfoConstructor = typeof(CallInfo).GetConstructor(new[] { typeof(int), typeof(string[]) });
 
         private readonly TypeBuilder _builder;
         private readonly SymbolDocumentInfo _symbolDocument;
@@ -105,7 +104,6 @@ namespace IronVelocity.Compilation
         private static readonly MethodInfo _logicalOperationBinderMethod = typeof(BinderHelper).GetMethod("GetBinaryLogicalOperationBinder", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(LogicalOperation) }, null);
         private static readonly MethodInfo _mathematicalOperationBinderMethod = typeof(BinderHelper).GetMethod("GetBinaryMathematicalOperationBinder", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(ExpressionType) }, null);
 
-        private static Expression _emptyStringArray = Expression.NewArrayInit(typeof(string));
 
         private static Expression CreateBinderExpression(CallSiteBinder binder, int argCount)
         {

@@ -1,4 +1,5 @@
-﻿using IronVelocity.Compilation.AST;
+﻿using IronVelocity.Compilation;
+using IronVelocity.Compilation.AST;
 using IronVelocity.Compilation.Directives;
 using NVelocity.Runtime.Parser.Node;
 using System;
@@ -7,9 +8,9 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Scripting
 {
-    public class VelocityRootExpression : VelocityExpression
+    public class VelocityRootExpression : Expression
     {
-        public IReadOnlyCollection<Expression> Children {get; private set;}
+        public IReadOnlyCollection<Expression> Children { get; private set; }
         private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers;
         private readonly string _name;
         private readonly bool _staticTypeWherePossible;
@@ -24,8 +25,17 @@ namespace IronVelocity.Scripting
 
         public override Expression Reduce()
         {
-            return new RenderedBlock(Children, _builder);
+            return GetLambda();
         }
-        
+
+        public Expression<VelocityTemplateMethod> GetLambda()
+        {
+            var content = new RenderedBlock(Children, _builder);
+
+            return Expression.Lambda<VelocityTemplateMethod>(content, _name, new[] { Constants.InputParameter, _builder.OutputParameter });
+        }
+
+        public override Type Type { get { return typeof(VelocityTemplateMethod); } }
+        public override ExpressionType NodeType { get { return ExpressionType.Extension; } }
     }
 }

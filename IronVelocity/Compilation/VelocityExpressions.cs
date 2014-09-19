@@ -71,6 +71,9 @@ namespace IronVelocity.Compilation
 
         public static Expression CoerceToBoolean(Expression expression)
         {
+            if (expression == null)
+                throw new ArgumentNullException("expression");
+
             if (expression.Type == typeof(bool) || expression.Type == typeof(bool?))
                 return expression;
 

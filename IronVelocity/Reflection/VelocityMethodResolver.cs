@@ -10,7 +10,7 @@ namespace IronVelocity.Reflection
 {
     public class MethodResolver : IMethodResolver
     {
-        public static readonly Expression _voidReturnValue = Expression.Constant(String.Empty);
+        private static readonly Expression _voidReturnValue = Expression.Constant(String.Empty);
         private readonly IArgumentConverter _conversionHelper;
         public MethodResolver(IArgumentConverter conversionHelper)
         {
@@ -93,18 +93,18 @@ namespace IronVelocity.Reflection
             // C# 5.0 algorithm in section 7.5.3 of spec - http://www.microsoft.com/en-gb/download/details.aspx?id=7029
 
             //Given the set of applicable candidate function members, the best function member in that set is located.
-            //If the set contains only one function member, then that function member is the best function member.
             var candidates = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
                 .Where(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                 .Where(x => IsMethodApplicable(x, argTypes))
                 .ToList();
 
+            //If the set contains only one function member, then that function member is the best function member.
             if (candidates.Count == 1)
                 return candidates.First();
 
-            if (!candidates.Any())
-                return null;
-
+            //Otherwise, the best function member is the one function member that is better than all other function
+            //members with respect to the given argument list, provided that each function member is compared to
+            //all other function members using the rules in §7.5.3.2.
             return GetBestFunctionMember(candidates);
         }
 
@@ -168,9 +168,7 @@ namespace IronVelocity.Reflection
             if (applicableFunctionMembers == null)
                 throw new ArgumentNullException("applicableFunctionMembers");
 
-            //Otherwise, the best function member is the one function member that is better than all other function
-            //members with respect to the given argument list, provided that each function member is compared to
-            //all other function members using the rules in §7.5.3.2.
+
             var best = new List<MethodInfo>();
             foreach (var candidate in applicableFunctionMembers)
             {

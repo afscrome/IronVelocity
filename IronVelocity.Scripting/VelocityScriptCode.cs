@@ -17,14 +17,16 @@ namespace IronVelocity.Scripting
         {
 
 
-            var lambda = Expression.Lambda<VelocityTemplateMethod>(ast, sourceUnit.Path, new[] { Constants.InputParameter, ast._builder.OutputParameter});
-            _method = CompilerHelpers.LightCompile(lambda);
+            _method = CompilerHelpers.LightCompile(ast.GetLambda());
 
         }
 
         public override object Run(Scope scope)
         {
-            var context = new VelocityContext();
+            var context = new VelocityContext
+            {
+                {"test" , 123}
+            };
             var output = new StringBuilder();
             _method(context, output);
 

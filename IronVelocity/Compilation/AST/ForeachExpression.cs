@@ -23,7 +23,7 @@ namespace IronVelocity.Compilation.AST
                 throw new ArgumentNullException("enumerable");
 
             if (!typeof(IEnumerable).IsAssignableFrom(enumerable.Type))
-                throw new ArgumentOutOfRangeException("enumerable must be IEnumerable");
+                throw new ArgumentOutOfRangeException("enumerable");
 
             if (body == null)
                 throw new ArgumentNullException("body");
@@ -36,7 +36,7 @@ namespace IronVelocity.Compilation.AST
             Body = body;
             CurrentItem = currentItem;
             BreakLabel = breakLabel ?? Expression.Label("break");
-            ContinueLabel = ContinueLabel ?? Expression.Label("continue");
+            ContinueLabel = continueLabel ?? Expression.Label("continue");
         }
 
         public override Expression Reduce()
