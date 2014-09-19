@@ -13,14 +13,6 @@ namespace IronVelocity.Compilation.AST
 
         protected VelocityExpression() { }
 
-        [Obsolete("remove", true)]
-        protected VelocityExpression(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            Symbols = new SymbolInformation(node);
-        }
 
         public abstract override Expression Reduce();
     }

@@ -10,43 +10,13 @@ namespace IronVelocity.Compilation.AST
 {
     public class InterpolatedStringExpression : VelocityExpression
     {
-        public string Value { get; private set; }
         public IReadOnlyList<Expression> Parts { get; set; }
         public override Type Type { get { return typeof(string); } }
 
 
-        public InterpolatedStringExpression(string value)
+        public InterpolatedStringExpression(params Expression[] parts)
         {
-            Value = value;
-            //TODO; Refactor to share with VelocityExpressionTreeBuilder, or reuse the same parser
-            var parser = new NVelocity.Runtime.RuntimeInstance().CreateNewParser();
-            using (var reader = new System.IO.StringReader(Value))
-            {
-                SimpleNode ast;
-                try
-                {
-                    ast = parser.Parse(reader, null);
-                }
-                catch (ParseErrorException)
-                {
-                    ast = null;
-                }
-
-                //If we fail to parse, the ast returned will be null, so just return our normal string
-                if (ast == null)
-                    Parts = new Expression[] { Expression.Constant(Value) };
-                else
-                    Parts = new VelocityExpressionBuilder(null).GetBlockExpressions(ast)
-                    .Where(x => x.Type != typeof(void))
-                    .ToArray();
-
-            }
-        }
-
-        private InterpolatedStringExpression(string value, IReadOnlyList<Expression> parts)
-        {
-            Value = value;
-            Parts = parts;
+            Parts = parts.ToArray();
         }
 
         private static MethodInfo _stringConcatMethodInfo = typeof(string).GetMethod("Concat", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object[]) }, null);
@@ -67,11 +37,11 @@ namespace IronVelocity.Compilation.AST
             }
         }
 
-        public InterpolatedStringExpression Update(IReadOnlyList<Expression> parts)
+        public InterpolatedStringExpression Update(params Expression[] parts)
         {
             return parts == Parts
                 ? this
-                : new InterpolatedStringExpression(Value, parts);
+                : new InterpolatedStringExpression(parts);
         }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)

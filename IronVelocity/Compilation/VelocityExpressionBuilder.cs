@@ -33,6 +33,7 @@ namespace IronVelocity.Compilation.AST
             CustomDirectives = new Stack<CustomDirectiveExpression>();
         }
 
+
         public IReadOnlyCollection<Expression> GetBlockExpressions(INode node)
         {
             if (node == null)
@@ -59,13 +60,13 @@ namespace IronVelocity.Compilation.AST
                         expr = Expression.Constant(child.Literal);
                         break;
                     case ParserTreeConstants.REFERENCE:
-                        expr = VelocityExpression.Reference(child);
+                        expr = NVelocityExpressions.Reference(child);
                         break;
                     case ParserTreeConstants.IF_STATEMENT:
-                        expr = VelocityExpression.IfDirective(child, this);
+                        expr = NVelocityExpressions.IfDirective(child, this);
                         break;
                     case ParserTreeConstants.SET_DIRECTIVE:
-                        expr = SetDirective(child);
+                        expr = NVelocityExpressions.Set(child);
                         break;
                     case ParserTreeConstants.DIRECTIVE:
                         expr = Directive(child);
@@ -112,18 +113,6 @@ namespace IronVelocity.Compilation.AST
             else
                 return new UnrecognisedDirective(directiveNode, this);
         }
-        private static Expression SetDirective(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
 
-            if (!(node is ASTSetDirective))
-                throw new ArgumentOutOfRangeException("node");
-
-            if (node.ChildrenCount != 1)
-                throw new ArgumentOutOfRangeException("node", "Expected only one child");
-
-            return VelocityExpression.Expr(node.GetChild(0));
-        }
     }
 }

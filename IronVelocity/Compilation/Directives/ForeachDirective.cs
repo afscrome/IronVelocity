@@ -30,11 +30,11 @@ namespace IronVelocity.Compilation.Directives
 
             _builder = builder;
 
-            Enumerable = VelocityExpression.Operand(node.GetChild(2));
+            Enumerable = NVelocityExpressions.Operand(node.GetChild(2));
             _body = node.GetChild(3);
 
             CurrentIndex = new VariableExpression("velocityCount").ReduceExtensions();
-            CurrentItem = VelocityExpression.Reference(node.GetChild(0)).ReduceExtensions();
+            CurrentItem = NVelocityExpressions.Reference(node.GetChild(0)).ReduceExtensions();
         }
 
 

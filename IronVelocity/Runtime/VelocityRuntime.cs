@@ -85,7 +85,7 @@ namespace IronVelocity
 
                 var builder = new VelocityExpressionBuilder(_directiveHandlers);
                 stopwatch.Restart();
-                var expr = new RenderedBlock(ast, builder);
+                var expr = new RenderedBlock(builder.GetBlockExpressions(ast), builder);
                 stopwatch.Stop();
                 Trace.WriteLine(String.Format("IronVelocity,Converting to DLR AST,{0},{1}", typeName, stopwatch.ElapsedMilliseconds));
 

@@ -1,14 +1,16 @@
 ﻿using IronVelocity.Binders;
+using NVelocity.Exception;
 using NVelocity.Runtime.Parser;
 using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public abstract partial class VelocityExpression : Expression
+    public static class NVelocityExpressions
     {
         private static readonly Expression TrueExpression = Expression.Constant(true);
         private static readonly Expression FalseExpression = Expression.Constant(false);
@@ -27,8 +29,8 @@ namespace IronVelocity.Compilation.AST
                 throw new ArgumentOutOfRangeException("node", "Expected at least 2 children");
 
 
-            var condition = new CoerceToBooleanExpression(VelocityExpression.Expr(node.GetChild(0)));
-            var trueContent = new RenderedBlock(node.GetChild(1), builder);
+            var condition = new CoerceToBooleanExpression(Expr(node.GetChild(0)));
+            var trueContent = new RenderedBlock(builder.GetBlockExpressions(node.GetChild(1)), builder);
             Expression falseContent = Expression.Default(typeof(void));
 
             //Build the false expression recursively from the bottom up
@@ -43,12 +45,12 @@ namespace IronVelocity.Compilation.AST
                     if (child.ChildrenCount != 1)
                         throw new InvalidOperationException("Expected ASTElseStatement to only have 1 child");
 
-                    falseContent = new RenderedBlock(child.GetChild(0), builder);
+                    falseContent = new RenderedBlock(builder.GetBlockExpressions(child.GetChild(0)), builder);
                 }
                 else if (child is ASTElseIfStatement)
                 {
-                    var innerCondition = new CoerceToBooleanExpression(VelocityExpression.Expr(child.GetChild(0)));
-                    var innerContent = new RenderedBlock(child.GetChild(1), builder);
+                    var innerCondition = new CoerceToBooleanExpression(Expr(child.GetChild(0)));
+                    var innerContent = new RenderedBlock(builder.GetBlockExpressions(child.GetChild(1)), builder);
 
                     falseContent = Expression.IfThenElse(innerCondition, innerContent, falseContent);
                 }
@@ -61,6 +63,14 @@ namespace IronVelocity.Compilation.AST
         }
 
         public static SetDirective Set(INode node)
+        {
+            if (node.Type != ParserTreeConstants.SET_DIRECTIVE)
+                throw new ArgumentOutOfRangeException("node");
+
+            return Assignment(node.GetChild(0).GetChild(0));
+        }
+
+        public static SetDirective Assignment(INode node)
         {
             Expression left, right;
             GetBinaryExpressionOperands<ASTAssignment>(node, out left, out right);
@@ -299,9 +309,37 @@ namespace IronVelocity.Compilation.AST
                 case VelocityStringType.Dictionary:
                     return new DictionaryStringExpression(value);
                 case VelocityStringType.Interpolated:
-                    return new InterpolatedStringExpression(value);
+                    return InterpolatedString(value);
                 default:
                     throw new InvalidOperationException();
+            }
+        }
+
+        public static InterpolatedStringExpression InterpolatedString(string value)
+        {
+            var parser = new NVelocity.Runtime.RuntimeInstance().CreateNewParser();
+            using (var reader = new System.IO.StringReader(value))
+            {
+                SimpleNode ast;
+                try
+                {
+                    ast = parser.Parse(reader, null);
+                }
+                catch (ParseErrorException)
+                {
+                    ast = null;
+                }
+
+                //If we fail to parse, the ast returned will be null, so just return our normal string
+                if (ast == null)
+                    return new InterpolatedStringExpression(Expression.Constant(value));
+
+                var parts = new VelocityExpressionBuilder(null)
+                    .GetBlockExpressions(ast)
+                    .Where(x => x.Type != typeof(void))
+                    .ToArray();
+
+                return new InterpolatedStringExpression(parts);
             }
         }
 
@@ -384,7 +422,7 @@ namespace IronVelocity.Compilation.AST
 
                 //Code
                 case ParserTreeConstants.ASSIGNMENT:
-                    return Set(node);
+                    return Assignment(node);
                 case ParserTreeConstants.REFERENCE:
                     return Reference(node);
                 case ParserTreeConstants.OBJECT_ARRAY:

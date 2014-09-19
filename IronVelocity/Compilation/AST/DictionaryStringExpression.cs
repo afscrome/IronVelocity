@@ -212,7 +212,7 @@ namespace IronVelocity.Compilation.AST
             var content = value.ToString().Trim();
             if (content.Contains('$'))
             {
-                var interpolated = new InterpolatedStringExpression(content);
+                var interpolated = NVelocityExpressions.InterpolatedString(content);
                 if (isTextContent)
                     expr = interpolated;
                 else if (interpolated.Parts.Count == 1)

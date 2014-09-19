@@ -11,23 +11,6 @@ namespace IronVelocity.Compilation.AST
         private readonly ParameterExpression _output;
         public override Type Type { get { return typeof(void); } }
         
-        public RenderedBlock(INode node, VelocityExpressionBuilder builder)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            if (builder == null)
-                throw new ArgumentNullException("builder");
-
-            //ASTprocess is a special case for the root, otherwise it behaves exactly like ASTBlock
-            if (!(node is ASTBlock || node is ASTprocess))
-                throw new ArgumentOutOfRangeException("node");
-
-            Children = builder.GetBlockExpressions(node);
-
-            _output = builder.OutputParameter;
-        }
-
         public RenderedBlock(IEnumerable<Expression> expressions, VelocityExpressionBuilder builder)
         {
             if (expressions == null)
