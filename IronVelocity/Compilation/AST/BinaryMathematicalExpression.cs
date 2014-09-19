@@ -19,7 +19,7 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            var binder = new VelocityBinaryMathematicalOperationBinder(ExpressionType);
+            var binder = BinderHelper.Instance.GetBinaryMathematicalOperationBinder(ExpressionType);
 
             return Expression.Dynamic(
                 binder,

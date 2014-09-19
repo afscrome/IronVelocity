@@ -59,9 +59,9 @@ namespace IronVelocity.Compilation.AST
                 args[i + 1] = Arguments[i];
             }
 
-            //TODO: allow for reuse of callsites
+
             return Expression.Dynamic(
-                new VelocityInvokeMemberBinder(Name, new CallInfo(Arguments.Count)),
+                BinderHelper.Instance.GetInvokeMemberBinder(Name, Arguments.Count),
                 typeof(object),
                 args
             );
