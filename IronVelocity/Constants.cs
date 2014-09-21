@@ -12,7 +12,7 @@ namespace IronVelocity
         public static readonly ParameterExpression AsyncStateParameter = Expression.Parameter(typeof(int).MakeByRefType(), "$state");
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Expressions are immutable")]
-        public static readonly ParameterExpression AsyncTaskMethodBuilderParameter = Expression.Parameter(typeof(AsyncTaskMethodBuilder), "_state");
+        public static readonly ParameterExpression AsyncTaskMethodBuilderParameter = Expression.Parameter(typeof(AsyncTaskMethodBuilder).MakeByRefType(), "$builder");
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Expressions are immutable")]
         public static readonly Expression NullExpression = Expression.Constant(null);

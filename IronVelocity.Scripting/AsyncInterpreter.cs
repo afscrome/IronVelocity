@@ -1,5 +1,4 @@
-﻿/*
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
@@ -18,7 +17,7 @@ namespace IronVelocity.Scripting
         private readonly Dictionary<LabelTarget, BranchLabel> _labelMapping;
         private readonly InstructionArray _instructions;
         internal readonly object[] _objects;
-        internal readonly RuntimeLabel[] _labels;
+        //internal readonly RuntimeLabel[] _labels;
         internal readonly LambdaExpression _lambda;
         private readonly ExceptionHandler[] _handlers;
         internal readonly DebugInfo[] _debugInfos;
@@ -160,4 +159,3 @@ namespace IronVelocity.Scripting
         }
     }
 }
-*/

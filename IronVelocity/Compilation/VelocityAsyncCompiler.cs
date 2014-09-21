@@ -15,8 +15,8 @@ namespace IronVelocity.Compilation
     public static class VelocityAsyncCompiler
     {
         private const string _methodName = "Execute";
-        private static readonly Type[] _signature = new[] {typeof(AsyncTaskMethodBuilder), typeof(int).MakeByRefType(), typeof(VelocityContext), typeof(StringBuilder) };
-        private delegate void VelocityAsyncTemplateMethodInternal(AsyncTaskMethodBuilder asyncTaskMethodBuilder, ref int state, VelocityContext context, StringBuilder builder);
+        private static readonly Type[] _signature = new[] {typeof(AsyncTaskMethodBuilder).MakeByRefType(), typeof(int).MakeByRefType(), typeof(VelocityContext), typeof(StringBuilder) };
+        private delegate void VelocityAsyncTemplateMethodInternal(ref AsyncTaskMethodBuilder asyncTaskMethodBuilder, ref int state, VelocityContext context, StringBuilder builder);
 
 
         public static VelocityAsyncTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, bool debugMode, string fileName)
@@ -31,6 +31,8 @@ namespace IronVelocity.Compilation
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "Final cast will fail if the Expression does not conform to VelocityAsyncTemplateMethod's signature")]
         public static VelocityAsyncTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, AssemblyBuilder assemblyBuilder, bool debugMode, string fileName)
         {
+
+
             var syncMethod = CompileStateMachineMoveNext(expressionTree, name, assemblyBuilder, debugMode, fileName);
 
             return (VelocityAsyncTemplateMethod)((VelocityContext context, StringBuilder output) =>
@@ -55,6 +57,8 @@ namespace IronVelocity.Compilation
                 throw new ArgumentNullException("assemblyBuilder");
 
             var args = new ParameterExpression[] {Constants.AsyncTaskMethodBuilderParameter, Constants.AsyncStateParameter, expressionTree.Parameters[0], expressionTree.Parameters[1] };
+
+
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(name, true);
 
             if (debugMode)
@@ -74,7 +78,8 @@ namespace IronVelocity.Compilation
             var reducer = new DynamicToExplicitCallSiteConvertor(typeBuilder, fileName);
 
             expressionTree = (Expression<VelocityTemplateMethod>)reducer.Visit(expressionTree);
-            var asyncExpressionTree = Expression.Lambda<VelocityAsyncTemplateMethodInternal>(expressionTree.Body, args);
+            var asyncExpressionTree = AsyncStateMachineRewriter.ConvertToAsyncStateMachine<VelocityAsyncTemplateMethodInternal>(expressionTree.Body, args);
+            //var asyncExpressionTree = Expression.Lambda<VelocityAsyncTemplateMethodInternal>(expressionTree.Body, args);
 
             var debugInfo = DebugInfoGenerator.CreatePdbGenerator();
             asyncExpressionTree.CompileToMethod(meth, debugInfo);
@@ -99,16 +104,7 @@ namespace IronVelocity.Compilation
 
             public void MoveNext()
             {
-                try
-                {
-                    TemplateMethod(AsyncMethodBuilder, ref State, Context, Output);
-                }
-                catch (Exception ex)
-                {
-                    AsyncMethodBuilder.SetException(ex);
-                    return;
-                }
-                this.AsyncMethodBuilder.SetResult();
+                TemplateMethod(ref AsyncMethodBuilder, ref State, Context, Output);
             }
 
             [DebuggerHidden]
