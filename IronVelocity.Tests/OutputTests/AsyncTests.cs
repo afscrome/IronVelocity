@@ -42,6 +42,21 @@ namespace IronVelocity.Tests.Async
             Assert.True(asyncObj.HasRun);
         }
 
+        [Test]
+        public async Task AsyncTask_IsCompleted()
+        {
+            var input = "Before $x.TaskRanToCompletion() After";
+            var expected = "Before  After";
+
+            var asyncObj = new AsyncObj();
+            var context = new Dictionary<string, object>{
+                { "x", asyncObj}
+            };
+
+            await Utility.TestExpectedMarkupGeneratedAsync(input, expected, context);
+            Assert.True(asyncObj.HasRun);
+        }
+
         public class AsyncObj
         {
             public bool HasRun { get; set; }
@@ -65,9 +80,10 @@ namespace IronVelocity.Tests.Async
             }
 
             //Sometimes async methods might not actually execute any async code.
-            public async Task TaskRanToCompletion()
+            public Task TaskRanToCompletion()
             {
-                return;
+                HasRun = true;
+                return Task.FromResult(true);
             }
 
             public Task<int> TaskOfPrimativeRanToCompletion()

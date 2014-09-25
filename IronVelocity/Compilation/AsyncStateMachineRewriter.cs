@@ -54,8 +54,27 @@ namespace IronVelocity.Compilation
                 ),
             args
            );
-    }
+        }
 
+        protected override Expression VisitDynamic(DynamicExpression node)
+        {
+            if (typeof(Task).IsAssignableFrom(node.Type))
+            {
+                throw new NotImplementedException("TODO: Definite Task support");
+            }
+            //Possible Task
+            else if (node.Type.IsAssignableFrom(typeof(Task)))
+            {
+                throw new NotImplementedException("TODO: Possible Task support");
+            }
+            //Not a Task
+            else
+            {
+                return base.VisitDynamic(node);
+            }
+        }
+
+        #region Control Flow Expressions
         protected override Expression VisitTry(TryExpression node)
         {
             throw new NotSupportedException();
@@ -68,14 +87,34 @@ namespace IronVelocity.Compilation
         {
             throw new NotSupportedException();
         }
-        protected override Expression VisitRuntimeVariables(RuntimeVariablesExpression node)
-        {
-            throw new NotSupportedException();
-        }
+
         protected override CatchBlock VisitCatchBlock(CatchBlock node)
         {
             throw new NotSupportedException();
         }
+
+        protected override Expression VisitGoto(GotoExpression node)
+        {
+            //TODO: Will need to support for foreach
+            throw new NotImplementedException();
+        }
+
+        protected override Expression VisitLabel(LabelExpression node)
+        {
+            return base.VisitLabel(node);
+        }
+
+        protected override LabelTarget VisitLabelTarget(LabelTarget node)
+        {
+            throw new NotImplementedException();
+        }
+
+        protected override Expression VisitLoop(LoopExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
 
     }
 

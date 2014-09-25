@@ -75,11 +75,10 @@ namespace IronVelocity.Compilation
                     _signature);
 
 
+            var asyncExpressionTree = AsyncStateMachineRewriter.ConvertToAsyncStateMachine<VelocityAsyncTemplateMethodInternal>(expressionTree.Body, args); 
+            
             var reducer = new DynamicToExplicitCallSiteConvertor(typeBuilder, fileName);
-
-            expressionTree = (Expression<VelocityTemplateMethod>)reducer.Visit(expressionTree);
-            var asyncExpressionTree = AsyncStateMachineRewriter.ConvertToAsyncStateMachine<VelocityAsyncTemplateMethodInternal>(expressionTree.Body, args);
-            //var asyncExpressionTree = Expression.Lambda<VelocityAsyncTemplateMethodInternal>(expressionTree.Body, args);
+            asyncExpressionTree = reducer.VisitAndConvert(asyncExpressionTree, "Debug Reducer");
 
             var debugInfo = DebugInfoGenerator.CreatePdbGenerator();
             asyncExpressionTree.CompileToMethod(meth, debugInfo);
