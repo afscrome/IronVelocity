@@ -14,29 +14,32 @@ namespace IronVelocity.Compilation
         private readonly ParameterExpression AsyncTaskMethodBuilder = Constants.AsyncTaskMethodBuilderParameter;
         private readonly ParameterExpression AsyncState = Constants.AsyncStateParameter;
         private readonly ParameterExpression CaughtException = Expression.Parameter(typeof(Exception), "exception");
+        private readonly LabelTarget ReturnTarget = Expression.Label("return");
+        private readonly List<LabelTarget> AsyncReturnTargets = new List<LabelTarget>(); 
 
         private static readonly MethodInfo _setExceptionMethodInfo = typeof(AsyncTaskMethodBuilder).GetMethod("SetException", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(Exception) }, null);
         private static readonly MethodInfo _setResultMethodInfo = typeof(AsyncTaskMethodBuilder).GetMethod("SetResult", BindingFlags.Public | BindingFlags.Instance, null, new Type[0], null);
-
+        private static readonly PropertyInfo _isComplete = typeof(Task).GetProperty("IsCompleted", BindingFlags.Public | BindingFlags.Instance, null, typeof(bool), new Type[0], null);
 
         private AsyncStateMachineRewriter() { }
 
         public static Expression<T> ConvertToAsyncStateMachine<T>(Expression expression, params ParameterExpression[] args)
         {
-            var rewriter = new AsyncStateMachineRewriter();
+            return new AsyncStateMachineRewriter().MakeStateMachineMethod<T>(expression, args);
+        }
 
-            var mainBody = rewriter.Visit(expression);
+        private Expression<T> MakeStateMachineMethod<T>(Expression body, params ParameterExpression[] args)
+        {
+            var mainBody = Visit(body);
 
-            var returnLabel = Expression.Label("return");
-
-            var setCompleteState = Expression.Assign(rewriter.AsyncState, Expression.Constant(-2));
+            var setCompleteState = Expression.Assign(AsyncState, Expression.Constant(-2));
 
             var catchBlock = Expression.Catch(
-                rewriter.CaughtException,
+                CaughtException,
                 Expression.Block(
                     setCompleteState,
-                    Expression.Call(rewriter.AsyncTaskMethodBuilder, _setExceptionMethodInfo, rewriter.CaughtException),
-                    Expression.Return(returnLabel)
+                    Expression.Call(AsyncTaskMethodBuilder, _setExceptionMethodInfo, CaughtException),
+                    Expression.Return(ReturnTarget)
                 )
             );
 
@@ -49,12 +52,55 @@ namespace IronVelocity.Compilation
                         catchBlock
                     ),
                     setCompleteState,
-                    Expression.Call(rewriter.AsyncTaskMethodBuilder, _setResultMethodInfo),
-                    Expression.Label(returnLabel)
+                    Expression.Call(AsyncTaskMethodBuilder, _setResultMethodInfo),
+                    Expression.Label(ReturnTarget)
                 ),
             args
            );
         }
+
+        protected override Expression VisitMethodCall(MethodCallExpression node)
+        {
+            //Definite Task
+            if (node.Type == typeof(Task))
+            {
+                var taskLocal = Expression.Parameter(node.Type);
+                return Expression.Block(
+                    new[] { taskLocal },
+                    Expression.Assign(taskLocal, base.VisitMethodCall(node)),
+                    Expression.IfThenElse(
+                        Expression.Property(taskLocal, _isComplete),
+                        Constants.EmptyExpression,
+                        Expression.Block(
+                            Expression.Throw(Expression.New(typeof(NotImplementedException)))
+                            //awaiter = task.GetAwaiter()
+                            //Set State Expression.Assign(AsyncState, Expression.Constant(1234)),
+                            //awaiter.UnsafeOnCompleted(MoveNext);
+                            //builder.AwaitUnsafeOnCompleted(ref awaiter, ref this);
+                            //return; Expression.Return(ReturnTarget)
+                        )
+                    ),
+                    Constants.VoidReturnValue
+                    );
+
+            }
+            //Definite Task<T>
+            if (typeof(Task).IsAssignableFrom(node.Type))
+            {
+                throw new NotImplementedException("TODO: Definite Task<T> support");
+            }
+            //Possible Task
+            else if (node.Type.IsAssignableFrom(typeof(Task)))
+            {
+                throw new NotImplementedException("TODO: Possible Task support");
+            }
+            //Not a Task
+            else
+            {
+                return base.VisitMethodCall(node);
+            } 
+        }
+
 
         protected override Expression VisitDynamic(DynamicExpression node)
         {
