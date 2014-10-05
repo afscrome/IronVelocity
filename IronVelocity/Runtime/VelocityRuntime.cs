@@ -18,6 +18,7 @@ namespace IronVelocity
     {
         internal readonly RuntimeInstance _runtimeService;
         private readonly VelocityCompiler _compiler;
+        private readonly VelocityAsyncCompiler _asyncCompiler;
         private readonly IReadOnlyDictionary<string, object> _globals;
 
         private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
@@ -50,10 +51,13 @@ namespace IronVelocity
             _runtimeService.Init(properties);
 
             if (globals == null)
-                globals = new Dictionary<string, object>();
+                _globals = new Dictionary<string, object>();
+            else
+                _globals = new Dictionary<string, object>(globals, StringComparer.OrdinalIgnoreCase);
 
-            _globals = new Dictionary<string, object>(globals, StringComparer.OrdinalIgnoreCase);
-            _compiler = new VelocityCompiler(_globals.ToDictionary(x => x.Key, x=> x.Value.GetType()));
+            var globalsTypeMap = _globals.ToDictionary(x => x.Key, x => x.Value.GetType());
+            _compiler = new VelocityCompiler(globalsTypeMap);
+            _asyncCompiler = new VelocityAsyncCompiler(globalsTypeMap);
             
         }
 
@@ -67,7 +71,7 @@ namespace IronVelocity
         public VelocityAsyncTemplateMethod CompileAsyncTemplate(string input, string typeName, string fileName, bool debugMode)
         {
             var tree = GetExpressionTree(input, typeName);
-            return VelocityAsyncCompiler.CompileWithSymbols(tree, typeName, debugMode, fileName);
+            return _asyncCompiler.CompileWithSymbols(tree, typeName, debugMode, fileName);
         }
 
         internal Expression<VelocityTemplateMethod> GetExpressionTree(string input, string typeName)

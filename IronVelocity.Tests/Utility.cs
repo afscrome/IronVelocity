@@ -15,14 +15,12 @@ namespace Tests
     {
         public static VelocityAsyncTemplateMethod CompileAsyncTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {
-            VelocityAsyncTemplateMethod action = null;
             var runtime = new VelocityRuntime(null, globals);
             return runtime.CompileAsyncTemplate(input, "TestExpression", fileName, true);
         }
 
         public static VelocityTemplateMethod CompileTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {
-           VelocityTemplateMethod action = null;
             var runtime = new VelocityRuntime(null, globals);
             return runtime.CompileTemplate(input, "TestExpression", fileName, true);
         }

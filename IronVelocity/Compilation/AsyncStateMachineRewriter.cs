@@ -13,13 +13,15 @@ namespace IronVelocity.Compilation
     {
         private readonly ParameterExpression AsyncTaskMethodBuilder = Constants.AsyncTaskMethodBuilderParameter;
         private readonly ParameterExpression AsyncState = Constants.AsyncStateParameter;
+        private readonly ParameterExpression StateMachine = Constants.StateMachineParameter;
+
         private readonly ParameterExpression CaughtException = Expression.Parameter(typeof(Exception), "exception");
         private readonly LabelTarget ReturnTarget = Expression.Label("return");
-        private readonly List<LabelTarget> AsyncReturnTargets = new List<LabelTarget>(); 
+        private readonly List<LabelTarget> ContinuationTargets = new List<LabelTarget>(); 
 
         private static readonly MethodInfo _setExceptionMethodInfo = typeof(AsyncTaskMethodBuilder).GetMethod("SetException", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(Exception) }, null);
-        private static readonly MethodInfo _setResultMethodInfo = typeof(AsyncTaskMethodBuilder).GetMethod("SetResult", BindingFlags.Public | BindingFlags.Instance, null, new Type[0], null);
         private static readonly PropertyInfo _isComplete = typeof(Task).GetProperty("IsCompleted", BindingFlags.Public | BindingFlags.Instance, null, typeof(bool), new Type[0], null);
+        private static readonly MethodInfo _configureAwaiter = typeof(VelocityAsyncCompiler.VelocityAsyncStateMachine).GetMethod("ConfigureAwaiter");
 
         private AsyncStateMachineRewriter() { }
 
@@ -28,35 +30,33 @@ namespace IronVelocity.Compilation
             return new AsyncStateMachineRewriter().MakeStateMachineMethod<T>(expression, args);
         }
 
+        private Expression SetStateExpression(int value)
+        {
+            return Expression.Assign(AsyncState, Expression.Constant(value));
+        }
+
         private Expression<T> MakeStateMachineMethod<T>(Expression body, params ParameterExpression[] args)
         {
             var mainBody = Visit(body);
 
-            var setCompleteState = Expression.Assign(AsyncState, Expression.Constant(-2));
-
-            var catchBlock = Expression.Catch(
-                CaughtException,
-                Expression.Block(
-                    setCompleteState,
-                    Expression.Call(AsyncTaskMethodBuilder, _setExceptionMethodInfo, CaughtException),
-                    Expression.Return(ReturnTarget)
-                )
-            );
-
             List<SwitchCase> cases = new List<System.Linq.Expressions.SwitchCase>();
+
+            for (int i = 0; i < ContinuationTargets.Count; i++)
+            {
+                cases.Add(Expression.SwitchCase(Expression.Goto(ContinuationTargets[i]), Expression.Constant(i)));                
+            }
+            //cases.Add(Expression.SwitchCase(Expression.Throw(Expression.New(typeof(NotImplementedException))), Expression.Constant(2)));
 
             return Expression.Lambda<T>(
                 Expression.Block(
-                    Expression.TryCatch(
-                        Expression.Block(mainBody),
-                        catchBlock
-                    ),
-                    setCompleteState,
-                    Expression.Call(AsyncTaskMethodBuilder, _setResultMethodInfo),
+                    Expression.Switch(AsyncState, cases.ToArray()),
+                    mainBody,
+                    SetStateExpression(-2),
                     Expression.Label(ReturnTarget)
                 ),
-            args
-           );
+                args
+            );
+
         }
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
@@ -64,25 +64,25 @@ namespace IronVelocity.Compilation
             //Definite Task
             if (node.Type == typeof(Task))
             {
-                var taskLocal = Expression.Parameter(node.Type);
-                return Expression.Block(
+                int state = ContinuationTargets.Count + 1;
+                var continuationTarget = Expression.Label("Continuation" + state);
+                ContinuationTargets.Add(continuationTarget);
+
+                var taskLocal = Expression.Parameter(node.Type, "task" + state);
+                return Expression.Block( Expression.Block(
                     new[] { taskLocal },
                     Expression.Assign(taskLocal, base.VisitMethodCall(node)),
-                    Expression.IfThenElse(
-                        Expression.Property(taskLocal, _isComplete),
-                        Constants.EmptyExpression,
+                    Expression.IfThen(
+                        Expression.Not(Expression.Property(taskLocal, _isComplete)),
                         Expression.Block(
-                            Expression.Throw(Expression.New(typeof(NotImplementedException)))
-                            //awaiter = task.GetAwaiter()
-                            //Set State Expression.Assign(AsyncState, Expression.Constant(1234)),
-                            //awaiter.UnsafeOnCompleted(MoveNext);
-                            //builder.AwaitUnsafeOnCompleted(ref awaiter, ref this);
-                            //return; Expression.Return(ReturnTarget)
+                            SetStateExpression(state),
+                            Expression.Call(StateMachine, _configureAwaiter, taskLocal),
+                            Expression.Return(ReturnTarget)
                         )
-                    ),
+                    )),
+                    Expression.Label(continuationTarget),
                     Constants.VoidReturnValue
-                    );
-
+                );
             }
             //Definite Task<T>
             if (typeof(Task).IsAssignableFrom(node.Type))

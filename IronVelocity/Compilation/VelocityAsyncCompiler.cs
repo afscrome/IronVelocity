@@ -16,8 +16,13 @@ namespace IronVelocity.Compilation
     public class VelocityAsyncCompiler
     {
         private const string _methodName = "Execute";
-        private static readonly Type[] _signature = new[] {typeof(AsyncTaskMethodBuilder).MakeByRefType(), typeof(int).MakeByRefType(), typeof(VelocityContext), typeof(StringBuilder) };
-        private delegate void VelocityAsyncTemplateMethodInternal(ref AsyncTaskMethodBuilder asyncTaskMethodBuilder, ref int state, VelocityContext context, StringBuilder builder);
+        private static readonly Type[] _signature = new[] {
+            typeof (VelocityAsyncStateMachine).MakeByRefType(),
+            typeof(int).MakeByRefType(),
+            typeof(VelocityContext),
+            typeof(StringBuilder)
+        };
+        internal delegate void VelocityAsyncTemplateMethodInternal(ref VelocityAsyncStateMachine stateMachine, ref int state, VelocityContext context, StringBuilder builder);
 
         private readonly IReadOnlyDictionary<string, Type> _globals;
 
@@ -53,9 +58,9 @@ namespace IronVelocity.Compilation
                     Output = output
                 };
 
-                stateMachine.AsyncMethodBuilder.Start(ref stateMachine);
+                stateMachine.Builder.Start(ref stateMachine);
 
-                return stateMachine.AsyncMethodBuilder.Task;
+                return stateMachine.Builder.Task;
             });
 
         }
@@ -65,7 +70,12 @@ namespace IronVelocity.Compilation
             if (assemblyBuilder == null)
                 throw new ArgumentNullException("assemblyBuilder");
 
-            var args = new ParameterExpression[] {Constants.AsyncTaskMethodBuilderParameter, Constants.AsyncStateParameter, expressionTree.Parameters[0], expressionTree.Parameters[1] };
+            var args = new ParameterExpression[] {
+                Constants.StateMachineParameter,
+                Constants.AsyncStateParameter,
+                expressionTree.Parameters[0],
+                expressionTree.Parameters[1]
+            };
 
 
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(name, true);
@@ -100,30 +110,46 @@ namespace IronVelocity.Compilation
             var compiledType = typeBuilder.CreateType();
             var compiledMethod = compiledType.GetMethod(meth.Name, _signature);
             return (VelocityAsyncTemplateMethodInternal)Delegate.CreateDelegate(typeof(VelocityAsyncTemplateMethodInternal), compiledMethod);
-
-
         }
 
 
         [CompilerGenerated]
-        private struct VelocityAsyncStateMachine : IAsyncStateMachine
+        public struct VelocityAsyncStateMachine : IAsyncStateMachine
         {
-            public VelocityAsyncTemplateMethodInternal TemplateMethod;
-            public VelocityContext Context;
-            public StringBuilder Output;
-            public int State;
-            public AsyncTaskMethodBuilder AsyncMethodBuilder;
+            internal VelocityAsyncTemplateMethodInternal TemplateMethod;
+            internal VelocityContext Context;
+            internal StringBuilder Output;
+            private int State;
+            internal AsyncTaskMethodBuilder Builder;
+            private TaskAwaiter _awaiter;
 
 
             public void MoveNext()
             {
-                TemplateMethod(ref AsyncMethodBuilder, ref State, Context, Output);
+                try
+                {
+                    TemplateMethod(ref this, ref State, Context, Output);
+                    if (State == -2)
+                        Builder.SetResult();
+                }
+                catch (Exception ex)
+                {
+                    State = -1;
+                    Builder.SetException(ex);
+                }
             }
 
             [DebuggerHidden]
             public void SetStateMachine(IAsyncStateMachine stateMachine)
             {
-                AsyncMethodBuilder.SetStateMachine(stateMachine);
+                Builder.SetStateMachine(stateMachine);
+            }
+
+            public void ConfigureAwaiter(ref Task task)
+            {
+                _awaiter = task.GetAwaiter();
+                _awaiter.UnsafeOnCompleted(MoveNext);
+                Builder.AwaitUnsafeOnCompleted(ref _awaiter, ref this);
             }
         }
     }
