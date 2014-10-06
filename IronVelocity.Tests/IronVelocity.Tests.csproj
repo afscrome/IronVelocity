@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Binders\BinderReuseTests.cs" />
+    <Compile Include="Binders\InvokeMemberBinderAsyncTests.cs" />
     <Compile Include="Binders\ReflectionHelper\IsNullableTypeTests.cs" />
     <Compile Include="StaticTyping\DictionaryTests.cs" />
     <Compile Include="StaticTyping\If.cs" />
