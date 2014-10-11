@@ -30,18 +30,6 @@ namespace IronVelocity.Compilation.AST
                 : BaseVariable;
         }
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            if (visitor == null)
-                throw new ArgumentNullException("visitor");
-
-            var baseVariable = visitor.Visit(BaseVariable);
-            if (baseVariable == BaseVariable)
-                return base.VisitChildren(visitor);
-
-
-            return visitor.Visit(this.ReduceAndCheck());
-        }
     }
 
 }

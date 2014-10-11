@@ -18,17 +18,5 @@ namespace IronVelocity.Compilation.AST
 
         public abstract VelocityBinaryExpression Update(Expression left, Expression right);
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            if (visitor == null)
-                throw new ArgumentNullException("visitor");
-
-            var left = visitor.Visit(Left);
-            var right = visitor.Visit(Right);
-
-            return Update(left, right);
-        }
-
-
     }
 }

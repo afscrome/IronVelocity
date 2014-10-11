@@ -31,22 +31,12 @@ namespace IronVelocity.Compilation.AST
             return Expression.Convert(expression, typeof(bool), MethodHelpers.BooleanCoercionMethodInfo);
         }
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        public CoerceToBooleanExpression Update(Expression value)
         {
-            if (visitor == null)
-                throw new ArgumentNullException("visitor");
-
-            var value = visitor.Visit(Value);
-
-            if (value.Type == typeof(bool))
-                return value;
-
-            if (value != Value)
-                return new CoerceToBooleanExpression(value);
-            else
-                return this;
+            return value == Value
+                ? this
+                : new CoerceToBooleanExpression(value);
         }
-
 
     }
 }

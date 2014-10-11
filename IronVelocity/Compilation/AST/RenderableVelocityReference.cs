@@ -82,14 +82,7 @@ namespace IronVelocity.Compilation.AST
                 : new RenderableExpression(expression, Metadata);
         }
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            if (visitor == null)
-                throw new ArgumentNullException("visitor");
-
-            var expression = visitor.Visit(Expression);
-            return this.Update(expression);
-        }
+       
     }
 
 }

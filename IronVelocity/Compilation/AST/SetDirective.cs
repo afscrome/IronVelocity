@@ -84,18 +84,5 @@ namespace IronVelocity.Compilation.AST
             );
         }
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            if (visitor == null)
-                throw new ArgumentNullException("visitor");
-
-            var left = visitor.Visit(Left);
-            if (left is GlobalVariableExpression)
-                throw new InvalidOperationException("Cannot assign to a global variable");
-
-            var right = visitor.Visit(Right);
-
-            return Update(left, right);
-        }
     }
 }

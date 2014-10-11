@@ -33,31 +33,5 @@ namespace IronVelocity.Compilation.AST
         }
 
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            if (visitor == null)
-                throw new ArgumentNullException("visitor");
-
-            bool changed = false;
-
-            var visitedValues = new Expression[Values.Count];
-            for (int i = 0; i < visitedValues.Length; i++)
-            {
-                var value = visitor.Visit(Values[i]);
-                if (value != Values[i])
-                {
-                    changed = true;
-                }
-                visitedValues[i] = value;
-            }
-
-            var result = changed ?
-                Update(visitedValues)
-                : this;
-
-            //return result;
-            return visitor.Visit(result.ReduceAndCheck());
-        }
-
     }
 }

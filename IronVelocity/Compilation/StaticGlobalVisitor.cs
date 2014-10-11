@@ -3,14 +3,22 @@ using IronVelocity.Compilation.AST;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation
 {
+    /// <summary>
+    ///     Optimises a Velocity Expression tree by replacing dynamic expressions on global variables with static expressions where possible
+    /// </summary>
+    /// <remarks>
+    ///     Whilst replacing known Variables with statically typed variables is simple, the complication comes in that we need to update
+    ///     parent expressions so that the statically typed node type is compatible. 
+    /// </remarks>
     public class StaticGlobalVisitor : ExpressionVisitor
     {
-
         private readonly IReadOnlyDictionary<string, Type> _globalTypeMap;
+
         public StaticGlobalVisitor(IReadOnlyDictionary<string, Type> globalTypeMap)
         {
             _globalTypeMap = globalTypeMap;
@@ -21,14 +29,16 @@ namespace IronVelocity.Compilation
             if (node == null)
                 throw new ArgumentNullException("node");
 
-            var args = new Expression[node.Arguments.Count];
+            return node.Update(VisitArguments(node.Arguments)).Reduce();
+        }
+       
 
-            for (int i = 0; i < node.Arguments.Count; i++)
-            {
-                args[i] = Visit(node.Arguments[i]);
-            }
+        protected override Expression VisitNewArray(NewArrayExpression node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
 
-            return Expression.Dynamic(node.Binder, node.Type, args);
+            return node.Update(VisitArguments(node.Expressions)).Reduce();
         }
 
         protected override Expression VisitExtension(Expression node)
@@ -48,28 +58,26 @@ namespace IronVelocity.Compilation
             if (method != null)
                 return VisitMethodInvocationExpression(method);
 
+            var dictionary = node as DictionaryExpression;
+            if (dictionary != null)
+                return VisitDictionaryExpression(dictionary);
+
+            var set = node as SetDirective;
+            if (set != null)
+                return VisitSetDirective(set);
+
+            var coerceToBool = node as CoerceToBooleanExpression;
+            if (coerceToBool != null)
+                return VisitCoerceToBooleanExpression(coerceToBool);
+
+
+            var renderableReference = node as RenderableVelocityReference;
+            if (renderableReference != null)
+                return VisitRenderableVelocityReference(renderableReference);
+
+
             return base.VisitExtension(node);
         }
-
-        protected virtual Expression VisitBinaryLogicalExpression(BinaryLogicalExpression node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            var left = Visit(node.Left);
-            var right = Visit(node.Right);
-
-            if (left.Type == typeof(bool) && right.Type == typeof(bool))
-            {
-                if (node.Operation == LogicalOperation.And)
-                    return Expression.AndAlso(left, right);
-                else if (node.Operation == LogicalOperation.Or)
-                    return Expression.OrElse(left, right);
-            }
-            return base.VisitExtension(node);
-        }
-
-
 
 
         protected virtual Expression VisitVariable(VariableExpression node)
@@ -90,7 +98,14 @@ namespace IronVelocity.Compilation
                 throw new ArgumentNullException("node");
 
             var target = Visit(node.Target);
-            return node.Update(target);
+
+            if (IsConstantType(target))
+            {
+                return ReflectionHelper.MemberExpression(node.Name, target.Type, target)
+                    ?? Constants.NullExpression;
+            }
+
+            return node.Update(target).Reduce();
         }
 
         protected virtual Expression VisitMethodInvocationExpression(MethodInvocationExpression node)
@@ -98,26 +113,129 @@ namespace IronVelocity.Compilation
             if (node == null)
                 throw new ArgumentNullException("node");
 
-            var target = Visit(node.Target);
-            var args = new Expression[node.Arguments.Count];
-            for (int i = 0; i < args.Length; i++)
+            var newTarget = Visit(node.Target);
+            var args = VisitArguments(node.Arguments);
+
+            // If the target has a static type, and so do all arguments, we can try to staticly type the method call
+            if (IsConstantType(newTarget) && args.All(IsConstantType))
             {
-                args[i] = Visit(node.Arguments[i]);
+                var method = ReflectionHelper.ResolveMethod(newTarget.Type, node.Name, GetArgumentTypes(args));
+
+                return method == null
+                    ? Constants.NullExpression
+                    : ReflectionHelper.ConvertMethodParameters(method, newTarget, args.Select(x => new DynamicMetaObject(x, BindingRestrictions.Empty)).ToArray());
             }
 
-            return node.Update(target, args);
+            return node.Update(newTarget, args);
+        }
+
+        private static Type[] GetArgumentTypes(IReadOnlyList<Expression> expressions)
+        {
+            var types = new Type[expressions.Count];
+
+            for (int i = 0; i < expressions.Count; i++)
+            {
+                types[i] = expressions[i].Type;
+            }
+
+            return types;
         }
 
 
+        protected virtual Expression VisitDictionaryExpression(DictionaryExpression node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            bool changed = true;
+
+            var visitedValues = new Dictionary<string, Expression>(node.Values.Count);
+            foreach (var pair in node.Values)
+            {
+                var value = Visit(pair.Value);
+                if (value != pair.Value)
+                {
+                    changed = true;
+                }
+                visitedValues[pair.Key] = value;
+            }
+
+            var result = changed
+                ? new DictionaryExpression(visitedValues)
+                : node;
+
+            return result.Reduce();
+        }
 
 
+        protected Expression VisitSetDirective(SetDirective node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
 
-        public static bool IsConstantType(Expression expression)
+            var left = Visit(node.Left);
+            if (left is GlobalVariableExpression)
+                throw new InvalidOperationException("Cannot assign to a global variable");
+
+            return node.Update(left, Visit(node.Right)).Reduce();
+        }
+
+
+        protected Expression VisitCoerceToBooleanExpression(CoerceToBooleanExpression node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            var value = Visit(node.Value);
+
+            if (value.Type == typeof(bool) || value.Type == typeof(bool?))
+                return value;
+
+            return node.Update(value).Reduce();
+        }
+
+        protected Expression VisitRenderableVelocityReference(RenderableVelocityReference node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            var value = Visit(node.Expression);
+
+            return node.Update(value).Reduce();
+        }
+
+        private IReadOnlyList<Expression> VisitArguments(IReadOnlyList<Expression> arguments)
+        {
+            bool changed = false;
+            var visitedValues = new Expression[arguments.Count];
+
+            int i = 0;
+            foreach (var oldValue in arguments)
+            {
+                var value = Visit(oldValue);
+                if (value != oldValue)
+                {
+                    changed = true;
+                    if (value.Type.IsValueType)
+                        value = VelocityExpressions.ConvertIfNeeded(value, typeof(object));
+                }
+                visitedValues[i++] = value;
+            }
+
+            return changed
+                ? visitedValues
+                : arguments;
+        }
+
+        /// <summary>
+        /// Determines whether an expression will always return the same exact type.  
+        /// </summary>
+        private static bool IsConstantType(Expression expression)
         {
             if (expression == null)
                 throw new ArgumentNullException("expression");
 
-            if (typeof(IDynamicMetaObjectProvider).IsAssignableFrom(expression.Type))
+            if (expression is DynamicExpression || typeof(IDynamicMetaObjectProvider).IsAssignableFrom(expression.Type))
                 return false;
 
             if (expression is ConstantExpression || expression is GlobalVariableExpression)
@@ -128,14 +246,10 @@ namespace IronVelocity.Compilation
                 || expression is DictionaryExpression || expression is ObjectArrayExpression)
                 return true;
 
-            //if (expression is MethodCallExpression || expression is PropertyAccessExpression || expression is MemberExpression)
-            //return true;
-
             if (expression.Type == typeof(void))
                 return true;
 
-
-            //If the type is sealed, there
+            //If the return type is sealed, we can't get any subclasses back
             if (expression.Type.IsSealed)
                 return true;
 
@@ -143,10 +257,8 @@ namespace IronVelocity.Compilation
         }
 
 
-
-
-
-
+#if DEBUG
+        //For debugging purposes, it is useful to have - easier to identify where visiting is raising errors
 
         protected override Expression VisitUnary(UnaryExpression node)
         {
@@ -247,10 +359,7 @@ namespace IronVelocity.Compilation
         {
             return base.VisitNew(node);
         }
-        protected override Expression VisitNewArray(NewArrayExpression node)
-        {
-            return base.VisitNewArray(node);
-        }
+
         protected override Expression VisitParameter(ParameterExpression node)
         {
             return base.VisitParameter(node);
@@ -283,5 +392,7 @@ namespace IronVelocity.Compilation
         {
             return base.VisitTypeBinary(node);
         }
+#endif
+
     }
 }

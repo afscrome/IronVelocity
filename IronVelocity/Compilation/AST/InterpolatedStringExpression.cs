@@ -44,28 +44,6 @@ namespace IronVelocity.Compilation.AST
                 : new InterpolatedStringExpression(parts);
         }
 
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
-        {
-            if (visitor == null)
-                throw new ArgumentNullException("visitor");
-
-            bool changed = false;
-
-            var visitedValues = new Expression[Parts.Count];
-            for (int i = 0; i < visitedValues.Length; i++)
-            {
-                visitedValues[i] = visitor.Visit(Parts[i]);
-                if (visitedValues[i] != Parts[i])
-                {
-                    changed = true;
-                }
-            }
-
-            if (changed)
-                return Update(visitedValues);
-            else
-                return this;
-        }
 
     }
 }

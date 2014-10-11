@@ -42,31 +42,13 @@ namespace IronVelocity.Compilation.AST
 
             return Expression.ListInit(dictionaryInit, initializers);
         }
-       
-        protected override Expression VisitChildren(ExpressionVisitor visitor)
+
+        public DictionaryExpression Update(IReadOnlyDictionary<string, Expression> values)
         {
-            if (visitor == null)
-                throw new ArgumentNullException("visitor");
-
-            bool changed = true;
-
-            var visitedValues = new Dictionary<string, Expression>(Values.Count);
-            foreach (var pair in Values)
-            {
-                var value = visitor.Visit(pair.Value);
-                if (value != pair.Value)
-                {
-                    changed = true;
-                }
-                visitedValues[pair.Key] = value;
-            }
-
-            var result = changed 
-                ? new DictionaryExpression(visitedValues)
-                : this;
-
-            return result;
+            return Values == values
+                ? this
+                : new DictionaryExpression(values);
         }
-        
+       
     }
 }
