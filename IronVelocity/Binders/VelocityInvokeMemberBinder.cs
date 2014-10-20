@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -68,7 +69,8 @@ namespace IronVelocity.Binders
 
             if (method == null)
             {
-                Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Unable to resolve method '{0}' on type '{1}'", Name, target.LimitType.AssemblyQualifiedName), "Velocity");
+                var argInfo = argTypeArray.Select(x => x == null ? "null" : x.FullName);
+                Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Unable to resolve method '{0}' on type '{1}' ({2})", Name, target.LimitType.AssemblyQualifiedName, String.Join(",", argInfo)) , "Velocity");
                 result = Constants.VelocityUnresolvableResult;
             }
             else
