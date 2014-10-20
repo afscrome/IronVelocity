@@ -168,6 +168,8 @@ namespace IronVelocity.Reflection
             if (applicableFunctionMembers == null)
                 throw new ArgumentNullException("applicableFunctionMembers");
 
+            if (!applicableFunctionMembers.Any())
+                return null;
 
             var best = new List<MethodInfo>();
             foreach (var candidate in applicableFunctionMembers)
