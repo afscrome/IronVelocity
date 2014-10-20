@@ -29,7 +29,21 @@ namespace IronVelocity.Compilation
             if (node == null)
                 throw new ArgumentNullException("node");
 
-            return node.Update(VisitArguments(node.Arguments)).Reduce();
+            var args = VisitArguments(node.Arguments);
+
+            bool signatureChanged = false;
+            for (int i = 0; i < args.Count; i++)
+            {
+                if (args[i] != node.Arguments[i])
+                {
+                    signatureChanged = true;
+                    break;
+                }
+            }
+
+            return signatureChanged
+                ? Expression.Dynamic(node.Binder, node.Type, args)
+                : node.Update(args).Reduce();
         }
        
 
