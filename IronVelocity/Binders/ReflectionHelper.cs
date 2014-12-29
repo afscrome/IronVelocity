@@ -31,7 +31,7 @@ namespace IronVelocity.Binders
 
         public static MethodInfo ResolveMethod(Type type, string name, params Type[] argTypes)
         {
-            return _methodInvocationResolver.ResolveMethod(type, name, argTypes);
+            return _methodInvocationResolver.ResolveMethod(type.GetTypeInfo(), name, argTypes);
         }
 
 

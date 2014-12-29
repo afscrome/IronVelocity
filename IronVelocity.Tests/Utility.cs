@@ -13,6 +13,8 @@ namespace Tests
 {
     public static class Utility
     {
+        private static bool _forceGlobals = false;
+
         public static VelocityAsyncTemplateMethod CompileAsyncTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {
             var runtime = new VelocityRuntime(null, globals);
@@ -27,10 +29,9 @@ namespace Tests
 
         public static IDictionary<string, object> Evaluate(string input, IDictionary<string, object> environment, string fileName = "", IDictionary<string, object> globals = null)
         {
-            /*
-            if (globals == null && environment != null)
+            if (_forceGlobals && globals == null && environment != null)
                 globals = environment.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
-            */
+
             var action = CompileTemplate(input, fileName, globals);
 
             var builder = new StringBuilder();
@@ -45,6 +46,9 @@ namespace Tests
 
         public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, string fileName = "", IDictionary<string, object> globals = null)
         {
+            if (_forceGlobals && globals == null && environment != null)
+                globals = environment.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
+
             var action = CompileTemplate(input, fileName, globals);
 
             var builder = new StringBuilder();

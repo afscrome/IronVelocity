@@ -218,7 +218,12 @@ namespace IronVelocity.Compilation.AST
                 else if (interpolated.Parts.Count == 1)
                     expr = interpolated.Parts.First();
                 else
-                    throw new InvalidOperationException();
+                {
+                    //What does this state mean?
+                    //E.g. can be produced by:
+                    //"%{Query=username:$loweredSearchText OR userdisplayname:$loweredSearchText,Filters='type::user',PageSize=20}"
+                    expr = interpolated;
+                }
             }
             else
             {

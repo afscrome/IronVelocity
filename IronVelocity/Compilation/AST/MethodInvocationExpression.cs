@@ -40,7 +40,6 @@ namespace IronVelocity.Compilation.AST
                 args[i + 1] = Arguments[i];
             }
 
-
             return Expression.Dynamic(
                 BinderHelper.Instance.GetInvokeMemberBinder(Name, Arguments.Count),
                 typeof(object),
@@ -52,19 +51,8 @@ namespace IronVelocity.Compilation.AST
         {
             if (target == Target && arguments == Arguments)
                 return this;
-            return new MethodInvocationExpression(target, Name, arguments, Symbols);
-        }
-
-        private static Type[] GetArgumentTypes(IReadOnlyList<Expression> expressions)
-        {
-            var types = new Type[expressions.Count];
-
-            for (int i = 0; i < expressions.Count; i++)
-            {
-                types[i] = expressions[i].Type;
-            }
-
-            return types;
+            else
+                return new MethodInvocationExpression(target, Name, arguments, Symbols);
         }
 
     }

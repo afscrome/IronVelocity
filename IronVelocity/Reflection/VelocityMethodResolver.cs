@@ -83,7 +83,7 @@ namespace IronVelocity.Reflection
         }
 
 
-        public MethodInfo ResolveMethod(Type type, string name, params Type[] argTypes)
+        public MethodInfo ResolveMethod(TypeInfo type, string name, params Type[] argTypes)
         {
             if (type == null)
                 throw new ArgumentNullException("type");
@@ -93,7 +93,8 @@ namespace IronVelocity.Reflection
             // C# 5.0 algorithm in section 7.5.3 of spec - http://www.microsoft.com/en-gb/download/details.aspx?id=7029
 
             //Given the set of applicable candidate function members, the best function member in that set is located.
-            var candidates = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
+            var candidates = type.GetRuntimeMethods()
+                .Where(x => !x.IsStatic && x.IsPublic)
                 .Where(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                 .Where(x => IsMethodApplicable(x, argTypes))
                 .ToList();

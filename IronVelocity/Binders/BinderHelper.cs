@@ -9,6 +9,12 @@ using System.Threading.Tasks;
 
 namespace IronVelocity.Binders
 {
+    /// <remarks>
+    /// Reusing CallSiteBinder instances across multiple similar CallSites improves performance
+    /// by reducing the amount of repeated compilations / JIT.
+    /// 
+    /// This is due to the L2 cache on the CallSite.
+    /// </remarks>
     public class BinderHelper : IBinderHelper
     {
         static BinderHelper()

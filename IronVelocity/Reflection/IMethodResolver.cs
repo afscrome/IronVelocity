@@ -9,7 +9,7 @@ namespace IronVelocity.Reflection
     public interface IMethodResolver
     {
         bool IsArgumentCompatible(Type runtimeType, ParameterInfo parameter);
-        MethodInfo ResolveMethod(Type type, string name, params Type[] argTypes);
+        MethodInfo ResolveMethod(TypeInfo type, string name, params Type[] argTypes);
 
         Expression ConvertMethodParameters(MethodInfo method, Expression target, DynamicMetaObject[] args);
     }

@@ -8,16 +8,12 @@ namespace IronVelocity.Compilation.AST
     public class ReferenceExpression : VelocityExpression
     {
         public ASTReferenceMetadata Metadata { get; private set; }
-        //public Expression Value { get; private set; }
-        public VariableExpression BaseVariable { get; private set; }
+        public Expression Value { get; private set; }
 
-        private IReadOnlyCollection<Expression> Additional { get;  set; }
-
-        public ReferenceExpression(ASTReferenceMetadata metadata, VariableExpression baseVariable, IReadOnlyCollection<Expression> additional)
+        public ReferenceExpression(ASTReferenceMetadata metadata, Expression value)
         {
             Metadata = metadata;
-            BaseVariable = baseVariable;
-            Additional = additional;
+            Value = value;
         }
 
         public override Expression Reduce()
@@ -25,9 +21,7 @@ namespace IronVelocity.Compilation.AST
             if (Metadata.RefType == ASTReferenceMetadata.ReferenceType.Runt)
                 return Expression.Constant(Metadata.RootString);
 
-            return Additional.Any()
-                ? Additional.Last()
-                : BaseVariable;
+            return Value;
         }
 
     }

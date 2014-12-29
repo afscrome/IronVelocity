@@ -29,7 +29,6 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            //TODO: allow for reuse of callsites
             return Expression.Dynamic(
                 BinderHelper.Instance.GetSetMemberBinder(Name),
                 typeof(void),

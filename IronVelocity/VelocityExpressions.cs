@@ -232,28 +232,21 @@ namespace IronVelocity.Compilation.AST
             if (refNode == null)
                 throw new ArgumentOutOfRangeException("node");
 
-
             var metadata = new ASTReferenceMetadata(refNode);
+            Expression value = new VariableExpression(metadata.RootString);
 
-            var baseVariable = new VariableExpression(metadata.RootString);
-
-            var additional = new List<Expression>(node.ChildrenCount);
-
-            Expression soFar = baseVariable;
             for (int i = 0; i < node.ChildrenCount; i++)
             {
                 var child = node.GetChild(i);
                 if (child is ASTIdentifier)
-                    soFar = Property(child, soFar);
+                    value = Property(child, value);
                 else if (child is ASTMethod)
-                    soFar = Method(child, soFar);
+                    value = Method(child, value);
                 else
                     throw new NotSupportedException("Node type not supported in a Reference: " + child.GetType().Name);
-
-                additional.Add(soFar);
             }
 
-            return new ReferenceExpression(metadata, baseVariable, additional);
+            return new ReferenceExpression(metadata, value);
 
         }
 

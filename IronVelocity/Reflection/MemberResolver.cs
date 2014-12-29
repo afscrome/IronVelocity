@@ -111,6 +111,19 @@ namespace IronVelocity.Reflection
                             new[] { Expression.Constant(name) }
                         );
                 }
+                else
+                {
+                    var method = IronVelocity.Binders.ReflectionHelper.ResolveMethod(type, name);
+                    if (method != null)
+                    {
+                        return Expression.Call(VelocityExpressions.ConvertIfNeeded(expression, method.DeclaringType), method);
+                    }
+                }
+                
+                if (type.IsArray && name.Equals("count", StringComparison.OrdinalIgnoreCase))
+                {
+                    return MemberExpression("Length", type, expression);
+                }
             }
             else
             {
@@ -134,6 +147,7 @@ namespace IronVelocity.Reflection
                                 field
                             );
                     }
+
                 }
             }
             Debug.WriteLine(String.Format(CultureInfo.InvariantCulture, "Unable to resolve Property '{0}' on type '{1}'", name, type.AssemblyQualifiedName), "Velocity");
