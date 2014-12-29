@@ -43,7 +43,7 @@ namespace IronVelocity.Compilation
 
             return signatureChanged
                 ? Expression.Dynamic(node.Binder, node.Type, args)
-                : node.Update(args).Reduce();
+                : node.Update(args);
         }
        
 
@@ -52,7 +52,7 @@ namespace IronVelocity.Compilation
             if (node == null)
                 throw new ArgumentNullException("node");
 
-            return node.Update(VisitArguments(node.Expressions)).Reduce();
+            return node.Update(VisitArguments(node.Expressions));
         }
 
         protected override Expression VisitExtension(Expression node)
@@ -119,7 +119,7 @@ namespace IronVelocity.Compilation
                     ?? Constants.NullExpression;
             }
 
-            return node.Update(target).Reduce();
+            return node.Update(target);
         }
 
         protected virtual Expression VisitMethodInvocationExpression(MethodInvocationExpression node)
@@ -178,7 +178,7 @@ namespace IronVelocity.Compilation
                 ? new DictionaryExpression(visitedValues)
                 : node;
 
-            return result.Reduce();
+            return result;
         }
 
 
@@ -191,7 +191,35 @@ namespace IronVelocity.Compilation
             if (left is GlobalVariableExpression)
                 throw new InvalidOperationException("Cannot assign to a global variable");
 
-            return node.Update(left, Visit(node.Right)).Reduce();
+            var right = Visit(node.Right);
+
+            if (!left.Type.IsAssignableFrom(right.Type))
+            {
+                //If we can't assign from right to left, but can from left to right
+                // Then we 
+                if (right.Type.IsAssignableFrom(left.Type))
+                {
+                    var temp = Expression.Parameter(left.Type);
+
+                    return Expression.Block(
+                        new[] { temp },
+                        Expression.Assign(temp, Expression.TypeAs(right, left.Type)),
+                        Expression.Condition(
+                            Expression.NotEqual(temp, Expression.Constant(null, left.Type)),
+                            node.Update(left, temp),
+                            Constants.VoidReturnValue,
+                            typeof(void)
+                            )
+                        );
+                }
+                else
+                {
+                    //TODO: should we throw an exception if it's impossible to assign?
+                    return Constants.VoidReturnValue;
+                }
+            }
+
+            return node.Update(left, right);
         }
 
 
@@ -205,7 +233,7 @@ namespace IronVelocity.Compilation
             if (value.Type == typeof(bool) || value.Type == typeof(bool?))
                 return value;
 
-            return node.Update(value).Reduce();
+            return node.Update(value);
         }
 
         protected Expression VisitRenderableVelocityReference(RenderableVelocityReference node)
@@ -215,7 +243,7 @@ namespace IronVelocity.Compilation
 
             var value = Visit(node.Expression);
 
-            return node.Update(value).Reduce();
+            return node.Update(value);
         }
 
         private IReadOnlyList<Expression> VisitArguments(IReadOnlyList<Expression> arguments)

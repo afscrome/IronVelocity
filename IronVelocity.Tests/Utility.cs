@@ -13,7 +13,7 @@ namespace Tests
 {
     public static class Utility
     {
-        private static bool _forceGlobals = false;
+        private static bool _forceGlobals = true;
 
         public static VelocityAsyncTemplateMethod CompileAsyncTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {

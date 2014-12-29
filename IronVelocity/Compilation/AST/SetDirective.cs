@@ -45,7 +45,7 @@ namespace IronVelocity.Compilation.AST
             {
                 //This shouldn't really be happening as we should only be assigning to objects, but just in case...
                 if (!left.Type.IsAssignableFrom(right.Type))
-                    throw new InvalidOperationException("Cannot assign from type '{0}' to '{1}'");
+                    throw new InvalidOperationException(String.Format("Cannot assign from type '{0}' to '{1}'", left.Type, right.Type));
 
                 right = VelocityExpressions.ConvertIfNeeded(right, left.Type);
             }
