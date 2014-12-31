@@ -29,45 +29,17 @@ namespace IronVelocity.Reflection
             if (to == null)
                 throw new ArgumentNullException("to");
 
-
             if (from == null)
                 return !to.IsValueType;
 
             if (to.IsAssignableFrom(from))
                 return true;
 
+            if (from.IsEnum)
+                return CanBeConverted(Enum.GetUnderlyingType(from), to);
+
             if (!from.IsPrimitive)
                 return false;
-
-            switch (Type.GetTypeCode(from))
-            {
-                case TypeCode.Byte:
-                    break;
-                case TypeCode.Char:
-                    break;
-                case TypeCode.Decimal:
-                    break;
-                case TypeCode.Double:
-                    break;
-                case TypeCode.Int16:
-                    break;
-                case TypeCode.Int32:
-                    break;
-                case TypeCode.Int64:
-                    break;
-                case TypeCode.SByte:
-                    break;
-                case TypeCode.Single:
-                    break;
-                case TypeCode.UInt16:
-                    break;
-                case TypeCode.UInt32:
-                    break;
-                case TypeCode.UInt64:
-                    break;
-                default:
-                    break;
-            }
 
             Type[] supportedConversions;
             if (_implicitNumericConversions.TryGetValue(from, out supportedConversions))

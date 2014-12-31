@@ -26,10 +26,24 @@ namespace IronVelocity.Tests.Binders
         //6.1.1 - Identity Conversions
         [TestCase(typeof(sbyte), TestName = "Identity Conversion: Primitive")]
         [TestCase(typeof(Child), TestName = "Identity Conversion: Custom")]
+        [TestCase(typeof(EnvironmentVariableTarget), TestName = "Identity Conversion: Enum")]
+        [TestCase(typeof(string[]), TestName = "Identity Conversion: Array")]
+        [TestCase(typeof(Guid), TestName = "Identity Conversion: Struct")]
         public void IdentityConversion(Type type)
         {
             var result = _conversionHelper.CanBeConverted(type, type);
             Assert.IsTrue(result);
+        }
+
+        //6.1.3 - Enumeration conversions
+        [TestCase(typeof(EnvironmentVariableTarget), typeof(int), true)]
+        [TestCase(typeof(int), typeof(EnvironmentVariableTarget), false)]
+        [TestCase(typeof(EnvironmentVariableTarget), typeof(long), true)]
+        [TestCase(typeof(long), typeof(EnvironmentVariableTarget), false)]
+        public void EnumerationConversion(Type from, Type to, bool expected)
+        {
+            var result = _conversionHelper.CanBeConverted(from, to);
+            Assert.AreEqual(expected, result);
         }
 
         //6.2.1 - Implicit Numeric conversions

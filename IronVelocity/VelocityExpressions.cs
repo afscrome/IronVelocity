@@ -104,43 +104,43 @@ namespace IronVelocity.Compilation.AST
 
         #region Comparison Expressions
 
-        public static BinaryLogicalExpression LessThan(INode node)
+        public static ComparisonExpression LessThan(INode node)
         {
-            return BinaryLogical<ASTLTNode>(node, LogicalOperation.LessThan);
+            return Comparison<ASTLTNode>(node, ComparisonOperation.LessThan);
         }
 
-        public static BinaryLogicalExpression GreaterThan(INode node)
+        public static ComparisonExpression GreaterThan(INode node)
         {
-            return BinaryLogical<ASTGTNode>(node, LogicalOperation.GreaterThan);
+            return Comparison<ASTGTNode>(node, ComparisonOperation.GreaterThan);
         }
 
-        public static BinaryLogicalExpression LessThanOrEqual(INode node)
+        public static ComparisonExpression LessThanOrEqual(INode node)
         {
-            return BinaryLogical<ASTLENode>(node, LogicalOperation.LessThanOrEqual);
+            return Comparison<ASTLENode>(node, ComparisonOperation.LessThanOrEqual);
         }
 
-        public static BinaryLogicalExpression GreaterThanOrEqual(INode node)
+        public static ComparisonExpression GreaterThanOrEqual(INode node)
         {
-            return BinaryLogical<ASTGENode>(node, LogicalOperation.GreaterThanOrEqual);
+            return Comparison<ASTGENode>(node, ComparisonOperation.GreaterThanOrEqual);
         }
 
-        public static BinaryLogicalExpression Equal(INode node)
+        public static ComparisonExpression Equal(INode node)
         {
-            return BinaryLogical<ASTEQNode>(node, LogicalOperation.Equal);
+            return Comparison<ASTEQNode>(node, ComparisonOperation.Equal);
         }
 
-        public static BinaryLogicalExpression NotEqual(INode node)
+        public static ComparisonExpression NotEqual(INode node)
         {
-            return BinaryLogical<ASTNENode>(node, LogicalOperation.NotEqual);
+            return Comparison<ASTNENode>(node, ComparisonOperation.NotEqual);
         }
 
-        private static BinaryLogicalExpression BinaryLogical<T>(INode node, LogicalOperation operation)
+        private static ComparisonExpression Comparison<T>(INode node, ComparisonOperation operation)
             where T : INode
         {
             Expression left, right;
             GetBinaryExpressionOperands<T>(node, out left, out right);
 
-            return new BinaryLogicalExpression(left, right, new SymbolInformation(node), operation);
+            return new ComparisonExpression(left, right, new SymbolInformation(node), operation);
         }
         #endregion
 

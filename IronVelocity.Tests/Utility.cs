@@ -13,7 +13,7 @@ namespace Tests
 {
     public static class Utility
     {
-        private static bool _forceGlobals = true;
+        private static bool DefaultToGlobals = false;
 
         public static VelocityAsyncTemplateMethod CompileAsyncTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {
@@ -29,7 +29,7 @@ namespace Tests
 
         public static IDictionary<string, object> Evaluate(string input, IDictionary<string, object> environment, string fileName = "", IDictionary<string, object> globals = null)
         {
-            if (_forceGlobals && globals == null && environment != null)
+            if (DefaultToGlobals && globals == null && environment != null)
                 globals = environment.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
 
             var action = CompileTemplate(input, fileName, globals);
@@ -43,12 +43,18 @@ namespace Tests
 
             return ctx;
         }
-
-        public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, string fileName = "", IDictionary<string, object> globals = null)
+        public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, string fileName = "")
         {
-            if (_forceGlobals && globals == null && environment != null)
-                globals = environment.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
+            IDictionary<string,object> globals = null;
+            if (DefaultToGlobals)
+                globals = environment;
 
+            return GetNormalisedOutput(input, environment, globals, fileName);
+
+        }
+
+        public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, IDictionary<string, object> globals, string fileName = "")
+        {
             var action = CompileTemplate(input, fileName, globals);
 
             var builder = new StringBuilder();
@@ -72,11 +78,13 @@ namespace Tests
         }
 
 
-        public static void TestExpectedMarkupGenerated(string input, string expectedOutput, IDictionary<string, object> environment = null, string fileName = "", bool isGlobalEnvironment = true)
+        public static void TestExpectedMarkupGenerated(string input, string expectedOutput, IDictionary<string, object> environment = null, string fileName = "", bool? isGlobalEnvironment = null)
         {
             expectedOutput = NormaliseLineEndings(expectedOutput);
-            var globals = isGlobalEnvironment ? environment : null;
-            var generatedOutput = GetNormalisedOutput(input, environment, fileName, globals);
+            var globals = isGlobalEnvironment.GetValueOrDefault(DefaultToGlobals)
+                ? environment
+                : null;
+            var generatedOutput = GetNormalisedOutput(input, environment, globals, fileName);
 
             Assert.AreEqual(expectedOutput, generatedOutput);
         }
@@ -121,9 +129,14 @@ namespace Tests
 
         public static object BinderTests(CallSiteBinder binder, params object[] args)
         {
-            var expression = Expression.Dynamic(binder, typeof(object), args.Select(Expression.Constant));
+            return BinderTests<object>(binder, args);
+        }
 
-            var action = Expression.Lambda<Func<object>>(expression)
+        public static T BinderTests<T>(CallSiteBinder binder, params object[] args)
+        {
+            var expression = Expression.Dynamic(binder, typeof(T), args.Select(Expression.Constant));
+
+            var action = Expression.Lambda<Func<T>>(expression)
                 .Compile();
 
             return action();

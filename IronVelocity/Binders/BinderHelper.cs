@@ -28,7 +28,7 @@ namespace IronVelocity.Binders
         private readonly ConcurrentDictionary<string, GetMemberBinder> _getMemberBinders = new ConcurrentDictionary<string, GetMemberBinder>();
         private readonly ConcurrentDictionary<string, SetMemberBinder> _setMemberBinders = new ConcurrentDictionary<string, SetMemberBinder>();
         private readonly ConcurrentDictionary<ExpressionType, VelocityMathematicalOperationBinder> _mathsBinders = new ConcurrentDictionary<ExpressionType, VelocityMathematicalOperationBinder>();
-        private readonly ConcurrentDictionary<LogicalOperation, VelocityBinaryLogicalOperationBinder> _logicalBinders = new ConcurrentDictionary<LogicalOperation, VelocityBinaryLogicalOperationBinder>();
+        private readonly ConcurrentDictionary<ComparisonOperation, VelocityComparisonOperationBinder> _comparisonBinders = new ConcurrentDictionary<ComparisonOperation, VelocityComparisonOperationBinder>();
 
         public InvokeMemberBinder GetInvokeMemberBinder(string name, int argumentCount)
         {
@@ -48,9 +48,9 @@ namespace IronVelocity.Binders
             return _setMemberBinders.GetOrAdd(memberName, CreateSetMemberBinder);
         }
 
-        public VelocityBinaryLogicalOperationBinder GetBinaryLogicalOperationBinder(LogicalOperation operation)
+        public VelocityComparisonOperationBinder GetComparisonOperationBinder(ComparisonOperation operation)
         {
-            return _logicalBinders.GetOrAdd(operation, CreateVelocityBinaryLogicalOperationBinder);
+            return _comparisonBinders.GetOrAdd(operation, CreateComparisonOperationBinder);
         }
 
         public VelocityMathematicalOperationBinder GetMathematicalOperationBinder(ExpressionType type)
@@ -78,12 +78,11 @@ namespace IronVelocity.Binders
         {
             return new VelocityMathematicalOperationBinder(type);
         }
-        protected virtual VelocityBinaryLogicalOperationBinder CreateVelocityBinaryLogicalOperationBinder(LogicalOperation operation)
+
+        protected virtual VelocityComparisonOperationBinder CreateComparisonOperationBinder(ComparisonOperation operation)
         {
-            return new VelocityBinaryLogicalOperationBinder(operation);
+            return new VelocityComparisonOperationBinder(operation);
         }
-
-
 
     }
 
@@ -92,7 +91,7 @@ namespace IronVelocity.Binders
         InvokeMemberBinder GetInvokeMemberBinder(string name, int argumentCount);
         GetMemberBinder GetGetMemberBinder(string memberName);
         SetMemberBinder GetSetMemberBinder(string memberName);
-        VelocityBinaryLogicalOperationBinder GetBinaryLogicalOperationBinder(LogicalOperation operation);
+        VelocityComparisonOperationBinder GetComparisonOperationBinder(ComparisonOperation operation);
         VelocityMathematicalOperationBinder GetMathematicalOperationBinder(ExpressionType type);
     }
 }

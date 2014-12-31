@@ -55,6 +55,9 @@
     <Compile Include="Binders\InvokeMemberBinderAsyncTests.cs" />
     <Compile Include="Binders\MathematicalOperationBinderTests.cs" />
     <Compile Include="Binders\ReflectionHelper\IsNullableTypeTests.cs" />
+    <Compile Include="Binders\ComparisonBinderTests.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="StaticTyping\DictionaryTests.cs" />
     <Compile Include="StaticTyping\If.cs" />
     <Compile Include="StaticTyping\SetTests.cs" />

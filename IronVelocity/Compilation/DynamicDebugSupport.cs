@@ -21,7 +21,7 @@ namespace IronVelocity.Compilation
         private static readonly MethodInfo _setMemberCallSite = typeof(CallSiteHelpers).GetMethod("SetMemberCallSite", BindingFlags.Static | BindingFlags.Public);
         private static readonly MethodInfo _getMemberCallSite = typeof(CallSiteHelpers).GetMethod("GetMemberCallSite", BindingFlags.Static | BindingFlags.Public);
         private static readonly MethodInfo _invokeMemberCallSite = typeof(CallSiteHelpers).GetMethod("InvokeMemberCallSite", BindingFlags.Static | BindingFlags.Public);
-        private static readonly MethodInfo _logicalOperationCallSite = typeof(CallSiteHelpers).GetMethod("LogicalOperationCallSite", BindingFlags.Static | BindingFlags.Public);
+        private static readonly MethodInfo _ComparisonOperationCallSite = typeof(CallSiteHelpers).GetMethod("ComparisonOperationCallSite", BindingFlags.Static | BindingFlags.Public);
         private static readonly MethodInfo _mathematicalOperationCallSite = typeof(CallSiteHelpers).GetMethod("MathematicalOperationCallSite", BindingFlags.Static | BindingFlags.Public);
 
         private readonly TypeBuilder _builder;
@@ -114,10 +114,10 @@ namespace IronVelocity.Compilation
                 callSiteInitMethod = _invokeMemberCallSite;
                 args = new object[] { invokeBinder.Name, invokeBinder.CallInfo.ArgumentCount };
             }
-            else if (node.Binder is VelocityBinaryLogicalOperationBinder)
+            else if (node.Binder is VelocityComparisonOperationBinder)
             {
-                callSiteInitMethod = _logicalOperationCallSite;
-                args = new object[] { ((VelocityBinaryLogicalOperationBinder)node.Binder).Operation };
+                callSiteInitMethod = _ComparisonOperationCallSite;
+                args = new object[] { ((VelocityComparisonOperationBinder)node.Binder).Operation };
             }
             else if (node.Binder is VelocityMathematicalOperationBinder)
             {
@@ -158,10 +158,10 @@ namespace IronVelocity.Compilation
             }
 
             [MethodImpl(MethodImplOptions.NoInlining)]
-            public static CallSite<T> LogicalOperationCallSite<T>(LogicalOperation op)
+            public static CallSite<T> ComparisonOperationCallSite<T>(ComparisonOperation op)
                 where T : class
             {
-                return CallSite<T>.Create(BinderHelper.Instance.GetBinaryLogicalOperationBinder(op));
+                return CallSite<T>.Create(BinderHelper.Instance.GetComparisonOperationBinder(op));
             }
 
             [MethodImpl(MethodImplOptions.NoInlining)]

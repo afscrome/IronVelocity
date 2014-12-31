@@ -4,13 +4,13 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class BinaryLogicalExpression : VelocityBinaryExpression
+    public class ComparisonExpression : VelocityBinaryExpression
     {
-        public LogicalOperation Operation { get; private set; }
+        public ComparisonOperation Operation { get; private set; }
         public override Type Type { get { return typeof(bool); } }
 
 
-        internal BinaryLogicalExpression(Expression left, Expression right, SymbolInformation symbols, LogicalOperation op)
+        internal ComparisonExpression(Expression left, Expression right, SymbolInformation symbols, ComparisonOperation op)
             : base(left, right, symbols)
         {
             Operation = op;
@@ -19,7 +19,7 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            var binder = BinderHelper.Instance.GetBinaryLogicalOperationBinder(Operation);
+            var binder = BinderHelper.Instance.GetComparisonOperationBinder(Operation);
 
             return Expression.Dynamic(
                 binder,
@@ -34,7 +34,7 @@ namespace IronVelocity.Compilation.AST
             if (Left == left && Right == right)
                 return this;
             else
-                return new BinaryLogicalExpression(left, right, Symbols, Operation);
+                return new ComparisonExpression(left, right, Symbols, Operation);
         }
  
 
