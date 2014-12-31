@@ -52,7 +52,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Binders\BinderReuseTests.cs" />
     <Compile Include="Binders\InvokeMemberBinderAsyncTests.cs" />
     <Compile Include="Binders\MathematicalOperationBinderTests.cs" />
     <Compile Include="Binders\ReflectionHelper\IsNullableTypeTests.cs" />
