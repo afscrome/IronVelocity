@@ -187,37 +187,37 @@ namespace IronVelocity.Compilation.AST
 
         public static Expression Add(INode node)
         {
-            return BinaryMathematical<ASTAddNode>(node, MathematicalOperation.Add);
+            return Mathematical<ASTAddNode>(node, MathematicalOperation.Add);
         }
 
         public static Expression Subtract(INode node)
         {
-            return BinaryMathematical<ASTSubtractNode>(node, MathematicalOperation.Subtract);
+            return Mathematical<ASTSubtractNode>(node, MathematicalOperation.Subtract);
         }
 
         public static Expression Multiply(INode node)
         {
-            return BinaryMathematical<ASTMulNode>(node, MathematicalOperation.Multiply);
+            return Mathematical<ASTMulNode>(node, MathematicalOperation.Multiply);
         }
 
         public static Expression Divide(INode node)
         {
-            return BinaryMathematical<ASTDivNode>(node, MathematicalOperation.Divide);
+            return Mathematical<ASTDivNode>(node, MathematicalOperation.Divide);
         }
 
 
         public static Expression Modulo(INode node)
         {
-            return BinaryMathematical<ASTModNode>(node, MathematicalOperation.Modulo);
+            return Mathematical<ASTModNode>(node, MathematicalOperation.Modulo);
         }
 
-        private static BinaryMathematicalExpression BinaryMathematical<T>(INode node, MathematicalOperation operation)
+        private static MathematicalExpression Mathematical<T>(INode node, MathematicalOperation operation)
             where T : INode
         {
             Expression left, right;
             GetBinaryExpressionOperands<T>(node, out left, out right);
 
-            return new BinaryMathematicalExpression(left, right, new SymbolInformation(node), operation);
+            return new MathematicalExpression(left, right, new SymbolInformation(node), operation);
         }
         #endregion
 

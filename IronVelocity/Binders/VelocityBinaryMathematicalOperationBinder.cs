@@ -6,18 +6,14 @@ using System.Numerics;
 
 namespace IronVelocity.Binders
 {
-    public class VelocityBinaryMathematicalOperationBinder : BinaryOperationBinder
+    public class VelocityMathematicalOperationBinder : BinaryOperationBinder
     {
 
-        public VelocityBinaryMathematicalOperationBinder(ExpressionType type)
+        public VelocityMathematicalOperationBinder(ExpressionType type)
             : base(type)
         {
         }
 
-        public override T BindDelegate<T>(System.Runtime.CompilerServices.CallSite<T> site, object[] args)
-        {
-            return base.BindDelegate<T>(site, args);
-        }
 
         public override DynamicMetaObject FallbackBinaryOperation(DynamicMetaObject target, DynamicMetaObject arg, DynamicMetaObject errorSuggestion)
         {
@@ -36,58 +32,37 @@ namespace IronVelocity.Binders
             if (!arg.HasValue)
                 Defer(arg);
 
-            var result = ReturnNullIfEitherArgumentIsNull(target, arg);
-            if (result != null)
-                return result;
-
-            Expression left, right, mainExpression = null;
-            BinaryOperationHelper.MakeArgumentsCompatible(target, arg, out left, out right);
-
-            if (TypeHelper.IsNumeric(left.Type) && TypeHelper.IsNumeric(right.Type))
+            Expression mainExpression = null;
+            var restrictions = GetEarlyEscapeRestrictions(target, arg);
+            if (restrictions == null)
             {
-                try
-                {
-                    switch (Operation)
-                    {
-                        case ExpressionType.Add:
-                            mainExpression = Expression.AddChecked(left, right);
-                            break;
-                        case ExpressionType.Subtract:
-                            mainExpression = Expression.SubtractChecked(left, right);
-                            break;
-                        case ExpressionType.Multiply:
-                            mainExpression = Expression.MultiplyChecked(left, right);
-                            break;
-                        case ExpressionType.Divide:
-                            mainExpression = Expression.Divide(left, right);
-                            break;
-                        case ExpressionType.Modulo:
-                            mainExpression = Expression.Modulo(left, right);
-                            break;
-                        default:
-                            throw new InvalidProgramException();
-                    }
-                }
-                catch (InvalidOperationException)
-                {
-                }
 
-                if (mainExpression != null)
+                Expression left, right;
+                BinaryOperationHelper.MakeArgumentsCompatible(target, arg, out left, out right);
+
+                if(!TypeHelper.IsNumeric(left.Type))
                 {
-                    if (Operation == ExpressionType.Divide || Operation == ExpressionType.Modulo)
+                    //TODO: Short circuit with Not Numeric BindingRestrictions?
+                }
+                else if (!TypeHelper.IsNumeric(right.Type))
+                {
+                    //TODO: Short circuit with Not Numeric BindingRestrictions?
+                }
+                else
+                {
+                    mainExpression = GetMathematicalExpression(left, right);
+
+                    if (mainExpression != null)
                     {
-                        if (!TypeHelper.SupportsDivisionByZero(right.Type))
+                        if (Operation == ExpressionType.Divide || Operation == ExpressionType.Modulo)
                         {
-                            mainExpression = Expression.Condition(
-                                    Expression.Equal(right, VelocityExpressions.ConvertIfNeeded(Constants.Zero, right.Type)),
-                                    Expression.Default(ReturnType),
-                                    VelocityExpressions.ConvertIfNeeded(mainExpression, ReturnType)
-                                );
+                            if (!TypeHelper.SupportsDivisionByZero(left.Type))
+                                mainExpression = AddDivideByZeroHandler(mainExpression, right);
                         }
-                    }
-                    else
-                    {
-                        mainExpression = AddOverflowHandler(mainExpression, left, right);
+                        else if (TypeHelper.IsInteger(left.Type) && TypeHelper.IsInteger(right.Type))
+                        {
+                            mainExpression = AddOverflowHandler(mainExpression, left, right);
+                        }
                     }
                 }
             }
@@ -96,22 +71,59 @@ namespace IronVelocity.Binders
             {
                 mainExpression = Expression.Default(ReturnType);
             }
+            if (restrictions == null)
+            {
+                restrictions = BindingRestrictions.GetTypeRestriction(target.Expression, target.RuntimeType)
+                        .Merge(BindingRestrictions.GetTypeRestriction(arg.Expression, arg.RuntimeType));
+            }
+
+
 
             return new DynamicMetaObject(
                     VelocityExpressions.ConvertIfNeeded(mainExpression, ReturnType),
-                    BindingRestrictions.GetTypeRestriction(target.Expression, target.RuntimeType)
-                        .Merge(BindingRestrictions.GetTypeRestriction(arg.Expression, arg.RuntimeType))
+                    restrictions
                 );
+        }
+
+        private Expression GetMathematicalExpression(Expression left, Expression right)
+        {
+            try
+            {
+                switch (Operation)
+                {
+                    case ExpressionType.Add:
+                        return Expression.AddChecked(left, right);
+                    case ExpressionType.Subtract:
+                        return Expression.SubtractChecked(left, right);
+                    case ExpressionType.Multiply:
+                        return Expression.MultiplyChecked(left, right);
+                    case ExpressionType.Divide:
+                        return Expression.Divide(left, right);
+                    case ExpressionType.Modulo:
+                        return Expression.Modulo(left, right);
+                    default:
+                        throw new InvalidProgramException();
+                }
+            }
+            catch (InvalidOperationException)
+            {
+                return null;
+            }
+        }
+
+        private Expression AddDivideByZeroHandler(Expression mainExpression, Expression right)
+        {
+            return Expression.Condition(
+                Expression.Equal(right, VelocityExpressions.ConvertIfNeeded(Constants.Zero, right.Type)),
+                Expression.Default(ReturnType),
+                VelocityExpressions.ConvertIfNeeded(mainExpression, ReturnType)
+            );
         }
 
         private Expression AddOverflowHandler(Expression main, Expression left, Expression right)
         {
-            left = BinaryOperationHelper.ConvertToBigIntegerIfPossible(left);
-            right = BinaryOperationHelper.ConvertToBigIntegerIfPossible(right);
-
-            if (left.Type != right.Type && left.Type != typeof(BigInteger))
-                return main;
-
+            left = BinaryOperationHelper.ConvertToBigInteger(left);
+            right = BinaryOperationHelper.ConvertToBigInteger(right);
             Expression oveflowHandler;
             switch (Operation)
             {
@@ -130,13 +142,9 @@ namespace IronVelocity.Binders
 
 
             //Pass the final result into ReduceBigInteger(...) to return a more recognizable primitive
-            var overflowFallback = Expression.Convert(
-                    Expression.Convert(
-                        oveflowHandler,
-                        typeof(BigInteger)
-                    ),
-                    ReturnType,
-                    MethodHelpers.ReduceBigIntegerMethodInfo
+            var overflowFallback = VelocityExpressions.ConvertIfNeeded(
+                    Expression.Call(MethodHelpers.ReduceBigIntegerMethodInfo, oveflowHandler),
+                    ReturnType                    
             );
 
             return Expression.TryCatch(
@@ -148,23 +156,23 @@ namespace IronVelocity.Binders
         }
 
 
-        private DynamicMetaObject ReturnNullIfEitherArgumentIsNull(DynamicMetaObject left, DynamicMetaObject right)
+        private BindingRestrictions GetEarlyEscapeRestrictions(DynamicMetaObject left, DynamicMetaObject right)
         {
-            BindingRestrictions restrictions;
-
+            //If either value is null, we can't do a mathematical operation
             if (left.Value == null)
-                restrictions = BindingRestrictions.GetInstanceRestriction(left.Expression, null);
+                return BindingRestrictions.GetInstanceRestriction(left.Expression, null);
             else if (right.Value == null)
-                restrictions = BindingRestrictions.GetInstanceRestriction(right.Expression, null);
-            else
-                return null;
+                return BindingRestrictions.GetInstanceRestriction(right.Expression, null);
 
-            return new DynamicMetaObject(
-                Expression.Default(ReturnType),
-                restrictions
-            );
+            // We only support mathematical operations on value types.
+            // Using a restriction against Reference Types helps stop us generating a large number of ruels for different type combinations
+            if (!left.RuntimeType.IsValueType)
+                return BinaryOperationHelper.GetNotValueTypeRestrictions(left.Expression);
+            else if (!right.RuntimeType.IsValueType)
+                return BinaryOperationHelper.GetNotValueTypeRestrictions(right.Expression);
+
+            return null;
         }
-
 
 
     }

@@ -27,7 +27,7 @@ namespace IronVelocity.Binders
         private readonly ConcurrentDictionary<Tuple<string, int>, InvokeMemberBinder> _invokeMemberBinders = new ConcurrentDictionary<Tuple<string, int>, InvokeMemberBinder>();
         private readonly ConcurrentDictionary<string, GetMemberBinder> _getMemberBinders = new ConcurrentDictionary<string, GetMemberBinder>();
         private readonly ConcurrentDictionary<string, SetMemberBinder> _setMemberBinders = new ConcurrentDictionary<string, SetMemberBinder>();
-        private readonly ConcurrentDictionary<ExpressionType, VelocityBinaryMathematicalOperationBinder> _mathsBinders = new ConcurrentDictionary<ExpressionType, VelocityBinaryMathematicalOperationBinder>();
+        private readonly ConcurrentDictionary<ExpressionType, VelocityMathematicalOperationBinder> _mathsBinders = new ConcurrentDictionary<ExpressionType, VelocityMathematicalOperationBinder>();
         private readonly ConcurrentDictionary<LogicalOperation, VelocityBinaryLogicalOperationBinder> _logicalBinders = new ConcurrentDictionary<LogicalOperation, VelocityBinaryLogicalOperationBinder>();
 
         public InvokeMemberBinder GetInvokeMemberBinder(string name, int argumentCount)
@@ -53,9 +53,9 @@ namespace IronVelocity.Binders
             return _logicalBinders.GetOrAdd(operation, CreateVelocityBinaryLogicalOperationBinder);
         }
 
-        public VelocityBinaryMathematicalOperationBinder GetBinaryMathematicalOperationBinder(ExpressionType type)
+        public VelocityMathematicalOperationBinder GetMathematicalOperationBinder(ExpressionType type)
         {
-            return _mathsBinders.GetOrAdd(type, CreateVelocityBinaryMathematicalOperationBinder);
+            return _mathsBinders.GetOrAdd(type, CreateMathematicalOperationBinder);
         }
 
 
@@ -74,9 +74,9 @@ namespace IronVelocity.Binders
             return new VelocitySetMemberBinder(memberName);
         }
 
-        protected virtual VelocityBinaryMathematicalOperationBinder CreateVelocityBinaryMathematicalOperationBinder(ExpressionType type)
+        protected virtual VelocityMathematicalOperationBinder CreateMathematicalOperationBinder(ExpressionType type)
         {
-            return new VelocityBinaryMathematicalOperationBinder(type);
+            return new VelocityMathematicalOperationBinder(type);
         }
         protected virtual VelocityBinaryLogicalOperationBinder CreateVelocityBinaryLogicalOperationBinder(LogicalOperation operation)
         {
@@ -93,6 +93,6 @@ namespace IronVelocity.Binders
         GetMemberBinder GetGetMemberBinder(string memberName);
         SetMemberBinder GetSetMemberBinder(string memberName);
         VelocityBinaryLogicalOperationBinder GetBinaryLogicalOperationBinder(LogicalOperation operation);
-        VelocityBinaryMathematicalOperationBinder GetBinaryMathematicalOperationBinder(ExpressionType type);
+        VelocityMathematicalOperationBinder GetMathematicalOperationBinder(ExpressionType type);
     }
 }

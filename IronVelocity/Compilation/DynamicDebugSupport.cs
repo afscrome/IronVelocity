@@ -119,10 +119,10 @@ namespace IronVelocity.Compilation
                 callSiteInitMethod = _logicalOperationCallSite;
                 args = new object[] { ((VelocityBinaryLogicalOperationBinder)node.Binder).Operation };
             }
-            else if (node.Binder is VelocityBinaryMathematicalOperationBinder)
+            else if (node.Binder is VelocityMathematicalOperationBinder)
             {
                 callSiteInitMethod = _mathematicalOperationCallSite;
-                args = new object[] { ((VelocityBinaryMathematicalOperationBinder)node.Binder).Operation };
+                args = new object[] { ((VelocityMathematicalOperationBinder)node.Binder).Operation };
             }
 
             if (callSiteInitMethod == null)
@@ -168,7 +168,7 @@ namespace IronVelocity.Compilation
             public static CallSite<T> MathematicalOperationCallSite<T>(ExpressionType type)
                 where T : class
             {
-                return CallSite<T>.Create(BinderHelper.Instance.GetBinaryMathematicalOperationBinder(type));
+                return CallSite<T>.Create(BinderHelper.Instance.GetMathematicalOperationBinder(type));
             }
         }
 

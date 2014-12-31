@@ -4,12 +4,12 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class BinaryMathematicalExpression : VelocityBinaryExpression
+    public class MathematicalExpression : VelocityBinaryExpression
     {
         public MathematicalOperation Operation { get; private set; }
         public ExpressionType ExpressionType { get; private set; }
 
-        public BinaryMathematicalExpression(Expression left, Expression right, SymbolInformation symbols, MathematicalOperation op)
+        public MathematicalExpression(Expression left, Expression right, SymbolInformation symbols, MathematicalOperation op)
             : base(left, right, symbols)
         {
             Operation = op;
@@ -19,7 +19,7 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            var binder = BinderHelper.Instance.GetBinaryMathematicalOperationBinder(ExpressionType);
+            var binder = BinderHelper.Instance.GetMathematicalOperationBinder(ExpressionType);
 
             return Expression.Dynamic(
                 binder,
@@ -34,7 +34,7 @@ namespace IronVelocity.Compilation.AST
             if (Left == left && Right == right)
                 return this;
             else
-                return new BinaryMathematicalExpression(left, right, Symbols, Operation);
+                return new MathematicalExpression(left, right, Symbols, Operation);
         }
 
 

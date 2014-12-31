@@ -31,42 +31,50 @@ namespace IronVelocity.Binders
             var leftType = leftObject.RuntimeType ?? typeof(object);
             var rightType = rightObject.RuntimeType ?? typeof(object);
 
-            leftExpression = ReflectionHelper.CanBeImplicitlyConverted(leftType, rightType)
-                ? VelocityExpressions.ConvertIfNeeded(leftObject, rightType)
-                : VelocityExpressions.ConvertIfNeeded(leftObject);
+            leftExpression = VelocityExpressions.ConvertIfNeeded(leftObject);
+            rightExpression = VelocityExpressions.ConvertIfNeeded(rightObject);
 
-            rightExpression = ReflectionHelper.CanBeImplicitlyConverted(rightType, leftType)
-                ? VelocityExpressions.ConvertIfNeeded(rightObject, leftType)
-                : VelocityExpressions.ConvertIfNeeded(rightObject);
-
-
-            if (leftType == typeof(string) && (rightType == typeof(char) || rightType.IsEnum))
+            if(ReflectionHelper.CanBeImplicitlyConverted(leftType, rightType))
+            {
+                leftExpression = VelocityExpressions.ConvertIfNeeded(leftObject, rightType);
+            }
+            else if (ReflectionHelper.CanBeImplicitlyConverted(rightType, leftType))
+            {
+                rightExpression = VelocityExpressions.ConvertIfNeeded(rightObject, leftType);
+            }
+            else if (leftType == typeof(string) && (rightType == typeof(char) || rightType.IsEnum))
+            {
                 rightExpression = Expression.Call(rightExpression, MethodHelpers.ToStringMethodInfo);
+            }
             else if (rightType == typeof(string) && (leftType == typeof(char) || leftType.IsEnum))
+            {
                 leftExpression = Expression.Call(leftExpression, MethodHelpers.ToStringMethodInfo);
+            }
             else if (leftType != rightType && TypeHelper.IsInteger(leftType) && TypeHelper.IsInteger(rightType))
             {
-                var leftBigInt = ConvertToBigIntegerIfPossible(leftExpression);
-                var rightBigInt = ConvertToBigIntegerIfPossible(rightExpression);
-                if (leftBigInt.Type == rightBigInt.Type)
-                {
-                    leftExpression = leftBigInt;
-                    rightExpression = rightBigInt;
-                }
+                leftExpression = ConvertToBigInteger(leftExpression);
+                rightExpression = ConvertToBigInteger(rightExpression);
             }
         }
 
 
-        public static Expression ConvertToBigIntegerIfPossible(Expression expression)
+        public static Expression ConvertToBigInteger(Expression expression)
         {
             if (expression == null)
                 throw new ArgumentNullException("expression");
+
+            if (expression.Type == typeof(BigInteger))
+                return expression;
+
+            var unary = expression as UnaryExpression;
+            if (unary != null && unary.NodeType == ExpressionType.Convert && TypeHelper.IsInteger(unary.Operand.Type))
+                expression = unary.Operand;
 
             ConstructorInfo constructor;
             if (_bigIntConstructors.TryGetValue(expression.Type, out constructor))
                 return Expression.New(constructor, expression);
             else
-                return expression;
+                throw new NotSupportedException();
         }
 
 
@@ -92,6 +100,12 @@ namespace IronVelocity.Binders
                 return BindingRestrictions.GetTypeRestriction(value.Expression, value.RuntimeType);
             else
                 return BindingRestrictions.GetInstanceRestriction(value.Expression, null);
+        }
+
+        public static BindingRestrictions GetNotValueTypeRestrictions(Expression expression)
+        {
+            var restrictionExpression = Expression.Not(Expression.TypeIs(expression, typeof(ValueType)));
+            return BindingRestrictions.GetExpressionRestriction(restrictionExpression);
         }
     }
 }
