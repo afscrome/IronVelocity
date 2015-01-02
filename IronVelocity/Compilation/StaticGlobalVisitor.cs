@@ -101,7 +101,7 @@ namespace IronVelocity.Compilation
 
             Type staticType;
             if (!_globalTypeMap.TryGetValue(node.Name, out staticType) || typeof(IDynamicMetaObjectProvider).IsAssignableFrom(staticType))
-                return base.VisitExtension(node);
+                return node; // base.VisitExtension(node);
 
             return new GlobalVariableExpression(node, staticType);
         }
@@ -199,7 +199,7 @@ namespace IronVelocity.Compilation
                 // Then we 
                 if (right.Type.IsAssignableFrom(left.Type))
                 {
-                    var temp = Expression.Parameter(left.Type);
+                    var temp = Expression.Parameter(left.Type, "castTemp");
 
                     return Expression.Block(
                         new[] { temp },
