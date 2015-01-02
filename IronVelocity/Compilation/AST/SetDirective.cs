@@ -6,6 +6,8 @@ namespace IronVelocity.Compilation.AST
 {
     public class SetDirective : VelocityBinaryExpression
     {
+        private static readonly ParameterExpression _objectTemp = Expression.Parameter(typeof(object), "setDirectiveTemp");
+
         public override Type Type { get { return typeof(void); } }
 
 
@@ -41,6 +43,8 @@ namespace IronVelocity.Compilation.AST
                     return new SetMemberExpression(getMember.Name, getMember.Target, right);
             }
 
+            bool rightIsNullableType = ReflectionHelper.IsNullableType(right.Type);
+
             if (left.Type != right.Type)
             {
                 //This shouldn't really be happening as we should only be assigning to objects, but just in case...
@@ -49,7 +53,6 @@ namespace IronVelocity.Compilation.AST
 
                 right = VelocityExpressions.ConvertIfNeeded(right, left.Type);
             }
-
 
 
             bool isVariableExpression = left is VariableExpression;
@@ -68,10 +71,12 @@ namespace IronVelocity.Compilation.AST
 
             //However, if the expression is guaranteed to be a value type (i.e. not nullable), why bother?
             //Similarly if it's a variable expression, the null handling is handled in side the setter
-            if (isVariableExpression || !ReflectionHelper.IsNullableType(right.Type))
+            if (isVariableExpression || !rightIsNullableType)
                 return Expression.Block(typeof(void), Expression.Assign(left, right));
 
-            var tempResult = Expression.Parameter(right.Type);
+            var tempResult = right.Type == typeof(object)
+                ? _objectTemp
+                : Expression.Parameter(right.Type, "setDirectiveTemp");
             return Expression.Block(new[] { tempResult },
                 //Store the result of the right hand side in to a temporary variable
                 Expression.Assign(tempResult, right),
