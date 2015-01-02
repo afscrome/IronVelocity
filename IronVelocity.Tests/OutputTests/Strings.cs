@@ -100,7 +100,7 @@ namespace IronVelocity.Tests.OutputTests
 
         [TestCase("'hello world'", "hello world")]
         [TestCase("'hello $x world'", "hello beautiful world")]
-        [TestCase("'$i'", "72")]
+        [TestCase("'$i'", 72)]
         [TestCase("'$i$i'", "7272")]
         [TestCase("'$i$i'", "7272")]
         [TestCase("97", (int)97)]
@@ -120,7 +120,7 @@ namespace IronVelocity.Tests.OutputTests
 
             var value = dict["key"];
             Assert.IsInstanceOf(expected.GetType(), value);
-            Assert.AreEqual(dict["key"], value);
+            Assert.AreEqual(expected, value);
         }
 
     }
