@@ -1,73 +1,26 @@
 ﻿using IronVelocity.Compilation;
 using NUnit.Framework;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace IronVelocity.Tests
 {
+    [TestFixture]
     public class MethodInfoReflectionTests
     {
-        [Test]
-        public void Append()
+        public IEnumerable<TestCaseData> TestCases()
         {
-            Assert.NotNull(MethodHelpers.AppendMethodInfo);
-        }
-        [Test]
-        public void AppendString()
-        {
-            Assert.NotNull(MethodHelpers.AppendStringMethodInfo);
+            return typeof(MethodHelpers)
+                .GetFields()
+                .Select(x => new TestCaseData(x).SetName("MethodHelpers '" + x.Name + "' is not Null"));
         }
 
-        [Test]
-        public new void ToString()
+        [TestCaseSource("TestCases")]
+        public void Test(FieldInfo field)
         {
-            Assert.NotNull(MethodHelpers.ToStringMethodInfo);
+            Assert.NotNull(field.GetValue(null));
         }
 
-        [Test]
-        public void List()
-        {
-            Assert.NotNull(MethodHelpers.ListConstructorInfo);
-        }
-
-        [Test]
-        public void IntegerRange()
-        {
-            Assert.NotNull(MethodHelpers.IntegerRangeMethodInfo);
-        }
-
-        [Test]
-        public void ReduceBigInteger()
-        {
-            Assert.NotNull(MethodHelpers.ReduceBigIntegerMethodInfo);
-        }
-
-        [Test]
-        public void StringConcat()
-        {
-            Assert.NotNull(MethodHelpers.StringConcatMethodInfo);
-        }
-
-        [Test]
-        public void BooleanCoercion()
-        {
-            Assert.NotNull(MethodHelpers.BooleanCoercionMethodInfo);
-        }
-
-        [Test]
-        public void SetAsyncMethodBuilderStateMachine()
-        {
-            Assert.NotNull(MethodHelpers.SetAsyncMethodBuilderStateMachine);
-        }
-
-        [Test]
-        public void DebuggableAttributeConstructorInfo()
-        {
-            Assert.NotNull(MethodHelpers.DebuggableAttributeConstructorInfo);
-        }
-
-        [Test]
-        public void DebuggerHiddenConstructorInfo()
-        {
-            Assert.NotNull(MethodHelpers.DebuggerHiddenConstructorInfo);
-        }
     }
 }
