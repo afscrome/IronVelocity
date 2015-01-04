@@ -13,6 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <NuGetPackageImportStamp>61c9f9e0</NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,6 +33,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
@@ -50,6 +52,7 @@
     <Compile Include="Binders\BinaryOperationHelper.cs" />
     <Compile Include="Binders\BinderHelper.cs" />
     <Compile Include="Binders\ReflectionHelper.cs" />
+    <Compile Include="EventSources\BindingEventSource.cs" />
     <Compile Include="Binders\VelocityComparisonOperationBinder.cs" />
     <Compile Include="Binders\VelocityBinaryMathematicalOperationBinder.cs" />
     <Compile Include="Binders\VelocitySetMemberBinder.cs" />
@@ -100,6 +103,7 @@
     <Compile Include="Compilation\Directives\ForeachDirectiveExpressionBuilder.cs" />
     <Compile Include="Compilation\DynamicDebugSupport.cs" />
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="EventSources\TemplateGenerationEventSource.cs" />
     <Compile Include="Reflection\ArgumentConverter.cs" />
     <Compile Include="Reflection\IArgumentConverter.cs" />
     <Compile Include="Reflection\IMemberResolver.cs" />
@@ -137,6 +141,13 @@
     <PostBuildEvent>
     </PostBuildEvent>
   </PropertyGroup>
+  <Import Project="..\packages\Microsoft.Diagnostics.Tracing.EventRegister.1.0.26\build\Microsoft.Diagnostics.Tracing.EventRegister.targets" Condition="Exists('..\packages\Microsoft.Diagnostics.Tracing.EventRegister.1.0.26\build\Microsoft.Diagnostics.Tracing.EventRegister.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Microsoft.Diagnostics.Tracing.EventRegister.1.0.26\build\Microsoft.Diagnostics.Tracing.EventRegister.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Microsoft.Diagnostics.Tracing.EventRegister.1.0.26\build\Microsoft.Diagnostics.Tracing.EventRegister.targets'))" />
+  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -1,4 +1,5 @@
-﻿using IronVelocity.Compilation;
+﻿using IronVelocity.Binders;
+using IronVelocity.Compilation;
 using System;
 using System.Diagnostics;
 using System.Dynamic;
@@ -93,7 +94,7 @@ namespace IronVelocity.Reflection
                 }
                 catch (AmbiguousMatchException)
                 {
-                    Debug.WriteLine(String.Format(CultureInfo.InvariantCulture, "Ambiguous match for member '{0}' on type '{1}'", name, type.AssemblyQualifiedName), "Velocity");
+                    BindingEventSource.Log.GetMemberResolutionAmbigious(name, type.FullName);
                 }
             }
 
@@ -150,7 +151,8 @@ namespace IronVelocity.Reflection
 
                 }
             }
-            Debug.WriteLine(String.Format(CultureInfo.InvariantCulture, "Unable to resolve Property '{0}' on type '{1}'", name, type.AssemblyQualifiedName), "Velocity");
+
+            BindingEventSource.Log.GetMemberResolutionFailure(name, type.FullName);
             return null;
         }
 

@@ -15,16 +15,24 @@ namespace Tests
     {
         private static bool DefaultToGlobals = true;
 
+        private static string GetName()
+        {
+            var testContext = NUnit.Framework.TestContext.CurrentContext;
+            return testContext == null
+                ? "TestExpression"
+                : testContext.Test.Name;
+        }
+
         public static VelocityAsyncTemplateMethod CompileAsyncTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {
             var runtime = new VelocityRuntime(null, globals);
-            return runtime.CompileAsyncTemplate(input, "TestExpression", fileName, true);
+            return runtime.CompileAsyncTemplate(input, GetName(), fileName, true);
         }
 
         public static VelocityTemplateMethod CompileTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {
             var runtime = new VelocityRuntime(null, globals);
-            return runtime.CompileTemplate(input, "TestExpression", fileName, true);
+            return runtime.CompileTemplate(input, GetName(), fileName, true);
         }
 
         public static IDictionary<string, object> Evaluate(string input, IDictionary<string, object> environment, string fileName = "", IDictionary<string, object> globals = null)

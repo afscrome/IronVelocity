@@ -105,6 +105,8 @@ namespace IronVelocity.Binders
 
             if (mainExpression == null)
             {
+                BindingEventSource.Log.ComparisonResolutionFailure(target.LimitType.FullName, arg.LimitType.FullName);
+
                 mainExpression = generator == Expression.NotEqual
                     ? Constants.True
                     : Constants.False;

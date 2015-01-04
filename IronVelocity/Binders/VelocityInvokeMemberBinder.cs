@@ -58,19 +58,26 @@ namespace IronVelocity.Binders
 
             MethodInfo method;
             Expression result;
+            bool isAmbigious = false;
             try
             {
                 method = ReflectionHelper.ResolveMethod(target.LimitType, Name, argTypeArray);
             }
             catch (AmbiguousMatchException)
             {
+                isAmbigious = true;
                 method = null;
             }
 
             if (method == null)
             {
-                var argInfo = argTypeArray.Select(x => x == null ? "null" : x.FullName);
-                Debug.WriteLine(string.Format(CultureInfo.InvariantCulture, "Unable to resolve method '{0}' on type '{1}' ({2})", Name, target.LimitType.AssemblyQualifiedName, String.Join(",", argInfo)) , "Velocity");
+                var log = BindingEventSource.Log;
+                var argTypeString = String.Join(",", argTypeArray.Select(x => x.FullName).ToArray());
+                if (isAmbigious)
+                    log.InvokeMemberResolutionAmbigious(Name, target.LimitType.FullName, argTypeString);
+                else
+                    log.InvokeMemberResolutionFailure(Name, target.LimitType.FullName, argTypeString);
+
                 result = Constants.VelocityUnresolvableResult;
             }
             else

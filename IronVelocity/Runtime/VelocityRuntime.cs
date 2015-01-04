@@ -76,22 +76,20 @@ namespace IronVelocity
 
         internal Expression<VelocityTemplateMethod> GetExpressionTree(string input, string typeName)
         {
+            var log = TemplateGenerationEventSource.Log;
             var parser = _runtimeService.CreateNewParser();
             using (var reader = new StringReader(input))
             {
-                var stopwatch = new Stopwatch();
-                stopwatch.Start();
+                log.ParseStart(typeName);
                 var ast = parser.Parse(reader, null) as ASTprocess;
-                stopwatch.Stop();
-                Trace.WriteLine(String.Format("IronVelocity,Parsing,{0},{1}", typeName, stopwatch.ElapsedMilliseconds));
+                log.ParseStop(typeName);
                 if (ast == null)
                     throw new InvalidProgramException("Unable to parse ast");
 
                 var builder = new VelocityExpressionBuilder(_directiveHandlers);
-                stopwatch.Restart();
+                log.ConvertToExpressionTreeStart(typeName);
                 var expr = new RenderedBlock(builder.GetBlockExpressions(ast), builder);
-                stopwatch.Stop();
-                Trace.WriteLine(String.Format("IronVelocity,Converting to DLR AST,{0},{1}", typeName, stopwatch.ElapsedMilliseconds));
+                log.ConvertToExpressionTreeStop(typeName);
 
                 return Expression.Lambda<VelocityTemplateMethod>(expr, typeName, new[] { Constants.InputParameter, builder.OutputParameter });
             }

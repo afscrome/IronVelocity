@@ -14,7 +14,7 @@ namespace IronVelocity.Compilation
     {
         private const string _methodName = "Execute";
         private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(StringBuilder) };
-
+        private static readonly ConstructorInfo _debugAttributeConstructorInfo = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
         private readonly IReadOnlyDictionary<string, Type> _globals;
 
         public VelocityCompiler(IDictionary<string, Type> globals)
@@ -42,6 +42,7 @@ namespace IronVelocity.Compilation
             if (assemblyBuilder == null)
                 throw new ArgumentNullException("assemblyBuilder");
 
+            var log = TemplateGenerationEventSource.Log;
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(name, true);
 
             if (debugMode)
@@ -61,27 +62,22 @@ namespace IronVelocity.Compilation
 
             if (_globals != null && _globals.Count > 0)
             {
+                log.StronglyTypeStart(name);
                 var staticTypeVisitor = new StaticGlobalVisitor(_globals);
-                stopwatch.Start();
                 expressionTree = staticTypeVisitor.VisitAndConvert(expressionTree, "Static Conversion");
-                stopwatch.Stop();
-                Trace.WriteLine(String.Format("IronVelocity,Optimising,{0},{1}", name, stopwatch.ElapsedMilliseconds));
+                log.StronglyTypeStop(name);
             }
 
+
+            log.GenerateDebugInfoStart(name);
             var debugVisitor = new DynamicToExplicitCallSiteConvertor(typeBuilder, fileName);
-
-            stopwatch.Restart();
             expressionTree = debugVisitor.VisitAndConvert(expressionTree, "DynamicMethod Debug");
-            stopwatch.Stop();
-            Trace.WriteLine(String.Format("IronVelocity,Adding Debug Info to Template,{0},{1}", name, stopwatch.ElapsedMilliseconds));
+            log.GenerateDebugInfoStop(name);
 
+            log.CompileMethodStart(name);
             var debugInfo = DebugInfoGenerator.CreatePdbGenerator();
-
-            stopwatch.Restart();
             expressionTree.CompileToMethod(meth, debugInfo);
-            stopwatch.Stop();
-            Trace.WriteLine(String.Format("IronVelocity,Compiling,{0},{1}", name, stopwatch.ElapsedMilliseconds));
-
+            log.CompileMethodStop(name);
 
             var compiledType = typeBuilder.CreateType();
             var compiledMethod = compiledType.GetMethod(_methodName, _signature);
@@ -99,8 +95,7 @@ namespace IronVelocity.Compilation
                 DebuggableAttribute.DebuggingModes.Default |
                 DebuggableAttribute.DebuggingModes.DisableOptimizations;
 
-            var constructor = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
-            var cab = new CustomAttributeBuilder(constructor, new object[] { debugAttributes });
+            var cab = new CustomAttributeBuilder(_debugAttributeConstructorInfo, new object[] { debugAttributes });
             assemblyBuilder.SetCustomAttribute(cab);
             moduleBuilder.SetCustomAttribute(cab);
         }
