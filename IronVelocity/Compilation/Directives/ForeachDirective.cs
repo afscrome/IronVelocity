@@ -88,8 +88,8 @@ namespace IronVelocity.Compilation.Directives
             var originalItemValue = Expression.Parameter(CurrentItem.Type, "foreachOriginalItem");
             var originalIndex = Expression.Parameter(CurrentItem.Type, "foreachOriginalVelocityIndex");
 
-            //Need to store hte enumerable in a local variable so we don't end up computing it twice (once with the TypeAs check, and again with the execution)
-            var localEnumerable = Expression.Parameter(typeof(IEnumerable));
+            //Need to store the enumerable in a local variable so we don't end up computing it twice (once with the TypeAs check, and again with the execution)
+            var localEnumerable = Expression.Parameter(typeof(IEnumerable), "foreachEnumerable");
 
             var body = _builder.GetBlockExpressions(_body);
             var parts = GetParts(body);
@@ -108,7 +108,7 @@ namespace IronVelocity.Compilation.Directives
                 afterAll: GetExpressionBlock(parts, ForeachSection.AfterAll, _builder),
                 each: GetExpressionBlock(parts, ForeachSection.Each, _builder),
                 noData: GetExpressionBlock(parts, ForeachSection.NoData, _builder)
-                );
+            );
 
 
 
@@ -121,7 +121,7 @@ namespace IronVelocity.Compilation.Directives
                 forEach,
                 Expression.Assign(CurrentIndex, originalIndex),
                 Expression.Assign(CurrentItem, originalItemValue)
-                );
+            );
 
 
             return Expression.Block(
