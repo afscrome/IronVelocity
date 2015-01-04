@@ -13,7 +13,7 @@ namespace Tests
 {
     public static class Utility
     {
-        private static bool DefaultToGlobals = false;
+        private static bool DefaultToGlobals = true;
 
         public static VelocityAsyncTemplateMethod CompileAsyncTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {
@@ -47,7 +47,11 @@ namespace Tests
         {
             IDictionary<string,object> globals = null;
             if (DefaultToGlobals)
-                globals = environment;
+            {
+                globals = environment
+                    .Where(x => x.Value != null)
+                    .ToDictionary(x => x.Key, x => x.Value);
+            }
 
             return GetNormalisedOutput(input, environment, globals, fileName);
 
