@@ -72,11 +72,14 @@ namespace IronVelocity.Binders
             if (method == null)
             {
                 var log = BindingEventSource.Log;
-                var argTypeString = String.Join(",", argTypeArray.Select(x => x.FullName).ToArray());
-                if (isAmbigious)
-                    log.InvokeMemberResolutionAmbigious(Name, target.LimitType.FullName, argTypeString);
-                else
-                    log.InvokeMemberResolutionFailure(Name, target.LimitType.FullName, argTypeString);
+                if (log.IsEnabled())
+                {
+                    var argTypeString = String.Join(",", argTypeArray.Select(x => x.FullName).ToArray());
+                    if (isAmbigious)
+                        log.InvokeMemberResolutionAmbigious(Name, target.LimitType.FullName, argTypeString);
+                    else
+                        log.InvokeMemberResolutionFailure(Name, target.LimitType.FullName, argTypeString);
+                }
 
                 result = Constants.VelocityUnresolvableResult;
             }
