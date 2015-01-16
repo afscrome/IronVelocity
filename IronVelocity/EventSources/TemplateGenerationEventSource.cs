@@ -72,6 +72,17 @@ namespace IronVelocity
             WriteEvent(10, id);
         }
 
+        [Event(11, Task = Tasks.InitaliseCallSites, Opcode = EventOpcode.Start, Level = EventLevel.Verbose)]
+        public void InitaliseCallSitesStart(string id)
+        {
+            WriteEvent(11, id);
+        }
+
+        [Event(12, Task = Tasks.InitaliseCallSites, Opcode = EventOpcode.Stop, Level = EventLevel.Verbose)]
+        public void InitaliseCallSitesStop(string id)
+        {
+            WriteEvent(12, id);
+        }
 
 
         public static class Tasks
@@ -82,6 +93,7 @@ namespace IronVelocity
             public const EventTask CompileMethod = (EventTask)4;
             public const EventTask GenerateDebugInfo = (EventTask)5;
             public const EventTask StronglyType = (EventTask)6;
+            public const EventTask InitaliseCallSites = (EventTask)7;
         }
     }
 }

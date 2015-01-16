@@ -80,6 +80,10 @@ namespace IronVelocity.Compilation
             log.CompileMethodStop(name);
 
             var compiledType = typeBuilder.CreateType();
+            log.InitaliseCallSitesStart(name);
+            debugVisitor.InitaliseConstants(compiledType);
+            log.InitaliseCallSitesStop(name);
+
             var compiledMethod = compiledType.GetMethod(_methodName, _signature);
             return (VelocityTemplateMethod)Delegate.CreateDelegate(typeof(VelocityTemplateMethod), compiledMethod);
         }
