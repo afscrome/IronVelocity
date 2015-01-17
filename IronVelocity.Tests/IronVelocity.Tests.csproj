@@ -58,6 +58,10 @@
     <Compile Include="Binders\ComparisonBinderTests.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Binders\Reuse\BinderReuseTestBase.cs" />
+    <Compile Include="Binders\Reuse\GetMemberReuseTests.cs" />
+    <Compile Include="Binders\Reuse\InvokeMemberReuseTests.cs" />
+    <Compile Include="Binders\Reuse\SetMemberReuseTests.cs" />
     <Compile Include="StaticTyping\DictionaryTests.cs" />
     <Compile Include="StaticTyping\If.cs" />
     <Compile Include="StaticTyping\SetTests.cs" />
