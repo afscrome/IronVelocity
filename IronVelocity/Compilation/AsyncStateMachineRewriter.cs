@@ -71,9 +71,8 @@ namespace IronVelocity.Compilation
                 var taskLocal = Expression.Parameter(node.Type, "task" + state);
                 return Expression.Block( Expression.Block(
                     new[] { taskLocal },
-                    Expression.Assign(taskLocal, base.VisitMethodCall(node)),
                     Expression.IfThen(
-                        Expression.Not(Expression.Property(taskLocal, _isComplete)),
+                        Expression.Not(Expression.Property(Expression.Assign(taskLocal, base.VisitMethodCall(node)), _isComplete)),
                         Expression.Block(
                             SetStateExpression(state),
                             Expression.Call(StateMachine, _configureAwaiter, taskLocal),

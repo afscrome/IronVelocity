@@ -78,11 +78,10 @@ namespace IronVelocity.Compilation.AST
                 ? _objectTemp
                 : Expression.Parameter(right.Type, "setDirectiveTemp");
             return Expression.Block(new[] { tempResult },
-                //Store the result of the right hand side in to a temporary variable
-                Expression.Assign(tempResult, right),
                 Expression.IfThen(
+                //Store the result of the right hand side in to a temporary variable
                 //If the temporary variable is not equal to null
-                    Expression.NotEqual(tempResult, Expression.Constant(null, right.Type)),
+                    Expression.NotEqual(Expression.Assign(tempResult, right), Expression.Constant(null, right.Type)),
                 //Make the assignment
                     Expression.Assign(left, tempResult)
                 )

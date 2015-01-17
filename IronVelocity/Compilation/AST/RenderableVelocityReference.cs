@@ -61,9 +61,8 @@ namespace IronVelocity.Compilation.AST
                 var _evaulatedResult = Expression.Parameter(typeof(object), "tempEvaulatedResult");
                 return Expression.Block(
                     new[] { _evaulatedResult },
-                    Expression.Assign(_evaulatedResult, expression),
                     Expression.Condition(
-                        Expression.NotEqual(_evaulatedResult, Expression.Constant(null, _evaulatedResult.Type)),
+                        Expression.NotEqual(Expression.Assign(_evaulatedResult, expression), Expression.Constant(null, _evaulatedResult.Type)),
                         Expression.Call(
                             MethodHelpers.StringConcatMethodInfo,
                             Expression.Convert(Expression.Constant(prefix), typeof(object)),
