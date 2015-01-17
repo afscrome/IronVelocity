@@ -43,7 +43,10 @@ namespace IronVelocity.Binders
                     )
                 );
             else
+            {
+                BindingEventSource.Log.SetMemberResolutionFailure(Name, target.RuntimeType.FullName, value.RuntimeType.FullName);
                 result = Constants.VelocityUnresolvableResult;
+            }
 
             return new DynamicMetaObject(
                     result,

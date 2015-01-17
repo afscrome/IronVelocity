@@ -1,6 +1,8 @@
 ﻿using IronVelocity.Compilation;
 using System;
 using System.Dynamic;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace IronVelocity.Binders
 {
@@ -31,25 +33,38 @@ namespace IronVelocity.Binders
                 );
             }
 
-            var result = ReflectionHelper.MemberExpression(Name, target);
-
-            if (result == null)
+            Expression result = null;
+            bool isAmbigious;
+            try
             {
-                var invokeBinder = new VelocityInvokeMemberBinder(Name, new CallInfo(0));
-                return invokeBinder.FallbackInvokeMember(target, new DynamicMetaObject[0], errorSuggestion);
+                result = ReflectionHelper.MemberExpression(Name, target);
+                if (result == null)
+                {
+                    var method = ReflectionHelper.ResolveMethod(target.RuntimeType, Name);
+                    if (method == null)
+                    {
+                        BindingEventSource.Log.GetMemberResolutionFailure(Name, target.RuntimeType.FullName);
+                    }
+                    else
+                    {
+                        result = Expression.Call(VelocityExpressions.ConvertIfNeeded(target, method.DeclaringType),method);
+                    }
+                }
             }
-            else
+            catch (AmbiguousMatchException)
             {
+                BindingEventSource.Log.GetMemberResolutionAmbigious(Name, target.RuntimeType.FullName);
+            }
 
-                //Dynamic return type is object, but primitives are not objects
-                // DLR does not handle boxing to make primitives objects, so do it ourselves
+            if(result == null)
+                result = Constants.VelocityUnresolvableResult;
+            else
                 result = VelocityExpressions.BoxIfNeeded(result);
 
-                return new DynamicMetaObject(
-                    result,
-                    BindingRestrictions.GetTypeRestriction(target.Expression, target.LimitType)
-                );
-            }
+            return new DynamicMetaObject(
+                result,
+                BindingRestrictions.GetTypeRestriction(target.Expression, target.LimitType)
+            );
         }
     }
 

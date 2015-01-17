@@ -244,6 +244,36 @@ namespace IronVelocity.Tests.Binders
 
         #endregion
 
+        #region Methods
+        [Test]
+        public void PublicMethodWithZeroArgumentsIsInvokedAsMember()
+        {
+            var input = new MethodsWith0Parameters();
+
+            var result = test(input, "DoSomething");
+            Assert.AreEqual("Hello World", result);
+        }
+
+        [Test]
+        public void PrivateMethodWithZeroArgumentsIsNotInvokedAsMember()
+        {
+            var input = new MethodsWith0Parameters();
+
+            var result = test(input, "Secret");
+            Assert.IsNull(result);
+        }
+
+        [Test]
+        public void StaticMethodWithZeroArgumentsIsNotInvokedAsMember()
+        {
+            var input = new MethodsWith0Parameters();
+
+            var result = test(input, "Static");
+            Assert.IsNull(result);
+        }
+
+        #endregion
+
 
         [Test]
         public void NullInput()
@@ -320,6 +350,24 @@ namespace IronVelocity.Tests.Binders
         public interface IConflict
         {
             string HiddenConflict { get; }
+        }
+
+        public class MethodsWith0Parameters
+        {
+            public string DoSomething()
+            {
+                return "Hello World";
+            }
+
+            public static string Static()
+            {
+                return "Fail";
+            }
+
+            private string Secret()
+            {
+                return "Fail";
+            }
         }
 
     }

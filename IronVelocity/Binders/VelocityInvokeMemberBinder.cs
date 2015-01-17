@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IronVelocity.Compilation;
+using System;
 using System.Diagnostics;
 using System.Dynamic;
 using System.Globalization;
@@ -57,7 +58,7 @@ namespace IronVelocity.Binders
 			}
 
             MethodInfo method;
-            Expression result;
+            Expression result = null;
             bool isAmbigious = false;
             try
             {
@@ -71,17 +72,24 @@ namespace IronVelocity.Binders
 
             if (method == null)
             {
-                var log = BindingEventSource.Log;
-                if (log.IsEnabled())
+                if(args.Length == 0)
                 {
-                    var argTypeString = String.Join(",", argTypeArray.Select(x => x.FullName).ToArray());
-                    if (isAmbigious)
-                        log.InvokeMemberResolutionAmbigious(Name, target.LimitType.FullName, argTypeString);
-                    else
-                        log.InvokeMemberResolutionFailure(Name, target.LimitType.FullName, argTypeString);
+                    result = ReflectionHelper.MemberExpression(Name, target);
                 }
+                if (result == null)
+                {
+                    var log = BindingEventSource.Log;
+                    if (log.IsEnabled())
+                    {
+                        var argTypeString = String.Join(",", argTypeArray.Select(x => x.FullName).ToArray());
+                        if (isAmbigious)
+                            log.InvokeMemberResolutionAmbigious(Name, target.LimitType.FullName, argTypeString);
+                        else
+                            log.InvokeMemberResolutionFailure(Name, target.LimitType.FullName, argTypeString);
+                    }
 
-                result = Constants.VelocityUnresolvableResult;
+                    result = Constants.VelocityUnresolvableResult;
+                }
             }
             else
             {
@@ -109,7 +117,7 @@ namespace IronVelocity.Binders
 	        }
 
             return new DynamicMetaObject(
-                result,
+                VelocityExpressions.ConvertIfNeeded(result, ReturnType),
                 restrictions
             );
         }

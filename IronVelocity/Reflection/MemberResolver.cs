@@ -88,14 +88,7 @@ namespace IronVelocity.Reflection
             }
             catch (AmbiguousMatchException)
             {
-                try
-                {
-                    member = GetMember(name, type, true);
-                }
-                catch (AmbiguousMatchException)
-                {
-                    BindingEventSource.Log.GetMemberResolutionAmbigious(name, type.FullName);
-                }
+                member = GetMember(name, type, true);
             }
 
 
@@ -106,7 +99,6 @@ namespace IronVelocity.Reflection
                 if (indexer != null)
                 {
                     return Expression.MakeIndex(
-                        //VelocityExpressions.ConvertReturnTypeIfNeeded(target, indexer),
                             VelocityExpressions.ConvertIfNeeded(expression, indexer.DeclaringType),
                             indexer,
                             new[] { Expression.Constant(name) }
@@ -152,7 +144,6 @@ namespace IronVelocity.Reflection
                 }
             }
 
-            BindingEventSource.Log.GetMemberResolutionFailure(name, type.FullName);
             return null;
         }
 

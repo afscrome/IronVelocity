@@ -155,6 +155,26 @@ namespace IronVelocity.Tests.Binders
             Assert.AreEqual(2, result);
         }
 
+
+
+        [Test]
+        public void PropertyInvokedForMethodWithNoArguments()
+        {
+            var target = new MethodTests();
+            var result = test(target, "Property");
+
+            Assert.AreEqual("A property", result);
+        }
+        [Test]
+        public void FieldInvokedForMethodWithNoArguments()
+        {
+            var target = new MethodTests();
+            var result = test(target, "Field");
+
+            Assert.AreEqual("Marshal", result);
+        }
+
+
         //null input returns null
         //Void returns null??
 
@@ -231,6 +251,8 @@ namespace IronVelocity.Tests.Binders
 
         #endregion
 
+
+
         public class MethodTests
         {
             public string StringResult() { return "hello world"; }
@@ -248,6 +270,9 @@ namespace IronVelocity.Tests.Binders
             {
                 return values.Length;
             }
+
+            public string Property { get { return "A property"; } }
+            public string Field = "Marshal";
 
         }
 
