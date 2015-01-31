@@ -165,6 +165,7 @@ leq
 		/// string value of that object will be used.  Char does an ascii comparison.
 		/// </summary>
 		[Test]
+        [Ignore("Currently not supporting non equality comparisons for strings")]
 		public void CompareString()
 		{
 			string aaa = "aaa";
@@ -188,11 +189,6 @@ leq
 			DateTime now = DateTime.Now;
 			DateTime next = now.AddSeconds(3);
 
-            /*
-			Assert.AreEqual(ObjectComparer.Smaller, ObjectComparer.CompareObjects(now, next));
-			Assert.AreEqual(ObjectComparer.Greater, ObjectComparer.CompareObjects(next, now));
-			Assert.AreEqual(ObjectComparer.Equal, ObjectComparer.CompareObjects(now, now));
-            */
 			VmCompareCouple(now, next);
 		}
 
@@ -201,12 +197,8 @@ leq
 		{
 			TimeSpan longer = new TimeSpan(15, 12, 37, 12);
 			TimeSpan shorter = new TimeSpan(17, 56, 59);
-            /*
-			Assert.AreEqual(ObjectComparer.Greater, ObjectComparer.CompareObjects(longer, shorter));
-			Assert.AreEqual(ObjectComparer.Smaller, ObjectComparer.CompareObjects(shorter, longer));
-			Assert.AreEqual(ObjectComparer.Equal, ObjectComparer.CompareObjects(shorter, shorter));
-            */
-			VmCompareCouple(shorter, longer);
+
+            VmCompareCouple(shorter, longer);
 		}
 
 		public void VmCompareCouple(object small, object big)
