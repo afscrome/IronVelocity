@@ -20,7 +20,7 @@ namespace IronVelocity.Compilation
         public static readonly ConstructorInfo ListConstructorInfo = typeof(List<object>).GetConstructor(new[] { typeof(IEnumerable<object>) });
         public static readonly MethodInfo IntegerRangeMethodInfo = typeof(IntegerRange).GetMethod("Range", new[] { typeof(int), typeof(int) });
         public static readonly MethodInfo StringConcatMethodInfo = typeof(String).GetMethod("Concat", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object), typeof(object) }, null);
-        public static readonly MethodInfo ReduceBigIntegerMethodInfo = typeof(BinaryOperationHelper).GetMethod("ReduceBigInteger", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(BigInteger) }, null);
+        public static readonly MethodInfo ReduceBigIntegerMethodInfo = typeof(BinaryOperationHelper).GetMethod("ReduceBigInteger", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(BigInteger), typeof(bool) }, null);
 
         public static readonly MethodInfo BooleanCoercionMethodInfo = typeof(BooleanCoercion).GetMethod("CoerceToBoolean", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object) }, null);
 

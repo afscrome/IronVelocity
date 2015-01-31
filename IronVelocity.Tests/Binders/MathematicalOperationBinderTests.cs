@@ -88,7 +88,7 @@ namespace IronVelocity.Tests.Binders
         [TestCase(2.5d, 4, 0.625d, typeof(double), TestName = "Division Integer Double")]
         [TestCase(5, 2.5f, 2f, typeof(float), TestName = "Division Float Integer")]
         [TestCase(7f, -2.8f, -2.5f, typeof(float), TestName = "Division Float Float")]
-        [TestCase(1.5525f, 0.45d, 3.45, typeof(double), TestName = "Division Float Double")]
+        [TestCase(1.5525f, 0.45d, 3.4500000211927624, typeof(double), TestName = "Division Float Double")]
         [TestCase(1, 0, null, null, TestName = "Division By Zero")]
         public void BasicDivisionTest(object left, object right, object expectedValue, Type expectedType)
         {
@@ -106,7 +106,7 @@ namespace IronVelocity.Tests.Binders
         [TestCase(0, 0, 0, null, TestName = "Modulo Integer Double", Ignore = true)]
         [TestCase(0,0,0, null, TestName = "Modulo Float Integer", Ignore= true)]
         [TestCase(285.5f, 140f, 5.5f, typeof(float), TestName = "Modulo Float Float")]
-        [TestCase(1.5525f, 0.45d, 0.2025d, typeof(double), TestName = "Modulo Float Double")]
+        [TestCase(1.5525f, 0.45d, 0.20250000953674313d, typeof(double), TestName = "Modulo Float Double")]
         [TestCase(1, 0, null, null, TestName = "Modulo By Zero")]
         public void BasicModuloTest(object left, object right, object expected, Type expectedType)
         {

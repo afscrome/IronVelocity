@@ -141,10 +141,10 @@ namespace IronVelocity.Binders
                     throw new InvalidOperationException();
             }
 
-
+            var useSignedIntegerTypes = TypeHelper.IsSignedInteger(left.Type);
             //Pass the final result into ReduceBigInteger(...) to return a more recognizable primitive
             var overflowFallback = VelocityExpressions.ConvertIfNeeded(
-                    Expression.Call(MethodHelpers.ReduceBigIntegerMethodInfo, oveflowHandler),
+                    Expression.Call(MethodHelpers.ReduceBigIntegerMethodInfo, oveflowHandler, Expression.Constant(useSignedIntegerTypes)),
                     ReturnType                    
             );
 

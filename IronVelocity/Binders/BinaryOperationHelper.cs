@@ -78,14 +78,22 @@ namespace IronVelocity.Binders
         }
 
 
-        public static object ReduceBigInteger(BigInteger value)
+        public static object ReduceBigInteger(BigInteger value, bool returnSignedIntegers)
         {
-            if (value >= int.MinValue && value <= int.MaxValue)
-                return (int)value;
-            if (value >= long.MinValue && value <= long.MaxValue)
-                return (long)value;
-            if (value >= ulong.MinValue && value <= ulong.MaxValue)
-                return (ulong)value;
+            if (returnSignedIntegers)
+            {
+                if (value >= uint.MinValue && value <= uint.MaxValue)
+                    return (uint)value;
+                if (value >= ulong.MinValue && value <= ulong.MaxValue)
+                    return (ulong)value;
+            }
+            else
+            {
+                if (value >= int.MinValue && value <= int.MaxValue)
+                    return (int)value;
+                if (value >= long.MinValue && value <= long.MaxValue)
+                    return (long)value;
+            }
 
             return (float)value;
         }
