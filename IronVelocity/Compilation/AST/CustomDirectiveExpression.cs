@@ -12,7 +12,6 @@ namespace IronVelocity.Compilation.AST
         }
 
         protected CustomDirectiveExpression(ASTDirective node, VelocityExpressionBuilder builder)
-            : base(node, builder)
         {
             _builder = builder;
         }

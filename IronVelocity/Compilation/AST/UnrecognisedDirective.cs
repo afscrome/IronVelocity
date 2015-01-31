@@ -9,15 +9,18 @@ namespace IronVelocity.Compilation.AST
         private readonly string _literal;
         public override Type Type { get { return typeof(string); } }
 
-        public UnrecognisedDirective(INode node, VelocityExpressionBuilder builder) :base(node, builder)
+        public string Name { get; private set; }
+        public UnrecognisedDirective(ASTDirective node, VelocityExpressionBuilder builder)
         {
             _literal = node.Literal;
+            Name = node.DirectiveName;
         }
 
         public override Expression Reduce()
         {
             return Expression.Constant(_literal);
         }
+
 
     }
 }

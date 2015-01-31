@@ -58,8 +58,6 @@ namespace IronVelocity.Compilation.AST
                             ContinueLabel
                         );
 
-            var enumerable = VelocityExpressions.ConvertIfNeeded(Enumerable, typeof(IEnumerable));
-
             return Expression.Block(
                 new[] { enumerator },
                     Expression.Assign(enumerator, Expression.Call(Enumerable, _enumeratorMethodInfo)),

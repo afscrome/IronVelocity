@@ -5,33 +5,6 @@ namespace IronVelocity.Compilation.AST
 {
     public abstract class Directive : VelocityExpression
     {
-        public string Name { get; private set; }
-        public ASTDirective Node { get; private set; }
-        protected VelocityExpressionBuilder Builder { get; private set; }
-
-        protected Directive()
-        {
-
-        }
-
-        [Obsolete]
-        protected Directive(INode node, VelocityExpressionBuilder builder)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            var directive = node as ASTDirective;
-            if (directive == null)
-                throw new ArgumentOutOfRangeException("node");
-
-            if (builder == null)
-                throw new ArgumentNullException("builder");
-
-            Name = directive.DirectiveName;
-            Node = directive;
-            Builder = builder;
-        }
-
         public override Type Type { get { return typeof(void); } }
     }
 

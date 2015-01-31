@@ -16,6 +16,7 @@ namespace IronVelocity.Compilation.Directives
         public Expression Enumerable { get; private set; }
         public Expression CurrentIndex { get; private set; }
         public Expression CurrentItem { get; private set; }
+        public string Name { get; private set; }
 
         private INode _body;
 
@@ -30,6 +31,7 @@ namespace IronVelocity.Compilation.Directives
 
             _builder = builder;
 
+            Name = node.DirectiveName;
             Enumerable = NVelocityExpressions.Operand(node.GetChild(2));
             _body = node.GetChild(3);
 
@@ -62,7 +64,7 @@ namespace IronVelocity.Compilation.Directives
 
             foreach (var expression in body)
             {
-                var seperator = expression as Directive;
+                var seperator = expression as UnrecognisedDirective;
                 if (seperator != null)
                 {
                     ForeachSection section;
