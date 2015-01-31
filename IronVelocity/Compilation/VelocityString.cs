@@ -19,14 +19,14 @@ namespace IronVelocity.Compilation
         private static readonly Expression _doubleQuote = Expression.Constant('"');
 
 
-        public static string EscapeQuotes(object value, char quoteChar)
+        public static string EscapeQuotes(object value, char quote)
         {
             if (value == null)
                 return null;
 
             var type = value.GetType();
             if (type.IsPrimitive || type == typeof(string) || type == typeof(decimal))
-                return string.Concat(quoteChar, value.ToString().Replace(quoteChar.ToString(), "\\" + quoteChar), quoteChar);
+                return string.Concat(quote, value.ToString().Replace(quote.ToString(), "\\" + quote), quote);
             else
                 return null;
 

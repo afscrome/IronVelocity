@@ -58,8 +58,6 @@ namespace IronVelocity.Compilation
                     typeof(void),
                     _signature);
 
-            var stopwatch = new Stopwatch();
-
             if (_globals != null && _globals.Count > 0)
             {
                 log.StronglyTypeStart(name);

@@ -111,7 +111,7 @@ namespace IronVelocity.Compilation.AST
                 return builder.Build(directiveNode, this);
             }
             else
-                return new UnrecognisedDirective(directiveNode, this);
+                return new UnrecognisedDirective(directiveNode);
         }
 
     }

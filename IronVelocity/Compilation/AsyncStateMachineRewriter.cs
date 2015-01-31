@@ -11,15 +11,12 @@ namespace IronVelocity.Compilation
 {
     public class AsyncStateMachineRewriter : ExpressionVisitor
     {
-        private readonly ParameterExpression AsyncTaskMethodBuilder = Constants.AsyncTaskMethodBuilderParameter;
         private readonly ParameterExpression AsyncState = Constants.AsyncStateParameter;
         private readonly ParameterExpression StateMachine = Constants.StateMachineParameter;
 
-        private readonly ParameterExpression CaughtException = Expression.Parameter(typeof(Exception), "exception");
         private readonly LabelTarget ReturnTarget = Expression.Label("return");
         private readonly List<LabelTarget> ContinuationTargets = new List<LabelTarget>(); 
 
-        private static readonly MethodInfo _setExceptionMethodInfo = typeof(AsyncTaskMethodBuilder).GetMethod("SetException", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(Exception) }, null);
         private static readonly PropertyInfo _isComplete = typeof(Task).GetProperty("IsCompleted", BindingFlags.Public | BindingFlags.Instance, null, typeof(bool), new Type[0], null);
         private static readonly MethodInfo _configureAwaiter = typeof(VelocityAsyncCompiler.VelocityAsyncStateMachine).GetMethod("ConfigureAwaiter");
 
@@ -61,6 +58,9 @@ namespace IronVelocity.Compilation
 
         protected override Expression VisitMethodCall(MethodCallExpression node)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             //Definite Task
             if (node.Type == typeof(Task))
             {
@@ -103,6 +103,9 @@ namespace IronVelocity.Compilation
 
         protected override Expression VisitDynamic(DynamicExpression node)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             if (typeof(Task).IsAssignableFrom(node.Type))
             {
                 throw new NotImplementedException("TODO: Definite Task support");

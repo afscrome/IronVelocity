@@ -11,11 +11,6 @@ namespace IronVelocity.Compilation.AST
             _builder = builder;
         }
 
-        protected CustomDirectiveExpression(ASTDirective node, VelocityExpressionBuilder builder)
-        {
-            _builder = builder;
-        }
-
         public virtual Expression ProcessChildDirective(string name, INode node)
         {
             return null;

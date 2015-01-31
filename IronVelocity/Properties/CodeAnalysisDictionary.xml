@@ -5,9 +5,12 @@
       <Word>ast</Word>
       <Word>renderable</Word>
       <Word>ASTElseStatement</Word>
+      <Word>ASTIfStatement</Word>
       <Word>Unrecognised</Word>
       <Word>Foreach</Word>
       <Word>globals</Word>
+      <Word>Initalise</Word>
+      <Word>Awaiter</Word>
     </Recognized>
   </Words>
   <Acronyms>

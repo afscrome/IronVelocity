@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Runtime;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -25,6 +26,7 @@ namespace IronVelocity.Compilation.AST
             return RecursiveBuildDictionary(contents, 2, out lastIndex);
         }
 
+        [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification= "Taken from NVelocity to maximise backwards compatibility")]
         private DictionaryExpression RecursiveBuildDictionary(char[] contents, int fromIndex, out int lastIndex)
         {
             // key=val, key='val', key=$val, key=${val}, key='id$id'

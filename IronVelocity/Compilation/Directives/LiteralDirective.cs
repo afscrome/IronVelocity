@@ -10,7 +10,7 @@ namespace IronVelocity.Compilation.Directives
         private readonly string _literal;
         private readonly VelocityExpressionBuilder _builder;
         public LiteralDirective(ASTDirective node, VelocityExpressionBuilder builder)
-            : base(node, builder)
+            : base(builder)
         {
             if (node == null)
                 throw new ArgumentNullException("node");

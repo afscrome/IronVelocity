@@ -4,6 +4,7 @@ using NVelocity.Runtime.Parser;
 using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
@@ -364,6 +365,7 @@ namespace IronVelocity.Compilation.AST
             return Operand(child);
         }
 
+        [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity", Justification="Unavoidable")]
         public static Expression Operand(INode node)
         {
             if (node == null)

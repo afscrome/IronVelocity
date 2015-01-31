@@ -157,7 +157,7 @@ namespace IronVelocity.Binders
         }
 
 
-        private BindingRestrictions GetEarlyEscapeRestrictions(DynamicMetaObject left, DynamicMetaObject right)
+        private static BindingRestrictions GetEarlyEscapeRestrictions(DynamicMetaObject left, DynamicMetaObject right)
         {
             //If either value is null, we can't do a mathematical operation
             if (left.Value == null)

@@ -8,6 +8,7 @@ namespace IronVelocity.Binders
 {
     public class VelocityGetMemberBinder : GetMemberBinder
     {
+
         public VelocityGetMemberBinder(string name)
             : base(name, ignoreCase: true)
         {
@@ -34,7 +35,6 @@ namespace IronVelocity.Binders
             }
 
             Expression result = null;
-            bool isAmbigious;
             try
             {
                 result = ReflectionHelper.MemberExpression(Name, target);
@@ -53,7 +53,7 @@ namespace IronVelocity.Binders
             }
             catch (AmbiguousMatchException)
             {
-                BindingEventSource.Log.GetMemberResolutionAmbigious(Name, target.RuntimeType.FullName);
+                BindingEventSource.Log.GetMemberResolutionAmbiguous(Name, target.RuntimeType.FullName);
             }
 
             if(result == null)

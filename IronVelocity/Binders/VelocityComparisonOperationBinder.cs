@@ -48,19 +48,6 @@ namespace IronVelocity.Binders
         }
 
 
-        private static Expression CoerceToBoolean(DynamicMetaObject value)
-        {
-            if (value.Value == null)
-                return null;
-            else if (value.LimitType == typeof(bool) || value.LimitType == typeof(bool?))
-                return VelocityExpressions.ConvertIfNeeded(value);
-            else if (!ReflectionHelper.IsNullableType(value.LimitType))
-                return Constants.True;
-            else
-                return Expression.NotEqual(value.Expression, Expression.Constant(null, value.Expression.Type));
-        }
-
-
         private DynamicMetaObject Compare(DynamicMetaObject target, DynamicMetaObject arg, Func<Expression, Expression, Expression> generator)
         {
             //Cannot build a comparison expression until we've resolved the argument type & value

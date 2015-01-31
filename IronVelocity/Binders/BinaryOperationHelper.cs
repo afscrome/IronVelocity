@@ -8,7 +8,7 @@ using System.Reflection;
 
 namespace IronVelocity.Binders
 {
-    public static class BinaryOperationHelper
+    internal static class BinaryOperationHelper
     {
         private static IDictionary<Type, ConstructorInfo> _bigIntConstructors = new Dictionary<Type, ConstructorInfo> {
             { typeof(byte), typeof(BigInteger).GetConstructor(new[] { typeof(int)})},

@@ -83,7 +83,7 @@ namespace IronVelocity.Binders
                     {
                         var argTypeString = String.Join(",", argTypeArray.Select(x => x.FullName).ToArray());
                         if (isAmbigious)
-                            log.InvokeMemberResolutionAmbigious(Name, target.LimitType.FullName, argTypeString);
+                            log.InvokeMemberResolutionAmbiguous(Name, target.LimitType.FullName, argTypeString);
                         else
                             log.InvokeMemberResolutionFailure(Name, target.LimitType.FullName, argTypeString);
                     }

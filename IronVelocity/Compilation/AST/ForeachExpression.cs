@@ -17,7 +17,7 @@ namespace IronVelocity.Compilation.AST
         public LabelTarget BreakLabel { get; private set; }
         public LabelTarget ContinueLabel { get; private set; }
 
-        public ForeachExpression(Expression enumerable, Expression body, Expression currentItem, LabelTarget breakLabel = null, LabelTarget continueLabel = null)
+        public ForeachExpression(Expression enumerable, Expression body, Expression currentItem, LabelTarget breakLabel, LabelTarget continueLabel)
         {
             if (enumerable == null)
                 throw new ArgumentNullException("enumerable");

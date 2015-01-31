@@ -71,7 +71,7 @@ namespace IronVelocity.Compilation.AST
             body.Add(indexInitalise);
 
             // Do the main loop - this handles the #BeforeAll, #Before,#Odd,#Even,#After & #Each templates
-            body.Add(new ForeachExpression(Enumerable, BuildItemBody(), LoopVariable, _break));
+            body.Add(new ForeachExpression(Enumerable, BuildItemBody(), LoopVariable, _break, null));
 
 
             //If we have a NoData or AfterAll template, execute that after we've finished the loop.

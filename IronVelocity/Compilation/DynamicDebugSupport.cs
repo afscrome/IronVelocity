@@ -2,6 +2,7 @@
 using IronVelocity.Compilation.AST;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -18,8 +19,6 @@ namespace IronVelocity.Compilation
     /// </summary>
     public class DynamicToExplicitCallSiteConvertor : ExpressionVisitor
     {
-        private static Type _callSiteType = typeof(CallSite<>);
-
         private readonly TypeBuilder _builder;
         private readonly Dictionary<object, FieldBuilder> _fieldBuilders = new Dictionary<object, FieldBuilder>();
 
@@ -39,6 +38,9 @@ namespace IronVelocity.Compilation
 
         public void InitaliseConstants(Type type)
         {
+            if (type == null)
+                throw new ArgumentNullException("type");
+
             var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Static)
                 .ToDictionary(x => x.Name);
 
@@ -77,6 +79,9 @@ namespace IronVelocity.Compilation
         /// </summary>
         protected override Expression VisitConstant(ConstantExpression node)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             if (node.Value == null || CanEmitAsConstant(node.Value))
                 return base.VisitConstant(node);
 
@@ -100,6 +105,9 @@ namespace IronVelocity.Compilation
         /// </summary>
         protected override Expression VisitDynamic(DynamicExpression node)
         {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
             // Store the callsite as a constant
             var siteConstant = Expression.Constant(CallSite.Create(node.DelegateType, node.Binder));
 
@@ -127,7 +135,7 @@ namespace IronVelocity.Compilation
             return Visit(result);
         }
 
-        private bool CanEmitAsConstant(object value)
+        private static bool CanEmitAsConstant(object value)
         {
             if (value == null)
                 return true;

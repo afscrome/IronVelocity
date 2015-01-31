@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
@@ -21,7 +22,7 @@ namespace IronVelocity
         }
 
         [Event(2, Opcode = EventOpcode.Info, Level = EventLevel.Warning, Keywords = Keywords.GetMember)]
-        public void GetMemberResolutionAmbigious(string memberName, string targetType)
+        public void GetMemberResolutionAmbiguous(string memberName, string targetType)
         {
             WriteEvent(2, memberName, targetType);
         }
@@ -33,7 +34,7 @@ namespace IronVelocity
         }
 
         [Event(4, Opcode = EventOpcode.Info, Level = EventLevel.Warning, Keywords = Keywords.InvokeMember)]
-        public void InvokeMemberResolutionAmbigious(string memberName, string targetType, string argTypes)
+        public void InvokeMemberResolutionAmbiguous(string memberName, string targetType, string argTypes)
         {
             WriteEvent(4, memberName, targetType, argTypes);
         }
@@ -59,7 +60,7 @@ namespace IronVelocity
         }
 
 
-
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification="Required to be public by ETW")]
         public static class Keywords
         {
             public const EventKeywords GetMember = (EventKeywords)1;
