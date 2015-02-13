@@ -9,6 +9,7 @@ namespace IronVelocity.Compilation.AST
         private static readonly ParameterExpression _objectTemp = Expression.Parameter(typeof(object), "setDirectiveTemp");
 
         public override Type Type { get { return typeof(void); } }
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.SetDirective; } }
 
 
         public SetDirective(Expression left, Expression right, SymbolInformation symbols)

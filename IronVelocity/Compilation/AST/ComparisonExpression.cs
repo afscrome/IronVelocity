@@ -7,10 +7,11 @@ namespace IronVelocity.Compilation.AST
     public class ComparisonExpression : VelocityBinaryExpression
     {
         public ComparisonOperation Operation { get; private set; }
+
         public override Type Type { get { return typeof(bool); } }
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.Comparison; } }
 
-
-        internal ComparisonExpression(Expression left, Expression right, SymbolInformation symbols, ComparisonOperation op)
+        public ComparisonExpression(Expression left, Expression right, SymbolInformation symbols, ComparisonOperation op)
             : base(left, right, symbols)
         {
             Operation = op;

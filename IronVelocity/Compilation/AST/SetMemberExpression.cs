@@ -10,6 +10,7 @@ namespace IronVelocity.Compilation.AST
         public Expression Value { get; private set; }
         public string Name { get; private set; }
         public override Type Type { get { return typeof(void); } }
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.SetMember; } }
 
         public SetMemberExpression(string name, Expression target, Expression value)
         {

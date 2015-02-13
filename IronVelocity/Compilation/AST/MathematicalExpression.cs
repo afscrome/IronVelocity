@@ -9,6 +9,8 @@ namespace IronVelocity.Compilation.AST
         public MathematicalOperation Operation { get; private set; }
         public ExpressionType ExpressionType { get; private set; }
 
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.Mathematical; } }
+
         public MathematicalExpression(Expression left, Expression right, SymbolInformation symbols, MathematicalOperation op)
             : base(left, right, symbols)
         {

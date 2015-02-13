@@ -11,7 +11,9 @@ namespace IronVelocity.Compilation.AST
     public class InterpolatedStringExpression : VelocityExpression
     {
         public IReadOnlyList<Expression> Parts { get; set; }
+
         public override Type Type { get { return typeof(string); } }
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.InterpolatedString; } }
 
 
         public InterpolatedStringExpression(params Expression[] parts)
@@ -43,7 +45,6 @@ namespace IronVelocity.Compilation.AST
                 ? this
                 : new InterpolatedStringExpression(parts);
         }
-
 
     }
 }

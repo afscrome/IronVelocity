@@ -9,6 +9,10 @@ namespace IronVelocity.Compilation.AST
         private readonly VariableExpression _variable;
 
         public string Name { get; private set; }
+
+        public override Type Type { get { return _type; } }
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.GlobalVariable; } }
+
         public GlobalVariableExpression(VariableExpression variable, Type type)
         {
             if (variable == null)
@@ -29,6 +33,5 @@ namespace IronVelocity.Compilation.AST
             return VelocityExpressions.ConvertIfNeeded(_variable.Reduce(), Type);
         }
 
-        public override Type Type { get { return _type; } }
     }
 }

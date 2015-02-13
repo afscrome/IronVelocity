@@ -15,6 +15,7 @@ namespace IronVelocity.Compilation.AST
 
         public IReadOnlyDictionary<string, Expression> Values { get; private set; }
         public override Type Type { get { return typeof(RuntimeDictionary); } }
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.Dictionary; } }
 
         public DictionaryExpression(IReadOnlyDictionary<string, Expression> values)
         {

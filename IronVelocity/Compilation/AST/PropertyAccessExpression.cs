@@ -9,6 +9,8 @@ namespace IronVelocity.Compilation.AST
         public Expression Target { get; private set; }
         public string Name { get; private set; }
 
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.PropertyAccess; } }
+
         public PropertyAccessExpression(Expression target, string name, SymbolInformation symbolInformation)
         {
             Target = target;

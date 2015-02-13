@@ -7,6 +7,8 @@ namespace IronVelocity.Compilation.AST
     {
         public ReferenceExpression Reference { get { return (ReferenceExpression)Expression; } }
 
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.RenderableReference; } }
+
         public RenderableVelocityReference(ReferenceExpression reference)
             : base(reference, reference.Metadata)
         {
@@ -20,6 +22,8 @@ namespace IronVelocity.Compilation.AST
     {
         public Expression Expression { get; private set; }
         public ASTReferenceMetadata Metadata {get; private set;}
+
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.RenderableExpression; } }
 
         public RenderableExpression(Expression expression, ASTReferenceMetadata metadata)
         {
@@ -79,9 +83,7 @@ namespace IronVelocity.Compilation.AST
             return Expression == expression
                 ? this
                 : new RenderableExpression(expression, Metadata);
-        }
-
-       
+        }       
     }
 
 }

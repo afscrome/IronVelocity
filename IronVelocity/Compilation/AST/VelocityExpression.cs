@@ -15,6 +15,7 @@ namespace IronVelocity.Compilation.AST
 
 
         public abstract override Expression Reduce();
+        public abstract VelocityExpressionType VelocityExpressionType { get; }
     }
 
     public class SymbolInformation

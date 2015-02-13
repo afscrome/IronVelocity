@@ -8,7 +8,9 @@ namespace IronVelocity.Compilation.AST
     public class ObjectArrayExpression : VelocityExpression
     {
         public IReadOnlyList<Expression> Values { get; private set; }
+
         public override Type Type { get { return typeof(IList<object>); } }
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.ObjectArray; } }
 
         public ObjectArrayExpression(SymbolInformation symbols, IReadOnlyList<Expression> args)
         {
@@ -16,13 +18,11 @@ namespace IronVelocity.Compilation.AST
             Values = args;
         }
 
-
         public override Expression Reduce()
         {
             var objValues = Values.Select(x => VelocityExpressions.ConvertIfNeeded(x, typeof(object)));
             return Expression.New(MethodHelpers.ListConstructorInfo, Expression.NewArrayInit(typeof(object), objValues));
         }
-
 
         public ObjectArrayExpression Update(IReadOnlyList<Expression> arguments)
         {
@@ -31,7 +31,5 @@ namespace IronVelocity.Compilation.AST
 
             return new ObjectArrayExpression(Symbols, arguments);
         }
-
-
     }
 }

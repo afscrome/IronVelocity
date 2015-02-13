@@ -17,7 +17,7 @@ namespace IronVelocity.Compilation
     /// 
     /// This is required when compiling expression trees to assemblies rather than using dynamic method 
     /// </summary>
-    public class DynamicToExplicitCallSiteConvertor : ExpressionVisitor
+    public class DynamicToExplicitCallSiteConvertor : VelocityExpressionVisitor
     {
         private readonly TypeBuilder _builder;
         private readonly Dictionary<object, FieldBuilder> _fieldBuilders = new Dictionary<object, FieldBuilder>();
@@ -50,10 +50,7 @@ namespace IronVelocity.Compilation
             }  
         }
 
-        /// <summary>
-        /// Expands any VelocityExpressions with line information to emit DebugInfo expressions to support debugging
-        /// </summary>
-        protected override Expression VisitExtension(Expression node)
+        protected override Expression VisitVelocityExpression(VelocityExpression node)
         {
             if (_symbolDocument != null)
             {
@@ -61,16 +58,14 @@ namespace IronVelocity.Compilation
                 if (extension != null && extension.Symbols != null && extension.Symbols != _currentSymbol)
                 {
                     _currentSymbol = extension.Symbols;
-                    return base.VisitBlock(
-                        Expression.Block(
-                            Expression.DebugInfo(_symbolDocument, _currentSymbol.StartLine, _currentSymbol.StartColumn, _currentSymbol.EndLine, _currentSymbol.EndColumn),
-                            Visit(node)
-                        )
+                    return Expression.Block(
+                        Expression.DebugInfo(_symbolDocument, _currentSymbol.StartLine, _currentSymbol.StartColumn, _currentSymbol.EndLine, _currentSymbol.EndColumn),
+                        Visit(node)
                     );
 
                 }
             }
-            return base.VisitExtension(node);
+            return base.VisitVelocityExpression(node);
         }
 
         /// <summary>

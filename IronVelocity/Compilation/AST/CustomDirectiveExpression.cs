@@ -5,6 +5,8 @@ namespace IronVelocity.Compilation.AST
 {
     public abstract class CustomDirectiveExpression : Directive
     {
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.CustomDirective; } }
+
         private readonly VelocityExpressionBuilder _builder;
         protected CustomDirectiveExpression(VelocityExpressionBuilder builder) 
         {

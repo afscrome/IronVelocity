@@ -8,7 +8,6 @@ namespace IronVelocity.Compilation.AST
         public Expression Left { get; private set; }
         public Expression Right { get; private set; }
 
-
         protected VelocityBinaryExpression(Expression left, Expression right, SymbolInformation symbols)
         {
             Left = left;

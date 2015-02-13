@@ -10,6 +10,8 @@ namespace IronVelocity.Compilation.AST
         public ASTReferenceMetadata Metadata { get; private set; }
         public Expression Value { get; private set; }
 
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.Reference; } }
+
         public ReferenceExpression(ASTReferenceMetadata metadata, Expression value)
         {
             Metadata = metadata;

@@ -91,8 +91,6 @@ namespace IronVelocity.Compilation.AST
             if (directiveNode == null)
                 throw new ArgumentOutOfRangeException("node");
 
-            if (directiveNode.DirectiveName == "macro")
-                throw new NotSupportedException("TODO: #macro support");
             if (directiveNode.DirectiveName == "include")
                 throw new NotSupportedException("TODO: #include support");
             if (directiveNode.DirectiveName == "parse")

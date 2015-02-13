@@ -13,6 +13,7 @@ namespace IronVelocity.Compilation.AST
     {
         public string Value { get; set; }
         public override Type Type { get { return typeof(RuntimeDictionary); } }
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.DictionaryString; } }
 
         public DictionaryStringExpression(string value)
         {

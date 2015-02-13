@@ -9,7 +9,9 @@ namespace IronVelocity.Compilation.AST
     public class RenderedBlock : VelocityExpression
     {
         private readonly ParameterExpression _output;
+
         public override Type Type { get { return typeof(void); } }
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.RenderedBlock; } }
         
         public RenderedBlock(IEnumerable<Expression> expressions, VelocityExpressionBuilder builder)
         {

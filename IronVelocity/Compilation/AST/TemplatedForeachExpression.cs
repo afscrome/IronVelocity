@@ -29,6 +29,8 @@ namespace IronVelocity.Compilation.AST
         public Expression Each { get; private set; }
         public Expression NoData { get; private set; }
 
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.TemplatedForeach; } }
+        public override Type Type { get { return typeof(void); } }
 
         public TemplatedForeachExpression(Expression enumerable, Expression loopVariable, Expression beforeAll, Expression before, Expression odd, Expression even, Expression between, Expression after, Expression afterAll, Expression each, Expression noData, LabelTarget breakLabel, Expression loopIndex)
         {
@@ -142,9 +144,6 @@ namespace IronVelocity.Compilation.AST
 
             return Expression.Block(bodyExpressions);
         }
-
-
-        public override Type Type { get { return typeof(void); } }
 
     }
 

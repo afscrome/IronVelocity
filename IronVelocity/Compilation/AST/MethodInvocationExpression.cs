@@ -13,6 +13,8 @@ namespace IronVelocity.Compilation.AST
         public string Name { get; private set; }
         public IReadOnlyList<Expression> Arguments { get; private set; }
 
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.MethodInvocation; } }
+
         public MethodInvocationExpression(Expression target, string name, IReadOnlyList<Expression> arguments, SymbolInformation symbols)
         {
             if (target == null)

@@ -52,6 +52,9 @@
     <Compile Include="Binders\BinaryOperationHelper.cs" />
     <Compile Include="Binders\BinderHelper.cs" />
     <Compile Include="Binders\ReflectionHelper.cs" />
+    <Compile Include="Compilation\AST\MathematicalExpression.cs" />
+    <Compile Include="Compilation\AST\VelocityExpressionType.cs" />
+    <Compile Include="Compilation\VelocityExpressionVisitor.cs" />
     <Compile Include="EventSources\BindingEventSource.cs" />
     <Compile Include="Binders\VelocityComparisonOperationBinder.cs" />
     <Compile Include="Binders\VelocityBinaryMathematicalOperationBinder.cs" />
@@ -70,7 +73,6 @@
     <Compile Include="Compilation\AST\CustomDirectiveExpression.cs" />
     <Compile Include="Compilation\AST\RenderableVelocityReference.cs" />
     <Compile Include="Compilation\AST\SetDirective.cs" />
-    <Compile Include="Compilation\AST\BinaryMathematicalExpression.cs" />
     <Compile Include="Compilation\AST\Directive.cs" />
     <Compile Include="Compilation\AST\ReferenceExpression.cs" />
     <Compile Include="Compilation\AST\SetMemberExpression.cs" />

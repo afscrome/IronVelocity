@@ -7,6 +7,7 @@ namespace IronVelocity.Compilation.AST
     public class IntegerRangeExpression : VelocityBinaryExpression
     {
         public override Type Type { get { return typeof(IList<int>); } }
+        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.IntegerRange; } }
 
         public IntegerRangeExpression(Expression left, Expression right, SymbolInformation symbols)
             : base(left, right, symbols)
