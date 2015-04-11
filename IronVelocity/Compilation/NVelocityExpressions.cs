@@ -8,8 +8,9 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
+using IronVelocity.Compilation.AST;
 
-namespace IronVelocity.Compilation.AST
+namespace IronVelocity.Compilation
 {
     public static class NVelocityExpressions
     {

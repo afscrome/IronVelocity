@@ -125,7 +125,7 @@
     <Compile Include="Compilation\VelocityExpressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runtime\VelocityRuntime.cs" />
-    <Compile Include="VelocityExpressions.cs" />
+    <Compile Include="Compilation\NVelocityExpressions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="IronVelocity.nuspec">
