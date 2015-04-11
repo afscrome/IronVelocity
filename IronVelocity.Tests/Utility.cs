@@ -13,7 +13,7 @@ namespace Tests
 {
     public static class Utility
     {
-        private static bool DefaultToGlobals = true;
+        private static bool DefaultToGlobals = false;
 
         private static string GetName()
         {

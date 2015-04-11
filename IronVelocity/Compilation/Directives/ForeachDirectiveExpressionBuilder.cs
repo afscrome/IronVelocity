@@ -7,11 +7,12 @@ namespace IronVelocity.Compilation.Directives
 {
     public class ForeachDirectiveExpressionBuilder : DirectiveExpressionBuilder
     {
+        public override string Name { get { return "foreach"; } }
+
         public override Expression Build(ASTDirective node, VelocityExpressionBuilder builder)
         {
             return new ForeachDirective(node, builder);
         }
-
     }
 
 

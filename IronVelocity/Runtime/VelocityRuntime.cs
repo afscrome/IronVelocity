@@ -14,6 +14,19 @@ using System.Linq.Expressions;
 
 namespace IronVelocity
 {
+    public class TestLog : NVelocity.Runtime.Log.ILogSystem
+    {
+        public void Init(IRuntimeServices rs)
+        {
+        }
+
+        public void LogVelocityMessage(NVelocity.Runtime.Log.LogLevel level, string message)
+        {
+            Console.WriteLine("[{0}] message");
+        }
+    }
+
+
     public class VelocityRuntime
     {
         internal readonly RuntimeInstance _runtimeService;
@@ -21,29 +34,31 @@ namespace IronVelocity
         private readonly VelocityAsyncCompiler _asyncCompiler;
         private readonly IReadOnlyDictionary<string, object> _globals;
 
-        private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<Type, DirectiveExpressionBuilder>()
+        private readonly IDictionary<string, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<string, DirectiveExpressionBuilder>(StringComparer.OrdinalIgnoreCase)
         {
-            {typeof(Foreach), new ForeachDirectiveExpressionBuilder()},
-            {typeof(Literal), new LiteralDirectiveExpressionBuilder()},
+            {"foreach", new ForeachDirectiveExpressionBuilder()},
+            {"literal", new LiteralDirectiveExpressionBuilder()},
+            {"macro", new MacroDefinitionExpressionBuilder()}
         };
 
-        public VelocityRuntime(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers, IDictionary<string, object> globals)
+        public VelocityRuntime(IDictionary<string, DirectiveExpressionBuilder> directiveHandlers, IDictionary<string, object> globals)
         {
             _runtimeService = new RuntimeInstance();
 
             var properties = new Commons.Collections.ExtendedProperties();
             properties.AddProperty("input.encoding", "utf-8");
             properties.AddProperty("output.encoding", "utf-8");
-            properties.AddProperty("velocimacro.permissions.allow.inline", "false");
+            properties.AddProperty("velocimacro.permissions.allow.inline", "true");
             properties.AddProperty("runtime.log.invalid.references", "false");
-            properties.AddProperty("runtime.log.logsystem.class", typeof(NVelocity.Runtime.Log.NullLogSystem).AssemblyQualifiedName.Replace(",", ";"));
+            properties.AddProperty("runtime.log.logsystem.class", typeof(TestLog).AssemblyQualifiedName.Replace(",", ";"));
             properties.AddProperty("parser.pool.size", 0);
+            properties.AddProperty("velocimacro.permissions.allow.inline.local.scope", "true");
             ArrayList userDirectives = new ArrayList();
             if (directiveHandlers != null)
             {
                 foreach (var directive in directiveHandlers)
                 {
-                    userDirectives.Add(directive.Key.AssemblyQualifiedName);
+                    //userDirectives.Add(directive.Key.AssemblyQualifiedName);
                     _directiveHandlers.Add(directive);
                 }
                 properties.AddProperty("userdirective", userDirectives);
@@ -58,7 +73,7 @@ namespace IronVelocity
             var globalsTypeMap = _globals.ToDictionary(x => x.Key, x => x.Value.GetType());
             _compiler = new VelocityCompiler(globalsTypeMap);
             _asyncCompiler = new VelocityAsyncCompiler(globalsTypeMap);
-            
+
         }
 
 
@@ -81,7 +96,7 @@ namespace IronVelocity
             using (var reader = new StringReader(input))
             {
                 log.ParseStart(typeName);
-                var ast = parser.Parse(reader, null) as ASTprocess;
+                var ast = parser.Parse(reader, typeName) as ASTprocess;
                 log.ParseStop(typeName);
                 if (ast == null)
                     throw new InvalidProgramException("Unable to parse ast");

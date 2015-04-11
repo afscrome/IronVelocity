@@ -41,6 +41,18 @@ namespace IronVelocity.Tests.OutputTests
         }
 
         [Test]
+        public void MethodWithMethodArgument()
+        {
+            var input = "$test.OneReferenceType($x.ToString())";
+            var expected = "3425";
+            var env = new Dictionary<string, object>();
+            env["test"] = new Test();
+            env["x"] = 3425;
+
+            Utility.TestExpectedMarkupGenerated(input, expected, env);
+        }
+
+        [Test]
         public void MethodWithNullReferenceArgument()
         {
             var input = "$test.test($null.ref)";

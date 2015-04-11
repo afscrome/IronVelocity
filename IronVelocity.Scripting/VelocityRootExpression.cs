@@ -11,7 +11,7 @@ namespace IronVelocity.Scripting
     public class VelocityRootExpression : Expression
     {
         public IReadOnlyCollection<Expression> Children { get; private set; }
-        private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers;
+        private readonly IDictionary<string, DirectiveExpressionBuilder> _directiveHandlers;
         private readonly string _name;
         private readonly bool _staticTypeWherePossible;
         private readonly VelocityCompilerOptions _compilerOptions;

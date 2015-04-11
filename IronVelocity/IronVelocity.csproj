@@ -39,8 +39,7 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NVelocity, Version=1.1.1.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
-      <Private>True</Private>
+    <Reference Include="NVelocity">
       <HintPath>..\packages\Castle.NVelocity.1.1.1\lib\net40\NVelocity.dll</HintPath>
     </Reference>
     <Reference Include="System" />
@@ -54,6 +53,9 @@
     <Compile Include="Binders\ReflectionHelper.cs" />
     <Compile Include="Compilation\AST\MathematicalExpression.cs" />
     <Compile Include="Compilation\AST\VelocityExpressionType.cs" />
+    <Compile Include="Compilation\Directives\MacroDefinitionExpressionBuilder.cs" />
+    <Compile Include="Compilation\Directives\MacroExecutionExpressionBuilder.cs" />
+    <Compile Include="Compilation\Directives\MacroExpression.cs" />
     <Compile Include="Compilation\VelocityExpressionVisitor.cs" />
     <Compile Include="EventSources\BindingEventSource.cs" />
     <Compile Include="Binders\VelocityComparisonOperationBinder.cs" />

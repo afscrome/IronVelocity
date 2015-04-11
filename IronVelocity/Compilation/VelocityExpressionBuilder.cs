@@ -11,24 +11,24 @@ namespace IronVelocity.Compilation.AST
     public class VelocityExpressionBuilder
     {
 
-        private readonly IDictionary<Type, DirectiveExpressionBuilder> _directiveHandlers;
+        private readonly IDictionary<string, DirectiveExpressionBuilder> _directiveHandlers;
         public ParameterExpression OutputParameter { get; set; }
         public Stack<CustomDirectiveExpression> CustomDirectives { get; private set; }
 
-        public IDictionary<Type, DirectiveExpressionBuilder> DirectiveHandlers
+        public IDictionary<string, DirectiveExpressionBuilder> DirectiveHandlers
         {
-            get { return new Dictionary<Type, DirectiveExpressionBuilder>(_directiveHandlers); }
+            get { return new Dictionary<string, DirectiveExpressionBuilder>(_directiveHandlers); }
         }
 
 
-        public VelocityExpressionBuilder(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers)
+        public VelocityExpressionBuilder(IDictionary<string, DirectiveExpressionBuilder> directiveHandlers)
             : this (directiveHandlers, "$output")
         {
         }
 
-        public VelocityExpressionBuilder(IDictionary<Type, DirectiveExpressionBuilder> directiveHandlers, string parameterName)
+        public VelocityExpressionBuilder(IDictionary<string, DirectiveExpressionBuilder> directiveHandlers, string parameterName)
         {
-            _directiveHandlers = directiveHandlers ?? new Dictionary<Type, DirectiveExpressionBuilder>();
+            _directiveHandlers = directiveHandlers ?? new Dictionary<string, DirectiveExpressionBuilder>();
             OutputParameter = Expression.Parameter(typeof(StringBuilder), parameterName);
             CustomDirectives = new Stack<CustomDirectiveExpression>();
         }
@@ -104,12 +104,17 @@ namespace IronVelocity.Compilation.AST
                     return expr;
             }
 
-            if (directiveNode.Directive != null && _directiveHandlers.TryGetValue(directiveNode.Directive.GetType(), out builder))
+            if (_directiveHandlers.TryGetValue(directiveNode.DirectiveName, out builder))
             {
                 return builder.Build(directiveNode, this);
             }
             else
                 return new UnrecognisedDirective(directiveNode);
+        }
+
+        public void RegisterMacro(string name, LambdaExpression macro)
+        {
+            _directiveHandlers.Add(name, new MacroExecutionExpressionBuilder(name, macro));
         }
 
     }

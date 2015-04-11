@@ -7,6 +7,8 @@ namespace IronVelocity.Compilation.Directives
 {
     public class BreakDirectiveExpressionBuilder : DirectiveExpressionBuilder
     {
+        public override string Name { get { return "break"; } }
+
         public override Expression Build(ASTDirective node, VelocityExpressionBuilder builder)
         {
             throw new NotImplementedException();
