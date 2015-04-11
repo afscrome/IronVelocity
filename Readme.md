@@ -15,4 +15,4 @@ NVelocity is another implementation of Velocity for .Net.  IronVelocity stil use
 * [+] IronVelocity compiles templates (as opposed to NVelocity which interprets the templates) which results in faster template execution (although at the cost of a higher startup time for the first execution)
 * [+] IronVelocity uses the DLR for method and property invocation which is faster, but also means you can use dynamic objects in velocity templates
 * [+] IronVelocity uses generic collections for lists and dictionaries which can result in nicer code when you pass velocity objects through to .net code.
-* [-] IronVelocity doesn't currently support VelociMacros, the #Parse directive and the #Include directive
+* [-] IronVelocity doesn't currently support the #Parse and #Include directives. It also only has limited support for velocimacros.
