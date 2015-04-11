@@ -78,21 +78,6 @@ namespace NVelocity.Test
 		}
 
 		[Test]
-        [Ignore("TODO: NVelocity specific exception type, determine alternative")]
-		public void CorrectExceptionThrownOnInvocationException()
-		{
-			try
-			{
-				Eval("$test.ThrowException");
-				Assert.Fail();
-			}
-			catch (MethodInvocationException miex)
-			{
-				Assert.AreEqual("From ThrowException", miex.InnerException.Message);
-			}
-		}
-
-		[Test]
 		//[Ignore("mono issues")]
 		public void HasRelaxedSignature()
 		{

@@ -27,15 +27,6 @@ namespace IronVelocity.Tests.Binders
         }
 
         [Test]
-        public void ClassSetPropertyDoesNotExist()
-        {
-            var input = new BasicClass();
-            TestAssignmentOnReferenceType(input, "NonExistant", "other");
-            //How to test?
-            Assert.Ignore("TODO: How to Test");
-        }
-
-        [Test]
         public void ClassSetPropertyWithInvalidType()
         {
             var input = new BasicClass();
@@ -84,15 +75,6 @@ namespace IronVelocity.Tests.Binders
             var input = new BasicStruct("initial");
             TestAssignmentOnStruct(ref input, "pRoPeRtY", "other");
             Assert.AreEqual("other", input.Property);
-        }
-
-        [Test]
-        public void StructSetPropertyDoesNotExist()
-        {
-            var input = new BasicStruct("initial");
-            TestAssignmentOnStruct(ref input, "NonExistant", "other");
-            //How to test?
-            Assert.Ignore("TODO: How to test");
         }
 
         [Test]

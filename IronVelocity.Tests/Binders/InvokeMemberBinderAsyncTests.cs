@@ -31,7 +31,7 @@ namespace IronVelocity.Tests.Binders
 
      */
 
-    [Ignore("Async work in progress")]
+    [Explicit("Async work in progress")]
     public class InvokeMemberBinderAsyncTests
     {
 
@@ -77,12 +77,12 @@ namespace IronVelocity.Tests.Binders
 
 
         [Test]
-        public void BinderCacheNotPollutedForTaskOfT()
+        public async Task BinderCacheNotPollutedForTaskOfT()
         {
             TaskOfTResultIsReducedtoTIffCompleted();
-            TaskOfTResultIsTaskOfTWhenYielded();
+            await TaskOfTResultIsTaskOfTWhenYielded();
             TaskOfTResultIsReducedtoTIffCompleted();
-            TaskOfTResultIsTaskOfTWhenYielded();
+            await TaskOfTResultIsTaskOfTWhenYielded();
         }
 
         [Test]

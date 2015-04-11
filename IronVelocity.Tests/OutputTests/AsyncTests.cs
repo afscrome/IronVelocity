@@ -9,7 +9,7 @@ using Tests;
 namespace IronVelocity.Tests.Async
 {
     [TestFixture]
-    [Ignore]
+    [Explicit]
     public class GeneratedTypeTests
     {
         [Test]

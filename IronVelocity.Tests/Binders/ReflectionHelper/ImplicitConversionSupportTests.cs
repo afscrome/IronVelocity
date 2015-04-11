@@ -72,15 +72,7 @@ namespace IronVelocity.Tests.Binders
 
         //6.1.7
         [Test]
-        public void BoxingConversion_Unboxing()
-        {
-            Assert.Ignore("Don't think this is right");
-            var result = _conversionHelper.CanBeConverted(typeof(object), typeof(int));
-            Assert.IsTrue(result);
-        }
-
-        [Test]
-        public void BoxingConversion_Boxing()
+        public void BoxingConversion()
         {
             var result = _conversionHelper.CanBeConverted(typeof(int), typeof(object));
             Assert.IsTrue(result);

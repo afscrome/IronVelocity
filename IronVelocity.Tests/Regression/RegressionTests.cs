@@ -96,9 +96,6 @@ namespace IronVelocity.Tests.Regression
         [TestCaseSource("TestsCases", Category = "Regression")]
         public void RegressionTest(string testName)
         {
-            if (testName == "vm_test1")
-                Assert.Ignore("Do not yet support global velocimacros");
-
             var inputFile = Path.Combine(_base, testName + ".vm");
             var expectedOutputFile = Path.Combine(_base, "Expected", testName + ".cmp");
 
