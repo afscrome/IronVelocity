@@ -21,8 +21,10 @@ namespace IronVelocity.Tests.OutputTests
 
         [TestCase("'test'", "test", TestName="MacroWithStringArgument")]
         [TestCase("123", 123, TestName = "MacroWithIntegerArgument")]
-        [TestCase("3.14", 3.14, TestName = "MacroWithFloatArgument")]
+        [TestCase("3.14", 3.14, TestName = "MacroWithFloatArgument", Ignore=true, Description="Is this disallowed by velocity, or an NVelocity parser specific issue")]
         [TestCase("true", true, TestName = "MacroWithBooleanArgument")]
+        [TestCase("'837'", 837, TestName = "MacroWithQoutedIntegerArgument")]
+        [TestCase("'7.824'", 7.824, TestName = "MacroWithQuotedFloatArgument")]
         public void MacroWithConstantArgument(string inputSubstitution, object expectedSubstitution)
         {
             var input = String.Format("#macro(oneArg $val)$val|$val#end #oneArg({0})", inputSubstitution);
