@@ -53,15 +53,45 @@
     <Compile Include="Binders\ReflectionHelper.cs" />
     <Compile Include="Compilation\AST\MathematicalExpression.cs" />
     <Compile Include="Compilation\AST\VelocityExpressionType.cs" />
-    <Compile Include="Compilation\Directives\MacroDefinitionExpressionBuilder.cs" />
-    <Compile Include="Compilation\Directives\MacroExecutionExpressionBuilder.cs" />
-    <Compile Include="Compilation\Directives\MacroExpression.cs" />
+    <Compile Include="Compilation\NVelocity\ASTReferenceMetaData.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\NVelocity\Directives\DirectiveExpressionBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\NVelocity\Directives\ForeachDirective.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\NVelocity\Directives\ForeachDirectiveExpressionBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\NVelocity\Directives\LiteralDirective.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\NVelocity\Directives\LiteralDirectiveExpressionBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\NVelocity\Directives\MacroDefinitionExpressionBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\NVelocity\Directives\MacroExecutionExpressionBuilder.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\NVelocity\Directives\MacroExpression.cs" />
+    <Compile Include="Compilation\NVelocity\Directives\MacroScope.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\NVelocity\NVelocityExpressions.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compilation\NVelocity\NVelocityParser.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Compilation\VelocityExpressionVisitor.cs" />
     <Compile Include="EventSources\BindingEventSource.cs" />
     <Compile Include="Binders\VelocityComparisonOperationBinder.cs" />
     <Compile Include="Binders\VelocityBinaryMathematicalOperationBinder.cs" />
     <Compile Include="Binders\VelocitySetMemberBinder.cs" />
-    <Compile Include="Compilation\ASTReferenceMetaData.cs" />
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />
     <Compile Include="Compilation\AST\TemplatedForeachExpression.cs" />
@@ -80,34 +110,26 @@
     <Compile Include="Compilation\AST\SetMemberExpression.cs" />
     <Compile Include="Compilation\AST\IntegerRangeExpression.cs" />
     <Compile Include="Compilation\AST\InterpolatedStringExpression.cs" />
-    <Compile Include="Compilation\AST\DictionaryStringExpression.cs" />
+    <Compile Include="Compilation\NVelocity\DictionaryStringExpression.cs" />
     <Compile Include="Compilation\AST\MethodInvocationExpression.cs" />
     <Compile Include="Compilation\AST\PropertyAccessExpression.cs" />
     <Compile Include="Compilation\AST\UnrecognisedDirective.cs" />
     <Compile Include="Compilation\AsyncStateMachineRewriter.cs" />
-    <Compile Include="Compilation\Directives\ForeachDirective.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\Directives\LiteralDirective.cs" />
-    <Compile Include="Compilation\Directives\LiteralDirectiveExpressionBuilder.cs" />
     <Compile Include="Compilation\StaticGlobalVisitor.cs" />
     <Compile Include="Compilation\VelocityAsyncCompiler.cs" />
     <Compile Include="Compilation\VelocityExpressionBuilder.cs" />
     <Compile Include="Compilation\AST\RenderedBlock.cs" />
     <Compile Include="Compilation\AST\VariableExpression.cs" />
     <Compile Include="Compilation\AST\VelocityExpression.cs" />
-    <Compile Include="Compilation\Directives\MacroScope.cs" />
     <Compile Include="Compilation\MethodHelper.cs" />
     <Compile Include="Compilation\VelocityString.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Constants.cs" />
-    <Compile Include="Compilation\Directives\DirectiveExpressionBuilder.cs" />
-    <Compile Include="Compilation\Directives\BreakDirectiveExpressionBuilder.cs" />
-    <Compile Include="Compilation\Directives\ForeachDirectiveExpressionBuilder.cs" />
     <Compile Include="Compilation\DynamicDebugSupport.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="EventSources\TemplateGenerationEventSource.cs" />
+    <Compile Include="IParser.cs" />
     <Compile Include="Reflection\ArgumentConverter.cs" />
     <Compile Include="Reflection\IArgumentConverter.cs" />
     <Compile Include="Reflection\IMemberResolver.cs" />
@@ -125,7 +147,6 @@
     <Compile Include="Compilation\VelocityExpressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runtime\VelocityRuntime.cs" />
-    <Compile Include="Compilation\NVelocityExpressions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="IronVelocity.nuspec">

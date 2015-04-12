@@ -20,7 +20,8 @@ namespace IronVelocity.Scripting
         public VelocityRootExpression(ASTprocess node, VelocityCompilerOptions compilerOptions, string name)
         {
             _builder = new VelocityExpressionBuilder(_directiveHandlers);
-            Children = _builder.GetBlockExpressions(node);
+            throw new NotImplementedException();
+            //Children = _builder.GetBlockExpressions(node);
         }
 
         public override Expression Reduce()

@@ -9,8 +9,8 @@ namespace IronVelocity.Compilation.Directives
     {
         private readonly string _literal;
         private readonly VelocityExpressionBuilder _builder;
-        public LiteralDirective(ASTDirective node, VelocityExpressionBuilder builder)
-            : base(builder)
+        public LiteralDirective(ASTDirective node, NVelocityExpressions builder)
+            : base(builder.Builder)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -19,7 +19,7 @@ namespace IronVelocity.Compilation.Directives
                 throw new ArgumentOutOfRangeException("node");
 
             _literal = node.GetChild(0).Literal;
-            _builder = builder;
+            _builder = builder.Builder;
         }
 
         protected override Expression ReduceInternal()

@@ -10,7 +10,9 @@ namespace IronVelocity.Compilation.Directives
     public class ForeachDirective : CustomDirectiveExpression
     {
         private readonly LabelTarget _break = Expression.Label("break");
-        private readonly VelocityExpressionBuilder _builder;
+        //private readonly VelocityExpressionBuilder _builder;
+        private readonly NVelocityExpressions _nVelocityBuilder;
+
         private static readonly Expression _nullEnumerable = Expression.Constant(null, typeof(IEnumerable));
 
         public Expression Enumerable { get; private set; }
@@ -20,23 +22,23 @@ namespace IronVelocity.Compilation.Directives
 
         private INode _body;
 
-        public ForeachDirective(ASTDirective node, VelocityExpressionBuilder builder)
-            : base(builder)
+        public ForeachDirective(ASTDirective node, NVelocityExpressions nVelocityBuilder)
+            : base(nVelocityBuilder.Builder)
         {
-            if (node == null)
+            if (nVelocityBuilder == null)
                 throw new ArgumentOutOfRangeException("node");
 
-            if (builder == null)
-                throw new ArgumentOutOfRangeException("builder");
+            if (nVelocityBuilder == null)
+                throw new ArgumentOutOfRangeException("nVelocityBuilder");
 
-            _builder = builder;
+            _nVelocityBuilder = nVelocityBuilder;
 
             Name = node.DirectiveName;
-            Enumerable = NVelocityExpressions.Operand(node.GetChild(2));
+            Enumerable = nVelocityBuilder.Operand(node.GetChild(2));
             _body = node.GetChild(3);
 
             CurrentIndex = new VariableExpression("velocityCount").ReduceExtensions();
-            CurrentItem = NVelocityExpressions.Reference(node.GetChild(0)).ReduceExtensions();
+            CurrentItem = nVelocityBuilder.Reference(node.GetChild(0)).ReduceExtensions();
         }
 
 
@@ -48,13 +50,13 @@ namespace IronVelocity.Compilation.Directives
                 return null;
         }
 
-        private static Expression GetExpressionBlock(ICollection<Expression>[] parts, ForeachSection section, VelocityExpressionBuilder builder)
+        private Expression GetExpressionBlock(ICollection<Expression>[] parts, ForeachSection section)
         {
             var expressions = parts[(int)section];
             if (expressions == null)
                 return null;
             else
-                return new RenderedBlock(expressions, builder);
+                return new RenderedBlock(expressions, _nVelocityBuilder.Builder);
         }
 
         private static ICollection<Expression>[] GetParts(IReadOnlyCollection<Expression> body)
@@ -93,7 +95,7 @@ namespace IronVelocity.Compilation.Directives
             //Need to store the enumerable in a local variable so we don't end up computing it twice (once with the TypeAs check, and again with the execution)
             var localEnumerable = Expression.Parameter(typeof(IEnumerable), "foreachEnumerable");
 
-            var body = _builder.GetBlockExpressions(_body);
+            var body = _nVelocityBuilder.GetBlockExpressions(_body);
             var parts = GetParts(body);
 
             var forEach = new TemplatedForeachExpression(
@@ -101,15 +103,15 @@ namespace IronVelocity.Compilation.Directives
                 loopVariable: CurrentItem,
                 loopIndex: CurrentIndex,
                 breakLabel: _break,
-                beforeAll: GetExpressionBlock(parts, ForeachSection.BeforeAll, _builder),
-                before: GetExpressionBlock(parts, ForeachSection.Before, _builder),
-                odd: GetExpressionBlock(parts, ForeachSection.Odd, _builder),
-                even: GetExpressionBlock(parts, ForeachSection.Even, _builder),
-                between: GetExpressionBlock(parts, ForeachSection.Between, _builder),
-                after: GetExpressionBlock(parts, ForeachSection.After, _builder),
-                afterAll: GetExpressionBlock(parts, ForeachSection.AfterAll, _builder),
-                each: GetExpressionBlock(parts, ForeachSection.Each, _builder),
-                noData: GetExpressionBlock(parts, ForeachSection.NoData, _builder)
+                beforeAll: GetExpressionBlock(parts, ForeachSection.BeforeAll),
+                before: GetExpressionBlock(parts, ForeachSection.Before),
+                odd: GetExpressionBlock(parts, ForeachSection.Odd),
+                even: GetExpressionBlock(parts, ForeachSection.Even),
+                between: GetExpressionBlock(parts, ForeachSection.Between),
+                after: GetExpressionBlock(parts, ForeachSection.After),
+                afterAll: GetExpressionBlock(parts, ForeachSection.AfterAll),
+                each: GetExpressionBlock(parts, ForeachSection.Each),
+                noData: GetExpressionBlock(parts, ForeachSection.NoData)
             );
 
 

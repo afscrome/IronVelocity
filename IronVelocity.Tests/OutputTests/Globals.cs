@@ -23,6 +23,9 @@ namespace IronVelocity.Tests.OutputTests
 
         private void Test(string input, string expectedoutput, IDictionary<string, object> globals)
         {
+            throw new NotImplementedException();
+
+            /*
             var runtime = new VelocityRuntime(null, globals);
 
             var originalTree = runtime.GetExpressionTree(input, "test");
@@ -31,8 +34,7 @@ namespace IronVelocity.Tests.OutputTests
 
             var staticTypeVisitor = new StaticGlobalVisitor(typeMap);
             var reducedTree = staticTypeVisitor.Visit(originalTree);
-
-            throw new NotImplementedException();
+            */
 
         }
 

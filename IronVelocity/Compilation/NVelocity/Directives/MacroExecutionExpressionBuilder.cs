@@ -29,7 +29,7 @@ namespace IronVelocity.Compilation.Directives
             _macro = macro;
         }
 
-        public override Expression Build(ASTDirective node, VelocityExpressionBuilder builder)
+        public override Expression Build(ASTDirective node, NVelocityExpressions builder)
         {
             if (node.DirectiveName != Name)
                 throw new ArgumentOutOfRangeException("node");
@@ -41,7 +41,7 @@ namespace IronVelocity.Compilation.Directives
 
             for (int i = 0; i < arguments.Length; i++)
             {
-                arguments[i] = VelocityExpressions.ConvertIfNeeded(NVelocityExpressions.Operand(node.GetChild(i)), typeof(object));
+                arguments[i] = VelocityExpressions.ConvertIfNeeded(builder.Operand(node.GetChild(i)), typeof(object));
             }
 
             return Expression.Invoke(_macro, arguments);

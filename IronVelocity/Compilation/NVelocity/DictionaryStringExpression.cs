@@ -15,9 +15,12 @@ namespace IronVelocity.Compilation.AST
         public override Type Type { get { return typeof(RuntimeDictionary); } }
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.DictionaryString; } }
 
-        public DictionaryStringExpression(string value)
+        private readonly NVelocityExpressions _builder;
+
+        public DictionaryStringExpression(string value, NVelocityExpressions builder)
         {
             Value = value;
+            _builder = builder;
         }
 
         public override Expression Reduce()
@@ -207,7 +210,7 @@ namespace IronVelocity.Compilation.AST
             keyBuilder.Length = 0;
         }
 
-        private static void ProcessDictEntry(IDictionary<string, Expression> map,
+        private void ProcessDictEntry(IDictionary<string, Expression> map,
                                       StringBuilder keyBuilder, StringBuilder value,
                                       bool isTextContent)
         {
@@ -215,8 +218,8 @@ namespace IronVelocity.Compilation.AST
             var content = value.ToString().Trim();
             if (content.Contains('$'))
             {
-                var interpolated = NVelocityExpressions.InterpolatedString(content);
-                if (interpolated.Parts.Count == 1)
+                var interpolated = _builder.InterpolatedString(content) as InterpolatedStringExpression;
+                if (interpolated != null && interpolated.Parts.Count == 1)
                     expr = interpolated.Parts.First();
                 else
                 {

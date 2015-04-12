@@ -26,12 +26,14 @@ namespace Tests
         public static VelocityAsyncTemplateMethod CompileAsyncTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {
             var runtime = new VelocityRuntime(null, globals);
-            return runtime.CompileAsyncTemplate(input, GetName(), fileName, true);
+            throw new NotImplementedException();
+            //return runtime.CompileAsyncTemplate(input, GetName(), fileName, true);
         }
 
         public static VelocityTemplateMethod CompileTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {
-            var runtime = new VelocityRuntime(null, globals);
+            var parser = new NVelocityParser(null);
+            var runtime = new VelocityRuntime(parser, globals);
             return runtime.CompileTemplate(input, GetName(), fileName, true);
         }
 

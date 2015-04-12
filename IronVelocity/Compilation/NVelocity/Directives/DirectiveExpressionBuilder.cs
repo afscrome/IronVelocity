@@ -7,7 +7,7 @@ namespace IronVelocity.Compilation.Directives
     public abstract class DirectiveExpressionBuilder
     {
         public abstract string Name { get; }
-        public abstract Expression Build(ASTDirective node, VelocityExpressionBuilder builder);
+        public abstract Expression Build(ASTDirective node, NVelocityExpressions builder);
     }
 
 }

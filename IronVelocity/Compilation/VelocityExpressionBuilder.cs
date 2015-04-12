@@ -10,7 +10,6 @@ namespace IronVelocity.Compilation.AST
 {
     public class VelocityExpressionBuilder
     {
-
         private readonly IDictionary<string, DirectiveExpressionBuilder> _directiveHandlers;
         public ParameterExpression OutputParameter { get; set; }
         public Stack<CustomDirectiveExpression> CustomDirectives { get; private set; }
@@ -31,85 +30,6 @@ namespace IronVelocity.Compilation.AST
             _directiveHandlers = directiveHandlers ?? new Dictionary<string, DirectiveExpressionBuilder>();
             OutputParameter = Expression.Parameter(typeof(StringBuilder), parameterName);
             CustomDirectives = new Stack<CustomDirectiveExpression>();
-        }
-
-
-        public IReadOnlyCollection<Expression> GetBlockExpressions(INode node)
-        {
-            if (node == null)
-                throw new ArgumentNullException("node");
-
-            //ASTprocess is a special case for the root, otherwise it behaves exactly like ASTBlock
-            if (!(node is ASTBlock || node is ASTprocess))
-                throw new ArgumentOutOfRangeException("node");
-
-            var expressions = new List<Expression>(node.ChildrenCount);
-
-            for (int i = 0; i < node.ChildrenCount; i++)
-            {
-                var child = node.GetChild(i);
-                Expression expr;
-                switch (child.Type)
-                {
-                    case ParserTreeConstants.TEXT:
-                    case ParserTreeConstants.ESCAPE:
-                        var content = NodeUtils.tokenLiteral(child.FirstToken);
-                        expr = Expression.Constant(content);
-                        break;
-                    case ParserTreeConstants.ESCAPED_DIRECTIVE:
-                        expr = Expression.Constant(child.Literal);
-                        break;
-                    case ParserTreeConstants.REFERENCE:
-                        expr = NVelocityExpressions.Reference(child);
-                        break;
-                    case ParserTreeConstants.IF_STATEMENT:
-                        expr = NVelocityExpressions.IfDirective(child, this);
-                        break;
-                    case ParserTreeConstants.SET_DIRECTIVE:
-                        expr = NVelocityExpressions.Set(child);
-                        break;
-                    case ParserTreeConstants.DIRECTIVE:
-                        expr = Directive(child);
-                        break;
-                    case ParserTreeConstants.COMMENT:
-                        continue;
-
-                    default:
-                        throw new NotSupportedException("Node type not supported in a block: " + child.GetType().Name);
-                }
-
-                expressions.Add(expr);
-            }
-
-            return expressions;
-        }
-
-        public Expression Directive(INode node)
-        {
-            var directiveNode = (ASTDirective)node;
-
-            if (directiveNode == null)
-                throw new ArgumentOutOfRangeException("node");
-
-            if (directiveNode.DirectiveName == "include")
-                throw new NotSupportedException("TODO: #include support");
-            if (directiveNode.DirectiveName == "parse")
-                throw new NotSupportedException("TODO: #parse support");
-
-            DirectiveExpressionBuilder builder;
-            foreach (var customDirective in CustomDirectives)
-            {
-                var expr = customDirective.ProcessChildDirective(directiveNode.DirectiveName, directiveNode);
-                if (expr != null)
-                    return expr;
-            }
-
-            if (_directiveHandlers.TryGetValue(directiveNode.DirectiveName, out builder))
-            {
-                return builder.Build(directiveNode, this);
-            }
-            else
-                return new UnrecognisedDirective(directiveNode);
         }
 
         public void RegisterMacro(string name, LambdaExpression macro)
