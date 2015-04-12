@@ -28,6 +28,15 @@ namespace IronVelocity.Tests.OutputTests
             Utility.TestExpectedMarkupGenerated(input, expected, context);
         }
 
+        [Test]
+        public void InterpolatedStringWithDirective()
+        {
+            var input = "#set($x = \"#if(true)Hello#end\")$x";
+            var expected = "Hello";
+
+            Utility.TestExpectedMarkupGenerated(input, expected);
+        }
+
         //Key whitespace
         [TestCase("%{key='&&&'}")]
         [TestCase("%{  key='&&&'}")]
