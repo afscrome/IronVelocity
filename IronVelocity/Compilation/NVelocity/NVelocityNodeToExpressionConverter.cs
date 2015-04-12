@@ -14,11 +14,11 @@ using IronVelocity.Compilation.Directives;
 
 namespace IronVelocity.Compilation
 {
-    public class NVelocityExpressions
+    public class NVelocityNodeToExpressionConverter
     {
         public VelocityExpressionBuilder Builder {get; private set;}
 
-        public NVelocityExpressions(VelocityExpressionBuilder builder)
+        public NVelocityNodeToExpressionConverter(VelocityExpressionBuilder builder)
         {
             Builder = builder;
         }

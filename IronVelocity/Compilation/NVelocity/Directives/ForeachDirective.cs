@@ -11,7 +11,7 @@ namespace IronVelocity.Compilation.Directives
     {
         private readonly LabelTarget _break = Expression.Label("break");
         //private readonly VelocityExpressionBuilder _builder;
-        private readonly NVelocityExpressions _nVelocityBuilder;
+        private readonly NVelocityNodeToExpressionConverter _converter;
 
         private static readonly Expression _nullEnumerable = Expression.Constant(null, typeof(IEnumerable));
 
@@ -22,23 +22,23 @@ namespace IronVelocity.Compilation.Directives
 
         private INode _body;
 
-        public ForeachDirective(ASTDirective node, NVelocityExpressions nVelocityBuilder)
-            : base(nVelocityBuilder.Builder)
+        public ForeachDirective(ASTDirective node, NVelocityNodeToExpressionConverter converter)
+            : base(converter.Builder)
         {
-            if (nVelocityBuilder == null)
+            if (converter == null)
                 throw new ArgumentOutOfRangeException("node");
 
-            if (nVelocityBuilder == null)
-                throw new ArgumentOutOfRangeException("nVelocityBuilder");
+            if (converter == null)
+                throw new ArgumentOutOfRangeException("converter");
 
-            _nVelocityBuilder = nVelocityBuilder;
+            _converter = converter;
 
             Name = node.DirectiveName;
-            Enumerable = nVelocityBuilder.Operand(node.GetChild(2));
+            Enumerable = converter.Operand(node.GetChild(2));
             _body = node.GetChild(3);
 
             CurrentIndex = new VariableExpression("velocityCount").ReduceExtensions();
-            CurrentItem = nVelocityBuilder.Reference(node.GetChild(0)).ReduceExtensions();
+            CurrentItem = converter.Reference(node.GetChild(0)).ReduceExtensions();
         }
 
 
@@ -56,7 +56,7 @@ namespace IronVelocity.Compilation.Directives
             if (expressions == null)
                 return null;
             else
-                return new RenderedBlock(expressions, _nVelocityBuilder.Builder);
+                return new RenderedBlock(expressions, _converter.Builder);
         }
 
         private static ICollection<Expression>[] GetParts(IReadOnlyCollection<Expression> body)
@@ -95,7 +95,7 @@ namespace IronVelocity.Compilation.Directives
             //Need to store the enumerable in a local variable so we don't end up computing it twice (once with the TypeAs check, and again with the execution)
             var localEnumerable = Expression.Parameter(typeof(IEnumerable), "foreachEnumerable");
 
-            var body = _nVelocityBuilder.GetBlockExpressions(_body);
+            var body = _converter.GetBlockExpressions(_body);
             var parts = GetParts(body);
 
             var forEach = new TemplatedForeachExpression(

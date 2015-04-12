@@ -14,7 +14,7 @@ namespace IronVelocity.Compilation.Directives
 
         public override string Name { get { return "macro"; } }
 
-        public override Expression Build(ASTDirective node, NVelocityExpressions builder)
+        public override Expression Build(ASTDirective node, NVelocityNodeToExpressionConverter converter)
         {
             if (node.ChildrenCount < 2)
                 throw new ArgumentOutOfRangeException("node", "Macro Node needs at least 2 children");
@@ -40,14 +40,14 @@ namespace IronVelocity.Compilation.Directives
             }
 
             var bodyNode = node.GetChild(node.ChildrenCount -1);
-            var body = new RenderedBlock(builder.GetBlockExpressions(bodyNode), builder.Builder);
+            var body = new RenderedBlock(converter.GetBlockExpressions(bodyNode), converter.Builder);
 
             var replacements = parameters.ToDictionary(x => x.Name, k => (Expression)k);
             var visitor = new VariableReplacementVisitor(replacements);
 
             var lambda = Expression.Lambda(Expression.Block(visitor.Visit(body)), parameters);
 
-            builder.Builder.RegisterMacro(name, lambda);
+            converter.Builder.RegisterMacro(name, lambda);
 
             return Constants.EmptyExpression;
         }

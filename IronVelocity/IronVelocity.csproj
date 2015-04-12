@@ -81,7 +81,7 @@
     <Compile Include="Compilation\NVelocity\Directives\MacroScope.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Compilation\NVelocity\NVelocityExpressions.cs">
+    <Compile Include="Compilation\NVelocity\NVelocityNodeToExpressionConverter.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Compilation\NVelocity\NVelocityParser.cs">

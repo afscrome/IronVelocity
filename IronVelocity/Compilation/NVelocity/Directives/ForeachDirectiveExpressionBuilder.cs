@@ -9,9 +9,9 @@ namespace IronVelocity.Compilation.Directives
     {
         public override string Name { get { return "foreach"; } }
 
-        public override Expression Build(ASTDirective node, NVelocityExpressions builder)
+        public override Expression Build(ASTDirective node, NVelocityNodeToExpressionConverter converter)
         {
-            return new ForeachDirective(node, builder);
+            return new ForeachDirective(node, converter);
         }
     }
 

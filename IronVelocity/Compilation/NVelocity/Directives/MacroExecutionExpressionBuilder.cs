@@ -29,7 +29,7 @@ namespace IronVelocity.Compilation.Directives
             _macro = macro;
         }
 
-        public override Expression Build(ASTDirective node, NVelocityExpressions builder)
+        public override Expression Build(ASTDirective node, NVelocityNodeToExpressionConverter builder)
         {
             if (node.DirectiveName != Name)
                 throw new ArgumentOutOfRangeException("node");

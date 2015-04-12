@@ -8,9 +8,9 @@ namespace IronVelocity.Compilation.Directives
     {
         public override string Name { get { return "literal"; } }
 
-        public override Expression Build(ASTDirective node, NVelocityExpressions builder)
+        public override Expression Build(ASTDirective node, NVelocityNodeToExpressionConverter converter)
         {
-            return new LiteralDirective(node, builder);
+            return new LiteralDirective(node, converter);
         }
     }
 }

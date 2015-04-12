@@ -23,8 +23,6 @@ namespace IronVelocity.Compilation.AST
             _builder = builder;
         }
 
-        private static MethodInfo _stringConcatMethodInfo = typeof(string).GetMethod("Concat", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object[]) }, null);
-
         public override Expression Reduce()
         {
             if (Parts.Count == 1)
