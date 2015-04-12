@@ -101,7 +101,7 @@ namespace IronVelocity.Compilation
                 return new UnrecognisedDirective(directiveNode);
         }
 
-        public Expression IfDirective(INode node)
+        public ConditionalExpression IfDirective(INode node)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -173,7 +173,7 @@ namespace IronVelocity.Compilation
             return new IntegerRangeExpression(left, right, new SymbolInformation(node));
         }
 
-        public  ObjectArrayExpression ObjectArray(INode node)
+        public ObjectArrayExpression ObjectArray(INode node)
         {
             if (!(node is ASTObjectArray))
                 throw new ArgumentOutOfRangeException("node");
@@ -232,7 +232,7 @@ namespace IronVelocity.Compilation
 
         #region Boolean Expressions
 
-        private Expression Not(INode node)
+        private UnaryExpression Not(INode node)
         {
             if (!(node is ASTNotNode))
                 throw new ArgumentOutOfRangeException("node");
@@ -243,17 +243,17 @@ namespace IronVelocity.Compilation
             return Expression.Not(expression);
         }
 
-        private Expression And(INode node)
+        private BinaryExpression And(INode node)
         {
             return BinaryBooleanExpression<ASTAndNode>(Expression.AndAlso, node);
         }
 
-        private  Expression Or(INode node)
+        private BinaryExpression Or(INode node)
         {
             return BinaryBooleanExpression<ASTOrNode>(Expression.OrElse, node);
         }
 
-        private  Expression BinaryBooleanExpression<T>(Func<Expression, Expression, Expression> generator, INode node)
+        private BinaryExpression BinaryBooleanExpression<T>(Func<Expression, Expression, BinaryExpression> generator, INode node)
             where T : INode
         {
             Expression left, right;
@@ -271,28 +271,28 @@ namespace IronVelocity.Compilation
 
         #region Mathematical Expressions
 
-        public Expression Add(INode node)
+        public MathematicalExpression Add(INode node)
         {
             return Mathematical<ASTAddNode>(node, MathematicalOperation.Add);
         }
 
-        public Expression Subtract(INode node)
+        public MathematicalExpression Subtract(INode node)
         {
             return Mathematical<ASTSubtractNode>(node, MathematicalOperation.Subtract);
         }
 
-        public Expression Multiply(INode node)
+        public MathematicalExpression Multiply(INode node)
         {
             return Mathematical<ASTMulNode>(node, MathematicalOperation.Multiply);
         }
 
-        public Expression Divide(INode node)
+        public MathematicalExpression Divide(INode node)
         {
             return Mathematical<ASTDivNode>(node, MathematicalOperation.Divide);
         }
 
 
-        public Expression Modulo(INode node)
+        public MathematicalExpression Modulo(INode node)
         {
             return Mathematical<ASTModNode>(node, MathematicalOperation.Modulo);
         }
@@ -356,7 +356,7 @@ namespace IronVelocity.Compilation
         }
 
 
-        public Expression Property(INode node, Expression target)
+        public PropertyAccessExpression Property(INode node, Expression target)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
