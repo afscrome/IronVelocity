@@ -11,16 +11,19 @@ using System.Linq.Expressions;
 using IronVelocity.Compilation.AST;
 using System.Text;
 using IronVelocity.Compilation.Directives;
+using NVelocity.Runtime;
 
 namespace IronVelocity.Compilation
 {
     public class NVelocityNodeToExpressionConverter
     {
         public VelocityExpressionBuilder Builder {get; private set;}
+        private readonly RuntimeInstance _runtimeInstance;
 
-        public NVelocityNodeToExpressionConverter(VelocityExpressionBuilder builder)
+        public NVelocityNodeToExpressionConverter(VelocityExpressionBuilder builder, RuntimeInstance instance)
         {
             Builder = builder;
+            _runtimeInstance = instance;
         }
 
         public IReadOnlyCollection<Expression> GetBlockExpressions(INode node)
@@ -397,13 +400,13 @@ namespace IronVelocity.Compilation
 
         public InterpolatedStringExpression InterpolatedString(string value)
         {
-            var parser = new NVelocity.Runtime.RuntimeInstance().CreateNewParser();
+            var parser = _runtimeInstance.CreateNewParser();
             using (var reader = new System.IO.StringReader(value))
             {
                 SimpleNode ast;
                 try
                 {
-                    ast = parser.Parse(reader, null);
+                    ast = parser.Parse(reader, "interpolatedString");
                 }
                 catch (ParseErrorException)
                 {
@@ -414,10 +417,15 @@ namespace IronVelocity.Compilation
                 if (ast == null)
                     return new InterpolatedStringExpression(Builder, Expression.Constant(value));
 
-                var builder = new VelocityExpressionBuilder(null);
+                //Need to create a nested converter - we need to redirect output 
+                //TODO: Don't like this behavior, refactor.  Perhaps remove OutputParameter, and replace via an Expression Visitor?
+                var builder = new VelocityExpressionBuilder(Builder.DirectiveHandlers);
                 builder.OutputParameter = Expression.Parameter(typeof(StringBuilder));
 
-                var parts = GetBlockExpressions(ast)
+                var interpolatedConverter = new NVelocityNodeToExpressionConverter(builder, _runtimeInstance);
+
+                var parts = interpolatedConverter
+                    .GetBlockExpressions(ast)
                     .ToArray();
 
                 return new InterpolatedStringExpression(builder, parts);

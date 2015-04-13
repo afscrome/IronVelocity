@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using Tests;
 
@@ -16,7 +17,7 @@ namespace IronVelocity.Tests.OutputTests
         }
 
         [Test]
-        public void InterpolatedJQueryIdSelector()
+        public void JQueryIdSelector2()
         {
             var context = new Dictionary<string, object>(){
                 {"x", "myId"}
@@ -29,12 +30,67 @@ namespace IronVelocity.Tests.OutputTests
         }
 
         [Test]
-        public void InterpolatedStringWithDirective()
+        public void InterpolatedStringWithIfDirective()
         {
-            var input = "#set($x = \"#if(true)Hello#end\")$x";
+            var input = "#if(true)Hello#end";
             var expected = "Hello";
 
+            InterpolatedStringTest(input, expected);
+        }
+
+        [Test]
+        public void InterpolatedStringWithNestedIfDirective()
+        {
+            var input = "#if(true)#if(false) Hello #else World #end#end";
+            var expected = " World ";
+
+            InterpolatedStringTest(input, expected);
+        }
+
+        [Test]
+        public void InterpolatedStringWithForeach()
+        {
+            var input = "#foreach($y in '1234') $y #end";
+            var expected = " 1  2  3  4 ";
+
+            InterpolatedStringTest(input, expected);
+        }
+
+
+        [Test]
+        public void InterpolatedStringWithReference()
+        {
+            var input = "$value";
+            var expected = "1234";
+            var context = new Dictionary<string, object>
+            {
+                {"value", 1234}
+            };
+
+            InterpolatedStringTest(input, expected, context);
+        }
+
+        [Test]
+        public void InterpolatedWithNonExistantReference()
+        {
+            var input = "$value";
+            var expected = "$value";
+
             Utility.TestExpectedMarkupGenerated(input, expected);
+        }
+
+        private void InterpolatedStringTest(string inputString, string expectedResult, IDictionary<string,object> context = null)
+        {
+            var inputCode = String.Format("#set($result = \"{0}\")$result", inputString);
+            context = context == null
+                ? new VelocityContext()
+                : new VelocityContext(context);
+
+            Utility.TestExpectedMarkupGenerated(inputCode, expectedResult, context, isGlobalEnvironment: false);
+
+            //TODO: This is really more than an output test as we're testing the internal evaluation.
+            Assert.That(context.Keys, Contains.Item("result"));
+            Assert.That(context["result"], Is.EqualTo(expectedResult));
         }
 
         //Key whitespace
