@@ -45,7 +45,8 @@ namespace IronVelocity.Compilation.Directives
             var replacements = parameters.ToDictionary(x => x.Name, k => (Expression)k);
             var visitor = new VariableReplacementVisitor(replacements);
 
-            var lambda = Expression.Lambda(Expression.Block(visitor.Visit(body)), parameters);
+            var lambdaName = "Macro_" + name;
+            var lambda = Expression.Lambda(Expression.Block(visitor.Visit(body)), lambdaName, parameters);
 
             converter.Builder.RegisterMacro(name, lambda);
 
