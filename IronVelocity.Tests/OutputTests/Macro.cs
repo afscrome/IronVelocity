@@ -48,5 +48,20 @@ namespace IronVelocity.Tests.OutputTests
             var expected = "123";
             Utility.TestExpectedMarkupGenerated(input, expected);
         }
+
+        [Test]
+        public void InterpolatedStringWithMacro()
+        {
+            var input = "#macro(test)Boo#end#set($result = \"#test\")$result";
+            var expected = "Boo";
+
+            var context = new VelocityContext();
+
+            Utility.TestExpectedMarkupGenerated(input, expected, context, isGlobalEnvironment: false);
+
+            //TODO: This is really more than an output test as we're testing the internal evaluation.
+            Assert.That(context.Keys, Contains.Item("result"));
+            Assert.That(context["result"], Is.EqualTo(expected));
+        }
     }
 }

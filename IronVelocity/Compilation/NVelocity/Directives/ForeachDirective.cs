@@ -56,7 +56,7 @@ namespace IronVelocity.Compilation.Directives
             if (expressions == null)
                 return null;
             else
-                return new RenderedBlock(expressions, _converter.Builder);
+                return new RenderedBlock(expressions);
         }
 
         private static ICollection<Expression>[] GetParts(IReadOnlyCollection<Expression> body)

@@ -67,10 +67,10 @@ namespace IronVelocity.Compilation
                 var converter = new NVelocityNodeToExpressionConverter(builder, _runtimeService);
 
                 log.ConvertToExpressionTreeStart(name);
-                var expr = new RenderedBlock(converter.GetBlockExpressions(ast), builder);
+                var expr = new RenderedBlock(converter.GetBlockExpressions(ast));
                 log.ConvertToExpressionTreeStop(name);
 
-                return Expression.Lambda<VelocityTemplateMethod>(expr, name, new[] { Constants.InputParameter, builder.OutputParameter });
+                return Expression.Lambda<VelocityTemplateMethod>(expr, name, new[] { Constants.InputParameter, Constants.OutputParameter });
             }
         }
     }

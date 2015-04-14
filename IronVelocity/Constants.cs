@@ -3,13 +3,17 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace IronVelocity
 {
     public static class Constants
     {
         [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Expressions are immutable")]
-        public static readonly ParameterExpression InputParameter = Expression.Parameter(typeof(VelocityContext), "$context");
+        public static readonly ParameterExpression InputParameter = Expression.Parameter(typeof(VelocityContext), "context");
+
+        [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Expressions are immutable")]
+        public static readonly ParameterExpression OutputParameter = Expression.Parameter(typeof(StringBuilder), "output");
 
         [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Expressions are immutable")]
         public static readonly ParameterExpression AsyncStateParameter = Expression.Parameter(typeof(int).MakeByRefType(), "$state");

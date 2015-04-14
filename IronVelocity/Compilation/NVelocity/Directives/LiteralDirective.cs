@@ -8,7 +8,6 @@ namespace IronVelocity.Compilation.Directives
     public class LiteralDirective : CustomDirectiveExpression
     {
         private readonly string _literal;
-        private readonly VelocityExpressionBuilder _builder;
         public LiteralDirective(ASTDirective node, NVelocityNodeToExpressionConverter converter)
             : base(converter.Builder)
         {
@@ -19,12 +18,11 @@ namespace IronVelocity.Compilation.Directives
                 throw new ArgumentOutOfRangeException("node");
 
             _literal = node.GetChild(0).Literal;
-            _builder = converter.Builder;
         }
 
         protected override Expression ReduceInternal()
         {
-            return new RenderedBlock(new[] { Expression.Constant(_literal) }, _builder);
+            return new RenderedBlock(new[] { Expression.Constant(_literal) });
         }
     }
 }

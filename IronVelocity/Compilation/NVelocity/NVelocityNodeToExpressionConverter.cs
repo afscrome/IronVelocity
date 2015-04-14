@@ -117,7 +117,7 @@ namespace IronVelocity.Compilation
 
 
             var condition = new CoerceToBooleanExpression(Expr(node.GetChild(0)));
-            var trueContent = new RenderedBlock(GetBlockExpressions(node.GetChild(1)), Builder);
+            var trueContent = new RenderedBlock(GetBlockExpressions(node.GetChild(1)));
             Expression falseContent = Expression.Default(typeof(void));
 
             //Build the false expression recursively from the bottom up
@@ -132,12 +132,12 @@ namespace IronVelocity.Compilation
                     if (child.ChildrenCount != 1)
                         throw new InvalidOperationException("Expected ASTElseStatement to only have 1 child");
 
-                    falseContent = new RenderedBlock(GetBlockExpressions(child.GetChild(0)), Builder);
+                    falseContent = new RenderedBlock(GetBlockExpressions(child.GetChild(0)));
                 }
                 else if (child is ASTElseIfStatement)
                 {
                     var innerCondition = new CoerceToBooleanExpression(Expr(child.GetChild(0)));
-                    var innerContent = new RenderedBlock(GetBlockExpressions(child.GetChild(1)), Builder);
+                    var innerContent = new RenderedBlock(GetBlockExpressions(child.GetChild(1)));
 
                     falseContent = Expression.IfThenElse(innerCondition, innerContent, falseContent);
                 }
@@ -415,20 +415,14 @@ namespace IronVelocity.Compilation
 
                 //If we fail to parse, the ast returned will be null, so just return our normal string
                 if (ast == null)
-                    return new InterpolatedStringExpression(Builder, Expression.Constant(value));
+                    return new InterpolatedStringExpression(Expression.Constant(value));
 
                 //Need to create a nested converter - we need to redirect output 
                 //TODO: Don't like this behavior, refactor.  Perhaps remove OutputParameter, and replace via an Expression Visitor?
-                var builder = new VelocityExpressionBuilder(Builder.DirectiveHandlers);
-                builder.OutputParameter = Expression.Parameter(typeof(StringBuilder));
-
-                var interpolatedConverter = new NVelocityNodeToExpressionConverter(builder, _runtimeInstance);
-
-                var parts = interpolatedConverter
-                    .GetBlockExpressions(ast)
+                var parts = GetBlockExpressions(ast)
                     .ToArray();
 
-                return new InterpolatedStringExpression(builder, parts);
+                return new InterpolatedStringExpression(parts);
             }
         }
 

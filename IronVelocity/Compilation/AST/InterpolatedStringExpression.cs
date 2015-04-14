@@ -11,16 +11,14 @@ namespace IronVelocity.Compilation.AST
 {
     public class InterpolatedStringExpression : VelocityExpression
     {
-        private readonly VelocityExpressionBuilder _builder;
         public IReadOnlyList<Expression> Parts { get; set; }
 
         public override Type Type { get { return typeof(string); } }
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.InterpolatedString; } }
 
-        public InterpolatedStringExpression(VelocityExpressionBuilder builder, params Expression[] parts)
+        public InterpolatedStringExpression(params Expression[] parts)
         {
             Parts = parts.ToArray();
-            _builder = builder;
         }
 
         public override Expression Reduce()
@@ -36,23 +34,23 @@ namespace IronVelocity.Compilation.AST
                 }
             }
 
-            var outputParam = _builder.OutputParameter;
-            var body = new RenderedBlock(Parts,_builder);
+            //Create a new scope, in which the Output parameter points to a different StringBuilder
+            //So we can get the result, without writing it to the output stream.
+            var outputParam = Constants.OutputParameter;
 
-            var result = Expression.Block(
+            return Expression.Block(
                     new[] { outputParam },
                     Expression.Assign(outputParam, Expression.New(typeof(StringBuilder))),
-                    body,
+                    new RenderedBlock(Parts),
                     Expression.Call(outputParam, "ToString", Type.EmptyTypes)
                 );
-            return result;
         }
 
         public InterpolatedStringExpression Update(params Expression[] parts)
         {
             return parts == Parts
                 ? this
-                : new InterpolatedStringExpression(_builder, parts);
+                : new InterpolatedStringExpression(parts);
         }
 
     }

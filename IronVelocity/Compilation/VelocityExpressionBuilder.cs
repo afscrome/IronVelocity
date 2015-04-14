@@ -11,7 +11,6 @@ namespace IronVelocity.Compilation.AST
     public class VelocityExpressionBuilder
     {
         private readonly IDictionary<string, DirectiveExpressionBuilder> _directiveHandlers;
-        public ParameterExpression OutputParameter { get; set; }
         public Stack<CustomDirectiveExpression> CustomDirectives { get; private set; }
 
         public IDictionary<string, DirectiveExpressionBuilder> DirectiveHandlers
@@ -21,14 +20,8 @@ namespace IronVelocity.Compilation.AST
 
 
         public VelocityExpressionBuilder(IDictionary<string, DirectiveExpressionBuilder> directiveHandlers)
-            : this (directiveHandlers, "$output")
-        {
-        }
-
-        public VelocityExpressionBuilder(IDictionary<string, DirectiveExpressionBuilder> directiveHandlers, string parameterName)
         {
             _directiveHandlers = directiveHandlers ?? new Dictionary<string, DirectiveExpressionBuilder>();
-            OutputParameter = Expression.Parameter(typeof(StringBuilder), parameterName);
             CustomDirectives = new Stack<CustomDirectiveExpression>();
         }
 

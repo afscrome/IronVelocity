@@ -8,21 +8,15 @@ namespace IronVelocity.Compilation.AST
 {
     public class RenderedBlock : VelocityExpression
     {
-        private readonly ParameterExpression _output;
-
         public override Type Type { get { return typeof(void); } }
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.RenderedBlock; } }
         
-        public RenderedBlock(IEnumerable<Expression> expressions, VelocityExpressionBuilder builder)
+        public RenderedBlock(IEnumerable<Expression> expressions)
         {
             if (expressions == null)
                 throw new ArgumentNullException("expressions");
 
-            if (builder == null)
-                throw new ArgumentNullException("builder");
-
             Children = expressions.ToList();
-            _output = builder.OutputParameter;
         }
 
 
@@ -55,7 +49,7 @@ namespace IronVelocity.Compilation.AST
                 ? MethodHelpers.AppendStringMethodInfo
                 : MethodHelpers.AppendMethodInfo;
 
-            return Expression.Call(_output, method, expression);
+            return Expression.Call(Constants.OutputParameter, method, expression);
         }
 
 

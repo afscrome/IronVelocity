@@ -31,9 +31,9 @@ namespace IronVelocity.Scripting
 
         public Expression<VelocityTemplateMethod> GetLambda()
         {
-            var content = new RenderedBlock(Children, _builder);
+            var content = new RenderedBlock(Children);
 
-            return Expression.Lambda<VelocityTemplateMethod>(content, _name, new[] { Constants.InputParameter, _builder.OutputParameter });
+            return Expression.Lambda<VelocityTemplateMethod>(content, _name, new[] { Constants.InputParameter, Constants.OutputParameter });
         }
 
         public override Type Type { get { return typeof(VelocityTemplateMethod); } }

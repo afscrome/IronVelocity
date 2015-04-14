@@ -40,7 +40,7 @@ namespace IronVelocity.Compilation.Directives
             }
 
             var bodyNode = node.GetChild(node.ChildrenCount -1);
-            var body = new RenderedBlock(converter.GetBlockExpressions(bodyNode), converter.Builder);
+            var body = new RenderedBlock(converter.GetBlockExpressions(bodyNode));
 
             var replacements = parameters.ToDictionary(x => x.Name, k => (Expression)k);
             var visitor = new VariableReplacementVisitor(replacements);

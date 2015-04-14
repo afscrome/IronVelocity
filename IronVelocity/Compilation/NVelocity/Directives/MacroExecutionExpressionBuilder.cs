@@ -47,16 +47,5 @@ namespace IronVelocity.Compilation.Directives
             return Expression.Invoke(_macro, arguments);
         }
 
-        private static ICollection<string> getASTAsStringArray(INode rootNode)
-        {
-            Token lastToken = rootNode.LastToken;
-            var  arrayList = new List<string>();
-            Token t;
-            for (t = rootNode.FirstToken; t != lastToken; t = t.Next)
-                arrayList.Add(NodeUtils.tokenLiteral(t));
-            arrayList.Add(NodeUtils.tokenLiteral(t));
-            return arrayList;
-        }
-
     }
 }
