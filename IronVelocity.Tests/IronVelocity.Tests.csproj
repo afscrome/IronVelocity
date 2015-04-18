@@ -47,7 +47,6 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Binders\InvokeMemberBinderAsyncTests.cs" />
     <Compile Include="Binders\MathematicalOperationBinderTests.cs" />
     <Compile Include="Binders\ReflectionHelper\IsNullableTypeTests.cs" />
     <Compile Include="Binders\ComparisonBinderTests.cs">
@@ -62,7 +61,6 @@
     <Compile Include="StaticTyping\If.cs" />
     <Compile Include="StaticTyping\SetTests.cs" />
     <Compile Include="StaticTyping\ObjectArrayTests.cs" />
-    <Compile Include="OutputTests\AsyncTests.cs" />
     <Compile Include="Binders\ReflectionHelper\ArgumentCompatabilityTests.cs" />
     <Compile Include="Binders\ReflectionHelper\BetterFunctionMemberTests.cs" />
     <Compile Include="Binders\ReflectionHelper\ImplicitConversionSupportTests.cs" />

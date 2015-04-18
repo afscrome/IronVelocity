@@ -114,9 +114,7 @@
     <Compile Include="Compilation\AST\MethodInvocationExpression.cs" />
     <Compile Include="Compilation\AST\PropertyAccessExpression.cs" />
     <Compile Include="Compilation\AST\UnrecognisedDirective.cs" />
-    <Compile Include="Compilation\AsyncStateMachineRewriter.cs" />
     <Compile Include="Compilation\StaticGlobalVisitor.cs" />
-    <Compile Include="Compilation\VelocityAsyncCompiler.cs" />
     <Compile Include="Compilation\VelocityExpressionBuilder.cs" />
     <Compile Include="Compilation\AST\RenderedBlock.cs" />
     <Compile Include="Compilation\AST\VariableExpression.cs" />

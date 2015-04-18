@@ -1,5 +1,7 @@
 #IronVelocity
 
+[![Build status](https://ci.appveyor.com/api/projects/status/s0w012uxqhn2wd6p?svg=true)](https://ci.appveyor.com/project/afscrome/ironvelocity)
+
 IronVelocity is an implementation of the Velocity Templating Language (VTL) for .Net.
 
 You can find out more details on Velocity (including the syntax) at https://velocity.apache.org/engine/releases/velocity-1.5/user-guide.html

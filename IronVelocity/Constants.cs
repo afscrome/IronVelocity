@@ -25,9 +25,6 @@ namespace IronVelocity
         public static readonly ParameterExpression TaskAwaiterParameter = Expression.Parameter(typeof(TaskAwaiter).MakeByRefType(), "$awaiter");
 
         [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Expressions are immutable")]
-        public static readonly ParameterExpression StateMachineParameter = Expression.Parameter(typeof(VelocityAsyncCompiler.VelocityAsyncStateMachine).MakeByRefType(), "$this");
-
-        [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Expressions are immutable")]
         public static readonly Expression NullExpression = Expression.Constant(null);
         [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Expressions are immutable")]
         public static readonly Expression VelocityUnresolvableResult = NullExpression;

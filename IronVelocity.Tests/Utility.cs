@@ -23,13 +23,6 @@ namespace Tests
                 : testContext.Test.Name;
         }
 
-        public static VelocityAsyncTemplateMethod CompileAsyncTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
-        {
-            var runtime = new VelocityRuntime(null, globals);
-            throw new NotImplementedException();
-            //return runtime.CompileAsyncTemplate(input, GetName(), fileName, true);
-        }
-
         public static VelocityTemplateMethod CompileTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {
             var parser = new NVelocityParser(null);
@@ -102,31 +95,6 @@ namespace Tests
 
             Assert.AreEqual(expectedOutput, generatedOutput);
         }
-
-
-        public static async Task<string> GetNormalisedOutputAsync(string input, IDictionary<string, object> environment, string fileName = "", IDictionary<string, object> globals = null)
-        {
-            var action = CompileAsyncTemplate(input, fileName, globals);
-
-            var builder = new StringBuilder();
-            var ctx = environment as VelocityContext;
-            if (ctx == null)
-                ctx = new VelocityContext(environment);
-
-            await action(ctx, builder);
-
-            return NormaliseLineEndings(builder.ToString());
-        }
-
-        public static async Task TestExpectedMarkupGeneratedAsync(string input, string expectedOutput, IDictionary<string, object> environment = null, string fileName = "", bool isGlobalEnvironment = true)
-        {
-            expectedOutput = NormaliseLineEndings(expectedOutput);
-            var globals = isGlobalEnvironment ? environment : null;
-            var generatedOutput = await GetNormalisedOutputAsync(input, environment, fileName, globals);
-
-            Assert.AreEqual(expectedOutput, generatedOutput);
-        }
-
 
 
         /// <summary>
