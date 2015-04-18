@@ -64,7 +64,7 @@ namespace IronVelocity.Compilation
                     throw new InvalidProgramException("Unable to parse ast");
 
                 var builder = new VelocityExpressionBuilder(_directiveHandlers);
-                var converter = new NVelocityNodeToExpressionConverter(builder, _runtimeService);
+                var converter = new NVelocityNodeToExpressionConverter(builder, _runtimeService, name);
 
                 log.ConvertToExpressionTreeStart(name);
                 var expr = new RenderedBlock(converter.GetBlockExpressions(ast));

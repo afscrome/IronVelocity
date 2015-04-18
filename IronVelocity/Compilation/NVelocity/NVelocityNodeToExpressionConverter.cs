@@ -19,11 +19,12 @@ namespace IronVelocity.Compilation
     {
         public VelocityExpressionBuilder Builder {get; private set;}
         private readonly RuntimeInstance _runtimeInstance;
-
-        public NVelocityNodeToExpressionConverter(VelocityExpressionBuilder builder, RuntimeInstance instance)
+        private readonly string _templateName;
+        public NVelocityNodeToExpressionConverter(VelocityExpressionBuilder builder, RuntimeInstance instance, string templateName)
         {
             Builder = builder;
             _runtimeInstance = instance;
+            _templateName = templateName;
         }
 
         public IReadOnlyCollection<Expression> GetBlockExpressions(INode node)
@@ -406,7 +407,7 @@ namespace IronVelocity.Compilation
                 SimpleNode ast;
                 try
                 {
-                    ast = parser.Parse(reader, "interpolatedString");
+                    ast = parser.Parse(reader, _templateName);
                 }
                 catch (ParseErrorException)
                 {
