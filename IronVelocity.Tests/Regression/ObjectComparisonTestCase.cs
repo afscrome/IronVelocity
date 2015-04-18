@@ -12,6 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 // 
+// This file has been modified from the original to allow the tests to run
+// against templates produced by IronVelocity, as well as to split multiple
+// methods into separate test cases
+
 namespace NVelocity.Test
 {
     using NUnit.Framework;
