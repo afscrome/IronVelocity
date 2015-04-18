@@ -100,24 +100,15 @@ namespace IronVelocity.Tests.Regression
             var expectedOutputFile = Path.Combine(_base, "Expected", testName + ".cmp");
 
             if (!File.Exists(inputFile))
-                Assert.Ignore("File '{0}' does not exist", inputFile);
+                Assert.Fail("Regression Template '{0}' does not exist", inputFile);
 
             if (!File.Exists(expectedOutputFile))
-                Assert.Ignore("File '{0}' does not exist", expectedOutputFile);
+                Assert.Fail("Expected result for Regression Template '{0}' does not exist", expectedOutputFile);
 
             var input = File.ReadAllText(inputFile);
             var expectedOutput = File.ReadAllText(expectedOutputFile);
 
-            string output;
-            try
-            {
-                output = Utility.GetNormalisedOutput(input, _environment, inputFile);
-            }
-            catch (NotSupportedException ex)
-            {
-                Assert.Ignore(ex.Message);
-                return;
-            }
+            var output = Utility.GetNormalisedOutput(input, _environment, inputFile);
             expectedOutput = Utility.NormaliseLineEndings(expectedOutput);
 
             try
@@ -142,8 +133,23 @@ namespace IronVelocity.Tests.Regression
                 foreach (var file in Directory.GetFiles(_base, "*.vm"))
                 {
                     var name = Path.GetFileNameWithoutExtension(file);
-                    yield return new TestCaseData(name)
+                    var testCase = new TestCaseData(name)
                         .SetName("Regression Test: " + name + ".vm");
+
+                    if (name.StartsWith("velocimacro") || name.StartsWith("vm_test"))
+                    {
+                        testCase.Ignore("Global Velocimacros not supported");
+                    }
+                    else if (name == "escape2" || name == "include")
+                    {
+                        testCase.Ignore("Include not supported");
+                    }
+                    else if (name == "parse")
+                    {
+                        testCase.Ignore("Parse not supported");
+                    }
+
+                    yield return testCase;
                 }
             }
         }

@@ -8,6 +8,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronVelocity", "IronVelocit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronVelocity.Scripting", "IronVelocity.Scripting\IronVelocity.Scripting.csproj", "{C9F1CF27-6B09-4FC8-B1CF-A867AE180CF8}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{BEB177BE-D0CC-4587-B6A8-9C9CD71D68E6}"
+	ProjectSection(SolutionItems) = preProject
+		License.md = License.md
+		Readme.md = Readme.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
