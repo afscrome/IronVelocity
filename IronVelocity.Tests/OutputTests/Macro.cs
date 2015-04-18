@@ -4,7 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Tests;
+using IronVelocity.Tests;
+
+namespace Tests { }
 
 namespace IronVelocity.Tests.OutputTests
 {

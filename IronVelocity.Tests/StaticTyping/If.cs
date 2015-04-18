@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
-using Tests;
+using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.StaticTyping
 {

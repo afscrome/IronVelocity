@@ -17,7 +17,7 @@ namespace NVelocity.Test
     using NUnit.Framework;
     using System;
     using System.Collections.Generic;
-    using Tests;
+    using IronVelocity.Tests;
 
 	/// <summary>
 	/// Tests comparison of custom objects.

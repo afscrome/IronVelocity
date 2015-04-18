@@ -6,7 +6,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Tests;
+using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.Binders.Reuse
 {

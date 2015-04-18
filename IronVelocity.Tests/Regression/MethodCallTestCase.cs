@@ -21,7 +21,7 @@ namespace NVelocity.Test
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
-    using Tests;
+    using IronVelocity.Tests;
 
 	[TestFixture]
 	public class MethodCallTestCase

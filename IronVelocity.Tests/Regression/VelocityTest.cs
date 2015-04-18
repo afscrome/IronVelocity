@@ -19,7 +19,7 @@ namespace NVelocity.Test
     using System.Collections;
     using System.Collections.Generic;
     using System.Globalization;
-    using Tests;
+    using IronVelocity.Tests;
 
     /// <summary>
     /// Test Velocity processing

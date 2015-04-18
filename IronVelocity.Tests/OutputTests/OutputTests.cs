@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace Tests
+namespace IronVelocity.Tests
 {
     [TestFixture]
     public class TextAndCommentTests

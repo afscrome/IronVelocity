@@ -6,7 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using Tests;
+using IronVelocity.Tests;
 using System.Numerics;
 
 namespace IronVelocity.Tests.Binders

@@ -1,6 +1,6 @@
 ﻿using NUnit.Framework;
 
-namespace Tests.Numeric
+namespace IronVelocity.Tests.Numeric
 {
     [TestFixture]
     public class AdditionTests

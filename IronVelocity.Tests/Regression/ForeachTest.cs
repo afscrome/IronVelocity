@@ -20,7 +20,7 @@ namespace NVelocity.Test
     using System.Collections;
     using System.Collections.Generic;
     using System.Text.RegularExpressions;
-    using Tests;
+    using IronVelocity.Tests;
 
 	/// <summary>
 	/// Tests to make sure that the VelocityContext is functioning correctly
