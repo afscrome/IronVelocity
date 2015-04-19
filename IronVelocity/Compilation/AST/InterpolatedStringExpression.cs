@@ -11,6 +11,9 @@ namespace IronVelocity.Compilation.AST
 {
     public class InterpolatedStringExpression : VelocityExpression
     {
+        private static MethodInfo _stringConcatMethodInfo = typeof(string).GetMethod("Concat", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object[]) }, null);
+
+
         public IReadOnlyList<Expression> Parts { get; set; }
 
         public override Type Type { get { return typeof(string); } }
@@ -23,6 +26,8 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
+            if (Parts.Count == 0)
+                return Expression.Constant("");
             if (Parts.Count == 1)
             {
                 var element = Parts[0];
@@ -32,6 +37,13 @@ namespace IronVelocity.Compilation.AST
                         ? element
                         : Expression.Call(element, MethodHelpers.ToStringMethodInfo);
                 }
+            }
+            //If we don't have any void expressions (i.e. Macros), use String.Concat as it produces less IL and so JIT compiles faster
+            else if (Parts.All(x => x.Type != typeof(void) ))
+            {
+                var objParts = Parts.Select(x => VelocityExpressions.ConvertIfNeeded(x, typeof(object)));
+                return Expression.Call(_stringConcatMethodInfo, Expression.NewArrayInit(typeof(object),objParts));
+
             }
 
             //Create a new scope, in which the Output parameter points to a different StringBuilder
