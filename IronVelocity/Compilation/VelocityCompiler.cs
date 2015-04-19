@@ -15,42 +15,46 @@ namespace IronVelocity.Compilation
         private const string _methodName = "Execute";
         private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(StringBuilder) };
         private static readonly ConstructorInfo _debugAttributeConstructorInfo = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
-        private readonly IReadOnlyDictionary<string, Type> _globals;
+        protected IReadOnlyDictionary<string, Type> Globals { get; private set; }
 
-        public VelocityCompiler(IDictionary<string, Type> globals)
+        private readonly AssemblyName _assemblyName;
+
+        public VelocityCompiler(IDictionary<string, Type> globals, string assemblyName = null)
         {
             if (globals != null)
             {
-                _globals = new Dictionary<string, Type>(globals, StringComparer.OrdinalIgnoreCase);
+                Globals = new Dictionary<string, Type>(globals, StringComparer.OrdinalIgnoreCase);
             }
+            _assemblyName = String.IsNullOrEmpty(assemblyName)
+                ? new AssemblyName("IronVelocityTemplate")
+                : new AssemblyName(assemblyName);
         }
 
 
-        public VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, bool debugMode, string fileName)
+
+        protected virtual ModuleBuilder CreateModuleBuilder(bool debugMode)
         {
-            var assemblyName = new AssemblyName("Widgets");
-            //RunAndCollect allows this assembly to be garbage collected when finished with - http://msdn.microsoft.com/en-us/library/dd554932(VS.100).aspx
-            var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(assemblyName, AssemblyBuilderAccess.RunAndCollect);
+            var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(_assemblyName, AssemblyBuilderAccess.RunAndCollect);
 
-
-            return CompileWithSymbols(expressionTree, name, assemblyBuilder, debugMode, fileName);
-        }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification="Final cast will fail if the Expression does not conform to VelocityTemplateMethod's signature")]
-        public VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, AssemblyBuilder assemblyBuilder, bool debugMode, string fileName)
-        {
-            if (assemblyBuilder == null)
-                throw new ArgumentNullException("assemblyBuilder");
-
-            var log = TemplateGenerationEventSource.Log;
-            var moduleBuilder = assemblyBuilder.DefineDynamicModule(name, true);
+            var moduleBuilder = assemblyBuilder.DefineDynamicModule(_assemblyName.Name, true);
 
             if (debugMode)
             {
                 AddDebugAttributes(assemblyBuilder, moduleBuilder);
             }
 
-            var typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public);
+            return moduleBuilder;
+        }
+
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "Final cast will fail if the Expression does not conform to VelocityTemplateMethod's signature")]
+        public VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, bool debugMode, string fileName)
+        {
+            var log = TemplateGenerationEventSource.Log;
+            log.LogParsedExpressionTree(name, expressionTree);
+            var moduleBuilder = CreateModuleBuilder(debugMode);
+
+            var typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.BeforeFieldInit);
 
             var meth = typeBuilder.DefineMethod(
                     _methodName,
@@ -58,10 +62,10 @@ namespace IronVelocity.Compilation
                     typeof(void),
                     _signature);
 
-            if (_globals != null && _globals.Count > 0)
+            if (Globals != null && Globals.Count > 0)
             {
                 log.StronglyTypeStart(name);
-                var staticTypeVisitor = new StaticGlobalVisitor(_globals);
+                var staticTypeVisitor = new StaticGlobalVisitor(Globals);
                 expressionTree = staticTypeVisitor.VisitAndConvert(expressionTree, "Static Conversion");
                 log.StronglyTypeStop(name);
             }
@@ -71,6 +75,8 @@ namespace IronVelocity.Compilation
             var debugVisitor = new DynamicToExplicitCallSiteConvertor(typeBuilder, fileName);
             expressionTree = debugVisitor.VisitAndConvert(expressionTree, "DynamicMethod Debug");
             log.GenerateDebugInfoStop(name);
+
+            log.LogProcessedExpressionTree(name, expressionTree);
 
             log.CompileMethodStart(name);
             var debugInfo = DebugInfoGenerator.CreatePdbGenerator();
@@ -86,7 +92,7 @@ namespace IronVelocity.Compilation
             return (VelocityTemplateMethod)Delegate.CreateDelegate(typeof(VelocityTemplateMethod), compiledMethod);
         }
 
-        public static void AddDebugAttributes(AssemblyBuilder assemblyBuilder, ModuleBuilder moduleBuilder)
+        protected static void AddDebugAttributes(AssemblyBuilder assemblyBuilder, ModuleBuilder moduleBuilder)
         {
             if (assemblyBuilder == null)
                 throw new ArgumentNullException("assemblyBuilder");
@@ -101,7 +107,5 @@ namespace IronVelocity.Compilation
             assemblyBuilder.SetCustomAttribute(cab);
             moduleBuilder.SetCustomAttribute(cab);
         }
-
-
     }
 }

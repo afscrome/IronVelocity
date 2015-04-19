@@ -1,0 +1,1 @@
+#set($x = "%{key1 = 'Value', key2 = 123}")

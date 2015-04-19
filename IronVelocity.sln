@@ -14,6 +14,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Items", "Items", "{BEB177BE
 		Readme.md = Readme.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IronVelocity.PerfPlayground", "IronVelocity.PerfPlayground\IronVelocity.PerfPlayground.csproj", "{A7D1DC73-4D20-467B-BA71-4CEE6C7E3352}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,6 +34,10 @@ Global
 		{C9F1CF27-6B09-4FC8-B1CF-A867AE180CF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9F1CF27-6B09-4FC8-B1CF-A867AE180CF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9F1CF27-6B09-4FC8-B1CF-A867AE180CF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7D1DC73-4D20-467B-BA71-4CEE6C7E3352}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7D1DC73-4D20-467B-BA71-4CEE6C7E3352}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7D1DC73-4D20-467B-BA71-4CEE6C7E3352}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7D1DC73-4D20-467B-BA71-4CEE6C7E3352}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
