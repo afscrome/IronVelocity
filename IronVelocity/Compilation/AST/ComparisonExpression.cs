@@ -11,8 +11,8 @@ namespace IronVelocity.Compilation.AST
         public override Type Type { get { return typeof(bool); } }
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.Comparison; } }
 
-        public ComparisonExpression(Expression left, Expression right, SymbolInformation symbols, ComparisonOperation op)
-            : base(left, right, symbols)
+        public ComparisonExpression(Expression left, Expression right, SourceInfo sourceInfo, ComparisonOperation op)
+            : base(left, right, sourceInfo)
         {
             Operation = op;
         }
@@ -35,7 +35,7 @@ namespace IronVelocity.Compilation.AST
             if (Left == left && Right == right)
                 return this;
             else
-                return new ComparisonExpression(left, right, Symbols, Operation);
+                return new ComparisonExpression(left, right, SourceInfo, Operation);
         }
  
 

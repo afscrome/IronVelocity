@@ -12,9 +12,9 @@ namespace IronVelocity.Compilation.AST
         public override Type Type { get { return typeof(IList<object>); } }
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.ObjectArray; } }
 
-        public ObjectArrayExpression(SymbolInformation symbols, IReadOnlyList<Expression> args)
+        public ObjectArrayExpression(SourceInfo sourceInfo, IReadOnlyList<Expression> args)
         {
-            Symbols = symbols;
+            SourceInfo = sourceInfo;
             Values = args;
         }
 
@@ -29,7 +29,7 @@ namespace IronVelocity.Compilation.AST
             if (arguments == Values)
                 return this;
 
-            return new ObjectArrayExpression(Symbols, arguments);
+            return new ObjectArrayExpression(SourceInfo, arguments);
         }
     }
 }

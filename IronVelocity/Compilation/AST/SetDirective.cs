@@ -12,8 +12,8 @@ namespace IronVelocity.Compilation.AST
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.SetDirective; } }
 
 
-        public SetDirective(Expression left, Expression right, SymbolInformation symbols)
-            : base(left,right,symbols)
+        public SetDirective(Expression left, Expression right, SourceInfo sourceInfo)
+            : base(left, right, sourceInfo)
         {
         }
 
@@ -26,7 +26,7 @@ namespace IronVelocity.Compilation.AST
             if (left is GlobalVariableExpression)
                 throw new NotSupportedException("Cannot assign to a global variable");
 
-            return new SetDirective(left, right, Symbols);
+            return new SetDirective(left, right, SourceInfo);
         }
         
 

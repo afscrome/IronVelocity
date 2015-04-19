@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
@@ -16,16 +17,16 @@ namespace IronVelocity.PerfPlayground
     [Explicit]
     public class TemplateCompilation
     {
+        private const string IldasmPath = "C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v8.1A\\bin\\NETFX 4.5.1 Tools\\ildasm.exe";
 
         public TemplateCompilation()
         {
             OutputDir= "CompiledTemplates";
             TemplateDirectories = new[] {"../../templates/", "../../../IronVelocity.Tests/Regression/templates/"};
-            SaveDlls = true;
-            ExecuteTemplate = false;
         }
 
         public bool SaveDlls { get; set; }
+        public bool SaveIl { get; set; }
         public bool ExecuteTemplate { get; set; }
         public string OutputDir { get; set; }
         public ICollection<string> TemplateDirectories {get; set;}
@@ -33,7 +34,11 @@ namespace IronVelocity.PerfPlayground
         [TestFixtureSetUp]
         public void SetUp()
         {
-            OutputDir = "TemplateCompilation_" + DateTime.Now.ToString("yyy-MM-dd_HH-mm-ss");
+            OutputDir = "TemplateCompilation_" + DateTime.Now.ToString("yyy-MM-dd_HH-mm-ss") + "\\";
+            SaveDlls = true;
+            SaveIl = true;
+            ExecuteTemplate = false;
+
             if (!Directory.Exists(OutputDir))
                 Directory.CreateDirectory(OutputDir);
         }
@@ -46,7 +51,7 @@ namespace IronVelocity.PerfPlayground
             AssemblyBuilder assemblyBuilder = null;
             VelocityCompiler compiler;
 
-            if (SaveDlls)
+            if (SaveDlls || SaveIl)
             {
                 var diskCompiler = new DiskCompiler(new AssemblyName(assemblyName), OutputDir);
                 assemblyBuilder = diskCompiler.AssemblyBuilder;
@@ -66,10 +71,23 @@ namespace IronVelocity.PerfPlayground
                 result(context, output);
             }
 
-            if (SaveDlls)
+            if (SaveDlls || SaveIl)
             {
-                assemblyBuilder.Save(assemblyName + ".dll");
+                var dllName = assemblyName + ".dll";
+                assemblyBuilder.Save(dllName);
+
+                if (SaveIl)
+                {
+                    var assemblyPath = Path.Combine(OutputDir, dllName);
+                    var ilPath = assemblyPath.Replace(".dll", ".il");
+                    var startInfo = new ProcessStartInfo(IldasmPath)
+                    {
+                        Arguments = String.Format("\"{0}\" /item:{1} /linenum /source /out:\"{2}\"", assemblyPath, assemblyName, ilPath)
+                    };
+                    Process.Start(startInfo).WaitForExit();
+                }
             }
+
 
         }
 

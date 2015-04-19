@@ -166,7 +166,7 @@ namespace IronVelocity.Compilation
             Expression left, right;
             GetBinaryExpressionOperands<ASTAssignment>(node, out left, out right);
 
-            return new SetDirective(left, right, new SymbolInformation(node));
+            return new SetDirective(left, right, GetSourceInfoFromINode(node));
         }
 
         public IntegerRangeExpression IntegerRange(INode node)
@@ -174,7 +174,7 @@ namespace IronVelocity.Compilation
             Expression left, right;
             GetBinaryExpressionOperands<ASTIntegerRange>(node, out left, out right);
 
-            return new IntegerRangeExpression(left, right, new SymbolInformation(node));
+            return new IntegerRangeExpression(left, right, GetSourceInfoFromINode(node));
         }
 
         public ObjectArrayExpression ObjectArray(INode node)
@@ -188,7 +188,7 @@ namespace IronVelocity.Compilation
                 expressions[i] = Operand(node.GetChild(i));
             }
 
-            return new ObjectArrayExpression(new SymbolInformation(node), expressions);
+            return new ObjectArrayExpression(GetSourceInfoFromINode(node), expressions);
         }
 
 
@@ -230,7 +230,8 @@ namespace IronVelocity.Compilation
             Expression left, right;
             GetBinaryExpressionOperands<T>(node, out left, out right);
 
-            return new ComparisonExpression(left, right, new SymbolInformation(node), operation);
+            var lineInfo = GetBinaryExpressionLineInfo(node);
+            return new ComparisonExpression(left, right, lineInfo, operation);
         }
         #endregion
 
@@ -244,6 +245,7 @@ namespace IronVelocity.Compilation
             var operand = Operand(node.GetChild(0));
             var expression = VelocityExpressions.CoerceToBoolean(operand);
 
+            //TODO: Include LineInfo for Not
             return Expression.Not(expression);
         }
 
@@ -268,6 +270,8 @@ namespace IronVelocity.Compilation
             left = VelocityExpressions.CoerceToBoolean(left);
             right = VelocityExpressions.CoerceToBoolean(right);
 
+            //TODO: Include LineInfo for boolean expressions
+            var lineInfo = GetBinaryExpressionLineInfo(node);
             return generator(left, right);
         }
 
@@ -307,7 +311,8 @@ namespace IronVelocity.Compilation
             Expression left, right;
             GetBinaryExpressionOperands<T>(node, out left, out right);
 
-            return new MathematicalExpression(left, right, new SymbolInformation(node), operation);
+            var lineInfo = GetBinaryExpressionLineInfo(node);
+            return new MathematicalExpression(left, right, lineInfo, operation);
         }
         #endregion
 
@@ -356,7 +361,7 @@ namespace IronVelocity.Compilation
                 arguments[i - 1] = (Operand(node.GetChild(i)));
             }
 
-            return new MethodInvocationExpression(target, node.FirstToken.Image, arguments, new SymbolInformation(node));
+            return new MethodInvocationExpression(target, node.FirstToken.Image, arguments, GetSourceInfoFromINode(node));
         }
 
 
@@ -368,7 +373,7 @@ namespace IronVelocity.Compilation
             if (target == null)
                 throw new ArgumentNullException("target");
 
-            return new PropertyAccessExpression(target, node.Literal, new SymbolInformation(node));
+            return new PropertyAccessExpression(target, node.Literal, GetSourceInfoFromINode(node));
         }
 
         public Expression NVelocityString(INode node)
@@ -538,6 +543,31 @@ namespace IronVelocity.Compilation
             right = Operand(node.GetChild(1));
         }
 
+        private SourceInfo GetBinaryExpressionLineInfo(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            if (node.ChildrenCount != 2)
+                throw new ArgumentOutOfRangeException("node", "Expected exactly two children for a binary expression");
+
+            var startToken = node.GetChild(0).FirstToken;
+            var endToken = node.GetChild(1).LastToken;
+            return new SourceInfo(startToken.BeginLine, startToken.BeginColumn, endToken.EndLine, endToken.EndColumn);
+        }
+
+        private SourceInfo GetSourceInfoFromINode(INode node)
+        {
+            if (node == null)
+                throw new ArgumentNullException("node");
+
+            return new SourceInfo(
+                startLine: node.FirstToken.BeginLine,
+                startColumn: node.FirstToken.BeginColumn,
+                endLine: node.LastToken.EndLine,
+                endColumn: node.LastToken.EndColumn
+            );
+        }
 
         public enum VelocityStringType
         {

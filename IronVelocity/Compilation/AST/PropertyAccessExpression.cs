@@ -11,11 +11,11 @@ namespace IronVelocity.Compilation.AST
 
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.PropertyAccess; } }
 
-        public PropertyAccessExpression(Expression target, string name, SymbolInformation symbolInformation)
+        public PropertyAccessExpression(Expression target, string name, SourceInfo sourceInfo)
         {
             Target = target;
             Name = name;
-            Symbols = symbolInformation;
+            SourceInfo = sourceInfo;
         }
 
         public override Expression Reduce()
@@ -32,7 +32,7 @@ namespace IronVelocity.Compilation.AST
             if (target == Target)
                 return this;
 
-            return new PropertyAccessExpression(target, Name, Symbols);
+            return new PropertyAccessExpression(target, Name, SourceInfo);
         }
 
     }

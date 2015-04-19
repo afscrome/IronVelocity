@@ -52,10 +52,12 @@
     <Compile Include="Binders\BinderHelper.cs" />
     <Compile Include="Binders\ReflectionHelper.cs" />
     <Compile Include="Compilation\AST\MathematicalExpression.cs" />
+    <Compile Include="Compilation\AST\SourceInfo.cs" />
     <Compile Include="Compilation\AST\VelocityExpressionType.cs" />
     <Compile Include="Compilation\NVelocity\ASTReferenceMetaData.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Compilation\NVelocity\DictionaryStringExpression.cs" />
     <Compile Include="Compilation\NVelocity\Directives\DirectiveExpressionBuilder.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -110,7 +112,6 @@
     <Compile Include="Compilation\AST\SetMemberExpression.cs" />
     <Compile Include="Compilation\AST\IntegerRangeExpression.cs" />
     <Compile Include="Compilation\AST\InterpolatedStringExpression.cs" />
-    <Compile Include="Compilation\NVelocity\DictionaryStringExpression.cs" />
     <Compile Include="Compilation\AST\MethodInvocationExpression.cs" />
     <Compile Include="Compilation\AST\PropertyAccessExpression.cs" />
     <Compile Include="Compilation\AST\UnrecognisedDirective.cs" />

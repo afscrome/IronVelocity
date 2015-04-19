@@ -9,8 +9,8 @@ namespace IronVelocity.Compilation.AST
         public override Type Type { get { return typeof(IList<int>); } }
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.IntegerRange; } }
 
-        public IntegerRangeExpression(Expression left, Expression right, SymbolInformation symbols)
-            : base(left, right, symbols)
+        public IntegerRangeExpression(Expression left, Expression right, SourceInfo sourceInfo)
+            : base(left, right, sourceInfo)
         {            
         }
 
@@ -28,7 +28,7 @@ namespace IronVelocity.Compilation.AST
             if (Left == left && Right == right)
                 return this;
             else
-                return new IntegerRangeExpression(left, right, Symbols);
+                return new IntegerRangeExpression(left, right, SourceInfo);
         }
 
 

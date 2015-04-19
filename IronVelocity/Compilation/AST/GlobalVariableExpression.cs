@@ -22,7 +22,7 @@ namespace IronVelocity.Compilation.AST
                 throw new ArgumentNullException("type");
 
             Name = variable.Name;
-            Symbols = variable.Symbols;
+            SourceInfo = variable.SourceInfo;
             _type = type;
             _variable = variable;
         }

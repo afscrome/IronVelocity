@@ -15,7 +15,7 @@ namespace IronVelocity.Compilation.AST
 
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.MethodInvocation; } }
 
-        public MethodInvocationExpression(Expression target, string name, IReadOnlyList<Expression> arguments, SymbolInformation symbols)
+        public MethodInvocationExpression(Expression target, string name, IReadOnlyList<Expression> arguments, SourceInfo sourceInfo)
         {
             if (target == null)
                 throw new ArgumentNullException("target");
@@ -29,7 +29,7 @@ namespace IronVelocity.Compilation.AST
             Target = target;
             Name = name;
             Arguments = arguments;
-            Symbols = symbols;
+            SourceInfo = sourceInfo;
         }
 
         public override Expression Reduce()
@@ -54,7 +54,7 @@ namespace IronVelocity.Compilation.AST
             if (target == Target && arguments == Arguments)
                 return this;
             else
-                return new MethodInvocationExpression(target, Name, arguments, Symbols);
+                return new MethodInvocationExpression(target, Name, arguments, SourceInfo);
         }
 
     }

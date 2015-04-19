@@ -11,8 +11,8 @@ namespace IronVelocity.Compilation.AST
 
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.Mathematical; } }
 
-        public MathematicalExpression(Expression left, Expression right, SymbolInformation symbols, MathematicalOperation op)
-            : base(left, right, symbols)
+        public MathematicalExpression(Expression left, Expression right, SourceInfo sourceInfo, MathematicalOperation op)
+            : base(left, right, sourceInfo)
         {
             Operation = op;
             ExpressionType = MathematicalOperationToExpressionType(op);
@@ -36,7 +36,7 @@ namespace IronVelocity.Compilation.AST
             if (Left == left && Right == right)
                 return this;
             else
-                return new MathematicalExpression(left, right, Symbols, Operation);
+                return new MathematicalExpression(left, right, SourceInfo, Operation);
         }
 
 

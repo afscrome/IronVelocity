@@ -23,7 +23,7 @@ namespace IronVelocity.Compilation
         private readonly Dictionary<object, FieldBuilder> _fieldBuilders = new Dictionary<object, FieldBuilder>();
 
         private readonly SymbolDocumentInfo _symbolDocument;
-        private SymbolInformation _currentSymbol;
+        private SourceInfo _currentSourceInfo;
         private int callSiteId = 0;
 
         public DynamicToExplicitCallSiteConvertor(TypeBuilder typeBuilder, string fileName)
@@ -55,11 +55,11 @@ namespace IronVelocity.Compilation
             if (_symbolDocument != null)
             {
                 var extension = node as VelocityExpression;
-                if (extension != null && extension.Symbols != null && extension.Symbols != _currentSymbol)
+                if (extension != null && extension.SourceInfo != null && extension.SourceInfo != _currentSourceInfo)
                 {
-                    _currentSymbol = extension.Symbols;
+                    _currentSourceInfo = extension.SourceInfo;
                     return Expression.Block(
-                        Expression.DebugInfo(_symbolDocument, _currentSymbol.StartLine, _currentSymbol.StartColumn, _currentSymbol.EndLine, _currentSymbol.EndColumn),
+                        Expression.DebugInfo(_symbolDocument, _currentSourceInfo.StartLine, _currentSourceInfo.StartColumn, _currentSourceInfo.EndLine, _currentSourceInfo.EndColumn),
                         Visit(node)
                     );
 
