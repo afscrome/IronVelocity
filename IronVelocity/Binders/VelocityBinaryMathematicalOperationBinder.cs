@@ -69,7 +69,7 @@ namespace IronVelocity.Binders
 
             if (mainExpression == null)
             {
-                BindingEventSource.Log.MathematicalResolutionFailure(target.LimitType.FullName, arg.LimitType.FullName);
+                BindingEventSource.Log.MathematicalResolutionFailure(Operation, target.LimitType.FullName, arg.LimitType.FullName);
                 mainExpression = Expression.Default(ReturnType);
             }
             if (restrictions == null)

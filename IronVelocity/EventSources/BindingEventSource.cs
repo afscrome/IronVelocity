@@ -1,8 +1,10 @@
-﻿using System;
+﻿using IronVelocity.Binders;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Tracing;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -46,17 +48,15 @@ namespace IronVelocity
         }
 
         [Event(6, Opcode = EventOpcode.Info, Level = EventLevel.Warning, Keywords = Keywords.Comparison)]
-        [NonEvent]
-        public void ComparisonResolutionFailure(string leftType, string rightType)
+        public void ComparisonResolutionFailure(ComparisonOperation comparisonOperation, string leftType, string rightType)
         {
-            WriteEvent(6, leftType, rightType);
+            WriteEvent(6, comparisonOperation, leftType, rightType);
         }
 
         [Event(7, Opcode = EventOpcode.Info, Level = EventLevel.Warning, Keywords = Keywords.Mathematical)]
-        [NonEvent]
-        public void MathematicalResolutionFailure(string leftType, string rightType)
+        public void MathematicalResolutionFailure(ExpressionType expressionType, string leftType, string rightType)
         {
-            WriteEvent(7, leftType, rightType);
+            WriteEvent(7, expressionType, leftType, rightType);
         }
 
 
