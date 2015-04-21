@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Compilation.AST;
 using IronVelocity.Compilation.Directives;
 using NVelocity.Runtime;
+using NVelocity.Runtime.Log;
 using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections;
@@ -33,7 +34,7 @@ namespace IronVelocity.Compilation
             properties.AddProperty("output.encoding", "utf-8");
             properties.AddProperty("velocimacro.permissions.allow.inline", "true");
             properties.AddProperty("runtime.log.invalid.references", "false");
-            properties.AddProperty("runtime.log.logsystem.class", typeof(TestLog).AssemblyQualifiedName.Replace(",", ";"));
+            properties.AddProperty("runtime.log.logsystem.class", typeof(NullLogSystem).AssemblyQualifiedName.Replace(",", ";"));
             properties.AddProperty("parser.pool.size", 0);
             properties.AddProperty("velocimacro.permissions.allow.inline.local.scope", "true");
             ArrayList userDirectives = new ArrayList();

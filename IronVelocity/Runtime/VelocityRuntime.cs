@@ -14,19 +14,6 @@ using System.Linq.Expressions;
 
 namespace IronVelocity
 {
-    public class TestLog : NVelocity.Runtime.Log.ILogSystem
-    {
-        public void Init(IRuntimeServices rs)
-        {
-        }
-
-        public void LogVelocityMessage(NVelocity.Runtime.Log.LogLevel level, string message)
-        {
-            Console.WriteLine("[{0}] message");
-        }
-    }
-
-
     public class VelocityRuntime
     {
         private readonly IParser _parser;
