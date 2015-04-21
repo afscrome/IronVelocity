@@ -10,14 +10,12 @@ using System.Threading.Tasks;
 
 namespace IronVelocity
 {
-
-
     [EventSource(Name = "IronVelocity-Binding")]
     public sealed class BindingEventSource : EventSource
     {
         internal static readonly BindingEventSource Log = new BindingEventSource();
 
-        [Event(1, Opcode = EventOpcode.Info, Level = EventLevel.Verbose, Keywords = Keywords.GetMember)]
+        [Event(1, Opcode = EventOpcode.Info, Level = EventLevel.Warning, Keywords = Keywords.GetMember)]
         public void GetMemberResolutionFailure(string memberName, string targetType)
         {
             WriteEvent(1, memberName, targetType);
@@ -29,7 +27,7 @@ namespace IronVelocity
             WriteEvent(2, memberName, targetType);
         }
 
-        [Event(3,  Level = EventLevel.Verbose, Keywords = Keywords.InvokeMember)]
+        [Event(3, Level = EventLevel.Warning, Keywords = Keywords.InvokeMember)]
         public void InvokeMemberResolutionFailure(string memberName, string targetType, string argTypes)
         {
             WriteEvent(3, memberName, targetType, argTypes);
@@ -60,7 +58,7 @@ namespace IronVelocity
         }
 
 
-        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification="Required to be public by ETW")]
+        [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "Required to be public by ETW")]
         public static class Keywords
         {
             public const EventKeywords GetMember = (EventKeywords)1;
