@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation.AST;
+using NVelocity.Runtime.Directive;
 using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Linq.Expressions;
@@ -8,6 +9,7 @@ namespace IronVelocity.Compilation.Directives
     public class ForeachDirectiveExpressionBuilder : DirectiveExpressionBuilder
     {
         public override string Name { get { return "foreach"; } }
+        public override Type NVelocityDirectiveType { get { return typeof(Foreach); } }
 
         public override Expression Build(ASTDirective node, NVelocityNodeToExpressionConverter converter)
         {

@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation.AST;
+using NVelocity.Runtime.Directive;
 using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections.Generic;
@@ -11,8 +12,8 @@ namespace IronVelocity.Compilation.Directives
 {
     public class MacroDefinitionExpressionBuilder : DirectiveExpressionBuilder
     {
-
         public override string Name { get { return "macro"; } }
+        public override Type NVelocityDirectiveType { get { return typeof(Macro); } }
 
         public override Expression Build(ASTDirective node, NVelocityNodeToExpressionConverter converter)
         {

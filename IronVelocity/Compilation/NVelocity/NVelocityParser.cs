@@ -42,7 +42,7 @@ namespace IronVelocity.Compilation
             {
                 foreach (var directive in directiveHandlers)
                 {
-                    //userDirectives.Add(directive.Key.AssemblyQualifiedName);
+                    userDirectives.Add(directive.Value.NVelocityDirectiveType.AssemblyQualifiedName);
                     _directiveHandlers.Add(directive);
                 }
                 properties.AddProperty("userdirective", userDirectives);

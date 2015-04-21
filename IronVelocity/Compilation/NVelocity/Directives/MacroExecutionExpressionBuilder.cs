@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation.AST;
+using NVelocity.Runtime.Directive;
 using NVelocity.Runtime.Parser;
 using NVelocity.Runtime.Parser.Node;
 using System;
@@ -16,6 +17,7 @@ namespace IronVelocity.Compilation.Directives
         private readonly string _name;
 
         public override string Name { get { return _name; } }
+        public override Type NVelocityDirectiveType { get { return typeof(Macro); } }
 
         public MacroExecutionExpressionBuilder(string name, LambdaExpression macro)
         {
