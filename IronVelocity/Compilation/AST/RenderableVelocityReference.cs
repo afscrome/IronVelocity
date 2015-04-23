@@ -61,16 +61,18 @@ namespace IronVelocity.Compilation.AST
                         ? expression
                         : Expression.Coalesce(expression, NullValue);
 
+
                 //Otherwise we have to do a slightly more complicated result
-                var _evaulatedResult = Expression.Parameter(typeof(object), "tempEvaulatedResult");
-                return Expression.Block(
-                    new[] { _evaulatedResult },
+                var evaluatedTemp = Expression.Parameter(typeof(object), "tempEvaulatedResult");
+
+                return new TemporaryVariableScopeExpression(
+                    evaluatedTemp,
                     Expression.Condition(
-                        Expression.NotEqual(Expression.Assign(_evaulatedResult, expression), Expression.Constant(null, _evaulatedResult.Type)),
+                        Expression.NotEqual(Expression.Assign(evaluatedTemp, expression), Expression.Constant(null, evaluatedTemp.Type)),
                         Expression.Call(
                             MethodHelpers.StringConcatMethodInfo,
                             Expression.Convert(Expression.Constant(prefix), typeof(object)),
-                            _evaulatedResult
+                            evaluatedTemp
                         ),
                         NullValue
                     )

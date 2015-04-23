@@ -128,13 +128,15 @@ namespace IronVelocity.Compilation.Directives
             );
 
 
-            return Expression.Block(
-                new[] { localEnumerable },
-                Expression.Assign(localEnumerable, Expression.TypeAs(Enumerable, typeof(IEnumerable))),
-                Expression.IfThenElse(
-                    Expression.Equal(localEnumerable, _nullEnumerable),
-                    forEach.NoData ?? Constants.EmptyExpression,
-                    loopExecution
+            return new TemporaryVariableScopeExpression(
+                localEnumerable,
+                Expression.Block(
+                    Expression.Assign(localEnumerable, Expression.TypeAs(Enumerable, typeof(IEnumerable))),
+                    Expression.IfThenElse(
+                        Expression.Equal(localEnumerable, _nullEnumerable),
+                        forEach.NoData ?? Constants.EmptyExpression,
+                        loopExecution
+                    )
                 )
             );
 

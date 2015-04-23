@@ -50,11 +50,13 @@ namespace IronVelocity.Compilation.AST
             //So we can get the result, without writing it to the output stream.
             var outputParam = Constants.OutputParameter;
 
-            return Expression.Block(
-                    new[] { outputParam },
-                    Expression.Assign(outputParam, Expression.New(typeof(StringBuilder))),
-                    new RenderedBlock(Parts),
-                    Expression.Call(outputParam, "ToString", Type.EmptyTypes)
+            return new TemporaryVariableScopeExpression(
+                    outputParam,
+                    Expression.Block(
+                        Expression.Assign(outputParam, Expression.New(typeof(StringBuilder))),
+                        new RenderedBlock(Parts),
+                        Expression.Call(outputParam, "ToString", Type.EmptyTypes)
+                    )
                 );
         }
 

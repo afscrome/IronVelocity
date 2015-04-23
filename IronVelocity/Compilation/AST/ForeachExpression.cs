@@ -62,10 +62,12 @@ namespace IronVelocity.Compilation.AST
                             ContinueLabel
                         );
 
-            return Expression.Block(
-                new[] { enumerator },
-                    Expression.Assign(enumerator, Expression.Call(Enumerable, _enumeratorMethodInfo)),
-                    loop
+            return new TemporaryVariableScopeExpression(
+                    enumerator,
+                    Expression.Block(
+                        Expression.Assign(enumerator, Expression.Call(Enumerable, _enumeratorMethodInfo)),
+                        loop
+                    )
                 );
         }
     }

@@ -53,6 +53,7 @@
     <Compile Include="Binders\ReflectionHelper.cs" />
     <Compile Include="Compilation\AST\MathematicalExpression.cs" />
     <Compile Include="Compilation\AST\SourceInfo.cs" />
+    <Compile Include="Compilation\AST\TemporaryVariableScope.cs" />
     <Compile Include="Compilation\AST\VelocityExpressionType.cs" />
     <Compile Include="Compilation\NVelocity\ASTReferenceMetaData.cs">
       <SubType>Code</SubType>
@@ -85,6 +86,7 @@
     <Compile Include="Compilation\NVelocity\NVelocityParser.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Compilation\TemporaryLocalReuse.cs" />
     <Compile Include="Compilation\VelocityExpressionVisitor.cs" />
     <Compile Include="EventSources\BindingEventSource.cs" />
     <Compile Include="Binders\VelocityComparisonOperationBinder.cs" />

@@ -78,7 +78,8 @@ namespace IronVelocity.Compilation.AST
             var tempResult = right.Type == typeof(object)
                 ? _objectTemp
                 : Expression.Parameter(right.Type, "setDirectiveTemp");
-            return Expression.Block(new[] { tempResult },
+
+            return new TemporaryVariableScopeExpression(tempResult,
                 Expression.IfThen(
                 //Store the result of the right hand side in to a temporary variable
                 //If the temporary variable is not equal to null

@@ -115,19 +115,20 @@ namespace IronVelocity.Compilation
                 arguments[i + 1] = Visit(node.Arguments[i]);
             }
 
-            var result = Expression.Block(
-                new[] { site },
-                Expression.Call(
+
+            var body = Expression.Call(
                     Expression.Field(
                         Expression.Assign(site, siteConstant),
                         siteConstant.Type.GetField("Target")
                     ),
                     node.DelegateType.GetMethod("Invoke"),
                     arguments
-                )
-            );
+                );
 
-            return Visit(result);
+            return new TemporaryVariableScopeExpression(
+                site,
+                Visit(body)
+            );
         }
 
         private static bool CanEmitAsConstant(object value)

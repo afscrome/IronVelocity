@@ -163,14 +163,15 @@ namespace IronVelocity.Compilation
                 {
                     var temp = Expression.Parameter(left.Type, "castTemp");
 
-                    return Expression.Block(
-                        new[] { temp },
-                        Expression.Assign(temp, Expression.TypeAs(right, left.Type)),
-                        Expression.Condition(
-                            Expression.NotEqual(temp, Expression.Constant(null, left.Type)),
-                            node.Update(left, temp),
-                            Constants.VoidReturnValue,
-                            typeof(void)
+                    return new TemporaryVariableScopeExpression(temp,
+                        Expression.Block(
+                            Expression.Assign(temp, Expression.TypeAs(right, left.Type)),
+                            Expression.Condition(
+                                Expression.NotEqual(temp, Expression.Constant(null, left.Type)),
+                                node.Update(left, temp),
+                                Constants.VoidReturnValue,
+                                typeof(void)
+                                )
                             )
                         );
                 }

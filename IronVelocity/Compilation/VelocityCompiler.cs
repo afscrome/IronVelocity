@@ -76,12 +76,20 @@ namespace IronVelocity.Compilation
             expressionTree = debugVisitor.VisitAndConvert(expressionTree, "DynamicMethod Debug");
             log.GenerateDebugInfoStop(name);
 
+            var localReducer = new TemporaryLocalReuse();
+            expressionTree = localReducer.VisitAndConvert(expressionTree, "TemporaryLocalREducer");
+
+            var body = Expression.Block(localReducer.TemporaryVariables, expressionTree.Body);
+            expressionTree = expressionTree.Update(body, expressionTree.Parameters);
+
+
             log.LogProcessedExpressionTree(name, expressionTree);
 
             log.CompileMethodStart(name);
             var debugInfo = DebugInfoGenerator.CreatePdbGenerator();
             expressionTree.CompileToMethod(meth, debugInfo);
             log.CompileMethodStop(name);
+
 
             var compiledType = typeBuilder.CreateType();
             log.InitaliseCallSitesStart(name);

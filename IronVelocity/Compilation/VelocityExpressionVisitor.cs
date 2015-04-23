@@ -67,12 +67,12 @@ namespace IronVelocity.Compilation
                     return VisitTemplatedForEach((TemplatedForeachExpression)node);
                 case VelocityExpressionType.Variable:
                     return VisitVariable((VariableExpression)node);
+                case VelocityExpressionType.TemporaryVariableScope:
+                    return VisitTemporaryVariableScope((TemporaryVariableScopeExpression)node);
                 default:
                     throw new NotSupportedException();
             }
         }
-
-
 
         protected virtual Expression VisitCoerceToBoolean(CoerceToBooleanExpression node)
         {
@@ -175,6 +175,11 @@ namespace IronVelocity.Compilation
         }
 
         protected virtual Expression VisitTemplatedForEach(TemplatedForeachExpression node)
+        {
+            return base.VisitExtension(node);
+        }
+
+        protected virtual Expression VisitTemporaryVariableScope(TemporaryVariableScopeExpression node)
         {
             return base.VisitExtension(node);
         }
