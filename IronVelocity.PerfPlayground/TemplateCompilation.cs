@@ -82,9 +82,12 @@ namespace IronVelocity.PerfPlayground
                     var ilPath = assemblyPath.Replace(".dll", ".il");
                     var startInfo = new ProcessStartInfo(IldasmPath)
                     {
-                        Arguments = String.Format("\"{0}\" /item:{1} /linenum /source /out:\"{2}\"", assemblyPath, assemblyName, ilPath)
+                        Arguments = String.Format("\"{0}\" /item:{1} /linenum /source /out:\"{2}\"", assemblyPath, assemblyName, ilPath),
+                        CreateNoWindow = true,
+                        UseShellExecute = false,
+                        WindowStyle = ProcessWindowStyle.Hidden
                     };
-                    Process.Start(startInfo).WaitForExit();
+                    Process.Start(startInfo);
                 }
             }
 
