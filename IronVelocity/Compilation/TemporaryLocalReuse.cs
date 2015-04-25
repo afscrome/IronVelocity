@@ -26,10 +26,6 @@ namespace IronVelocity.Compilation
             {
                 previousTemp = null;
             }
-            else
-            {
-                var s = "";
-            }
 
             var newTemp = _replacements[node.Variable] = GetTemp(node.Variable);
 
