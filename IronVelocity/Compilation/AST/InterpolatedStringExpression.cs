@@ -53,7 +53,7 @@ namespace IronVelocity.Compilation.AST
             return new TemporaryVariableScopeExpression(
                     outputParam,
                     Expression.Block(
-                        Expression.Assign(outputParam, Expression.New(typeof(StringBuilder))),
+                        Expression.Assign(outputParam, Expression.New(Constants.OutputParameter.Type)),
                         new RenderedBlock(Parts),
                         Expression.Call(outputParam, "ToString", Type.EmptyTypes)
                     )

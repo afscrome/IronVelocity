@@ -52,6 +52,7 @@
     <Compile Include="Binders\BinderHelper.cs" />
     <Compile Include="Binders\ReflectionHelper.cs" />
     <Compile Include="Compilation\AST\MathematicalExpression.cs" />
+    <Compile Include="Compilation\AST\RenderableExpression.cs" />
     <Compile Include="Compilation\AST\SourceInfo.cs" />
     <Compile Include="Compilation\AST\TemporaryVariableScope.cs" />
     <Compile Include="Compilation\AST\VelocityExpressionType.cs" />
@@ -113,7 +114,6 @@
     <Compile Include="Compilation\AST\MethodInvocationExpression.cs" />
     <Compile Include="Compilation\AST\PropertyAccessExpression.cs" />
     <Compile Include="Compilation\AST\UnrecognisedDirective.cs" />
-    <Compile Include="Compilation\StaticGlobalVisitor.cs" />
     <Compile Include="Compilation\VelocityExpressionBuilder.cs" />
     <Compile Include="Compilation\AST\RenderedBlock.cs" />
     <Compile Include="Compilation\AST\VariableExpression.cs" />
@@ -139,6 +139,7 @@
     <Compile Include="Runtime\RuntimeDictionary.cs" />
     <Compile Include="Compilation\Scope.cs" />
     <Compile Include="Compilation\VelocityCompiler.cs" />
+    <Compile Include="Runtime\VelocityOutput.cs" />
     <Compile Include="TypeHelper.cs" />
     <Compile Include="VelocityContext.cs" />
     <Compile Include="Compilation\VelocityExpressions.cs" />

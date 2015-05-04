@@ -18,6 +18,7 @@ namespace IronVelocity.Compilation
     {
         internal readonly RuntimeInstance _runtimeService;
 
+        private readonly IDictionary<string, object> _globals;
         private readonly IDictionary<string, DirectiveExpressionBuilder> _directiveHandlers = new Dictionary<string, DirectiveExpressionBuilder>(StringComparer.OrdinalIgnoreCase)
         {
             {"foreach", new ForeachDirectiveExpressionBuilder()},
@@ -25,7 +26,7 @@ namespace IronVelocity.Compilation
             {"macro", new MacroDefinitionExpressionBuilder()}
         };
 
-        public NVelocityParser(IDictionary<string, DirectiveExpressionBuilder> directiveHandlers)
+        public NVelocityParser(IDictionary<string, DirectiveExpressionBuilder> directiveHandlers, IDictionary<string,object> globals)
         {
             _runtimeService = new RuntimeInstance();
 
@@ -50,29 +51,37 @@ namespace IronVelocity.Compilation
             }
 
             _runtimeService.Init(properties);
+            _globals = globals;
         }
-
         public Expression<VelocityTemplateMethod> Parse(string input, string name)
         {
-            var log = TemplateGenerationEventSource.Log;
-            var parser = _runtimeService.CreateNewParser();
             using (var reader = new StringReader(input))
             {
-                log.ParseStart(name);
-                var ast = parser.Parse(reader, name) as ASTprocess;
-                log.ParseStop(name);
-                if (ast == null)
-                    throw new InvalidProgramException("Unable to parse ast");
-
-                var builder = new VelocityExpressionBuilder(_directiveHandlers);
-                var converter = new NVelocityNodeToExpressionConverter(builder, _runtimeService, name);
-
-                log.ConvertToExpressionTreeStart(name);
-                var expr = new RenderedBlock(converter.GetBlockExpressions(ast));
-                log.ConvertToExpressionTreeStop(name);
-
-                return Expression.Lambda<VelocityTemplateMethod>(expr, name, new[] { Constants.InputParameter, Constants.OutputParameter });
+                return Parse(reader, name);
             }
         }
+
+        public Expression<VelocityTemplateMethod> Parse(TextReader reader, string name)
+        {
+            var parser = _runtimeService.CreateNewParser();
+            var log = TemplateGenerationEventSource.Log;
+
+            log.ParseStart(name);
+            var ast = parser.Parse(reader, name) as ASTprocess;
+            log.ParseStop(name);
+            if (ast == null)
+                throw new InvalidProgramException("Unable to parse ast");
+
+            var builder = new VelocityExpressionBuilder(_directiveHandlers);
+            var converter = new NVelocityNodeToExpressionConverter(builder, _runtimeService, name, _globals);
+
+            log.ConvertToExpressionTreeStart(name);
+            var expr = new RenderedBlock(converter.GetBlockExpressions(ast));
+            log.ConvertToExpressionTreeStop(name);
+
+            return Expression.Lambda<VelocityTemplateMethod>(expr, name, new[] { Constants.InputParameter, Constants.OutputParameter });
+            
+        }
+
     }
 }

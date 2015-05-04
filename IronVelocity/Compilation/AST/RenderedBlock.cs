@@ -42,12 +42,11 @@ namespace IronVelocity.Compilation.AST
 
             var reference = expression as ReferenceExpression;
             if (reference != null)
-                expression = new RenderableVelocityReference(reference);
-
+                return new RenderableVelocityReference(reference);
 
             var method = expression.Type == typeof(string)
-                ? MethodHelpers.AppendStringMethodInfo
-                : MethodHelpers.AppendMethodInfo;
+                ? MethodHelpers.OutputStringMethodInfo
+                : MethodHelpers.OutputObjectMethodInfo;
 
             return Expression.Call(Constants.OutputParameter, method, expression);
         }

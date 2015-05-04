@@ -39,6 +39,9 @@ namespace IronVelocity.Compilation.Directives
 
             CurrentIndex = new VariableExpression("velocityCount").ReduceExtensions();
             CurrentItem = converter.Reference(node.GetChild(0)).ReduceExtensions();
+
+            if (CurrentItem is GlobalVariableExpression)
+                throw new NotSupportedException("Cannot use global variable as Foreach current item.");
         }
 
 
@@ -90,7 +93,7 @@ namespace IronVelocity.Compilation.Directives
         protected override Expression ReduceInternal()
         {
             var originalItemValue = Expression.Parameter(CurrentItem.Type, "foreachOriginalItem");
-            var originalIndex = Expression.Parameter(CurrentItem.Type, "foreachOriginalVelocityIndex");
+            var originalIndex = Expression.Parameter(typeof(object), "foreachOriginalVelocityIndex");
 
             //Need to store the enumerable in a local variable so we don't end up computing it twice (once with the TypeAs check, and again with the execution)
             var localEnumerable = Expression.Parameter(typeof(IEnumerable), "foreachEnumerable");

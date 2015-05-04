@@ -13,12 +13,19 @@ namespace IronVelocity.Tests
     /// </summary>
     public class BoxingTests
     {
+        
         [Test]
         public void BoxTestWithProperyGet()
         {
             var context = new Dictionary<string, object>();
             context["x"] = new TestStruct();
             Utility.TestExpectedMarkupGenerated("$x.CallCount, $x.CallCount, $x.CallCount", "0, 1, 2", context);
+
+
+            if (Utility.DefaultToGlobals)
+            {
+                Assert.Inconclusive("TODO: How can we test the rest with static globals? Is it even possible (or valuable)?");
+            }
 
             var x = (TestStruct)context["x"];
             Assert.AreEqual(3, x.CallCount);
@@ -35,6 +42,11 @@ namespace IronVelocity.Tests
             context["x"] = new TestStruct();
             Utility.TestExpectedMarkupGenerated("#set($x.ManualInt = 5)$x.ManualInt", "5", context);
 
+            if (Utility.DefaultToGlobals)
+            {
+                Assert.Inconclusive("TODO: How can we test the rest with static globals? Is it even possible (or valuable)?");
+            }
+
             var x = (TestStruct)context["x"];
             Assert.AreEqual(5, x.ManualInt);
         }
@@ -45,6 +57,12 @@ namespace IronVelocity.Tests
             var context = new Dictionary<string, object>();
             context["x"] = new TestStruct();
             Utility.TestExpectedMarkupGenerated("$x.GetCallCount(), $x.GetCallCount(), $x.GetCallCount()", "0, 1, 2", context);
+
+
+            if (Utility.DefaultToGlobals)
+            {
+                Assert.Inconclusive("TODO: How can we test the rest with static globals? Is it even possible (or valuable)?");
+            }
 
             var x = (TestStruct)context["x"];
             Assert.AreEqual(3, x.CallCount);

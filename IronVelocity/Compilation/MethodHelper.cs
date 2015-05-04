@@ -12,8 +12,9 @@ namespace IronVelocity.Compilation
 {
     public static class MethodHelpers
     {
-        public static readonly MethodInfo AppendMethodInfo = typeof(StringBuilder).GetMethod("Append", new[] { typeof(object) });
-        public static readonly MethodInfo AppendStringMethodInfo = typeof(StringBuilder).GetMethod("Append", new[] { typeof(string) });
+        public static readonly MethodInfo OutputObjectMethodInfo = typeof(VelocityOutput).GetMethod("Write", new[] { typeof(object) });
+        public static readonly MethodInfo OutputStringMethodInfo = typeof(VelocityOutput).GetMethod("Write", new[] { typeof(string) });
+        public static readonly MethodInfo OutputValueTypeMethodInfo = typeof(VelocityOutput).GetMethod("Write", new[] { typeof(ValueType) });
 
         public static readonly MethodInfo ToStringMethodInfo = typeof(object).GetMethod("ToString", new Type[] { });
 

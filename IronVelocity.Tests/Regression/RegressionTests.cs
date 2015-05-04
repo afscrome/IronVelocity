@@ -108,7 +108,11 @@ namespace IronVelocity.Tests.Regression
             var input = File.ReadAllText(inputFile);
             var expectedOutput = File.ReadAllText(expectedOutputFile);
 
-            var output = Utility.GetNormalisedOutput(input, _environment, inputFile);
+            //Don't use globals are the Velocity regression tests re-assign to input variables
+            //Supporting globals would require rewriting the regression tests, which would
+            //risk introducing regressions...
+            var globals = new Dictionary<string, object>();
+            var output = Utility.GetNormalisedOutput(input, _environment, globals , inputFile);
             expectedOutput = Utility.NormaliseLineEndings(expectedOutput);
 
             try

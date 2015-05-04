@@ -1,8 +1,10 @@
 ﻿using IronVelocity;
 using IronVelocity.Compilation;
+using IronVelocity.Runtime;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
@@ -13,7 +15,7 @@ namespace IronVelocity.Tests
 {
     public static class Utility
     {
-        private static bool DefaultToGlobals = false;
+        public static bool DefaultToGlobals = true;
 
         private static string GetName()
         {
@@ -25,7 +27,7 @@ namespace IronVelocity.Tests
 
         public static VelocityTemplateMethod CompileTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {
-            var parser = new NVelocityParser(null);
+            var parser = new NVelocityParser(null, globals);
             var runtime = new VelocityRuntime(parser, globals);
             return runtime.CompileTemplate(input, GetName(), fileName, true);
         }
@@ -37,12 +39,15 @@ namespace IronVelocity.Tests
 
             var action = CompileTemplate(input, fileName, globals);
 
-            var builder = new StringBuilder();
             var ctx = environment as VelocityContext;
             if (ctx == null)
                 ctx = new VelocityContext(environment);
 
-            action(ctx, builder);
+            using (var writer = new StringWriter())
+            {
+                var output = new VelocityOutput(writer);
+                action(ctx, output);
+            }
 
             return ctx;
         }
@@ -64,12 +69,16 @@ namespace IronVelocity.Tests
         {
             var action = CompileTemplate(input, fileName, globals);
 
-            var builder = new StringBuilder();
             var ctx = environment as VelocityContext;
             if (ctx == null)
                 ctx = new VelocityContext(environment);
 
-            action(ctx,builder);
+            using (var writer = new StringWriter())
+            {
+                var output = new VelocityOutput(writer);
+                action(ctx, output);
+                return NormaliseLineEndings(writer.ToString());
+            }
             
             /*
             var task = action(ctx, builder);
@@ -81,7 +90,6 @@ namespace IronVelocity.Tests
                 throw new InvalidOperationException();
             */
 
-            return NormaliseLineEndings(builder.ToString());
         }
 
 

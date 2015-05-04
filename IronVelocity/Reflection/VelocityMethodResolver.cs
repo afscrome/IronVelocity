@@ -79,7 +79,7 @@ namespace IronVelocity.Reflection
                 );
             }
 
-            return VelocityExpressions.BoxIfNeeded(result);
+            return result;
         }
 
 

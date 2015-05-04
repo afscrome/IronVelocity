@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation;
+using IronVelocity.Runtime;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
@@ -13,7 +14,7 @@ namespace IronVelocity
         public static readonly ParameterExpression InputParameter = Expression.Parameter(typeof(VelocityContext), "context");
 
         [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Expressions are immutable")]
-        public static readonly ParameterExpression OutputParameter = Expression.Parameter(typeof(StringBuilder), "output");
+        public static readonly ParameterExpression OutputParameter = Expression.Parameter(typeof(VelocityOutput), "output");
 
         [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Expressions are immutable")]
         public static readonly Expression NullExpression = Expression.Constant(null);

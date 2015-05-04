@@ -65,7 +65,7 @@ namespace IronVelocity.Compilation
             if (!_globalTypeMap.TryGetValue(node.Name, out staticType) || typeof(IDynamicMetaObjectProvider).IsAssignableFrom(staticType))
                 return node; // base.VisitExtension(node);
 
-            return new GlobalVariableExpression(node, staticType);
+            return new GlobalVariableExpression(node.Name, null);
         }
 
         protected override Expression VisitPropertyAccess(PropertyAccessExpression node)
@@ -203,7 +203,7 @@ namespace IronVelocity.Compilation
             if (node == null)
                 throw new ArgumentNullException("node");
 
-            var value = Visit(node.Expression);
+            var value = Visit(node.Reference);
 
             return node.Update(value);
         }

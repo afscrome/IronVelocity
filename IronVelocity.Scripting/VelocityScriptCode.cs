@@ -23,18 +23,7 @@ namespace IronVelocity.Scripting
 
         public override object Run(Scope scope)
         {
-            var context = new VelocityContext
-            {
-                {"test" , 123}
-            };
-            var output = new StringBuilder();
-            _method(context, output);
-
-            Console.WriteLine("------------------");
-            Console.WriteLine(output.ToString());
-            Console.WriteLine("------------------");
-
-            return null;
+            throw new NotImplementedException();
         }
 
     }

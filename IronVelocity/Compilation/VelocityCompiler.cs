@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IronVelocity.Runtime;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
@@ -9,11 +10,11 @@ using System.Text;
 
 namespace IronVelocity.Compilation
 {
-    public delegate void VelocityTemplateMethod(VelocityContext context, StringBuilder builder);
+    public delegate void VelocityTemplateMethod(VelocityContext context, VelocityOutput output);
     public class VelocityCompiler
     {
         private const string _methodName = "Execute";
-        private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(StringBuilder) };
+        private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(VelocityOutput) };
         private static readonly ConstructorInfo _debugAttributeConstructorInfo = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
         protected IReadOnlyDictionary<string, Type> Globals { get; private set; }
 
@@ -62,15 +63,7 @@ namespace IronVelocity.Compilation
                     typeof(void),
                     _signature);
 
-            if (Globals != null && Globals.Count > 0)
-            {
-                log.StronglyTypeStart(name);
-                var staticTypeVisitor = new StaticGlobalVisitor(Globals);
-                expressionTree = staticTypeVisitor.VisitAndConvert(expressionTree, "Static Conversion");
-                log.StronglyTypeStop(name);
-            }
-
-
+            
             log.GenerateDebugInfoStart(name);
             var debugVisitor = new DynamicToExplicitCallSiteConvertor(typeBuilder, fileName);
             expressionTree = debugVisitor.VisitAndConvert(expressionTree, "DynamicMethod Debug");

@@ -1,4 +1,5 @@
-﻿using IronVelocity.Reflection;
+﻿using IronVelocity.Compilation.AST;
+using IronVelocity.Reflection;
 using System;
 using System.Dynamic;
 using System.Linq.Expressions;
@@ -36,6 +37,32 @@ namespace IronVelocity.Binders
 
 
 
+
+        public static bool IsConstantType(Expression expression)
+        {
+            if (expression == null)
+                throw new ArgumentNullException("expression");
+
+            if (expression is DynamicExpression || typeof(IDynamicMetaObjectProvider).IsAssignableFrom(expression.Type))
+                return false;
+
+            if (expression is ConstantExpression || expression is GlobalVariableExpression)
+                return true;
+
+            //Interpolated & dictionary strings will always return the same type
+            if (expression is InterpolatedStringExpression || expression is DictionaryStringExpression
+                || expression is DictionaryExpression || expression is ObjectArrayExpression)
+                return true;
+
+            if (expression.Type == typeof(void))
+                return true;
+
+            //If the return type is sealed, we can't get any subclasses back
+            if (expression.Type.IsSealed)
+                return true;
+
+            return false;
+        }
 
         [Obsolete]
         public static bool CanBeImplicitlyConverted(Type from, Type to)

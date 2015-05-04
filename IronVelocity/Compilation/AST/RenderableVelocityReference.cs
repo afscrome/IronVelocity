@@ -1,91 +1,73 @@
 ﻿using System;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class RenderableVelocityReference : RenderableExpression
+    public class RenderableVelocityReference : VelocityExpression
     {
-        public ReferenceExpression Reference { get { return (ReferenceExpression)Expression; } }
+        public Expression Reference { get; private set; }
+        public ASTReferenceMetadata Metadata { get; private set; }
 
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.RenderableReference; } }
+        public override Type Type { get { return typeof(void); } }
 
-        public RenderableVelocityReference(ReferenceExpression reference)
-            : base(reference, reference.Metadata)
+        public RenderableVelocityReference(ReferenceExpression reference)            
         {
-        }
-
-
-
-    }
-
-    public class RenderableExpression : VelocityExpression
-    {
-        public Expression Expression { get; private set; }
-        public ASTReferenceMetadata Metadata {get; private set;}
-
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.RenderableExpression; } }
-
-        public RenderableExpression(Expression expression, ASTReferenceMetadata metadata)
-        {
-            Expression = expression;
-            Metadata = metadata;
+            Reference = reference;
+            Metadata = reference.Metadata;
         }
 
         public override Expression Reduce()
         {
             if (Metadata.Escaped)
+                return EscapedOutput();
+
+            var prefix = Metadata.EscapePrefix + Metadata.MoreString;
+
+            if (!String.IsNullOrEmpty(prefix))
             {
-                return Expression.Condition(
-                    Expression.NotEqual(Expression, Expression.Constant(null, Expression.Type)),
-                    Expression.Constant(Metadata.EscapePrefix + Metadata.NullString),
-                    Expression.Constant(Metadata.EscapePrefix + "\\" + Metadata.NullString)
-                );
+                if (!String.IsNullOrEmpty(Metadata.EscapePrefix))
+                {
+                    throw new NotImplementedException("TODO: Prefix with non empty Escape Prefix support");
+                }
+                else
+                {
+                    return Expression.Block(
+                            Expression.Call(Constants.OutputParameter, MethodHelpers.OutputStringMethodInfo, Expression.Constant(prefix)),
+                            new RenderableExpression(Reference, Metadata.NullString)
+                        );
+                }
+
+            }
+
+            var nullValue = Metadata.EscapePrefix + prefix + Metadata.NullString;
+
+            //TODO: How to handle prefix?
+
+            return new RenderableExpression(Reference, nullValue);
+        }
+
+        private Expression EscapedOutput()
+        {
+            var notNullResult = Expression.Constant(Metadata.EscapePrefix + Metadata.NullString);
+
+            if (Reference.Type.IsValueType)
+            {
+                return notNullResult;
             }
             else
             {
-                var prefix = Metadata.EscapePrefix + Metadata.MoreString;
-                var NullValue = Expression.Constant(Metadata.EscapePrefix + prefix + Metadata.NullString);
-
-                //TODO: work a way around this if possible
-                //For static typing
-
-                var expression = Expression;
-                if (!Expression.Type.IsAssignableFrom(typeof(string)))
-                {
-                    expression = VelocityExpressions.ConvertIfNeeded(expression, typeof(object));
-                }
-
-                //If the literal has not been escaped (has an empty prefix), then we can return a simple Coalesce expression
-                if (String.IsNullOrEmpty(prefix))
-                    return expression.Type.IsValueType
-                        ? expression
-                        : Expression.Coalesce(expression, NullValue);
-
-
-                //Otherwise we have to do a slightly more complicated result
-                var evaluatedTemp = Expression.Parameter(typeof(object), "tempEvaulatedResult");
-
-                return new TemporaryVariableScopeExpression(
-                    evaluatedTemp,
-                    Expression.Condition(
-                        Expression.NotEqual(Expression.Assign(evaluatedTemp, expression), Expression.Constant(null, evaluatedTemp.Type)),
-                        Expression.Call(
-                            MethodHelpers.StringConcatMethodInfo,
-                            Expression.Convert(Expression.Constant(prefix), typeof(object)),
-                            evaluatedTemp
-                        ),
-                        NullValue
-                    )
+                var result = Expression.Condition(
+                    Expression.NotEqual(Reference, Expression.Constant(null, Reference.Type)),
+                    notNullResult,
+                    Expression.Constant(Metadata.EscapePrefix + "\\" + Metadata.NullString)
                 );
+
+                return Expression.Call(Constants.OutputParameter, MethodHelpers.OutputStringMethodInfo, result);
             }
         }
 
-        public RenderableExpression Update(Expression expression)
-        {
-            return Expression == expression
-                ? this
-                : new RenderableExpression(expression, Metadata);
-        }       
-    }
 
+    }
 }

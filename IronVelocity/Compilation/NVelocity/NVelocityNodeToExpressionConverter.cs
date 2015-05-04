@@ -12,6 +12,7 @@ using IronVelocity.Compilation.AST;
 using System.Text;
 using IronVelocity.Compilation.Directives;
 using NVelocity.Runtime;
+using System.Dynamic;
 
 namespace IronVelocity.Compilation
 {
@@ -20,11 +21,15 @@ namespace IronVelocity.Compilation
         public VelocityExpressionBuilder Builder {get; private set;}
         private readonly RuntimeInstance _runtimeInstance;
         private readonly string _templateName;
-        public NVelocityNodeToExpressionConverter(VelocityExpressionBuilder builder, RuntimeInstance instance, string templateName)
+
+        private IDictionary<string, object> _globals;
+
+        public NVelocityNodeToExpressionConverter(VelocityExpressionBuilder builder, RuntimeInstance instance, string templateName, IDictionary<string, object> globals)
         {
             Builder = builder;
             _runtimeInstance = instance;
             _templateName = templateName;
+            _globals = globals ?? new Dictionary<string, object>();
         }
 
         public IReadOnlyCollection<Expression> GetBlockExpressions(INode node)
@@ -328,7 +333,7 @@ namespace IronVelocity.Compilation
                 throw new ArgumentOutOfRangeException("node");
 
             var metadata = new ASTReferenceMetadata(refNode);
-            Expression value = new VariableExpression(metadata.RootString);
+            Expression value = Variable(metadata.RootString);
 
             for (int i = 0; i < node.ChildrenCount; i++)
             {
@@ -342,10 +347,18 @@ namespace IronVelocity.Compilation
             }
 
             return new ReferenceExpression(metadata, value);
-
         }
 
-        public MethodInvocationExpression Method(INode node, Expression target)
+        public Expression Variable(string name)
+        {
+            object value;
+            if (_globals.TryGetValue(name, out value))
+                return new GlobalVariableExpression(name, value);
+
+            return new VariableExpression(name);
+        }
+
+        public Expression Method(INode node, Expression target)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -354,6 +367,7 @@ namespace IronVelocity.Compilation
                 throw new ArgumentNullException("target");
 
 
+            var name = node.FirstToken.Image;
             var arguments = new Expression[node.ChildrenCount - 1];
             //Subsequent arguments are the parameters
             for (int i = 1; i < node.ChildrenCount; i++)
@@ -361,11 +375,21 @@ namespace IronVelocity.Compilation
                 arguments[i - 1] = (Operand(node.GetChild(i)));
             }
 
-            return new MethodInvocationExpression(target, node.FirstToken.Image, arguments, GetSourceInfoFromINode(node));
+            if (ReflectionHelper.IsConstantType(target) && arguments.All(ReflectionHelper.IsConstantType))
+            {
+                var method = ReflectionHelper.ResolveMethod(target.Type, name, arguments.Select(x => x.Type).ToArray());
+                //TODO: Include debug info
+                return method == null
+                    ? Constants.NullExpression
+                    : ReflectionHelper.ConvertMethodParameters(method, target, arguments.Select(x => new DynamicMetaObject(x, BindingRestrictions.Empty)).ToArray());
+            }
+
+
+            return new MethodInvocationExpression(target, name, arguments, GetSourceInfoFromINode(node));
         }
 
 
-        public PropertyAccessExpression Property(INode node, Expression target)
+        public Expression Property(INode node, Expression target)
         {
             if (node == null)
                 throw new ArgumentNullException("node");
@@ -373,7 +397,16 @@ namespace IronVelocity.Compilation
             if (target == null)
                 throw new ArgumentNullException("target");
 
-            return new PropertyAccessExpression(target, node.Literal, GetSourceInfoFromINode(node));
+            var name = node.Literal;
+
+            if (ReflectionHelper.IsConstantType(target))
+            {
+                //TODO: Include debug info
+                return ReflectionHelper.MemberExpression(name, target.Type, target)
+                    ?? Constants.NullExpression;
+            }
+
+            return new PropertyAccessExpression(target, name, GetSourceInfoFromINode(node));
         }
 
         public Expression NVelocityString(INode node)

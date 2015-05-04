@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation;
+using IronVelocity.Runtime;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -47,7 +48,7 @@ namespace IronVelocity.PerfPlayground
         public void TemplateCompilationTests(string path, string assemblyName)
         {
             var template = File.ReadAllText(path);
-            var expressionTree = new NVelocityParser(null).Parse(template, assemblyName);
+            var expressionTree = new NVelocityParser(null, null).Parse(template, assemblyName);
             AssemblyBuilder assemblyBuilder = null;
             VelocityCompiler compiler;
 
@@ -67,8 +68,11 @@ namespace IronVelocity.PerfPlayground
             if (ExecuteTemplate)
             {
                 var context = new VelocityContext();
-                var output = new StringBuilder();
-                result(context, output);
+                using(var writer = new StringWriter())
+                {
+                    var output = new VelocityOutput(writer);
+                    result(context, output);
+                }
             }
 
             if (SaveDlls || SaveIl)

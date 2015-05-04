@@ -37,7 +37,10 @@ namespace IronVelocity.Compilation.AST
 
             if (left is ReferenceExpression)
                 left = left.Reduce();
-  
+
+            if (left is GlobalVariableExpression)
+                throw new NotSupportedException("Cannot assign to a Global Variable");
+
             var getMember = left as PropertyAccessExpression;
             if (getMember != null)
             {
@@ -46,12 +49,21 @@ namespace IronVelocity.Compilation.AST
 
             bool rightIsNullableType = ReflectionHelper.IsNullableType(right.Type);
 
-            if (left.Type != right.Type)
+            if (!left.Type.IsAssignableFrom(right.Type))
             {
-                //This shouldn't really be happening as we should only be assigning to objects, but just in case...
-                if (!left.Type.IsAssignableFrom(right.Type))
+                //If we can't assign from right to left, but can from left to right
+                // Then we may be able to assign at runtime
+                if (right.Type.IsAssignableFrom(left.Type))
+                {
+                    right = Expression.TypeAs(right, left.Type);
+                }
+                else
+                {
                     throw new InvalidOperationException(String.Format("Cannot assign from type '{0}' to '{1}'", left.Type, right.Type));
-
+                }
+            }
+            else
+            {
                 right = VelocityExpressions.ConvertIfNeeded(right, left.Type);
             }
 
