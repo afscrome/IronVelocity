@@ -33,19 +33,10 @@ namespace IronVelocity.Runtime
             _writer.Write(value);
         }
 
-        public void Write<T>(T value)
+        public void WriteValueType<T>(T value)
             where T : struct
         {
             Write(value.ToString());
-        }
-
-        public void WriteValueType<T>(T value, string outputIfNull)
-            where T : class
-        {
-            if (value == null)
-                Write(outputIfNull);
-            else
-                Write((object)value);
         }
 
         public void Write(object value, string outputIfNull)

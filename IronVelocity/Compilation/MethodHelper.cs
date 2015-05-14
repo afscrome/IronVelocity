@@ -14,7 +14,9 @@ namespace IronVelocity.Compilation
     {
         public static readonly MethodInfo OutputObjectMethodInfo = typeof(VelocityOutput).GetMethod("Write", new[] { typeof(object) });
         public static readonly MethodInfo OutputStringMethodInfo = typeof(VelocityOutput).GetMethod("Write", new[] { typeof(string) });
-        public static readonly MethodInfo OutputValueTypeMethodInfo = typeof(VelocityOutput).GetMethod("Write", new[] { typeof(ValueType) });
+        public static readonly MethodInfo OutputStringWithNullFallbackMethodInfo = typeof(VelocityOutput).GetMethod("Write", new[] { typeof(string), typeof(string) });
+        public static readonly MethodInfo OutputObjectWithNullFallbackMethodInfo = typeof(VelocityOutput).GetMethod("Write", new[] { typeof(object), typeof(string) });
+        public static readonly MethodInfo OutputValueTypeMethodInfo = typeof(VelocityOutput).GetMethod("WriteValueType");
 
         public static readonly MethodInfo ToStringMethodInfo = typeof(object).GetMethod("ToString", new Type[] { });
 

@@ -25,22 +25,22 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            //TODO: Refactor so that value types don't need to be boxed
-            var method = typeof(VelocityOutput).GetMethod("Write", BindingFlags.Public | BindingFlags.Instance, null, new[] { typeof(object), typeof(string) }, null);
+                
+            if (Value.Type.IsValueType)
+            {
+                var type = Value.Type;
+                var method = MethodHelpers.OutputValueTypeMethodInfo.MakeGenericMethod(Value.Type);
 
-            var value = VelocityExpressions.ConvertIfNeeded(Value, typeof(object));
-
-            return Expression.Call(Constants.OutputParameter, method, value, Expression.Constant(NullOutput));
-            /*MethodInfo renderMethod;
-
-            if (Value.Type == typeof(object))
-                renderMethod = MethodHelpers.OutputObjectMethodInfo;
-            else if(Value.Type == typeof(string))
-                renderMethod = MethodHelpers.OutputStringMethodInfo;
+                return Expression.Call(Constants.OutputParameter, method, Value);
+            }
             else
-                renderMethod = MethodHelpers.OutputObjectMethodInfo;
-            */
+            {
+                var method = Value.Type == typeof(string)
+                    ? MethodHelpers.OutputStringWithNullFallbackMethodInfo
+                    : MethodHelpers.OutputObjectWithNullFallbackMethodInfo ;
 
+                return Expression.Call(Constants.OutputParameter, method, Value, Expression.Constant(NullOutput));
+            }
         }
 
         public override VelocityExpressionType VelocityExpressionType
