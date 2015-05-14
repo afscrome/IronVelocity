@@ -1,5 +1,6 @@
 ﻿using IronVelocity.Binders;
 using IronVelocity.Compilation;
+using IronVelocity.Compilation.AST;
 using System;
 using System.Diagnostics;
 using System.Dynamic;
@@ -79,6 +80,24 @@ namespace IronVelocity.Reflection
                     return VelocityStrings.EscapeDoubleQuote(expression);
                 else if (name.Equals("to_squote", StringComparison.OrdinalIgnoreCase))
                     return VelocityStrings.EscapeSingleQuote(expression);
+            }
+
+
+            if (typeof(Type).IsAssignableFrom(type))
+            {
+                var globalExpression = expression as GlobalVariableExpression;
+                if (globalExpression != null)
+                {
+                    var valueType = globalExpression.Value as Type;
+                    if (valueType != null && valueType.IsEnum)
+                    {
+                        var result = Enum.Parse(valueType, name);
+                        if (result != null)
+                        {
+                            return Expression.Constant(result, valueType);
+                        }
+                    }
+                }
             }
 
             MemberInfo member = null;
