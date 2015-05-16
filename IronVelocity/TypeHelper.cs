@@ -12,70 +12,34 @@ namespace IronVelocity
 
         public static bool IsNonIntegerNumeric(Type type)
         {
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.Decimal:
-                case TypeCode.Double:
-                case TypeCode.Single:
-                    return true;
-                default:
-                    return false;
-            }
+            return type == typeof(float)
+                || type == typeof(double)
+                || type == typeof(decimal);
         }
 
         public static bool IsSignedInteger(Type type)
         {
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.Byte:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                    return true;
-                default:
-                    return false;
-            }
-
+            return type == typeof(int)
+                || type == typeof(long)
+                || type == typeof(short)
+                || type == typeof(sbyte);
+        }
+        public static bool IsUnsignedInteger(Type type)
+        {
+            return type == typeof(byte)
+                || type == typeof(uint)
+                || type == typeof(ulong)
+                || type == typeof(ushort);
         }
 
         public static bool IsInteger(Type type)
         {
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.SByte:
-                case TypeCode.Int16:
-                case TypeCode.Int32:
-                case TypeCode.Int64:
-                case TypeCode.Byte:
-                case TypeCode.UInt16:
-                case TypeCode.UInt32:
-                case TypeCode.UInt64:
-                    return true;
-                default:
-                    return type == typeof(BigInteger);
-            }
+            return IsSignedInteger(type) || IsUnsignedInteger(type);
         }
 
         public static bool SupportsDivisionByZero(Type type)
         {
-            switch (Type.GetTypeCode(type))
-            {
-                case TypeCode.Single:
-                case TypeCode.Double:
-                    return true;
-                case TypeCode.Boolean:
-                case TypeCode.Empty:
-                case TypeCode.Char:
-                case TypeCode.DateTime:
-                case TypeCode.DBNull:
-                case TypeCode.Object:
-                    if (type == typeof(BigInteger))
-                        return false;
-                    else
-                        throw new ArgumentOutOfRangeException("type");
-                default:
-                    return false;
-            }
+            return type == typeof(Single) || type == typeof(BigInteger);
         }
     }
 }

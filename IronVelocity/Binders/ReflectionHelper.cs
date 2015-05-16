@@ -64,7 +64,6 @@ namespace IronVelocity.Binders
             return false;
         }
 
-        [Obsolete]
         public static bool CanBeImplicitlyConverted(Type from, Type to)
         {
             return _conversionHelper.CanBeConverted(from, to);

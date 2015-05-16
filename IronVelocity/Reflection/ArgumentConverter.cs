@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace IronVelocity.Reflection
 {
@@ -25,28 +26,39 @@ namespace IronVelocity.Reflection
 
         public bool CanBeConverted(Type from, Type to)
         {
+            return GetConverter(from, to) != null;
+        }
+
+        private static readonly IExpressionConverter _implicitConverter = new ImplicitExpressionConverter();
+        public IExpressionConverter GetConverter(Type from, Type to)
+        {
             //from may be null, but to may not be
             if (to == null)
                 throw new ArgumentNullException("to");
 
             if (from == null)
-                return !to.IsValueType;
+                return to.IsValueType
+                    ? null
+                    : _implicitConverter;
 
             if (to.IsAssignableFrom(from))
-                return true;
+                return _implicitConverter;
 
+            /*
             if (from.IsEnum)
-                return CanBeConverted(Enum.GetUnderlyingType(from), to);
+                return GetConverter(Enum.GetUnderlyingType(from), to);
+            */
 
-            if (!from.IsPrimitive)
-                return false;
+            if (from.IsPrimitive)
+            {
+                Type[] supportedConversions;
+                if (_implicitNumericConversions.TryGetValue(from, out supportedConversions))
+                    return supportedConversions.Contains(to)
+                        ? _implicitConverter
+                        : null;
+            }
 
-            Type[] supportedConversions;
-            if (_implicitNumericConversions.TryGetValue(from, out supportedConversions))
-                return supportedConversions.Contains(to);
-
-            return false;
+            return null;
         }
-
     }
 }

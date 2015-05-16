@@ -31,11 +31,11 @@ namespace IronVelocity.Tests.Binders
                 GenerateTestCaseData(1, 1, true, false, false, "Equal Integers"),
                 GenerateTestCaseData(3, 3F, true, false, false, "Equal Integer Float"),
                 GenerateTestCaseData(7, 7L, true, false, false, "Equal Integer Long"),
-                GenerateTestCaseData(1, TestEnum.Red, true, false, false, "Equal Integer Enum"),
-                GenerateTestCaseData(TestEnum.Green, 2, true, false, false, "Equal Enum Integer"),
+                GenerateTestCaseData(1, TestEnum.Red, false, false, false, "Equal Integer Enum"),
+                GenerateTestCaseData(TestEnum.Green, 2, false, false, false, "Equal Enum Integer"),
                 GenerateTestCaseData(TestEnum.Blue, "Blue", true, false, false, "Equal Enum Identical Case String"),
                 GenerateTestCaseData(TestEnum.Blue, "BLUE", false, false, false, "Equal Enum Differing Case String"),
-                GenerateTestCaseData(TestEnum.Green, 1, false, true, false, "GreaterThan Enum"),
+                GenerateTestCaseData(TestEnum.Green, 1, false, false, false, "GreaterThan Enum"),
                 GenerateTestCaseData(7, 7L, true, false, false, "NotEqual Enum String"),
                 GenerateTestCaseData(true, true, true, false, false, "True True"),
                 GenerateTestCaseData(true, false, false, false, false, "True False"),
@@ -112,6 +112,7 @@ namespace IronVelocity.Tests.Binders
             Blue = 3
         }
 
+#pragma warning disable CS0660,CS0661
         public class OverloadedEquals
         {
             public static bool operator ==(OverloadedEquals left, OverloadedEquals right)
@@ -124,6 +125,7 @@ namespace IronVelocity.Tests.Binders
                 return false;
             }
         }
+#pragma warning restore CS0660,CS0661
 
         public class OverriddenEquals
         {

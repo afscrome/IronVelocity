@@ -129,8 +129,10 @@
     <Compile Include="IParser.cs" />
     <Compile Include="Reflection\ArgumentConverter.cs" />
     <Compile Include="Reflection\IArgumentConverter.cs" />
+    <Compile Include="Reflection\IExpressionConverter.cs" />
     <Compile Include="Reflection\IMemberResolver.cs" />
     <Compile Include="Reflection\IMethodResolver.cs" />
+    <Compile Include="Reflection\ImplicitExpressionConverter.cs" />
     <Compile Include="Reflection\MethodSpecificityComparison.cs" />
     <Compile Include="Reflection\MemberResolver.cs" />
     <Compile Include="Reflection\VelocityMethodResolver.cs" />

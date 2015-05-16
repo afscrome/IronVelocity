@@ -22,8 +22,7 @@ namespace IronVelocity.Tests.Binders
         [TestCase(typeof(Guid), TestName = "Identity Conversion: Struct")]
         public void IdentityConversion(Type type)
         {
-            var result = _conversionHelper.CanBeConverted(type, type);
-            Assert.IsTrue(result);
+            ImplicitConversionTest(type, type, true);
         }
 
         //6.1.2 - Implicit numeric conversions - At end of file.
@@ -48,20 +47,18 @@ namespace IronVelocity.Tests.Binders
         [TestCase(typeof(long?), typeof(int?), false)]
         [TestCase(typeof(int), typeof(long?), true, Ignore = true)]
         [TestCase(typeof(long), typeof(int?), false)]
-        public void ImplicitNullableConversions(Type from, Type to, bool expected)
+        public void ImplicitNullableConversions(Type from, Type to, bool isConvertable)
         {
-            var result = _conversionHelper.CanBeConverted(from, to);
-            Assert.That(result, Is.EqualTo(expected));
+            ImplicitConversionTest(from, to, isConvertable);
         }
 
         //6.1.5 Null literal conversions
         [TestCase(typeof(Child), true)]
         [TestCase(typeof(int), false)]
         [TestCase(typeof(Guid), false)]
-        public void NullLiteralConversion(Type type, bool expected)
+        public void NullLiteralConversion(Type type, bool isConvertable)
         {
-            var result = _conversionHelper.CanBeConverted(null, type);
-            Assert.That(result, Is.EqualTo(expected));
+            ImplicitConversionTest(null, type, isConvertable);
         }
 
         //6.1.6 Implicit reference conversions
@@ -95,18 +92,16 @@ namespace IronVelocity.Tests.Binders
         [TestCase(typeof(string[]), typeof(IList<string>), true)]
         [TestCase(typeof(string[]), typeof(ICollection), true)]
         [TestCase(typeof(string[,]), typeof(IList<string>), false)]
-        public void ImplicitReferenceConversions(Type from, Type to, bool expected)
+        public void ImplicitReferenceConversions(Type from, Type to, bool isConvertable)
         {
-            var result = _conversionHelper.CanBeConverted(from, to);
-            Assert.That(result, Is.EqualTo(expected));
+            ImplicitConversionTest(from, to, isConvertable);
         }
 
         //6.1.7 Boxing Conversions
         [Test]
         public void BoxingConversion()
         {
-            var result = _conversionHelper.CanBeConverted(typeof(int), typeof(object));
-            Assert.IsTrue(result);
+            ImplicitConversionTest(typeof(int), typeof(object), true);
         }
 
         //6.1.8 Implicit dynamic conversions -N/A
@@ -117,10 +112,9 @@ namespace IronVelocity.Tests.Binders
         [TestCase(typeof(IReadOnlyList<IReadOnlyCollection<string>>), typeof(IReadOnlyList<IReadOnlyList<string>>), false)]
         [TestCase(typeof(IReadOnlyList<List<string>>), typeof(IReadOnlyList<IReadOnlyCollection<string>>), true)]
         [TestCase(typeof(IReadOnlyList<IReadOnlyCollection<string>>), typeof(List<IReadOnlyList<string>>), false)]
-        public void ImplicitConversionInvolvingTypeParameters(Type from, Type to, bool expected)
+        public void ImplicitConversionInvolvingTypeParameters(Type from, Type to, bool isConvertable)
         {
-            var result = _conversionHelper.CanBeConverted(from, to);
-            Assert.That(result, Is.EqualTo(expected));
+            ImplicitConversionTest(from, to, isConvertable);
         }
 
         //6.1.2 - Implicit Numeric conversions
@@ -256,14 +250,20 @@ namespace IronVelocity.Tests.Binders
         [TestCase(typeof(double),  typeof(char),    false, TestName = "Primitive Implicit Conversion: double to char")]
         [TestCase(typeof(double),  typeof(float),   false, TestName = "Primitive Implicit Conversion: double to float")]
         [TestCase(typeof(double),  typeof(decimal), false, TestName = "Primitive Implicit Conversion: double to decimal")]
-        public void NumericConversionTests(Type from, Type to, bool expected)
+        public void NumericConversionTests(Type from, Type to, bool isConvertable)
         {
-            var result = _conversionHelper.CanBeConverted(from, to);
-            if (expected)
-                Assert.IsTrue(result);
-            else
-                Assert.IsFalse(result);
+            ImplicitConversionTest(from, to, isConvertable);
         }
 
+
+        private void ImplicitConversionTest(Type from, Type to, bool isConvertable)
+        {
+            var implicitConversionResult = _conversionHelper.GetConverter(from, to) is ImplicitExpressionConverter;
+
+            if (isConvertable)
+                Assert.That(implicitConversionResult, Is.True);
+            else
+                Assert.That(implicitConversionResult, Is.False);
+        }
     }
 }

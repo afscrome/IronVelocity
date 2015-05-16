@@ -9,7 +9,7 @@ namespace IronVelocity.Compilation.AST
 {
     public class TemporaryVariableScopeExpression : VelocityExpression
     {
-        public ParameterExpression Variable { get; private set; }
+        public new ParameterExpression Variable { get; private set; }
         public Expression Body { get; private set; }
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.TemporaryVariableScope; } }
         public override Type Type { get { return Body.Type; } }
