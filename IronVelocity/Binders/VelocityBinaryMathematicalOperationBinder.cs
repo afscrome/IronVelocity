@@ -166,7 +166,7 @@ namespace IronVelocity.Binders
                 return BindingRestrictions.GetInstanceRestriction(right.Expression, null);
 
             // We only support mathematical operations on value types.
-            // Using a restriction against Reference Types helps stop us generating a large number of ruels for different type combinations
+            // Using a restriction against Reference Types helps stop us generating a large number of rules for different type combinations
             if (!left.RuntimeType.IsValueType)
                 return BinaryOperationHelper.GetNotValueTypeRestrictions(left.Expression);
             else if (!right.RuntimeType.IsValueType)
