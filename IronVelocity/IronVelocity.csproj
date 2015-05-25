@@ -127,6 +127,10 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="EventSources\TemplateGenerationEventSource.cs" />
     <Compile Include="IParser.cs" />
+    <Compile Include="Parser\Lexer.cs" />
+    <Compile Include="Parser\Parser.cs" />
+    <Compile Include="Parser\Token.cs" />
+    <Compile Include="Parser\TokenKind.cs" />
     <Compile Include="Reflection\ArgumentConverter.cs" />
     <Compile Include="Reflection\IArgumentConverter.cs" />
     <Compile Include="Reflection\IExpressionConverter.cs" />
