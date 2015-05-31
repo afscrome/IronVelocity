@@ -58,6 +58,10 @@ namespace IronVelocity.Parser
                     token.TokenKind = TokenKind.RightParenthesis;
                     Advance();
                     break;
+                case ',':
+                    token.TokenKind = TokenKind.Comma;
+                    Advance();
+                    break;
                 case 'a':
                 case 'b':
                 case 'c':
@@ -111,6 +115,10 @@ namespace IronVelocity.Parser
                 case 'Y':
                 case 'Z':
                     ScanIdentifier(ref token);
+                    break;
+                case ' ':
+                case '\t':
+                    ScanWhitespace(ref token);
                     break;
                 default:
                     throw new Exception(String.Format("Unexpected character '{0}' ({1})", currentChar, (int)currentChar));
@@ -199,6 +207,27 @@ namespace IronVelocity.Parser
                         return;
                 }
                 nextChar = Advance();
+            }
+        }
+
+        private void ScanWhitespace(ref Token token)
+        {
+            _builder.Clear();
+            char nextChar = _nextChar;
+            while(true)
+            {
+                switch (nextChar)
+                {
+                    case ' ':
+                    case '\t':
+                        _builder.Append(nextChar);
+                        nextChar = Advance();
+                        break;
+                    default:
+                        token.TokenKind = TokenKind.Whitespace;
+                        token.Value = _builder.ToString();
+                        return;
+                }
             }
         }
 

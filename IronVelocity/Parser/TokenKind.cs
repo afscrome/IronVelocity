@@ -12,6 +12,8 @@
         LeftParenthesis,
         RightParenthesis,
         Text,
-        Escaped
+        Escaped,
+        Whitespace,
+        Comma
     }
 }

@@ -5,13 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using IronVelocity.Parser;
 using NUnit.Framework;
+using IronVelocity.Parser.AST;
 
 namespace IronVelocity.Tests.Parser
 {
     using Parser = IronVelocity.Parser.Parser;
-    using IronVelocity.Parser.AST;
+
     [TestFixture]
-    public class ParserTests
+    public class ReferenceTests
     {
         [TestCase("$foo", false, false, "foo")]
         [TestCase("$!bar", true, false, "bar")]
@@ -59,7 +60,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!bar.Yellow()", true, false, "bar", "Yellow")]
         [TestCase("${baz.PINKY_BROWN()}", false, true, "baz", "PINKY_BROWN")]
         [TestCase("$!{foobar.ScArLEt()}", true, true, "foobar", "ScArLEt")]
-        public void ParseMethodWithNoArguments(string input, bool isSilent, bool isFormal, string variableName, string propertyName)
+        public void ParseMethodWithNoArguments(string input, bool isSilent, bool isFormal, string variableName, string methodName)
         {
             var parser = new Parser(input);
 
@@ -69,17 +70,14 @@ namespace IronVelocity.Tests.Parser
             Assert.That(result.IsFormal, Is.EqualTo(isFormal));
 
             Assert.That(result.Value, Is.TypeOf<Method>());
-            var property = (Method)result.Value;
-            Assert.That(property.Name, Is.EqualTo(propertyName));
+            var method = (Method)result.Value;
+            Assert.That(method.Name, Is.EqualTo(methodName));
 
-            Assert.That(property.Target, Is.TypeOf<Variable>());
-            var variable = (Variable)property.Target;
+            Assert.That(method.Target, Is.TypeOf<Variable>());
+            var variable = (Variable)method.Target;
             Assert.That(variable.Name, Is.EqualTo(variableName));
 
         }
-
-
-
 
         /* TODO: handle invalid references - Exception? Treat as Text?
          * $

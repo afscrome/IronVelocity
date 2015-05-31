@@ -104,28 +104,55 @@ namespace IronVelocity.Parser
                 throw new Exception("Expected '('");
             }
             
-            var nextToken = MoveNext();
-            switch (nextToken.TokenKind)
+            MoveNext();
+            var args = new List<ExpressionNode>();
+            while (true)
             {
-                case TokenKind.RightParenthesis:
+                if (_currentToken.TokenKind == TokenKind.Whitespace)
                     MoveNext();
-                    return new ArgumentsNode { Arguments = new ExpressionNode[0] };
-                default:
-                    throw new Exception("Unexpected Token: " + nextToken.TokenKind);
+
+                if (_currentToken.TokenKind == TokenKind.RightParenthesis)
+                {
+                    break;
+                }
+
+                args.Add(Expression());
+
+                if (_currentToken.TokenKind == TokenKind.Whitespace)
+                    MoveNext();
+
+                if (_currentToken.TokenKind == TokenKind.RightParenthesis)
+                    break;
+
+                if (_currentToken.TokenKind != TokenKind.Comma)
+                    throw new Exception("Expected ',' or ')'");
+                MoveNext();
             }
+            MoveNext();
+            return new ArgumentsNode { Arguments = args };
+
         }
 
+        public ExpressionNode Expression()
+        {
+            switch (_currentToken.TokenKind)
+            {
+                case TokenKind.Dollar:
+                    return Reference();
+                case TokenKind.EndOfFile:
+                    throw new Exception("Unexpected end of file");
+                case TokenKind.Exclamation: //Not
+                case TokenKind.LeftParenthesis: //Operator precedence
+                case TokenKind.LeftCurley: //Dictionary
+                    throw new NotImplementedException(String.Format("Can't yet parse token {0} starting an expression", _currentToken.TokenKind));
+                default:
+                    throw new Exception("Unrecognised token parsing an expression: " + _currentToken.TokenKind);
+            }
+        }
 
 
         
 
     }
 
-    public class Reference : Expression
-    {
-        public bool IsSilent { get; set; }
-        public bool IsFormal { get; set; }
-        public string Identifier { get; set; }
-
-    }
 }
