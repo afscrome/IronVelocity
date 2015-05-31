@@ -62,6 +62,10 @@ namespace IronVelocity.Parser
                     token.TokenKind = TokenKind.Comma;
                     Advance();
                     break;
+                case '-':
+                    token.TokenKind = TokenKind.Dash;
+                    Advance();
+                    break;
                 case ' ':
                 case '\t':
                     ScanWhitespace(ref token);

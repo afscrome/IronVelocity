@@ -12,10 +12,10 @@ namespace IronVelocity.Tests.Parser
     [TestFixture]
     public class ExpressionTests
     {
-
-
         [TestCase("732")]
         [TestCase("83.23")]
+        [TestCase("-43")]
+        [TestCase("-7.3")]
         public void NumericExpression(string input)
         {
             var parser = new Parser(input);
@@ -26,8 +26,7 @@ namespace IronVelocity.Tests.Parser
             var numeric = (NumericNode)result;
             Assert.That(numeric.Value, Is.EqualTo(input));
             Assert.That(parser.HasReachedEndOfFile);
+
         }
-
-
     }
 }

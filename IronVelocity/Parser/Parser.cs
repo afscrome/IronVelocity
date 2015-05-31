@@ -142,15 +142,21 @@ namespace IronVelocity.Parser
         public NumericNode Number()
         {
             var token = _currentToken;
+            bool isNegative = token.TokenKind == TokenKind.Dash;
+            if (isNegative)
+                token = MoveNext();
+
             if (token.TokenKind != TokenKind.Number)
                 throw new Exception("Expected number");
 
-            var integerPart = token.Value;
+            var integerPart = isNegative
+                ? "-" + token.Value
+                : token.Value;
 
             token = MoveNext();
             if (token.TokenKind != TokenKind.Dot)
             {
-                return new NumericNode { Value = token.Value };
+                return new NumericNode { Value = integerPart };
             }
 
             token = MoveNext();
@@ -175,6 +181,7 @@ namespace IronVelocity.Parser
                 case TokenKind.Dollar:
                     result = Reference();
                     break;
+                case TokenKind.Dash:
                 case TokenKind.Number:
                     result = Number();
                     break;

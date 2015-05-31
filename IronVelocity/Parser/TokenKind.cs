@@ -15,6 +15,7 @@
         Escaped,
         Whitespace,
         Comma,
-        Number
+        Number,
+        Dash
     }
 }
