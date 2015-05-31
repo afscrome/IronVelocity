@@ -10,20 +10,22 @@ namespace IronVelocity.Parser
     public class Lexer
     {
         private readonly string _input;
-        private int _nextPosition = 0;
         private StringBuilder _builder = new StringBuilder();
+        private int _position = -1;
+        private char _nextChar;
 
         public Lexer(string input)
         {
             _input = input;
+            _nextChar = Advance();
         }
 
         public Token GetNextToken()
         {
             var token = new Token();
 
-            char peek = Peek();
-            switch (peek)
+            char currentChar = _nextChar;
+            switch (currentChar)
             {
                 case '\0':
                     token.TokenKind = TokenKind.EndOfFile;
@@ -44,12 +46,18 @@ namespace IronVelocity.Parser
                     token.TokenKind = TokenKind.RightCurley;
                     Advance();
                     break;
-
                 case '.':
                     token.TokenKind = TokenKind.Dot;
                     Advance();
                     break;
-
+                case '(':
+                    token.TokenKind = TokenKind.LeftParenthesis;
+                    Advance();
+                    break;
+                case ')':
+                    token.TokenKind = TokenKind.RightParenthesis;
+                    Advance();
+                    break;
                 case 'a':
                 case 'b':
                 case 'c':
@@ -102,25 +110,22 @@ namespace IronVelocity.Parser
                 case 'X':
                 case 'Y':
                 case 'Z':
-                    Advance();
-                    ScanIdentifier(ref token, peek);
+                    ScanIdentifier(ref token);
                     break;
                 default:
-                    throw new NotSupportedException();
-                    break;
+                    throw new Exception(String.Format("Unexpected character '{0}' ({1})", currentChar, (int)currentChar));
             }
             return token;
         }
 
-        private void ScanIdentifier(ref Token token, char firstChar)
+        private void ScanIdentifier(ref Token token)
         {
             _builder.Clear();
-            _builder.Append(firstChar);
 
+            var nextChar = _nextChar;
             while (true)
             {
-                var peek = Peek();
-                switch (peek)
+                switch (nextChar)
                 {
                     case 'a':
                     case 'b':
@@ -186,28 +191,24 @@ namespace IronVelocity.Parser
                     case '9':
                     case '_':
                     case '-':
-                        _builder.Append(peek);
-                        Advance();
+                        _builder.Append(nextChar);
                         break;
                     default:
                         token.TokenKind = TokenKind.Identifier;
                         token.Value = _builder.ToString();
                         return;
                 }
+                nextChar = Advance();
             }
         }
 
-        private char Peek()
+        private char Advance()
         {
-            if (_nextPosition >= _input.Length)
-                return default(char);
+            _position++;
+            if (_position >= _input.Length)
+                return _nextChar = default(char);
 
-            return _input[_nextPosition];
-        }
-
-        private void Advance()
-        {
-            _nextPosition++;
+            return _nextChar = _input[_position];
         }
     }
 }

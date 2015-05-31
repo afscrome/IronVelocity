@@ -9,6 +9,8 @@
         Identifier,
         LeftCurley,
         RightCurley,
+        LeftParenthesis,
+        RightParenthesis,
         Text,
         Escaped
     }

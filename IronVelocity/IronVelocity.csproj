@@ -127,6 +127,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="EventSources\TemplateGenerationEventSource.cs" />
     <Compile Include="IParser.cs" />
+    <Compile Include="Parser\AST\SyntaxNode.cs" />
     <Compile Include="Parser\Lexer.cs" />
     <Compile Include="Parser\Parser.cs" />
     <Compile Include="Parser\Token.cs" />

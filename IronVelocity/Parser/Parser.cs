@@ -1,4 +1,5 @@
-﻿using System;
+﻿using IronVelocity.Parser.AST;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -10,48 +11,41 @@ namespace IronVelocity.Parser
     public class Parser
     {
         private readonly Lexer _lexer;
-        private Token _nextToken;
         private Token _currentToken;
 
         public Parser(string input)
         {
             _lexer = new Lexer(input);
+            _currentToken = _lexer.GetNextToken();
         }
 
-        private Token Peek()
+        private Token MoveNext()
         {
-            return _nextToken ?? (_nextToken = _lexer.GetNextToken());
-        }
-
-
-        private Token MoveNextAndPeek()
-        {
-            _currentToken = _nextToken ?? _lexer.GetNextToken();
-            _nextToken = null;
-            return Peek();
+            return _currentToken = _lexer.GetNextToken();
         }
 
 
-        public Reference Reference()
+        public ReferenceNode Reference()
         {
-            Token token = Peek();
+            //Get Metadata about this reference
+            Token token = _currentToken;
 
             if (token.TokenKind != TokenKind.Dollar)
             {
                 throw new Exception("TODO: 0");
             }
-            token = MoveNextAndPeek();
+            token = MoveNext();
 
             bool isSilent = token.TokenKind == TokenKind.Exclamation;
             if (isSilent)
             {
-                token = MoveNextAndPeek();
+                token = MoveNext();
             }
 
             bool isFormal = token.TokenKind == TokenKind.LeftCurley;
             if (isFormal)
             {
-                token = MoveNextAndPeek();
+                token = MoveNext();
             }
 
             if (token.TokenKind != TokenKind.Identifier)
@@ -59,25 +53,72 @@ namespace IronVelocity.Parser
                 //TODO: Backout??
                 throw new Exception("TODO: 1");
             }
-            var variableName = token.Value;
 
-            //TODO: Property, Method, Indexers
+            //Root variable
+            ReferenceInnerNode value = new Variable {
+                Name = token.Value
+            };
 
-            token = MoveNextAndPeek();
+            //Methods & Properties
+            token = MoveNext();
+            while (token.TokenKind == TokenKind.Dot)
+            {
+                token = MoveNext();
+                if (token.TokenKind != TokenKind.Identifier)
+                {
+                    throw new Exception("TODO: 3");
+                }
+                var name = token.Value;
+                token = MoveNext();
+                if (token.TokenKind == TokenKind.LeftParenthesis)
+                {
+                    var args = Arguments();
+                    value = new Method { Name = name, Target = value, Arguments = args };
+                    token = _currentToken;
+                }
+                else
+                {
+                    value = new Property { Name = name, Target = value };
+                }
+            }
+
             if (isFormal && token.TokenKind != TokenKind.RightCurley)
             {
                 //TODO: Backout
                 throw new Exception("TODO: 2");
             }
 
-            return new Reference
+            return new ReferenceNode
             {
                 IsSilent = isSilent,
                 IsFormal = isFormal,
-                Identifier = variableName
+                Value = value,
             };
 
         }
+
+        public ArgumentsNode Arguments()
+        {
+            if (_currentToken.TokenKind != TokenKind.LeftParenthesis)
+            {
+                throw new Exception("Expected '('");
+            }
+            
+            var nextToken = MoveNext();
+            switch (nextToken.TokenKind)
+            {
+                case TokenKind.RightParenthesis:
+                    MoveNext();
+                    return new ArgumentsNode { Arguments = new ExpressionNode[0] };
+                default:
+                    throw new Exception("Unexpected Token: " + nextToken.TokenKind);
+            }
+        }
+
+
+
+        
+
     }
 
     public class Reference : Expression
