@@ -30,6 +30,7 @@ namespace IronVelocity.Tests.Parser
             Assert.That(result.Value, Is.TypeOf<Variable>());
             var variable = (Variable)result.Value;
             Assert.That(variable.Name, Is.EqualTo(variableName));
+            Assert.That(parser.HasReachedEndOfFile);
         }
 
 
@@ -53,7 +54,7 @@ namespace IronVelocity.Tests.Parser
             Assert.That(property.Target, Is.TypeOf<Variable>());
             var variable = (Variable)property.Target;
             Assert.That(variable.Name, Is.EqualTo(variableName));
-
+            Assert.That(parser.HasReachedEndOfFile);
         }
 
         [TestCase("$foo.red()", false, false, "foo", "red")]
@@ -76,7 +77,7 @@ namespace IronVelocity.Tests.Parser
             Assert.That(method.Target, Is.TypeOf<Variable>());
             var variable = (Variable)method.Target;
             Assert.That(variable.Name, Is.EqualTo(variableName));
-
+            Assert.That(parser.HasReachedEndOfFile);
         }
 
         /* TODO: handle invalid references - Exception? Treat as Text?

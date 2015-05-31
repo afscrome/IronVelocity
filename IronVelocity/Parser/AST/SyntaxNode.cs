@@ -49,6 +49,11 @@ namespace IronVelocity.Parser.AST
 
 
 
+    public class NumericNode : ExpressionNode
+    {
+        public string Value { get; set; }
+    }
+
 
     /*
     public class Method : ReferenceInnerNode

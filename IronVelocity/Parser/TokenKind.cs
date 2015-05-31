@@ -14,6 +14,7 @@
         Text,
         Escaped,
         Whitespace,
-        Comma
+        Comma,
+        Number
     }
 }

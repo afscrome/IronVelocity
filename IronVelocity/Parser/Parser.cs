@@ -19,6 +19,8 @@ namespace IronVelocity.Parser
             _currentToken = _lexer.GetNextToken();
         }
 
+        public bool HasReachedEndOfFile { get { return _currentToken.TokenKind == TokenKind.EndOfFile; } }
+
         private Token MoveNext()
         {
             return _currentToken = _lexer.GetNextToken();
@@ -82,10 +84,17 @@ namespace IronVelocity.Parser
                 }
             }
 
-            if (isFormal && token.TokenKind != TokenKind.RightCurley)
+            if (isFormal)
             {
-                //TODO: Backout
-                throw new Exception("TODO: 2");
+                if (token.TokenKind == TokenKind.RightCurley)
+                {
+                    MoveNext();
+                }
+                else
+                {
+                    //TODO: Backout
+                    throw new Exception("TODO: Formal Reference Problem");
+                }
             }
 
             return new ReferenceNode
@@ -118,9 +127,6 @@ namespace IronVelocity.Parser
 
                 args.Add(Expression());
 
-                if (_currentToken.TokenKind == TokenKind.Whitespace)
-                    MoveNext();
-
                 if (_currentToken.TokenKind == TokenKind.RightParenthesis)
                     break;
 
@@ -133,12 +139,46 @@ namespace IronVelocity.Parser
 
         }
 
+        public NumericNode Number()
+        {
+            var token = _currentToken;
+            if (token.TokenKind != TokenKind.Number)
+                throw new Exception("Expected number");
+
+            var integerPart = token.Value;
+
+            token = MoveNext();
+            if (token.TokenKind != TokenKind.Dot)
+            {
+                return new NumericNode { Value = token.Value };
+            }
+
+            token = MoveNext();
+            if (token.TokenKind != TokenKind.Number)
+                throw new Exception("Expected number");
+            var fractionalPart = token.Value;
+
+            MoveNext();
+            return new NumericNode { Value = integerPart + "." + fractionalPart };
+        }
+
         public ExpressionNode Expression()
         {
+            var currentToken = _currentToken;
+
+            if (currentToken.TokenKind == TokenKind.Whitespace)
+                currentToken = MoveNext();
+
+            ExpressionNode result;
             switch (_currentToken.TokenKind)
             {
                 case TokenKind.Dollar:
-                    return Reference();
+                    result = Reference();
+                    break;
+                case TokenKind.Number:
+                    result = Number();
+                    break;
+
                 case TokenKind.EndOfFile:
                     throw new Exception("Unexpected end of file");
                 case TokenKind.Exclamation: //Not
@@ -148,6 +188,11 @@ namespace IronVelocity.Parser
                 default:
                     throw new Exception("Unrecognised token parsing an expression: " + _currentToken.TokenKind);
             }
+
+            if (_currentToken.TokenKind == TokenKind.Whitespace)
+                MoveNext();
+
+            return result;
         }
 
 

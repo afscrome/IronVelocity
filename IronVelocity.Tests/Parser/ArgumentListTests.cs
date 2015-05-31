@@ -35,6 +35,7 @@ namespace IronVelocity.Tests.Parser
 
             var variable = reference.Value as Variable;
             Assert.That(variable.Name, Is.EqualTo("door"));
+            Assert.That(parser.HasReachedEndOfFile);
         }
 
         [TestCase("()")]
@@ -48,6 +49,7 @@ namespace IronVelocity.Tests.Parser
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Arguments, Is.Not.Null);
             Assert.That(result.Arguments.Count, Is.EqualTo(0));
+            Assert.That(parser.HasReachedEndOfFile);
         }
 
         [Test]
@@ -77,6 +79,7 @@ namespace IronVelocity.Tests.Parser
 
             var secondVariable = secondReference.Value as Variable;
             Assert.That(secondVariable.Name, Is.EqualTo("mat"));
+            Assert.That(parser.HasReachedEndOfFile);
         }
     }
 }

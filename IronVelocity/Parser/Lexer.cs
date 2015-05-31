@@ -62,6 +62,10 @@ namespace IronVelocity.Parser
                     token.TokenKind = TokenKind.Comma;
                     Advance();
                     break;
+                case ' ':
+                case '\t':
+                    ScanWhitespace(ref token);
+                    break;
                 case 'a':
                 case 'b':
                 case 'c':
@@ -116,15 +120,56 @@ namespace IronVelocity.Parser
                 case 'Z':
                     ScanIdentifier(ref token);
                     break;
-                case ' ':
-                case '\t':
-                    ScanWhitespace(ref token);
+
+                case '0':
+                case '1':
+                case '2':
+                case '3':
+                case '4':
+                case '5':
+                case '6':
+                case '7':
+                case '8':
+                case '9':
+                    ScanNumber(ref token);
                     break;
                 default:
                     throw new Exception(String.Format("Unexpected character '{0}' ({1})", currentChar, (int)currentChar));
             }
             return token;
         }
+
+        private void ScanNumber(ref Token token)
+        {
+            _builder.Clear();
+
+            var nextChar = _nextChar;
+            while (true)
+            {
+                switch (nextChar)
+                {
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        _builder.Append(nextChar);
+                        break;
+                    default:
+                        token.TokenKind = TokenKind.Number;
+                        token.Value = _builder.ToString();
+                        return;
+
+                }
+                nextChar = Advance();
+            }
+        }
+
 
         private void ScanIdentifier(ref Token token)
         {
