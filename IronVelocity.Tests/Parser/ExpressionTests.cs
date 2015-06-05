@@ -23,8 +23,8 @@ namespace IronVelocity.Tests.Parser
 
             Assert.That(result, Is.TypeOf<NumericNode>());
 
-            var numeric = (NumericNode)result;
-            Assert.That(numeric.Value, Is.EqualTo(input));
+            var node = (NumericNode)result;
+            Assert.That(node.Value, Is.EqualTo(input));
             Assert.That(parser.HasReachedEndOfFile, Is.True);
         }
 
@@ -37,12 +37,41 @@ namespace IronVelocity.Tests.Parser
             var result = parser.Expression();
 
             Assert.That(result, Is.TypeOf<StringNode>());
-            var stringNode = (StringNode)result;
+            var node = (StringNode)result;
 
-            Assert.That(stringNode.Value, Is.EqualTo(expected));
-            Assert.That(stringNode.IsInterpolated, Is.EqualTo(interpolated));
+            Assert.That(node.Value, Is.EqualTo(expected));
+            Assert.That(node.IsInterpolated, Is.EqualTo(interpolated));
             Assert.That(parser.HasReachedEndOfFile, Is.True);
         }
 
+        [TestCase("true", true)]
+        [TestCase("false", false)]
+        public void BooleanExpression(string input, bool expected)
+        {
+            var parser = new Parser(input);
+            var result = parser.Expression();
+
+            Assert.That(result, Is.TypeOf<BooleanNode>());
+            var node = (BooleanNode)result;
+
+            Assert.That(node.Value, Is.EqualTo(expected));
+            Assert.That(parser.HasReachedEndOfFile, Is.True);
+
+        }
+
+        [TestCase("in")]
+        [TestCase("TRUE")]
+        [TestCase("FALSE")]
+        public void WordLiteral(string name)
+        {
+            var parser = new Parser(name);
+            var result = parser.Expression();
+
+            Assert.That(result, Is.TypeOf<WordNode>());
+            var node = (WordNode)result;
+
+            Assert.That(node.Name, Is.EqualTo(name));
+            Assert.That(parser.HasReachedEndOfFile, Is.True);
+        }
     }
 }

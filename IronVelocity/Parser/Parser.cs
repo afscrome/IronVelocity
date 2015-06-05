@@ -194,6 +194,17 @@ namespace IronVelocity.Parser
                     MoveNext();
                     break;
 
+                case TokenKind.Identifier:
+                    var value = currentToken.Value;
+                    if (value == "true")
+                        result = BooleanNode.True;
+                    else if (value == "false")
+                        result = BooleanNode.False;
+                    else
+                        result = new WordNode { Name = value };
+                    MoveNext();
+                    break;
+
                 case TokenKind.EndOfFile:
                     throw new Exception("Unexpected end of file");
                 case TokenKind.Exclamation: //Not

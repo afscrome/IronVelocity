@@ -18,6 +18,9 @@
         Number,
         Dash,
         String,
-        InterpolatedString
+        InterpolatedString,
+        Word,
+        True,
+        False
     }
 }

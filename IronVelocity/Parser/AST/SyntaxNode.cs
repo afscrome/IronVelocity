@@ -60,6 +60,25 @@ namespace IronVelocity.Parser.AST
         public bool IsInterpolated { get; set; }
     }
 
+    public class BooleanNode : ExpressionNode
+    {
+        public static readonly BooleanNode True = new BooleanNode(true);
+        public static readonly BooleanNode False = new BooleanNode(false);
+
+        public bool Value {get; private set;}
+
+        public BooleanNode(bool value)
+        {
+            Value = value;
+        }
+    }
+
+    public class WordNode : ExpressionNode
+    {
+        public string Name { get; set; }
+    }
+
+
     /*
     public class Method : ReferenceInnerNode
     {
