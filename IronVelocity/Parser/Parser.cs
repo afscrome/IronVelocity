@@ -176,7 +176,7 @@ namespace IronVelocity.Parser
                 currentToken = MoveNext();
 
             ExpressionNode result;
-            switch (_currentToken.TokenKind)
+            switch (currentToken.TokenKind)
             {
                 case TokenKind.Dollar:
                     result = Reference();
@@ -184,6 +184,14 @@ namespace IronVelocity.Parser
                 case TokenKind.Dash:
                 case TokenKind.Number:
                     result = Number();
+                    break;
+                case TokenKind.String:
+                    result = new StringNode { Value = currentToken.Value, IsInterpolated = false };
+                    MoveNext();
+                    break;
+                case TokenKind.InterpolatedString:
+                    result = new StringNode { Value = currentToken.Value, IsInterpolated = true };
+                    MoveNext();
                     break;
 
                 case TokenKind.EndOfFile:

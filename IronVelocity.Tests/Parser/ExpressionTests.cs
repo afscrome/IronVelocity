@@ -25,8 +25,24 @@ namespace IronVelocity.Tests.Parser
 
             var numeric = (NumericNode)result;
             Assert.That(numeric.Value, Is.EqualTo(input));
-            Assert.That(parser.HasReachedEndOfFile);
-
+            Assert.That(parser.HasReachedEndOfFile, Is.True);
         }
+
+        [TestCase("'HelloWorld'", "HelloWorld", false)]
+        [TestCase("\"Foo Bar\"", "Foo Bar", true)]
+        [TestCase("\"Hello $baz\"", "Hello $baz", true)]
+        public void StringExpression(string input, string expected, bool interpolated)
+        {
+            var parser = new Parser(input);
+            var result = parser.Expression();
+
+            Assert.That(result, Is.TypeOf<StringNode>());
+            var stringNode = (StringNode)result;
+
+            Assert.That(stringNode.Value, Is.EqualTo(expected));
+            Assert.That(stringNode.IsInterpolated, Is.EqualTo(interpolated));
+            Assert.That(parser.HasReachedEndOfFile, Is.True);
+        }
+
     }
 }

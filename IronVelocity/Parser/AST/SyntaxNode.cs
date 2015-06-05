@@ -54,6 +54,11 @@ namespace IronVelocity.Parser.AST
         public string Value { get; set; }
     }
 
+    public class StringNode : ExpressionNode
+    {
+        public string Value { get; set; }
+        public bool IsInterpolated { get; set; }
+    }
 
     /*
     public class Method : ReferenceInnerNode

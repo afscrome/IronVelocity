@@ -66,6 +66,10 @@ namespace IronVelocity.Parser
                     token.TokenKind = TokenKind.Dash;
                     Advance();
                     break;
+                case '\'':
+                case '"':
+                    ScanString(ref token);
+                    break;
                 case ' ':
                 case '\t':
                     ScanWhitespace(ref token);
@@ -141,6 +145,39 @@ namespace IronVelocity.Parser
                     throw new Exception(String.Format("Unexpected character '{0}' ({1})", currentChar, (int)currentChar));
             }
             return token;
+        }
+
+        private void ScanString(ref Token token)
+        {
+            _builder.Clear();
+            char quoteChar = _nextChar;
+            bool isInterpolated = quoteChar == '"';
+
+            char nextChar = Advance();
+            while(true)
+            {
+                switch (nextChar)
+                {
+                    case '\'':
+                    case '"':
+                        if (nextChar != quoteChar)
+                            goto default;
+
+                        token.Value = _builder.ToString();
+                        token.TokenKind = quoteChar == '"'
+                            ? TokenKind.InterpolatedString
+                            : TokenKind.String;
+                        Advance();
+                        return;
+                    case '\r':
+                    case '\n':
+                        throw new Exception("Unexpected newline in string");
+                    default:
+                        _builder.Append(nextChar);
+                        nextChar = Advance();
+                        break;
+                }
+            }
         }
 
         private void ScanNumber(ref Token token)

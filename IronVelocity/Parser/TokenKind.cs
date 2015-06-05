@@ -16,6 +16,8 @@
         Whitespace,
         Comma,
         Number,
-        Dash
+        Dash,
+        String,
+        InterpolatedString
     }
 }
