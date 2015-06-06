@@ -24,7 +24,7 @@ namespace IronVelocity.Parser.AST
     public class ReferenceNode : ExpressionNode
     {
         public bool IsSilent { get; set; }
-        public bool IsFormal { get;  set; }
+        public bool IsFormal { get; set; }
         public SyntaxNode Value { get; set; }
     }
 
@@ -49,9 +49,13 @@ namespace IronVelocity.Parser.AST
 
 
 
-    public class NumericNode : ExpressionNode
+    public class IntegerNode : ExpressionNode
     {
-        public string Value { get; set; }
+        public int Value { get; set; }
+    }
+    public class FloatingPointNode : ExpressionNode
+    {
+        public float Value { get; set; }
     }
 
     public class StringNode : ExpressionNode
@@ -65,7 +69,7 @@ namespace IronVelocity.Parser.AST
         public static readonly BooleanNode True = new BooleanNode(true);
         public static readonly BooleanNode False = new BooleanNode(false);
 
-        public bool Value {get; private set;}
+        public bool Value { get; private set; }
 
         public BooleanNode(bool value)
         {
@@ -78,6 +82,17 @@ namespace IronVelocity.Parser.AST
         public string Name { get; set; }
     }
 
+    public class BinaryExpressionNode : ExpressionNode
+    {
+        public ExpressionNode Left { get; set; }
+        public ExpressionNode Right { get; set; }
+        public BinaryOperation Operation { get; set; }
+    }
+
+    public enum BinaryOperation
+    {
+        Range
+    }
 
     /*
     public class Method : ReferenceInnerNode

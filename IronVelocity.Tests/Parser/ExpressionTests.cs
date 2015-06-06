@@ -12,18 +12,31 @@ namespace IronVelocity.Tests.Parser
     [TestFixture]
     public class ExpressionTests
     {
-        [TestCase("732")]
-        [TestCase("83.23")]
-        [TestCase("-43")]
-        [TestCase("-7.3")]
-        public void NumericLiteral(string input)
+        [TestCase(732)]
+        [TestCase(-43)]
+
+        public void IntegerLiteral(int input)
         {
-            var parser = new Parser(input);
+            var parser = new Parser(input.ToString());
             var result = parser.Expression();
 
-            Assert.That(result, Is.TypeOf<NumericNode>());
+            Assert.That(result, Is.TypeOf<IntegerNode>());
 
-            var node = (NumericNode)result;
+            var node = (IntegerNode)result;
+            Assert.That(node.Value, Is.EqualTo(input));
+            Assert.That(parser.HasReachedEndOfFile, Is.True);
+        }
+
+        [TestCase(83.23f)]
+        [TestCase(-7.3f)]
+        public void FloatingPointLiteral(float input)
+        {
+            var parser = new Parser(input.ToString());
+            var result = parser.Expression();
+
+            Assert.That(result, Is.TypeOf<FloatingPointNode>());
+
+            var node = (FloatingPointNode)result;
             Assert.That(node.Value, Is.EqualTo(input));
             Assert.That(parser.HasReachedEndOfFile, Is.True);
         }
@@ -73,5 +86,23 @@ namespace IronVelocity.Tests.Parser
             Assert.That(node.Name, Is.EqualTo(name));
             Assert.That(parser.HasReachedEndOfFile, Is.True);
         }
+
+        [TestCase("[1..2]", 1, 2)]
+        [TestCase("[-5..-9]", 1, 2)]
+        [TestCase("[ 20 .. 7]", 20, 7)]
+        [TestCase("[ -3 .. -9]", -3, -9)]
+        public void RangeLiteral(string input, int start, int end)
+        {
+            var parser = new Parser(input);
+            var result = parser.Expression();
+
+            Assert.That(result, Is.TypeOf<BinaryExpressionNode>());
+            var node = (BinaryExpressionNode)result;
+
+            Assert.That(node.Left, Is.TypeOf<IntegerNode>());
+            Assert.That(node.Right, Is.TypeOf<IntegerNode>());
+
+        }
+
     }
 }

@@ -138,7 +138,7 @@ namespace IronVelocity.Parser
 
         }
 
-        public NumericNode Number()
+        public ExpressionNode Number()
         {
             var token = _currentToken;
             bool isNegative = token.TokenKind == TokenKind.Dash;
@@ -153,9 +153,10 @@ namespace IronVelocity.Parser
                 : token.Value;
 
             token = MoveNext();
-            if (token.TokenKind != TokenKind.Dot)
+            int intValue;
+            if (token.TokenKind != TokenKind.Dot && int.TryParse(integerPart, out intValue))
             {
-                return new NumericNode { Value = integerPart };
+                return new IntegerNode { Value = intValue };
             }
 
             token = MoveNext();
@@ -164,14 +165,15 @@ namespace IronVelocity.Parser
             var fractionalPart = token.Value;
 
             MoveNext();
-            return new NumericNode { Value = integerPart + "." + fractionalPart };
+            var floatValue = float.Parse(integerPart + "." + fractionalPart);
+            return new FloatingPointNode { Value = floatValue };
         }
 
         public ExpressionNode Expression()
         {
             var currentToken = _currentToken;
 
-            IgnoreWhitespace();
+            currentToken = IgnoreWhitespace();
 
             ExpressionNode result;
             switch (currentToken.TokenKind)
@@ -203,6 +205,9 @@ namespace IronVelocity.Parser
                     MoveNext();
                     break;
 
+                case TokenKind.LeftSquareBracket:
+                    result = Range();
+                    break;
                 case TokenKind.EndOfFile:
                     throw new Exception("Unexpected end of file");
                 case TokenKind.Exclamation: //Not
@@ -217,6 +222,32 @@ namespace IronVelocity.Parser
 
             return result;
         }
+
+        private BinaryExpressionNode Range()
+        {
+            Eat(TokenKind.LeftSquareBracket);
+
+            var left = Expression();
+
+            Eat(TokenKind.DotDot);
+            var right = Expression();
+
+            Eat(TokenKind.RightSquareBracket);
+
+            return new BinaryExpressionNode { Left = left, Right = right, Operation = BinaryOperation.Range };
+        }
+
+        private Token Eat(TokenKind tokenKind)
+        {
+            var token = _currentToken;
+            if (token.TokenKind != tokenKind)
+            {
+                throw new Exception("Expected Token Kind: " + tokenKind);
+            }
+            MoveNext();
+            return token;
+        }
+
 
         private Token IgnoreWhitespace()
         {

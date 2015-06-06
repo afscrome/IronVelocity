@@ -47,8 +47,18 @@ namespace IronVelocity.Parser
                     Advance();
                     break;
                 case '.':
-                    token.TokenKind = TokenKind.Dot;
-                    Advance();
+                    currentChar = Advance();
+                    if (currentChar == '.')
+                    {
+                        token.TokenKind = TokenKind.DotDot;
+                        Advance();
+                    }
+                    else
+                    {
+                        token.TokenKind = TokenKind.Dot;
+                    }
+
+
                     break;
                 case '(':
                     token.TokenKind = TokenKind.LeftParenthesis;
@@ -56,6 +66,14 @@ namespace IronVelocity.Parser
                     break;
                 case ')':
                     token.TokenKind = TokenKind.RightParenthesis;
+                    Advance();
+                    break;
+                case '[':
+                    token.TokenKind = TokenKind.LeftSquareBracket;
+                    Advance();
+                    break;
+                case ']':
+                    token.TokenKind = TokenKind.RightSquareBracket;
                     Advance();
                     break;
                 case ',':
@@ -74,6 +92,7 @@ namespace IronVelocity.Parser
                 case '\t':
                     ScanWhitespace(ref token);
                     break;
+
                 case 'a':
                 case 'b':
                 case 'c':

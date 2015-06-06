@@ -4,6 +4,7 @@
     {
         Dollar,
         Dot,
+        DotDot,
         Exclamation,
         EndOfFile,
         Identifier,
