@@ -117,8 +117,7 @@ namespace IronVelocity.Parser
             var args = new List<ExpressionNode>();
             while (true)
             {
-                if (_currentToken.TokenKind == TokenKind.Whitespace)
-                    MoveNext();
+                IgnoreWhitespace();
 
                 if (_currentToken.TokenKind == TokenKind.RightParenthesis)
                 {
@@ -146,7 +145,7 @@ namespace IronVelocity.Parser
             if (isNegative)
                 token = MoveNext();
 
-            if (token.TokenKind != TokenKind.Number)
+            if (token.TokenKind != TokenKind.NumericLiteral)
                 throw new Exception("Expected number");
 
             var integerPart = isNegative
@@ -160,7 +159,7 @@ namespace IronVelocity.Parser
             }
 
             token = MoveNext();
-            if (token.TokenKind != TokenKind.Number)
+            if (token.TokenKind != TokenKind.NumericLiteral)
                 throw new Exception("Expected number");
             var fractionalPart = token.Value;
 
@@ -172,8 +171,7 @@ namespace IronVelocity.Parser
         {
             var currentToken = _currentToken;
 
-            if (currentToken.TokenKind == TokenKind.Whitespace)
-                currentToken = MoveNext();
+            IgnoreWhitespace();
 
             ExpressionNode result;
             switch (currentToken.TokenKind)
@@ -182,14 +180,14 @@ namespace IronVelocity.Parser
                     result = Reference();
                     break;
                 case TokenKind.Dash:
-                case TokenKind.Number:
+                case TokenKind.NumericLiteral:
                     result = Number();
                     break;
-                case TokenKind.String:
+                case TokenKind.StringLiteral:
                     result = new StringNode { Value = currentToken.Value, IsInterpolated = false };
                     MoveNext();
                     break;
-                case TokenKind.InterpolatedString:
+                case TokenKind.InterpolatedStringLiteral:
                     result = new StringNode { Value = currentToken.Value, IsInterpolated = true };
                     MoveNext();
                     break;
@@ -215,13 +213,17 @@ namespace IronVelocity.Parser
                     throw new Exception("Unrecognised token parsing an expression: " + _currentToken.TokenKind);
             }
 
-            if (_currentToken.TokenKind == TokenKind.Whitespace)
-                MoveNext();
+            IgnoreWhitespace();
 
             return result;
         }
 
-
+        private Token IgnoreWhitespace()
+        {
+            return _currentToken.TokenKind == TokenKind.Whitespace
+                ? MoveNext()
+                : _currentToken;
+        }
         
 
     }

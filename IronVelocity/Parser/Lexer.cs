@@ -165,8 +165,8 @@ namespace IronVelocity.Parser
 
                         token.Value = _builder.ToString();
                         token.TokenKind = quoteChar == '"'
-                            ? TokenKind.InterpolatedString
-                            : TokenKind.String;
+                            ? TokenKind.InterpolatedStringLiteral
+                            : TokenKind.StringLiteral;
                         Advance();
                         return;
                     case '\r':
@@ -202,7 +202,7 @@ namespace IronVelocity.Parser
                         _builder.Append(nextChar);
                         break;
                     default:
-                        token.TokenKind = TokenKind.Number;
+                        token.TokenKind = TokenKind.NumericLiteral;
                         token.Value = _builder.ToString();
                         return;
 

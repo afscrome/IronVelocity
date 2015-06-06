@@ -16,7 +16,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("83.23")]
         [TestCase("-43")]
         [TestCase("-7.3")]
-        public void NumericExpression(string input)
+        public void NumericLiteral(string input)
         {
             var parser = new Parser(input);
             var result = parser.Expression();
@@ -31,7 +31,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("'HelloWorld'", "HelloWorld", false)]
         [TestCase("\"Foo Bar\"", "Foo Bar", true)]
         [TestCase("\"Hello $baz\"", "Hello $baz", true)]
-        public void StringExpression(string input, string expected, bool interpolated)
+        public void StringLiteral(string input, string expected, bool interpolated)
         {
             var parser = new Parser(input);
             var result = parser.Expression();
@@ -46,7 +46,7 @@ namespace IronVelocity.Tests.Parser
 
         [TestCase("true", true)]
         [TestCase("false", false)]
-        public void BooleanExpression(string input, bool expected)
+        public void BooleanLiteral(string input, bool expected)
         {
             var parser = new Parser(input);
             var result = parser.Expression();
