@@ -89,6 +89,22 @@ namespace IronVelocity.Parser.AST
         public BinaryOperation Operation { get; set; }
     }
 
+
+    public class ListExpressionNode : ExpressionNode
+    {
+        public ListExpressionNode(ExpressionNode singleValue)
+        {
+            Values = new[] { singleValue };
+        }
+
+        public ListExpressionNode(IReadOnlyList<ExpressionNode> values)
+        {
+            Values = values;
+        }
+
+        public IReadOnlyList<ExpressionNode> Values { get; private set; }
+    }
+
     public enum BinaryOperation
     {
         Range

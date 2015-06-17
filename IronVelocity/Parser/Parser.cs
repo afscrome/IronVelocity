@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Parser.AST;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -29,32 +30,12 @@ namespace IronVelocity.Parser
 
         public ReferenceNode Reference()
         {
-            //Get Metadata about this reference
-            Token token = _currentToken;
 
-            if (token.TokenKind != TokenKind.Dollar)
-            {
-                throw new Exception("TODO: 0");
-            }
-            token = MoveNext();
+            Eat(TokenKind.Dollar);
+            bool isSilent = TryEat(TokenKind.Exclamation);
+            bool isFormal = TryEat(TokenKind.LeftCurley);
 
-            bool isSilent = token.TokenKind == TokenKind.Exclamation;
-            if (isSilent)
-            {
-                token = MoveNext();
-            }
-
-            bool isFormal = token.TokenKind == TokenKind.LeftCurley;
-            if (isFormal)
-            {
-                token = MoveNext();
-            }
-
-            if (token.TokenKind != TokenKind.Identifier)
-            {
-                //TODO: Backout??
-                throw new Exception("TODO: 1");
-            }
+            var token = Eat(TokenKind.Identifier);
 
             //Root variable
             ReferenceInnerNode value = new Variable {
@@ -62,17 +43,12 @@ namespace IronVelocity.Parser
             };
 
             //Methods & Properties
-            token = MoveNext();
-            while (token.TokenKind == TokenKind.Dot)
+            while (TryEat(TokenKind.Dot))
             {
-                token = MoveNext();
-                if (token.TokenKind != TokenKind.Identifier)
-                {
-                    throw new Exception("TODO: 3");
-                }
+                token = Eat(TokenKind.Identifier);
+
                 var name = token.Value;
-                token = MoveNext();
-                if (token.TokenKind == TokenKind.LeftParenthesis)
+                if (_currentToken.TokenKind == TokenKind.LeftParenthesis)
                 {
                     var args = Arguments();
                     value = new Method { Name = name, Target = value, Arguments = args };
@@ -86,15 +62,7 @@ namespace IronVelocity.Parser
 
             if (isFormal)
             {
-                if (token.TokenKind == TokenKind.RightCurley)
-                {
-                    MoveNext();
-                }
-                else
-                {
-                    //TODO: Backout
-                    throw new Exception("TODO: Formal Reference Problem");
-                }
+                Eat(TokenKind.RightCurley);
             }
 
             return new ReferenceNode
@@ -108,73 +76,56 @@ namespace IronVelocity.Parser
 
         public ArgumentsNode Arguments()
         {
-            if (_currentToken.TokenKind != TokenKind.LeftParenthesis)
-            {
-                throw new Exception("Expected '('");
-            }
+            Eat(TokenKind.LeftParenthesis);
             
-            MoveNext();
+            TryEatWhitespace();
+
             var args = new List<ExpressionNode>();
-            while (true)
+            if (!TryEat(TokenKind.RightParenthesis))
             {
-                IgnoreWhitespace();
-
-                if (_currentToken.TokenKind == TokenKind.RightParenthesis)
+                while (true)
                 {
-                    break;
+                    args.Add(Expression());
+
+                    if (TryEat(TokenKind.RightParenthesis))
+                        break;
+                    else
+                        Eat(TokenKind.Comma);
                 }
-
-                args.Add(Expression());
-
-                if (_currentToken.TokenKind == TokenKind.RightParenthesis)
-                    break;
-
-                if (_currentToken.TokenKind != TokenKind.Comma)
-                    throw new Exception("Expected ',' or ')'");
-                MoveNext();
             }
-            MoveNext();
-            return new ArgumentsNode { Arguments = args };
 
+            return new ArgumentsNode { Arguments = args };
         }
 
         public ExpressionNode Number()
         {
-            var token = _currentToken;
-            bool isNegative = token.TokenKind == TokenKind.Dash;
-            if (isNegative)
-                token = MoveNext();
+            bool isNegative = TryEat(TokenKind.Dash);
 
-            if (token.TokenKind != TokenKind.NumericLiteral)
-                throw new Exception("Expected number");
+            var numberToken = Eat(TokenKind.NumericLiteral);
 
             var integerPart = isNegative
-                ? "-" + token.Value
-                : token.Value;
+                ? "-" + numberToken.Value
+                : numberToken.Value;
 
-            token = MoveNext();
             int intValue;
-            if (token.TokenKind != TokenKind.Dot && int.TryParse(integerPart, out intValue))
+            if (!TryEat(TokenKind.Dot) && int.TryParse(integerPart, out intValue))
             {
                 return new IntegerNode { Value = intValue };
             }
 
-            token = MoveNext();
-            if (token.TokenKind != TokenKind.NumericLiteral)
-                throw new Exception("Expected number");
-            var fractionalPart = token.Value;
+            numberToken = Eat(TokenKind.NumericLiteral);
+            var fractionalPart = numberToken.Value;
 
-            MoveNext();
             var floatValue = float.Parse(integerPart + "." + fractionalPart);
             return new FloatingPointNode { Value = floatValue };
         }
 
         public ExpressionNode Expression()
         {
+
+            TryEatWhitespace();
+
             var currentToken = _currentToken;
-
-            currentToken = IgnoreWhitespace();
-
             ExpressionNode result;
             switch (currentToken.TokenKind)
             {
@@ -206,32 +157,66 @@ namespace IronVelocity.Parser
                     break;
 
                 case TokenKind.LeftSquareBracket:
-                    result = Range();
+                    result = RangeOrList();
                     break;
                 case TokenKind.EndOfFile:
                     throw new Exception("Unexpected end of file");
                 case TokenKind.Exclamation: //Not
                 case TokenKind.LeftParenthesis: //Operator precedence
                 case TokenKind.LeftCurley: //Dictionary
+
                     throw new NotImplementedException(String.Format("Can't yet parse token {0} starting an expression", _currentToken.TokenKind));
                 default:
                     throw new Exception("Unrecognised token parsing an expression: " + _currentToken.TokenKind);
             }
 
-            IgnoreWhitespace();
+            TryEatWhitespace();
 
             return result;
         }
 
-        private BinaryExpressionNode Range()
+        private ExpressionNode RangeOrList()
         {
             Eat(TokenKind.LeftSquareBracket);
 
-            var left = Expression();
+            TryEatWhitespace();
 
-            Eat(TokenKind.DotDot);
+            if (TryEat(TokenKind.RightSquareBracket))
+                return new ListExpressionNode(new ExpressionNode[0]);
+
+            var firstArg = Expression();
+
+            if (TryEat(TokenKind.DotDot))
+                return Range(firstArg);
+            else if (TryEat(TokenKind.Comma))
+                return List(firstArg);
+            else if (TryEat(TokenKind.RightSquareBracket))
+                return new ListExpressionNode(firstArg);
+            else
+                throw UnexpectedTokenException(TokenKind.DotDot, TokenKind.Comma, TokenKind.RightSquareBracket, TokenKind.Whitespace);
+        }
+
+        private ListExpressionNode List(ExpressionNode firstValue)
+        {
+            var builder = ImmutableList.CreateBuilder<ExpressionNode>();
+            builder.Add(firstValue);
+
+            do
+            {
+                builder.Add(Expression());
+            }
+            while (TryEat(TokenKind.Comma));
+
+            TryEatWhitespace();
+            if (!TryEat(TokenKind.RightSquareBracket))
+                throw UnexpectedTokenException(TokenKind.Comma, TokenKind.RightSquareBracket, TokenKind.Whitespace);
+
+            return new ListExpressionNode(builder.ToImmutableArray());
+        }
+
+        private BinaryExpressionNode Range(ExpressionNode left)
+        {
             var right = Expression();
-
             Eat(TokenKind.RightSquareBracket);
 
             return new BinaryExpressionNode { Left = left, Right = right, Operation = BinaryOperation.Range };
@@ -242,18 +227,41 @@ namespace IronVelocity.Parser
             var token = _currentToken;
             if (token.TokenKind != tokenKind)
             {
-                throw new Exception("Expected Token Kind: " + tokenKind);
+                throw UnexpectedTokenException(tokenKind);
             }
             MoveNext();
             return token;
         }
 
-
-        private Token IgnoreWhitespace()
+        private bool TryEat(TokenKind tokenKind)
         {
-            return _currentToken.TokenKind == TokenKind.Whitespace
-                ? MoveNext()
-                : _currentToken;
+            var currentToken = _currentToken;
+            if (currentToken.TokenKind == tokenKind)
+            {
+                MoveNext();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        private Exception UnexpectedTokenException(TokenKind expectedToken)
+        {
+            //TODO: Throw specific exception type, include line & column data.
+            return new Exception(String.Format("Unexpected Token {0}. Expected {1}.", _currentToken.TokenKind, expectedToken));
+        }
+
+        private Exception UnexpectedTokenException(params TokenKind[] expectedTokenKinds)
+        {
+            //TODO: Throw specific exception type, include line & column data.
+            return new Exception(String.Format("Unexpected Token {0}. Expected one of: {1}.", _currentToken.TokenKind, String.Join(",", expectedTokenKinds)));
+        }
+
+        private bool TryEatWhitespace()
+        {
+            return TryEat(TokenKind.Whitespace);
         }
         
 
