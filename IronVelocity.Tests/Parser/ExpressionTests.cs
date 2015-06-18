@@ -44,6 +44,8 @@ namespace IronVelocity.Tests.Parser
         [TestCase("'HelloWorld'", "HelloWorld", false)]
         [TestCase("\"Foo Bar\"", "Foo Bar", true)]
         [TestCase("\"Hello $baz\"", "Hello $baz", true)]
+        [TestCase("\"Mark's pen\"", "Mark's pen", true)]
+        [TestCase("'Joe said \"Hello\"'", "Joe said \"Hello\"", false)]
         public void StringLiteral(string input, string expected, bool interpolated)
         {
             var parser = new Parser(input);
@@ -163,7 +165,11 @@ namespace IronVelocity.Tests.Parser
             //Assert.That(thirdArg..Value, Is.EqualTo("test"));
 
             Assert.That(node.Values[3], Is.EqualTo(BooleanNode.True));
+        }
 
+        public void NestedLists()
+        {
+            var input = "
         }
 
     }
