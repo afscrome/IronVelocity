@@ -21,7 +21,7 @@ namespace IronVelocity.Tests.ParserTests
         {
             var parser = new VelocityParser(input);
 
-            var result = parser.Arguments();
+            var result = parser.ArgumentList();
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Arguments, Is.Not.Null);
@@ -43,7 +43,7 @@ namespace IronVelocity.Tests.ParserTests
         public void ParseEmptyArgumentList(string input)
         {
             var parser = new VelocityParser(input);
-            var result = parser.Arguments();
+            var result = parser.ArgumentList();
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Arguments, Is.Not.Null);
@@ -57,7 +57,7 @@ namespace IronVelocity.Tests.ParserTests
             var input = "($cat, $mat)";
             var parser = new VelocityParser(input);
 
-            var result = parser.Arguments();
+            var result = parser.ArgumentList();
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Arguments, Is.Not.Null);

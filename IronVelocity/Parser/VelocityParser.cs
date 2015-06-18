@@ -50,7 +50,7 @@ namespace IronVelocity.Parser
                 var name = token.Value;
                 if (_currentToken.TokenKind == TokenKind.LeftParenthesis)
                 {
-                    var args = Arguments();
+                    var args = ArgumentList();
                     value = new Method { Name = name, Target = value, Arguments = args };
                     token = _currentToken;
                 }
@@ -74,7 +74,7 @@ namespace IronVelocity.Parser
 
         }
 
-        public ArgumentsNode Arguments()
+        public ArgumentsNode ArgumentList()
         {
             Eat(TokenKind.LeftParenthesis);
             
@@ -83,15 +83,11 @@ namespace IronVelocity.Parser
             var args = new List<ExpressionNode>();
             if (!TryEat(TokenKind.RightParenthesis))
             {
-                while (true)
-                {
+                do{
                     args.Add(Expression());
-
-                    if (TryEat(TokenKind.RightParenthesis))
-                        break;
-                    else
-                        Eat(TokenKind.Comma);
                 }
+                while (TryEat(TokenKind.Comma));
+                Eat(TokenKind.RightParenthesis);
             }
 
             return new ArgumentsNode { Arguments = args };
