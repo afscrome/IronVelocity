@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace IronVelocity.Tests.ParserTests
 {
+    [TestFixture]
     public class ListExpressionTests
     {
         [TestCase("[]")]
@@ -72,6 +73,31 @@ namespace IronVelocity.Tests.ParserTests
 
             Assert.That(node.Values[3], Is.EqualTo(BooleanNode.True));
             Assert.That(parser.HasReachedEndOfFile, Is.True);
+        }
+
+
+        [Test]
+        public void NestedLists()
+        {
+            var input = "[[123]]";
+            var parser = new VelocityParser(input);
+            var result = parser.Expression();
+
+
+            Assert.That(result, Is.TypeOf<ListExpressionNode>());
+            var outerList = (ListExpressionNode)result;
+
+            Assert.That(outerList.Values.Count, Is.EqualTo(1));
+            Assert.That(outerList.Values[0], Is.TypeOf<ListExpressionNode>());
+
+            var innerList = (ListExpressionNode)outerList.Values[0];
+            Assert.That(innerList.Values.Count, Is.EqualTo(1));
+
+            Assert.That(innerList.Values[0], Is.TypeOf<IntegerNode>());
+            var innerListValue = (IntegerNode)innerList.Values[0];
+
+            Assert.That(innerListValue.Value, Is.EqualTo(123));
+
         }
 
     }
