@@ -74,23 +74,29 @@ namespace IronVelocity.Parser
 
         }
 
+        private void AddRemainingArguments(ICollection<ExpressionNode> arguments, TokenKind closingToken)
+        {
+            if (!TryEat(closingToken))
+            {
+                do
+                {
+                    arguments.Add(Expression());
+                }
+                while (TryEat(TokenKind.Comma));
+                Eat(closingToken);
+            }
+        }
+
         public ArgumentsNode ArgumentList()
         {
             Eat(TokenKind.LeftParenthesis);
             
             TryEatWhitespace();
 
-            var args = new List<ExpressionNode>();
-            if (!TryEat(TokenKind.RightParenthesis))
-            {
-                do{
-                    args.Add(Expression());
-                }
-                while (TryEat(TokenKind.Comma));
-                Eat(TokenKind.RightParenthesis);
-            }
+            var builder = ImmutableList.CreateBuilder<ExpressionNode>();
+            AddRemainingArguments(builder, TokenKind.RightParenthesis);
 
-            return new ArgumentsNode { Arguments = args };
+            return new ArgumentsNode { Arguments = builder.ToImmutableArray() };
         }
 
         public ExpressionNode Number()
@@ -197,15 +203,7 @@ namespace IronVelocity.Parser
             var builder = ImmutableList.CreateBuilder<ExpressionNode>();
             builder.Add(firstValue);
 
-            do
-            {
-                builder.Add(Expression());
-            }
-            while (TryEat(TokenKind.Comma));
-
-            TryEatWhitespace();
-            if (!TryEat(TokenKind.RightSquareBracket))
-                throw UnexpectedTokenException(TokenKind.Comma, TokenKind.RightSquareBracket, TokenKind.Whitespace);
+            AddRemainingArguments(builder, TokenKind.RightSquareBracket);
 
             return new ListExpressionNode(builder.ToImmutableArray());
         }
