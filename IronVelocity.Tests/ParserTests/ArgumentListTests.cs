@@ -5,11 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using IronVelocity.Parser;
 using NUnit.Framework;
+using IronVelocity.Parser.AST;
 
-namespace IronVelocity.Tests.Parser
+namespace IronVelocity.Tests.ParserTests
 {
-    using Parser = IronVelocity.Parser.Parser;
-    using IronVelocity.Parser.AST;
     [TestFixture]
     public class ArgumentListTests
     {
@@ -20,7 +19,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("(	$door)")]
         public void ParseArgumentsWithWhitspace(string input)
         {
-            var parser = new Parser(input);
+            var parser = new VelocityParser(input);
 
             var result = parser.Arguments();
 
@@ -43,7 +42,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("(\t)")]
         public void ParseEmptyArgumentList(string input)
         {
-            var parser = new Parser(input);
+            var parser = new VelocityParser(input);
             var result = parser.Arguments();
 
             Assert.That(result, Is.Not.Null);
@@ -56,7 +55,7 @@ namespace IronVelocity.Tests.Parser
         public void ParseMultipleArguments()
         {
             var input = "($cat, $mat)";
-            var parser = new Parser(input);
+            var parser = new VelocityParser(input);
 
             var result = parser.Arguments();
 

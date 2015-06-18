@@ -7,10 +7,8 @@ using IronVelocity.Parser;
 using NUnit.Framework;
 using IronVelocity.Parser.AST;
 
-namespace IronVelocity.Tests.Parser
+namespace IronVelocity.Tests.ParserTests
 {
-    using Parser = IronVelocity.Parser.Parser;
-
     [TestFixture]
     public class ReferenceTests
     {
@@ -20,7 +18,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!{foobar}", true, true, "foobar")]
         public void ParseVariable(string input, bool isSilent, bool isFormal, string variableName)
         {
-            var parser = new Parser(input);
+            var parser = new VelocityParser(input);
 
             var result = parser.Reference();
             Assert.That(result, Is.Not.Null);
@@ -30,7 +28,7 @@ namespace IronVelocity.Tests.Parser
             Assert.That(result.Value, Is.TypeOf<Variable>());
             var variable = (Variable)result.Value;
             Assert.That(variable.Name, Is.EqualTo(variableName));
-            Assert.That(parser.HasReachedEndOfFile);
+            Assert.That(parser.HasReachedEndOfFile, Is.True);
         }
 
 
@@ -40,7 +38,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!{foobar.BlOoPeR}", true, true, "foobar", "BlOoPeR")]
         public void ParseProperty(string input, bool isSilent, bool isFormal, string variableName, string propertyName)
         {
-            var parser = new Parser(input);
+            var parser = new VelocityParser(input);
 
             var result = parser.Reference();
             Assert.That(result, Is.Not.Null);
@@ -54,7 +52,7 @@ namespace IronVelocity.Tests.Parser
             Assert.That(property.Target, Is.TypeOf<Variable>());
             var variable = (Variable)property.Target;
             Assert.That(variable.Name, Is.EqualTo(variableName));
-            Assert.That(parser.HasReachedEndOfFile);
+            Assert.That(parser.HasReachedEndOfFile, Is.True);
         }
 
         [TestCase("$foo.red()", false, false, "foo", "red")]
@@ -63,7 +61,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!{foobar.ScArLEt()}", true, true, "foobar", "ScArLEt")]
         public void ParseMethodWithNoArguments(string input, bool isSilent, bool isFormal, string variableName, string methodName)
         {
-            var parser = new Parser(input);
+            var parser = new VelocityParser(input);
 
             var result = parser.Reference();
             Assert.That(result, Is.Not.Null);
@@ -77,7 +75,7 @@ namespace IronVelocity.Tests.Parser
             Assert.That(method.Target, Is.TypeOf<Variable>());
             var variable = (Variable)method.Target;
             Assert.That(variable.Name, Is.EqualTo(variableName));
-            Assert.That(parser.HasReachedEndOfFile);
+            Assert.That(parser.HasReachedEndOfFile, Is.True);
         }
 
         /* TODO: handle invalid references - Exception? Treat as Text?

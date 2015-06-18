@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace IronVelocity.Parser
 {
-    public class Parser
+    public class VelocityParser
     {
         private readonly Lexer _lexer;
         private Token _currentToken;
 
-        public Parser(string input)
+        public VelocityParser(string input)
         {
             _lexer = new Lexer(input);
             _currentToken = _lexer.GetNextToken();

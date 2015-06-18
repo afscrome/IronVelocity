@@ -73,9 +73,13 @@
     <Compile Include="Binders\Reuse\InvokeMemberReuseTests.cs" />
     <Compile Include="Binders\Reuse\SetMemberReuseTests.cs" />
     <Compile Include="OutputTests\Macro.cs" />
-    <Compile Include="Parser\ExpressionTests.cs" />
-    <Compile Include="Parser\ReferenceTests.cs" />
-    <Compile Include="Parser\ArgumentListTests.cs" />
+    <Compile Include="ParserTests\WordTests.cs" />
+    <Compile Include="ParserTests\NumericLiteralTests.cs" />
+    <Compile Include="ParserTests\ListExpressionTests.cs" />
+    <Compile Include="ParserTests\RangeExpressionTests.cs" />
+    <Compile Include="ParserTests\ReferenceTests.cs" />
+    <Compile Include="ParserTests\ArgumentListTests.cs" />
+    <Compile Include="ParserTests\StringLiteralTests.cs" />
     <Compile Include="StaticTyping\DictionaryTests.cs" />
     <Compile Include="StaticTyping\If.cs" />
     <Compile Include="StaticTyping\SetTests.cs" />
