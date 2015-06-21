@@ -60,7 +60,7 @@ namespace IronVelocity.Tests.ParserTests
         [Test]
         public void ParseMultipleArguments()
         {
-            var input = "$cat, $sat";
+            var input = "$cat, $mat";
             var parser = new VelocityParser(input);
 
             var result = parser.ArgumentList(TokenKind.EndOfFile);
