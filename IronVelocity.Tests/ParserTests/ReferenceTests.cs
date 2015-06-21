@@ -18,64 +18,71 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("$!{foobar}", true, true, "foobar")]
         public void ParseVariable(string input, bool isSilent, bool isFormal, string variableName)
         {
-            var parser = new VelocityParser(input);
+            var parser = new VelocityParserWithStatistics(input);
+            var result = parser.Expression();
 
-            var result = parser.Reference();
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.IsSilent, Is.EqualTo(isSilent));
-            Assert.That(result.IsFormal, Is.EqualTo(isFormal));
-
-            Assert.That(result.Value, Is.TypeOf<Variable>());
-            var variable = (Variable)result.Value;
-            Assert.That(variable.Name, Is.EqualTo(variableName));
+            Assert.That(parser.ReferenceCallCount, Is.EqualTo(1));
+            Assert.That(parser.VariableCallCount, Is.EqualTo(1));
             Assert.That(parser.HasReachedEndOfFile, Is.True);
+
+            Assert.That(result, Is.TypeOf<ReferenceNode>());
+            var reference = (ReferenceNode)result;
+            Assert.That(reference.IsSilent, Is.EqualTo(isSilent));
+            Assert.That(reference.IsFormal, Is.EqualTo(isFormal));
+
+            Assert.That(reference.Value, Is.TypeOf<Variable>());
+            var variable = (Variable)reference.Value;
+            Assert.That(variable.Name, Is.EqualTo(variableName));
         }
 
-
-        [TestCase("$foo.boo", false, false, "foo", "boo")]
-        [TestCase("$!bar.Koopa", true, false, "bar", "Koopa")]
-        [TestCase("${baz.BOB-BOMB}", false, true, "baz", "BOB-BOMB")]
-        [TestCase("$!{foobar.BlOoPeR}", true, true, "foobar", "BlOoPeR")]
-        public void ParseProperty(string input, bool isSilent, bool isFormal, string variableName, string propertyName)
+        [TestCase("$foo.boo", false, false, "boo")]
+        [TestCase("$!bar.Koopa", true, false, "Koopa")]
+        [TestCase("${baz.BOB-BOMB}", false, true, "BOB-BOMB")]
+        [TestCase("$!{foobar.BlOoPeR}", true, true, "BlOoPeR")]
+        public void ParseProperty(string input, bool isSilent, bool isFormal, string propertyName)
         {
-            var parser = new VelocityParser(input);
+            var parser = new VelocityParserWithStatistics(input);
+            var result = parser.Expression();
 
-            var result = parser.Reference();
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.IsSilent, Is.EqualTo(isSilent));
-            Assert.That(result.IsFormal, Is.EqualTo(isFormal));
+            Assert.That(parser.ReferenceCallCount, Is.EqualTo(1));
+            Assert.That(parser.VariableCallCount, Is.EqualTo(1));
+            Assert.That(parser.PropertyCallCount, Is.EqualTo(1));
+            Assert.That(parser.HasReachedEndOfFile, Is.True);
 
-            Assert.That(result.Value, Is.TypeOf<Property>());
-            var property = (Property)result.Value;
+            Assert.That(result, Is.TypeOf<ReferenceNode>());
+            var reference = (ReferenceNode)result;
+
+            Assert.That(reference.IsSilent, Is.EqualTo(isSilent));
+            Assert.That(reference.IsFormal, Is.EqualTo(isFormal));
+
+            Assert.That(reference.Value, Is.TypeOf<Property>());
+            var property = (Property)reference.Value;
             Assert.That(property.Name, Is.EqualTo(propertyName));
-
-            Assert.That(property.Target, Is.TypeOf<Variable>());
-            var variable = (Variable)property.Target;
-            Assert.That(variable.Name, Is.EqualTo(variableName));
-            Assert.That(parser.HasReachedEndOfFile, Is.True);
         }
 
-        [TestCase("$foo.red()", false, false, "foo", "red")]
-        [TestCase("$!bar.Yellow()", true, false, "bar", "Yellow")]
-        [TestCase("${baz.PINKY_BROWN()}", false, true, "baz", "PINKY_BROWN")]
-        [TestCase("$!{foobar.ScArLEt()}", true, true, "foobar", "ScArLEt")]
-        public void ParseMethodWithNoArguments(string input, bool isSilent, bool isFormal, string variableName, string methodName)
+        [TestCase("$foo.red()", false, false, "red")]
+        [TestCase("$!bar.Yellow()", true, false, "Yellow")]
+        [TestCase("${baz.PINKY_BROWN()}", false, true, "PINKY_BROWN")]
+        [TestCase("$!{foobar.ScArLEt()}", true, true, "ScArLEt")]
+        public void ParseMethodWithNoArguments(string input, bool isSilent, bool isFormal, string methodName)
         {
-            var parser = new VelocityParser(input);
+            var parser = new VelocityParserWithStatistics(input);
+            var result = parser.Expression();
 
-            var result = parser.Reference();
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.IsSilent, Is.EqualTo(isSilent));
-            Assert.That(result.IsFormal, Is.EqualTo(isFormal));
-
-            Assert.That(result.Value, Is.TypeOf<Method>());
-            var method = (Method)result.Value;
-            Assert.That(method.Name, Is.EqualTo(methodName));
-
-            Assert.That(method.Target, Is.TypeOf<Variable>());
-            var variable = (Variable)method.Target;
-            Assert.That(variable.Name, Is.EqualTo(variableName));
+            Assert.That(parser.ReferenceCallCount, Is.EqualTo(1));
+            Assert.That(parser.VariableCallCount, Is.EqualTo(1));
+            Assert.That(parser.MethodCallCount, Is.EqualTo(1));
             Assert.That(parser.HasReachedEndOfFile, Is.True);
+
+            Assert.That(result, Is.TypeOf<ReferenceNode>());
+            var reference = (ReferenceNode)result;
+
+            Assert.That(reference.IsSilent, Is.EqualTo(isSilent));
+            Assert.That(reference.IsFormal, Is.EqualTo(isFormal));
+
+            Assert.That(reference.Value, Is.TypeOf<Method>());
+            var method = (Method)reference.Value;
+            Assert.That(method.Name, Is.EqualTo(methodName));
         }
 
         /* TODO: handle invalid references - Exception? Treat as Text?

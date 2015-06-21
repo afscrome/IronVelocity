@@ -28,35 +28,30 @@ namespace IronVelocity.Parser
         }
 
 
-        public ReferenceNode Reference()
+        protected virtual ReferenceNode Reference()
         {
 
             Eat(TokenKind.Dollar);
             bool isSilent = TryEat(TokenKind.Exclamation);
             bool isFormal = TryEat(TokenKind.LeftCurley);
 
-            var token = Eat(TokenKind.Identifier);
+            var identifier = Eat(TokenKind.Identifier);
 
             //Root variable
-            ReferenceInnerNode value = new Variable {
-                Name = token.Value
-            };
+            ReferenceInnerNode value = Variable(identifier);
 
             //Methods & Properties
             while (TryEat(TokenKind.Dot))
             {
-                token = Eat(TokenKind.Identifier);
+                identifier = Eat(TokenKind.Identifier);
 
-                var name = token.Value;
-                if (_currentToken.TokenKind == TokenKind.LeftParenthesis)
+                if (TryEat(TokenKind.LeftParenthesis))
                 {
-                    var args = ArgumentList();
-                    value = new Method { Name = name, Target = value, Arguments = args };
-                    token = _currentToken;
+                    value = Method(value, identifier);
                 }
                 else
                 {
-                    value = new Property { Name = name, Target = value };
+                    value = Property(value, identifier);
                 }
             }
 
@@ -74,6 +69,30 @@ namespace IronVelocity.Parser
 
         }
 
+        protected virtual Variable Variable(Token identifier)
+        {
+            return new Variable {
+                Name = identifier.Value
+            };
+        }
+
+        protected virtual Method Method(ReferenceInnerNode target, Token identifier)
+        {
+            return new Method {
+                Name = identifier.Value, 
+                Target = target,
+                Arguments = ArgumentList(TokenKind.RightParenthesis)
+            };
+        }
+
+        protected virtual Property Property(ReferenceInnerNode target, Token identifier)
+        {
+            return new Property {
+                Name = identifier.Value,
+                Target = target
+            };
+        }
+
         private void AddRemainingArguments(ICollection<ExpressionNode> arguments, TokenKind closingToken)
         {
             if (!TryEat(closingToken))
@@ -87,19 +106,17 @@ namespace IronVelocity.Parser
             }
         }
 
-        public ArgumentsNode ArgumentList()
+        public ArgumentsNode ArgumentList(TokenKind closingToken)
         {
-            Eat(TokenKind.LeftParenthesis);
-            
             TryEatWhitespace();
 
             var builder = ImmutableList.CreateBuilder<ExpressionNode>();
-            AddRemainingArguments(builder, TokenKind.RightParenthesis);
+            AddRemainingArguments(builder, closingToken);
 
             return new ArgumentsNode { Arguments = builder.ToImmutableArray() };
         }
 
-        public ExpressionNode Number()
+        protected virtual ExpressionNode Number()
         {
             bool isNegative = TryEat(TokenKind.Dash);
 
@@ -109,20 +126,50 @@ namespace IronVelocity.Parser
                 ? "-" + numberToken.Value
                 : numberToken.Value;
 
-            int intValue;
-            if (!TryEat(TokenKind.Dot) && int.TryParse(integerPart, out intValue))
-            {
-                return new IntegerNode { Value = intValue };
-            }
+            if(TryEat(TokenKind.Dot))
+                return FloatingPointLiteral(integerPart);
+            else
+                return IntegerLiteral(integerPart);
+        }
 
-            numberToken = Eat(TokenKind.NumericLiteral);
+        protected virtual IntegerNode IntegerLiteral(string integerPart)
+        {
+            var integerValue = int.Parse(integerPart);
+            return new IntegerNode { Value = integerValue };
+        }
+
+        protected virtual FloatingPointNode FloatingPointLiteral(string integerPart)
+        {
+            var numberToken = Eat(TokenKind.NumericLiteral);
             var fractionalPart = numberToken.Value;
 
             var floatValue = float.Parse(integerPart + "." + fractionalPart);
             return new FloatingPointNode { Value = floatValue };
+
         }
 
-        public ExpressionNode Expression()
+        protected virtual StringNode StringLiteral()
+        {
+            var token = Eat(TokenKind.StringLiteral);
+            return new StringNode
+            {
+                IsInterpolated = false,
+                Value = token.Value
+            };
+        }
+
+        protected virtual StringNode InterpolatedString()
+        {
+            var token = Eat(TokenKind.InterpolatedStringLiteral);
+            return new StringNode
+            {
+                IsInterpolated = true,
+                Value = token.Value
+            };
+
+        }
+
+        public virtual ExpressionNode Expression()
         {
 
             TryEatWhitespace();
@@ -134,30 +181,19 @@ namespace IronVelocity.Parser
                 case TokenKind.Dollar:
                     result = Reference();
                     break;
-                case TokenKind.Dash:
+                case TokenKind.Dash: //Negative numbers
                 case TokenKind.NumericLiteral:
                     result = Number();
                     break;
                 case TokenKind.StringLiteral:
-                    result = new StringNode { Value = currentToken.Value, IsInterpolated = false };
-                    MoveNext();
+                    result = StringLiteral();
                     break;
                 case TokenKind.InterpolatedStringLiteral:
-                    result = new StringNode { Value = currentToken.Value, IsInterpolated = true };
-                    MoveNext();
+                    result = InterpolatedString();
                     break;
-
                 case TokenKind.Identifier:
-                    var value = currentToken.Value;
-                    if (value == "true")
-                        result = BooleanNode.True;
-                    else if (value == "false")
-                        result = BooleanNode.False;
-                    else
-                        result = new WordNode { Name = value };
-                    MoveNext();
+                    result = BooleanLiteralOrWord();
                     break;
-
                 case TokenKind.LeftSquareBracket:
                     result = RangeOrList();
                     break;
@@ -177,7 +213,19 @@ namespace IronVelocity.Parser
             return result;
         }
 
-        private ExpressionNode RangeOrList()
+        protected virtual ExpressionNode BooleanLiteralOrWord()
+        {
+            var token = Eat(TokenKind.Identifier);
+            var value = token.Value;
+            if (value == "true")
+                return BooleanNode.True;
+            else if (value == "false")
+                return BooleanNode.False;
+            else
+                return new WordNode { Name = value };
+        }
+
+        protected virtual ExpressionNode RangeOrList()
         {
             Eat(TokenKind.LeftSquareBracket);
 

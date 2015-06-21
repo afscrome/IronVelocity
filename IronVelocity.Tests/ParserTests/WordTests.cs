@@ -1,11 +1,5 @@
-﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using IronVelocity.Parser.AST;
-using IronVelocity.Parser;
+﻿using IronVelocity.Parser.AST;
+using NUnit.Framework;
 
 namespace IronVelocity.Tests.ParserTests
 {
@@ -17,14 +11,15 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("FALSE")]
         public void Word(string name)
         {
-            var parser = new VelocityParser(name);
+            var parser = new VelocityParserWithStatistics(name);
             var result = parser.Expression();
+
+            Assert.That(parser.BooleanLiteralOrWordCallCount, Is.EqualTo(1));
+            Assert.That(parser.HasReachedEndOfFile);
 
             Assert.That(result, Is.TypeOf<WordNode>());
             var node = (WordNode)result;
-
             Assert.That(node.Name, Is.EqualTo(name));
-            Assert.That(parser.HasReachedEndOfFile, Is.True);
         }
 
     }

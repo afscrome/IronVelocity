@@ -12,76 +12,33 @@ namespace IronVelocity.Tests.ParserTests
     [TestFixture]
     public class ListExpressionTests
     {
-        [TestCase("[]")]
-        [TestCase("[    ]")]
-        public void EmptyList(string input)
+        [TestCase("[]", 0)]
+        [TestCase("[123]", 1)]
+        [TestCase("['test',4.5,$variable,true]", 4)]
+        public void ListHasExpectedNumberOfNestedExpressionCalls(string input, int elementCount)
         {
-            var parser = new VelocityParser(input);
+            var parser = new VelocityParserWithStatistics(input);
             var result = parser.Expression();
 
-            Assert.That(result, Is.TypeOf<ListExpressionNode>());
-
-            var node = (ListExpressionNode)result;
-
-            Assert.That(node.Values.Count, Is.EqualTo(0));
+            Assert.That(parser.RangeOrListCallCount, Is.EqualTo(1));
+            Assert.That(parser.ExpressionCallCount, Is.EqualTo(elementCount + 1));
             Assert.That(parser.HasReachedEndOfFile, Is.True);
-        }
-
-        [TestCase("[123]")]
-        [TestCase("[  123]")]
-        [TestCase("[123  ]")]
-        [TestCase("[  123    ]")]
-        public void ListWithSingleElement(string input)
-        {
-            var parser = new VelocityParser(input);
-            var result = parser.Expression();
 
             Assert.That(result, Is.TypeOf<ListExpressionNode>());
-
             var node = (ListExpressionNode)result;
-
-            Assert.That(node.Values.Count, Is.EqualTo(1));
-            Assert.That(parser.HasReachedEndOfFile, Is.True);
+            Assert.That(node.Values.Count, Is.EqualTo(elementCount));
         }
-
-        [TestCase("['test',4.5,$variable,true]")]
-        [TestCase("[   'test',   4.5,   $variable,   true]")]
-        [TestCase("[   'test'   ,   4.5   ,   $variable   ,   true   ]")]
-        [TestCase("['test'    ,4.5    ,$variable    ,true    ]")]
-        public void ListWithMultipleElements(string input)
-        {
-            var parser = new VelocityParser(input);
-            var result = parser.Expression();
-
-            Assert.That(result, Is.TypeOf<ListExpressionNode>());
-
-            var node = (ListExpressionNode)result;
-
-            Assert.That(node.Values.Count, Is.EqualTo(4));
-
-            Assert.That(node.Values[0], Is.TypeOf<StringNode>());
-            var firstArg = (StringNode)node.Values[0];
-            Assert.That(firstArg.Value, Is.EqualTo("test"));
-
-            Assert.That(node.Values[1], Is.TypeOf<FloatingPointNode>());
-            var secondArg = (FloatingPointNode)node.Values[1];
-            Assert.That(secondArg.Value, Is.EqualTo(4.5));
-
-            Assert.That(node.Values[2], Is.TypeOf<ReferenceNode>());
-            var thirdArg = (ReferenceNode)node.Values[2];
-            //Assert.That(thirdArg..Value, Is.EqualTo("test"));
-
-            Assert.That(node.Values[3], Is.EqualTo(BooleanNode.True));
-            Assert.That(parser.HasReachedEndOfFile, Is.True);
-        }
-
 
         [Test]
         public void NestedLists()
         {
             var input = "[[123]]";
-            var parser = new VelocityParser(input);
+            var parser = new VelocityParserWithStatistics(input);
             var result = parser.Expression();
+
+            Assert.That(parser.RangeOrListCallCount, Is.EqualTo(2));
+            Assert.That(parser.ExpressionCallCount, Is.EqualTo(3));
+            Assert.That(parser.HasReachedEndOfFile, Is.True);
 
 
             Assert.That(result, Is.TypeOf<ListExpressionNode>());
@@ -97,7 +54,6 @@ namespace IronVelocity.Tests.ParserTests
             var innerListValue = (IntegerNode)innerList.Values[0];
 
             Assert.That(innerListValue.Value, Is.EqualTo(123));
-
         }
 
     }

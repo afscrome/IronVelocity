@@ -17,17 +17,24 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("\"Hello $baz\"", "Hello $baz", true)]
         [TestCase("\"Mark's pen\"", "Mark's pen", true)]
         [TestCase("'Joe said \"Hello\"'", "Joe said \"Hello\"", false)]
-        public void StringLiteral(string input, string expected, bool interpolated)
+        public void StringLiteral(string input, string expectedValue, bool isInterpolated)
         {
-            var parser = new VelocityParser(input);
+            var parser = new VelocityParserWithStatistics(input);
             var result = parser.Expression();
 
-            Assert.That(result, Is.TypeOf<StringNode>());
-            var node = (StringNode)result;
+            if (isInterpolated)
+                Assert.That(parser.InterpolatedStringCallCount, Is.EqualTo(1));
+            else
+                Assert.That(parser.StringLiteralCallCount, Is.EqualTo(1));
 
-            Assert.That(node.Value, Is.EqualTo(expected));
-            Assert.That(node.IsInterpolated, Is.EqualTo(interpolated));
+            Assert.That(parser.ExpressionCallCount, Is.EqualTo(1));
             Assert.That(parser.HasReachedEndOfFile, Is.True);
+
+            Assert.That(result, Is.TypeOf<StringNode>());
+            var stringNode = (StringNode)result;
+            Assert.That(stringNode.Value, Is.EqualTo(expectedValue));
+            Assert.That(stringNode.IsInterpolated, Is.EqualTo(isInterpolated));
         }
+
     }
 }

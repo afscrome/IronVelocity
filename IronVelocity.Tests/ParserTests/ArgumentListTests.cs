@@ -12,16 +12,21 @@ namespace IronVelocity.Tests.ParserTests
     [TestFixture]
     public class ArgumentListTests
     {
-        [TestCase("($door)")]
-        [TestCase("( $door)")]
-        [TestCase("($door )")]
-        [TestCase("( $door )")]
-        [TestCase("(	$door)")]
+        [TestCase("$door")]
+        [TestCase(" $door")]
+        [TestCase("$door ")]
+        [TestCase(" $door ")]
+        [TestCase("	$door")]
+        [TestCase("\t$door ")]
+        [TestCase("$door\t")]
+        [TestCase("\t$door")]
+        [TestCase("\t$door\t")]
+        [TestCase(" \t \t $door \t \t")]
         public void ParseArgumentsWithWhitspace(string input)
         {
             var parser = new VelocityParser(input);
 
-            var result = parser.ArgumentList();
+            var result = parser.ArgumentList(TokenKind.EndOfFile);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Arguments, Is.Not.Null);
@@ -37,13 +42,14 @@ namespace IronVelocity.Tests.ParserTests
             Assert.That(parser.HasReachedEndOfFile);
         }
 
-        [TestCase("()")]
-        [TestCase("( )")]
-        [TestCase("(\t)")]
+        [TestCase("")]
+        [TestCase(" ")]
+        [TestCase("\t")]
+        [TestCase("\t \t \t")]
         public void ParseEmptyArgumentList(string input)
         {
             var parser = new VelocityParser(input);
-            var result = parser.ArgumentList();
+            var result = parser.ArgumentList(TokenKind.EndOfFile);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Arguments, Is.Not.Null);
@@ -54,10 +60,10 @@ namespace IronVelocity.Tests.ParserTests
         [Test]
         public void ParseMultipleArguments()
         {
-            var input = "($cat, $mat)";
+            var input = "$cat, $sat";
             var parser = new VelocityParser(input);
 
-            var result = parser.ArgumentList();
+            var result = parser.ArgumentList(TokenKind.EndOfFile);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.Arguments, Is.Not.Null);
