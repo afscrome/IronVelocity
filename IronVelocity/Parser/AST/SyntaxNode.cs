@@ -25,7 +25,7 @@ namespace IronVelocity.Parser.AST
     {
         public bool IsSilent { get; set; }
         public bool IsFormal { get; set; }
-        public SyntaxNode Value { get; set; }
+        public ReferenceInnerNode Value { get; set; }
     }
 
     public abstract class ReferenceInnerNode : SyntaxNode
