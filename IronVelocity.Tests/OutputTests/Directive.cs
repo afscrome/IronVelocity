@@ -1,5 +1,4 @@
 ﻿using NUnit.Framework;
-using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.OutputTests
 {

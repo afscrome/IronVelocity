@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.StaticTyping
 {

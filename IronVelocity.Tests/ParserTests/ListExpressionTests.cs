@@ -1,11 +1,5 @@
-﻿using IronVelocity.Parser;
-using IronVelocity.Parser.AST;
+﻿using IronVelocity.Parser.AST;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Tests.ParserTests
 {

@@ -18,12 +18,12 @@
 
 namespace NVelocity.Test
 {
+    using IronVelocity.Tests;
     using NUnit.Framework;
     using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Globalization;
-    using IronVelocity.Tests;
 
     /// <summary>
     /// Test Velocity processing

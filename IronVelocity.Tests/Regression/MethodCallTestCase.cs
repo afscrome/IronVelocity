@@ -14,14 +14,13 @@
 // 
 namespace NVelocity.Test
 {
-    using Exception;
+    using IronVelocity.Tests;
     using NUnit.Framework;
     using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Globalization;
     using System.IO;
-    using IronVelocity.Tests;
 
 	[TestFixture]
 	public class MethodCallTestCase

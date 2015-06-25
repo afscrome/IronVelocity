@@ -18,9 +18,9 @@
 
 namespace NVelocity.Test
 {
+    using IronVelocity.Tests;
     using NUnit.Framework;
     using System;
-    using IronVelocity.Tests;
 
     /// <summary>
     /// Tests to make sure that the VelocityContext is functioning correctly

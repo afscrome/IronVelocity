@@ -1,7 +1,6 @@
 ﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.OutputTests
 {

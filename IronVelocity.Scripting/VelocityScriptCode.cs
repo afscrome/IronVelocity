@@ -3,8 +3,6 @@ using Microsoft.Scripting;
 using Microsoft.Scripting.Generation;
 using Microsoft.Scripting.Runtime;
 using System;
-using System.Linq.Expressions;
-using System.Text;
 
 namespace IronVelocity.Scripting
 {
