@@ -81,7 +81,23 @@ namespace IronVelocity.Parser
                     Advance();
                     break;
                 case '-':
-                    token.TokenKind = TokenKind.Dash;
+                    token.TokenKind = TokenKind.Minus;
+                    Advance();
+                    break;
+                case '+':
+                    token.TokenKind = TokenKind.Plus;
+                    Advance();
+                    break;
+                case '*':
+                    token.TokenKind = TokenKind.Multiply;
+                    Advance();
+                    break;
+                case '/':
+                    token.TokenKind = TokenKind.Divide;
+                    Advance();
+                    break;
+                case '%':
+                    token.TokenKind = TokenKind.Modulo;
                     Advance();
                     break;
                 case '\'':

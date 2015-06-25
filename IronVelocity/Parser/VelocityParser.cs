@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -118,7 +117,7 @@ namespace IronVelocity.Parser
 
         protected virtual ExpressionNode Number()
         {
-            bool isNegative = TryEat(TokenKind.Dash);
+            bool isNegative = TryEat(TokenKind.Minus);
 
             var numberToken = Eat(TokenKind.NumericLiteral);
 
@@ -170,18 +169,16 @@ namespace IronVelocity.Parser
         }
 
         public virtual ExpressionNode Expression()
-        {
-
+        { 
             TryEatWhitespace();
 
-            var currentToken = _currentToken;
             ExpressionNode result;
-            switch (currentToken.TokenKind)
+            switch (_currentToken.TokenKind)
             {
                 case TokenKind.Dollar:
                     result = Reference();
                     break;
-                case TokenKind.Dash: //Negative numbers
+                case TokenKind.Minus: //Negative numbers
                 case TokenKind.NumericLiteral:
                     result = Number();
                     break;
@@ -211,6 +208,71 @@ namespace IronVelocity.Parser
             TryEatWhitespace();
 
             return result;
+        }
+
+        private bool HasHigherPrecedence(BinaryOperation left, BinaryOperation right)
+        {
+            left &= (BinaryOperation)0xFFFF0000;
+            right &= (BinaryOperation)0xFFFF0000;
+
+            return left > right;
+        }
+
+        public virtual ExpressionNode CompoundExpression()
+        {
+            var soFar = Expression();
+            BinaryExpressionNode soFarBinary = null;
+            while (true)
+            {
+                TokenKind tokenKind = _currentToken.TokenKind;
+                BinaryOperation operation;
+                switch (_currentToken.TokenKind)
+                {
+                    case TokenKind.Plus:
+                        operation = BinaryOperation.Adddition;
+                        break;
+                    case TokenKind.Minus:
+                        operation = BinaryOperation.Subtraction;
+                        break;
+                    case TokenKind.Multiply:
+                        operation = BinaryOperation.Multiplication;
+                        break;
+                    case TokenKind.Divide:
+                        operation = BinaryOperation.Division;
+                        break;
+                    case TokenKind.Modulo:
+                        operation = BinaryOperation.Modulo;
+                        break;
+                    default:
+                        return soFar;
+                }
+                Eat(tokenKind);
+                var operand = Expression();
+
+                if (soFarBinary != null && HasHigherPrecedence(operation, soFarBinary.Operation))
+                {
+                    soFar = soFarBinary = new BinaryExpressionNode
+                    {
+                        Left = soFarBinary.Left,
+                        Operation = soFarBinary.Operation,
+                        Right = new BinaryExpressionNode {
+                            Left = soFarBinary.Right,
+                            Right = operand,
+                            Operation = operation
+                        }
+                    };
+                }
+                else
+                { 
+                    soFar= soFarBinary = new BinaryExpressionNode
+                    {
+                        Left = soFar,
+                        Right = operand,
+                        Operation = operation
+                    };
+                }
+
+            }
         }
 
         protected virtual ExpressionNode BooleanLiteralOrWord()

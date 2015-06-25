@@ -19,11 +19,15 @@
         Whitespace,
         Comma,
         NumericLiteral,
-        Dash,
         StringLiteral,
         InterpolatedStringLiteral,
         Word,
         True,
-        False
+        False,
+        Plus,
+        Minus,
+        Multiply,
+        Divide,
+        Modulo
     }
 }
