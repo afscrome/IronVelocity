@@ -50,8 +50,8 @@ namespace IronVelocity.Tests.ParserTests
             var innerList = (ListExpressionNode)outerList.Values[0];
             Assert.That(innerList.Values.Count, Is.EqualTo(1));
 
-            Assert.That(innerList.Values[0], Is.TypeOf<IntegerNode>());
-            var innerListValue = (IntegerNode)innerList.Values[0];
+            Assert.That(innerList.Values[0], Is.TypeOf<IntegerLiteralNode>());
+            var innerListValue = (IntegerLiteralNode)innerList.Values[0];
 
             Assert.That(innerListValue.Value, Is.EqualTo(123));
         }

@@ -38,11 +38,11 @@ namespace IronVelocity.Tests.ParserTests
             Assert.That(result, Is.TypeOf<BinaryExpressionNode>());
             var node = (BinaryExpressionNode)result;
 
-            Assert.That(node.Left, Is.TypeOf<IntegerNode>());
-            Assert.That(node.Right, Is.TypeOf<IntegerNode>());
+            Assert.That(node.Left, Is.TypeOf<IntegerLiteralNode>());
+            Assert.That(node.Right, Is.TypeOf<IntegerLiteralNode>());
 
-            var left = node.Left as IntegerNode;
-            var right = node.Right as IntegerNode;
+            var left = node.Left as IntegerLiteralNode;
+            var right = node.Right as IntegerLiteralNode;
 
             Assert.That(left.Value , Is.EqualTo(start));
             Assert.That(right.Value, Is.EqualTo(end));

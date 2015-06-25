@@ -39,13 +39,13 @@ namespace IronVelocity.Tests.ParserTests
             return base.RangeOrList();
         }
 
-        protected override IntegerNode IntegerLiteral(string integerPart)
+        protected override IntegerLiteralNode IntegerLiteral(string integerPart)
         {
             IntegerCallCount++;
             return base.IntegerLiteral(integerPart);
         }
 
-        protected override FloatingPointNode FloatingPointLiteral(string integerPart)
+        protected override FloatingPointLiteralNode FloatingPointLiteral(string integerPart)
         {
             FloatCallCount++;
             return base.FloatingPointLiteral(integerPart);
@@ -80,13 +80,13 @@ namespace IronVelocity.Tests.ParserTests
             return base.Variable(identifier);
         }
 
-        protected override Property Property(ReferenceInnerNode target, Token identifier)
+        protected override Property Property(ReferenceNodePart target, Token identifier)
         {
             PropertyCallCount++;
             return base.Property(target, identifier);
         }
 
-        protected override Method Method(ReferenceInnerNode target, Token identifier)
+        protected override Method Method(ReferenceNodePart target, Token identifier)
         {
             MethodCallCount++;
             return base.Method(target, identifier);

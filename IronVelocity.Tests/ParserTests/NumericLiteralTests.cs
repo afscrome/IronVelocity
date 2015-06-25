@@ -23,8 +23,8 @@ namespace IronVelocity.Tests.ParserTests
             Assert.That(parser.ExpressionCallCount, Is.EqualTo(1));
             Assert.That(parser.HasReachedEndOfFile, Is.True);
 
-            Assert.That(result, Is.TypeOf<IntegerNode>());
-            var integerNode = (IntegerNode)result;
+            Assert.That(result, Is.TypeOf<IntegerLiteralNode>());
+            var integerNode = (IntegerLiteralNode)result;
             Assert.That(integerNode.Value, Is.EqualTo(expectedValue));
         }
 
@@ -41,8 +41,8 @@ namespace IronVelocity.Tests.ParserTests
             Assert.That(parser.ExpressionCallCount, Is.EqualTo(1));
             Assert.That(parser.HasReachedEndOfFile, Is.True);
 
-            Assert.That(result, Is.TypeOf<FloatingPointNode>());
-            var floatNode = (FloatingPointNode)result;
+            Assert.That(result, Is.TypeOf<FloatingPointLiteralNode>());
+            var floatNode = (FloatingPointLiteralNode)result;
             Assert.That(floatNode.Value, Is.EqualTo(expectedValue));
         }
 

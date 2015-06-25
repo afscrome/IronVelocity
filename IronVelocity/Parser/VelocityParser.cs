@@ -37,7 +37,7 @@ namespace IronVelocity.Parser
             var identifier = Eat(TokenKind.Identifier);
 
             //Root variable
-            ReferenceInnerNode value = Variable(identifier);
+            ReferenceNodePart value = Variable(identifier);
 
             //Methods & Properties
             while (TryEat(TokenKind.Dot))
@@ -75,7 +75,7 @@ namespace IronVelocity.Parser
             };
         }
 
-        protected virtual Method Method(ReferenceInnerNode target, Token identifier)
+        protected virtual Method Method(ReferenceNodePart target, Token identifier)
         {
             return new Method {
                 Name = identifier.Value, 
@@ -84,7 +84,7 @@ namespace IronVelocity.Parser
             };
         }
 
-        protected virtual Property Property(ReferenceInnerNode target, Token identifier)
+        protected virtual Property Property(ReferenceNodePart target, Token identifier)
         {
             return new Property {
                 Name = identifier.Value,
@@ -131,19 +131,19 @@ namespace IronVelocity.Parser
                 return IntegerLiteral(integerPart);
         }
 
-        protected virtual IntegerNode IntegerLiteral(string integerPart)
+        protected virtual IntegerLiteralNode IntegerLiteral(string integerPart)
         {
             var integerValue = int.Parse(integerPart);
-            return new IntegerNode { Value = integerValue };
+            return new IntegerLiteralNode { Value = integerValue };
         }
 
-        protected virtual FloatingPointNode FloatingPointLiteral(string integerPart)
+        protected virtual FloatingPointLiteralNode FloatingPointLiteral(string integerPart)
         {
             var numberToken = Eat(TokenKind.NumericLiteral);
             var fractionalPart = numberToken.Value;
 
             var floatValue = float.Parse(integerPart + "." + fractionalPart);
-            return new FloatingPointNode { Value = floatValue };
+            return new FloatingPointLiteralNode { Value = floatValue };
 
         }
 
@@ -280,9 +280,9 @@ namespace IronVelocity.Parser
             var token = Eat(TokenKind.Identifier);
             var value = token.Value;
             if (value == "true")
-                return BooleanNode.True;
+                return BooleanLiteralNode.True;
             else if (value == "false")
-                return BooleanNode.False;
+                return BooleanLiteralNode.False;
             else
                 return new WordNode { Name = value };
         }

@@ -20,8 +20,8 @@ namespace IronVelocity.Tests.ParserTests
             Assert.That(parser.BooleanLiteralOrWordCallCount, Is.EqualTo(1));
             Assert.That(parser.HasReachedEndOfFile);
 
-            Assert.That(result, Is.TypeOf<BooleanNode>());
-            var node = (BooleanNode)result;
+            Assert.That(result, Is.TypeOf<BooleanLiteralNode>());
+            var node = (BooleanLiteralNode)result;
 
             Assert.That(node.Value, Is.EqualTo(expected));
         }

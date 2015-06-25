@@ -78,7 +78,7 @@ namespace IronVelocity.Tests.ParserTests
             Assert.That(outerExpression.Operation == expectedOperation);
 
 
-            Assert.That(outerExpression.Right, Is.TypeOf<IntegerNode>());
+            Assert.That(outerExpression.Right, Is.TypeOf<IntegerLiteralNode>());
             Assert.That(outerExpression.Left, Is.TypeOf<BinaryExpressionNode>());
             var innerLeftExpression = (BinaryExpressionNode)outerExpression.Left;
             Assert.That(innerLeftExpression.Operation == expectedOperation);
