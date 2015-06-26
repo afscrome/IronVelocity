@@ -81,12 +81,34 @@ namespace IronVelocity.Tests.ParserTests
             Assert.That(innerLeftExpression.Operation == expectedOperation);
         }
 
-     
 
 
-        [TestCase("1 + 2 * 3")]
-        [TestCase("1 * 2 + 3")]
-        public void MultiplicationHasHigherPrecedenceThanAddition(string input)
+
+        [TestCase("1 + 2 - 3", BinaryOperation.Subtraction, BinaryOperation.Adddition, true)]
+        [TestCase("1 + 2 * 3", BinaryOperation.Adddition, BinaryOperation.Multiplication, false)]
+        [TestCase("1 + 2 / 3", BinaryOperation.Adddition, BinaryOperation.Division, false)]
+        [TestCase("1 + 2 % 3", BinaryOperation.Adddition, BinaryOperation.Modulo, false)]
+        
+        [TestCase("1 - 2 + 3", BinaryOperation.Adddition, BinaryOperation.Subtraction, true)]
+        [TestCase("1 - 2 * 3", BinaryOperation.Subtraction, BinaryOperation.Multiplication, false)]
+        [TestCase("1 - 2 / 3", BinaryOperation.Subtraction, BinaryOperation.Division, false)]
+        [TestCase("1 - 2 % 3", BinaryOperation.Subtraction, BinaryOperation.Modulo, false)]
+
+        [TestCase("1 * 2 + 3", BinaryOperation.Adddition, BinaryOperation.Multiplication, true)]
+        [TestCase("1 * 2 - 3", BinaryOperation.Subtraction, BinaryOperation.Multiplication, true)]
+        [TestCase("1 * 2 / 3", BinaryOperation.Division, BinaryOperation.Multiplication, true)]
+        [TestCase("1 * 2 % 3", BinaryOperation.Modulo, BinaryOperation.Multiplication, true)]
+
+        [TestCase("1 / 2 + 3", BinaryOperation.Adddition, BinaryOperation.Division, true)]
+        [TestCase("1 / 2 - 3", BinaryOperation.Subtraction, BinaryOperation.Division, true)]
+        [TestCase("1 / 2 * 3", BinaryOperation.Multiplication, BinaryOperation.Division, true)]
+        [TestCase("1 / 2 % 3", BinaryOperation.Modulo, BinaryOperation.Division, true)]
+
+        [TestCase("1 % 2 + 3", BinaryOperation.Adddition, BinaryOperation.Modulo, true)]
+        [TestCase("1 % 2 - 3", BinaryOperation.Subtraction, BinaryOperation.Modulo, true)]
+        [TestCase("1 % 2 * 3", BinaryOperation.Multiplication, BinaryOperation.Modulo, true)]
+        [TestCase("1 % 2 / 3", BinaryOperation.Division, BinaryOperation.Modulo, true)]
+        public void HigherPrecedenceOperationsAreDeeperInTreeThanLowerPrecedence(string input, BinaryOperation outerOperation, BinaryOperation innerOperation, bool innerBinaryExpressionIsOnLeft)
         {
             var parser = new VelocityParserWithStatistics(input);
             var result = parser.CompoundExpression();
@@ -98,10 +120,15 @@ namespace IronVelocity.Tests.ParserTests
             Assert.That(result, Is.TypeOf<BinaryExpressionNode>());
             var outerExpression = (BinaryExpressionNode)result;
 
-            Assert.That(outerExpression.Operation == BinaryOperation.Adddition);
+            Assert.That(outerExpression.Operation == outerOperation);
 
-            var innerBinaryExpression = new[] { outerExpression.Left, outerExpression.Right }.OfType<BinaryExpressionNode>().Single();
-            Assert.That(innerBinaryExpression.Operation == BinaryOperation.Multiplication);
+            var innerExpression = innerBinaryExpressionIsOnLeft
+                ?outerExpression.Left
+                : outerExpression.Right;
+            Assert.That(innerExpression, Is.TypeOf<BinaryExpressionNode>());
+
+            var innerBinaryExpression = (BinaryExpressionNode)innerExpression;
+            Assert.That(innerBinaryExpression.Operation == innerOperation);
         }
     }
 }
