@@ -8,6 +8,7 @@ namespace IronVelocity.Parser.AST
 {
     public enum UnaryOperation
     {
-        Not
+        Not,
+        Parenthesised
     }
 }

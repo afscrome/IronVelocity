@@ -176,6 +176,18 @@ namespace IronVelocity.Parser
 
         }
 
+        protected virtual UnaryExpressionNode Parenthesised()
+        {
+            Eat(TokenKind.LeftParenthesis);
+            var result = new UnaryExpressionNode
+            {
+                Operation = UnaryOperation.Parenthesised,
+                Value = Expression()
+            };
+            Eat(TokenKind.RightParenthesis);
+            return result;
+        }
+
         public virtual ExpressionNode Expression()
         { 
             TryEatWhitespace();
@@ -183,6 +195,9 @@ namespace IronVelocity.Parser
             ExpressionNode result;
             switch (_currentToken.TokenKind)
             {
+                case TokenKind.LeftParenthesis:
+                    result = Parenthesised();
+                    break;
                 case TokenKind.Exclamation:
                     result = Not();
                     break;
@@ -207,7 +222,6 @@ namespace IronVelocity.Parser
                     break;
                 case TokenKind.EndOfFile:
                     throw new Exception("Unexpected end of file");
-                case TokenKind.LeftParenthesis: //Operator precedence
                 case TokenKind.LeftCurley: //Dictionary
 
                     throw new NotImplementedException(String.Format("Can't yet parse token {0} starting an expression", _currentToken.TokenKind));
