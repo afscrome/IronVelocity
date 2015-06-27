@@ -165,6 +165,17 @@ namespace IronVelocity.Parser
 
         }
 
+        protected virtual UnaryExpressionNode Not()
+        {
+            Eat(TokenKind.Exclamation);
+
+            return new UnaryExpressionNode{
+                Operation = UnaryOperation.Not,
+                Value = Expression()
+            };
+
+        }
+
         public virtual ExpressionNode Expression()
         { 
             TryEatWhitespace();
@@ -172,6 +183,9 @@ namespace IronVelocity.Parser
             ExpressionNode result;
             switch (_currentToken.TokenKind)
             {
+                case TokenKind.Exclamation:
+                    result = Not();
+                    break;
                 case TokenKind.Dollar:
                     result = Reference();
                     break;
@@ -193,7 +207,6 @@ namespace IronVelocity.Parser
                     break;
                 case TokenKind.EndOfFile:
                     throw new Exception("Unexpected end of file");
-                case TokenKind.Exclamation: //Not
                 case TokenKind.LeftParenthesis: //Operator precedence
                 case TokenKind.LeftCurley: //Dictionary
 

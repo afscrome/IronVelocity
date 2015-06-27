@@ -16,6 +16,7 @@ namespace IronVelocity.Tests.ParserTests
         public int VariableCallCount { get; private set; }
         public int MethodCallCount { get; private set; }
         public int PropertyCallCount { get; private set; }
+        public int NotCallCount { get; private set; }
 
         public VelocityParserWithStatistics(string input)
             : base(input)
@@ -26,6 +27,11 @@ namespace IronVelocity.Tests.ParserTests
         {
             ExpressionCallCount++;
             return base.Expression();
+        }
+        protected override UnaryExpressionNode Not()
+        {
+            NotCallCount++;
+            return base.Not();
         }
 
         protected override ExpressionNode RangeOrList()

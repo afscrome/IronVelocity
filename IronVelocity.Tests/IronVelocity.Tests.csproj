@@ -75,6 +75,7 @@
     <Compile Include="OutputTests\Macro.cs" />
     <Compile Include="ParserTests\BooleanLiteralTests.cs" />
     <Compile Include="ParserTests\MathematicalExpressionTests.cs" />
+    <Compile Include="ParserTests\NotExpressionTests.cs" />
     <Compile Include="ParserTests\VelocityParserWithStatistics.cs" />
     <Compile Include="ParserTests\WordTests.cs" />
     <Compile Include="ParserTests\NumericLiteralTests.cs" />

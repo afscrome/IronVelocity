@@ -145,6 +145,8 @@
     <Compile Include="Parser\AST\ReferenceNodePart.cs" />
     <Compile Include="Parser\AST\StringNode.cs" />
     <Compile Include="Parser\AST\SyntaxNode.cs" />
+    <Compile Include="Parser\AST\UnaryExpression.cs" />
+    <Compile Include="Parser\AST\UnaryOperation.cs" />
     <Compile Include="Parser\AST\Variable.cs" />
     <Compile Include="Parser\AST\WordNode.cs" />
     <Compile Include="Parser\Lexer.cs" />
