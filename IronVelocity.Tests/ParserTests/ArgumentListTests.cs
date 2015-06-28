@@ -20,7 +20,7 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase(" \t \t $door \t \t")]
         public void ParseArgumentsWithWhitspace(string input)
         {
-            var parser = new VelocityParser(input);
+            var parser = new VelocityParser(input, LexerState.Vtl);
 
             var result = parser.ArgumentList(TokenKind.EndOfFile);
 
@@ -44,7 +44,7 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("\t \t \t")]
         public void ParseEmptyArgumentList(string input)
         {
-            var parser = new VelocityParser(input);
+            var parser = new VelocityParser(input, LexerState.Vtl);
             var result = parser.ArgumentList(TokenKind.EndOfFile);
 
             Assert.That(result, Is.Not.Null);
@@ -57,7 +57,7 @@ namespace IronVelocity.Tests.ParserTests
         public void ParseMultipleArguments()
         {
             var input = "$cat, $mat";
-            var parser = new VelocityParser(input);
+            var parser = new VelocityParser(input, LexerState.Vtl);
 
             var result = parser.ArgumentList(TokenKind.EndOfFile);
 

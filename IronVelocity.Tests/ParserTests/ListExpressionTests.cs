@@ -1,4 +1,5 @@
-﻿using IronVelocity.Parser.AST;
+﻿using IronVelocity.Parser;
+using IronVelocity.Parser.AST;
 using NUnit.Framework;
 
 namespace IronVelocity.Tests.ParserTests
@@ -11,7 +12,7 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("['test',4.5,$variable,true]", 4)]
         public void ListHasExpectedNumberOfNestedExpressionCalls(string input, int elementCount)
         {
-            var parser = new VelocityParserWithStatistics(input);
+            var parser = new VelocityParserWithStatistics(input, LexerState.Vtl);
             var result = parser.Expression();
 
             Assert.That(parser.RangeOrListCallCount, Is.EqualTo(1));
@@ -27,7 +28,7 @@ namespace IronVelocity.Tests.ParserTests
         public void NestedLists()
         {
             var input = "[[123]]";
-            var parser = new VelocityParserWithStatistics(input);
+            var parser = new VelocityParserWithStatistics(input, LexerState.Vtl);
             var result = parser.Expression();
 
             Assert.That(parser.RangeOrListCallCount, Is.EqualTo(2));

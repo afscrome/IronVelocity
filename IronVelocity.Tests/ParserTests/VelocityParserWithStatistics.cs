@@ -18,8 +18,8 @@ namespace IronVelocity.Tests.ParserTests
         public int PropertyCallCount { get; private set; }
         public int NotCallCount { get; private set; }
 
-        public VelocityParserWithStatistics(string input)
-            : base(input)
+        public VelocityParserWithStatistics(string input, LexerState state)
+            : base(input, state)
         {
         }
 

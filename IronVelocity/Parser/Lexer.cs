@@ -3,20 +3,88 @@ using System.Text;
 
 namespace IronVelocity.Parser
 {
+    public enum LexerState
+    {
+        Text,
+        Vtl
+    }
+
     public class Lexer
     {
         private readonly string _input;
         private StringBuilder _builder = new StringBuilder();
         private int _position = -1;
         private char _nextChar;
+        public LexerState State {get; set;}
 
-        public Lexer(string input)
+        public Lexer(string input, LexerState state)
         {
             _input = input;
+            State = state;
             _nextChar = Advance();
         }
 
+
         public Token GetNextToken()
+        {
+            switch (State)
+            {
+                case LexerState.Text:
+                    return GetNextTextToken();
+                case LexerState.Vtl:
+                   return GetNextVtlToken();
+                default:
+                    throw new ArgumentOutOfRangeException("state");
+            }
+        }
+
+
+        public Token GetNextTextToken()
+        {
+            var token = new Token();
+            switch (_nextChar)
+            {
+                case '\0':
+                    token.TokenKind = TokenKind.EndOfFile;
+                    Advance();
+                    break;
+                case '$':
+                    Advance();
+                    break;
+                default:
+                    Text(ref token);
+                    break;
+            }
+
+            return token;
+        }
+
+        public void Text(ref Token token)
+        {
+
+            _builder.Clear();
+            char nextChar = _nextChar;
+            while (true)
+            {
+                switch (nextChar)
+                {
+                    case '\0':
+                    case '$':
+                    case '#':
+                        token.TokenKind = TokenKind.Text;
+                        token.Value = _builder.ToString();
+                        return;
+                    default:
+                        _builder.Append(nextChar);
+                        nextChar = Advance();
+                        break;
+
+                }
+            }
+
+        }
+
+        public Token GetNextVtlToken()
         {
             var token = new Token();
 

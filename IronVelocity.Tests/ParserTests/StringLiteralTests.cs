@@ -1,4 +1,5 @@
-﻿using IronVelocity.Parser.AST;
+﻿using IronVelocity.Parser;
+using IronVelocity.Parser.AST;
 using NUnit.Framework;
 
 namespace IronVelocity.Tests.ParserTests
@@ -13,7 +14,7 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("'Joe said \"Hello\"'", "Joe said \"Hello\"", false)]
         public void StringLiteral(string input, string expectedValue, bool isInterpolated)
         {
-            var parser = new VelocityParserWithStatistics(input);
+            var parser = new VelocityParserWithStatistics(input, LexerState.Vtl);
             var result = parser.Expression();
 
             if (isInterpolated)

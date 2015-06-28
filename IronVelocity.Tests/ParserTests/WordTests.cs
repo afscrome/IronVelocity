@@ -1,4 +1,5 @@
-﻿using IronVelocity.Parser.AST;
+﻿using IronVelocity.Parser;
+using IronVelocity.Parser.AST;
 using NUnit.Framework;
 
 namespace IronVelocity.Tests.ParserTests
@@ -11,7 +12,7 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("FALSE")]
         public void Word(string name)
         {
-            var parser = new VelocityParserWithStatistics(name);
+            var parser = new VelocityParserWithStatistics(name, LexerState.Vtl);
             var result = parser.Expression();
 
             Assert.That(parser.BooleanLiteralOrWordCallCount, Is.EqualTo(1));

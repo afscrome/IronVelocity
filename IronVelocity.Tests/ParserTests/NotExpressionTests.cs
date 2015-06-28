@@ -1,4 +1,5 @@
-﻿using IronVelocity.Parser.AST;
+﻿using IronVelocity.Parser;
+using IronVelocity.Parser.AST;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace IronVelocity.Tests.ParserTests
         [Test]
         public void NotExpression()
         {
-            var parser = new VelocityParserWithStatistics("!true");
+            var parser = new VelocityParserWithStatistics("!true", LexerState.Vtl);
             var result = parser.Expression();
 
             Assert.That(parser.NotCallCount, Is.EqualTo(1));

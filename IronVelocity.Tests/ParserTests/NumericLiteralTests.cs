@@ -1,4 +1,5 @@
-﻿using IronVelocity.Parser.AST;
+﻿using IronVelocity.Parser;
+using IronVelocity.Parser.AST;
 using NUnit.Framework;
 
 namespace IronVelocity.Tests.ParserTests
@@ -10,7 +11,7 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("-43", -43)]
         public void IntegerLiteral(string input, int expectedValue)
         {
-            var parser = new VelocityParserWithStatistics(input);
+            var parser = new VelocityParserWithStatistics(input, LexerState.Vtl);
             var result = parser.Expression();
 
             Assert.That(parser.IntegerCallCount, Is.EqualTo(1));
@@ -28,7 +29,7 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("-98.0", -98f)]
         public void FloatingPointLiteral(string input, float expectedValue)
         {
-            var parser = new VelocityParserWithStatistics(input);
+            var parser = new VelocityParserWithStatistics(input, LexerState.Vtl);
             var result = parser.Expression();
 
             Assert.That(parser.FloatCallCount, Is.EqualTo(1));

@@ -1,4 +1,5 @@
-﻿using IronVelocity.Parser.AST;
+﻿using IronVelocity.Parser;
+using IronVelocity.Parser.AST;
 using NUnit.Framework;
 using System;
 using System.Linq;
@@ -40,7 +41,7 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("1 % 2", BinaryOperation.Modulo)]
         public void TwoOperands(string input, BinaryOperation expectedOperation)
         {
-            var parser = new VelocityParserWithStatistics(input);
+            var parser = new VelocityParserWithStatistics(input, LexerState.Vtl);
 
             var result = parser.CompoundExpression();
 
@@ -61,7 +62,7 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("1 % 2 % 3", BinaryOperation.Modulo)]
         public void ThreeOperandsOfSameOperation(string input, BinaryOperation expectedOperation)
         {
-            var parser = new VelocityParserWithStatistics(input);
+            var parser = new VelocityParserWithStatistics(input, LexerState.Vtl);
 
             var result = parser.CompoundExpression();
 
@@ -110,7 +111,7 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("1 % 2 / 3", BinaryOperation.Division, BinaryOperation.Modulo, true)]
         public void HigherPrecedenceOperationsAreDeeperInTreeThanLowerPrecedence(string input, BinaryOperation outerOperation, BinaryOperation innerOperation, bool innerBinaryExpressionIsOnLeft)
         {
-            var parser = new VelocityParserWithStatistics(input);
+            var parser = new VelocityParserWithStatistics(input, LexerState.Vtl);
             var result = parser.CompoundExpression();
 
             Assert.That(parser.IntegerCallCount, Is.EqualTo(3));

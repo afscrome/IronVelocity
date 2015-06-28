@@ -12,7 +12,7 @@ namespace IronVelocity.Tests.ParserTests
         public void RangeExpressionParsesTwoNestedExpressions()
         {
             var input = "[$start..$end]";
-            var parser = new VelocityParserWithStatistics(input);
+            var parser = new VelocityParserWithStatistics(input, LexerState.Vtl);
             var result = parser.Expression();
             Assert.That(result, Is.TypeOf<BinaryExpressionNode>());
 
@@ -27,7 +27,7 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("[ -3 .. -9]", -3, -9)]
         public void RangeExpression(string input, int start, int end)
         {
-            var parser = new VelocityParser(input);
+            var parser = new VelocityParser(input, LexerState.Vtl);
             var result = parser.Expression();
 
             Assert.That(result, Is.TypeOf<BinaryExpressionNode>());

@@ -1,4 +1,5 @@
-﻿using IronVelocity.Parser.AST;
+﻿using IronVelocity.Parser;
+using IronVelocity.Parser.AST;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace IronVelocity.Tests.ParserTests
         [Test]
         public void ParenthesisedExpression()
         {
-            var parser = new VelocityParserWithStatistics("(482)");
+            var parser = new VelocityParserWithStatistics("(482)", LexerState.Vtl);
             var result = parser.Expression();
 
             //Assert.That(parser., Is.EqualTo(1));

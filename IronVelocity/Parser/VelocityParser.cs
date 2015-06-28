@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Text;
 
 namespace IronVelocity.Parser
 {
@@ -10,18 +11,70 @@ namespace IronVelocity.Parser
         private readonly Lexer _lexer;
         private Token _currentToken;
 
+        public bool HasReachedEndOfFile { get { return CurrentToken.TokenKind == TokenKind.EndOfFile; } }
+
+        private Token CurrentToken { get { return _currentToken; } }
+
         public VelocityParser(string input)
+            : this(input, LexerState.Text)
         {
-            _lexer = new Lexer(input);
+        }
+
+        public VelocityParser(string input, LexerState state)
+        {
+            _lexer = new Lexer(input, state);
+            MoveNext();
+        }
+
+
+        private void MoveNext()
+        {
             _currentToken = _lexer.GetNextToken();
         }
 
-        public bool HasReachedEndOfFile { get { return _currentToken.TokenKind == TokenKind.EndOfFile; } }
-
-        private Token MoveNext()
+        public RenderedOutputNode Parse()
         {
-            return _currentToken = _lexer.GetNextToken();
+            var children = ImmutableList.CreateBuilder<SyntaxNode>();
+
+
+            var textSoFar = new StringBuilder();
+            while(true)
+            {
+                var token = CurrentToken;
+                switch (token.TokenKind)
+                {
+                    case TokenKind.Text:
+                        textSoFar.Append(token.Value);
+                        Eat(TokenKind.Text);
+                        break;
+                    case TokenKind.Dollar:
+                        if (textSoFar.Length > 0)
+                        {
+                            children.Add(new TextNode(textSoFar.ToString()));
+                            textSoFar.Clear();
+                        }
+                        _lexer.State = LexerState.Vtl;
+                        children.Add(Reference());
+                        _lexer.State = LexerState.Text;
+                        break;
+                    case TokenKind.EndOfFile:
+                        if (textSoFar.Length > 0)
+                        {
+                            children.Add(new TextNode(textSoFar.ToString()));
+                            textSoFar.Clear();
+                        }
+                        return new RenderedOutputNode(children.ToImmutableArray());
+                    default:
+                        if (String.IsNullOrEmpty(token.Value))
+                            throw new Exception("Token value not defined");
+                        textSoFar.Append(token.Value);
+                        MoveNext();
+                        break;
+                }
+            }
+
         }
+
 
 
         protected virtual ReferenceNode Reference()
@@ -193,7 +246,7 @@ namespace IronVelocity.Parser
             TryEatWhitespace();
 
             ExpressionNode result;
-            switch (_currentToken.TokenKind)
+            switch (CurrentToken.TokenKind)
             {
                 case TokenKind.LeftParenthesis:
                     result = Parenthesised();
@@ -224,9 +277,9 @@ namespace IronVelocity.Parser
                     throw new Exception("Unexpected end of file");
                 case TokenKind.LeftCurley: //Dictionary
 
-                    throw new NotImplementedException(String.Format("Can't yet parse token {0} starting an expression", _currentToken.TokenKind));
+                    throw new NotImplementedException(String.Format("Can't yet parse token {0} starting an expression", CurrentToken.TokenKind));
                 default:
-                    throw new Exception("Unrecognised token parsing an expression: " + _currentToken.TokenKind);
+                    throw new Exception("Unrecognised token parsing an expression: " + CurrentToken.TokenKind);
             }
 
             TryEatWhitespace();
@@ -248,9 +301,9 @@ namespace IronVelocity.Parser
             BinaryExpressionNode soFarBinary = null;
             while (true)
             {
-                TokenKind tokenKind = _currentToken.TokenKind;
+                TokenKind tokenKind = CurrentToken.TokenKind;
                 BinaryOperation operation;
-                switch (_currentToken.TokenKind)
+                switch (tokenKind)
                 {
                     case TokenKind.Plus:
                         operation = BinaryOperation.Adddition;
@@ -352,8 +405,8 @@ namespace IronVelocity.Parser
 
         private Token Eat(TokenKind tokenKind)
         {
-            var token = _currentToken;
-            if (token.TokenKind != tokenKind)
+            var token = CurrentToken;
+            if (CurrentToken.TokenKind != tokenKind)
             {
                 throw UnexpectedTokenException(tokenKind);
             }
@@ -363,8 +416,7 @@ namespace IronVelocity.Parser
 
         private bool TryEat(TokenKind tokenKind)
         {
-            var currentToken = _currentToken;
-            if (currentToken.TokenKind == tokenKind)
+            if (CurrentToken.TokenKind == tokenKind)
             {
                 MoveNext();
                 return true;
@@ -378,13 +430,13 @@ namespace IronVelocity.Parser
         private Exception UnexpectedTokenException(TokenKind expectedToken)
         {
             //TODO: Throw specific exception type, include line & column data.
-            return new Exception(String.Format("Unexpected Token {0}. Expected {1}.", _currentToken.TokenKind, expectedToken));
+            return new Exception(String.Format("Unexpected Token {0}. Expected {1}.", CurrentToken.TokenKind, expectedToken));
         }
 
         private Exception UnexpectedTokenException(params TokenKind[] expectedTokenKinds)
         {
             //TODO: Throw specific exception type, include line & column data.
-            return new Exception(String.Format("Unexpected Token {0}. Expected one of: {1}.", _currentToken.TokenKind, String.Join(",", expectedTokenKinds)));
+            return new Exception(String.Format("Unexpected Token {0}. Expected one of: {1}.", CurrentToken.TokenKind, String.Join(",", expectedTokenKinds)));
         }
 
         private bool TryEatWhitespace()

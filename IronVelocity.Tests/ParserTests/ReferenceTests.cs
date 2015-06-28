@@ -1,4 +1,5 @@
-﻿using IronVelocity.Parser.AST;
+﻿using IronVelocity.Parser;
+using IronVelocity.Parser.AST;
 using NUnit.Framework;
 
 namespace IronVelocity.Tests.ParserTests
@@ -12,7 +13,7 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("$!{foobar}", true, true, "foobar")]
         public void ParseVariable(string input, bool isSilent, bool isFormal, string variableName)
         {
-            var parser = new VelocityParserWithStatistics(input);
+            var parser = new VelocityParserWithStatistics(input, LexerState.Vtl);
             var result = parser.Expression();
 
             Assert.That(parser.ReferenceCallCount, Is.EqualTo(1));
@@ -35,7 +36,7 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("$!{foobar.BlOoPeR}", true, true, "BlOoPeR")]
         public void ParseProperty(string input, bool isSilent, bool isFormal, string propertyName)
         {
-            var parser = new VelocityParserWithStatistics(input);
+            var parser = new VelocityParserWithStatistics(input, LexerState.Vtl);
             var result = parser.Expression();
 
             Assert.That(parser.ReferenceCallCount, Is.EqualTo(1));
@@ -60,7 +61,7 @@ namespace IronVelocity.Tests.ParserTests
         [TestCase("$!{foobar.ScArLEt()}", true, true, "ScArLEt")]
         public void ParseMethodWithNoArguments(string input, bool isSilent, bool isFormal, string methodName)
         {
-            var parser = new VelocityParserWithStatistics(input);
+            var parser = new VelocityParserWithStatistics(input, LexerState.Vtl);
             var result = parser.Expression();
 
             Assert.That(parser.ReferenceCallCount, Is.EqualTo(1));
