@@ -13,7 +13,7 @@ namespace IronVelocity.Parser
 
         public bool HasReachedEndOfFile { get { return CurrentToken.TokenKind == TokenKind.EndOfFile; } }
 
-        private Token CurrentToken { get { return _currentToken; } }
+        private Token CurrentToken { get { return _currentToken ?? (_currentToken = _lexer.GetNextToken()); } }
 
         public VelocityParser(string input)
             : this(input, LexerState.Text)
@@ -29,7 +29,7 @@ namespace IronVelocity.Parser
 
         private void MoveNext()
         {
-            _currentToken = _lexer.GetNextToken();
+            _currentToken = null;
         }
 
         public RenderedOutputNode Parse()
@@ -48,15 +48,18 @@ namespace IronVelocity.Parser
                         Eat(TokenKind.Text);
                         break;
                     case TokenKind.Dollar:
+                        _lexer.State = LexerState.Vtl;
+                        ReferenceOrText(textSoFar, children);
+                        _lexer.State = LexerState.Text;
+                        break;
+                        /*
                         if (textSoFar.Length > 0)
                         {
                             children.Add(new TextNode(textSoFar.ToString()));
                             textSoFar.Clear();
                         }
-                        _lexer.State = LexerState.Vtl;
-                        children.Add(Reference());
-                        _lexer.State = LexerState.Text;
-                        break;
+                        children.Add(ReferenceOrText());
+                        break;*/
                     case TokenKind.EndOfFile:
                         if (textSoFar.Length > 0)
                         {
@@ -65,16 +68,130 @@ namespace IronVelocity.Parser
                         }
                         return new RenderedOutputNode(children.ToImmutableArray());
                     default:
-                        if (String.IsNullOrEmpty(token.Value))
-                            throw new Exception("Token value not defined");
-                        textSoFar.Append(token.Value);
+                        textSoFar.Append(token.GetValue());
                         MoveNext();
                         break;
                 }
             }
+        }
+
+        protected virtual void ReferenceOrText(StringBuilder textSoFar, ImmutableList<SyntaxNode>.Builder nodeBuilder)
+        {
+            var dollarToken = Eat(TokenKind.Dollar);
+
+            int refStart = textSoFar.Length;
+
+            while (TryEat(TokenKind.Dollar))
+            {
+                textSoFar.Append('$');
+            }
+
+            bool isSilent = TryEat(TokenKind.Exclamation);
+            bool isFormal = TryEat(TokenKind.LeftCurley);
+
+            if(CurrentToken.TokenKind != TokenKind.Identifier)
+            {
+                textSoFar.Append('$');
+                if (isSilent)
+                    textSoFar.Append('!');
+                if (isFormal)
+                    textSoFar.Append('{');
+
+                return;
+            }
+
+            var identifier = Eat(TokenKind.Identifier);
+            if (textSoFar.Length > 0)
+                nodeBuilder.Add(new TextNode(textSoFar.ToString()));
+
+            //If we have a formal reference, we don't expect any text until the next right curley brace
+
+            if (isFormal)
+                nodeBuilder.Add(ReferenceInternal(isSilent, isFormal, identifier));
+            else
+            {
+                textSoFar.Clear();
+                ReferenceNodePart value = Variable(identifier);
+
+                textSoFar.Clear();
+                while (textSoFar.Length == 0 && TryEat(TokenKind.Dot))
+                {
+                    identifier = CurrentToken;
+                    if (!TryEat(TokenKind.Identifier))
+                    {
+                        textSoFar.Append('.');
+                        textSoFar.Append(identifier.GetValue());
+                        break;
+                    }
+
+                    if (TryEat(TokenKind.LeftParenthesis))
+                    {
+                        textSoFar.Append("(");
+                        //This should match the tokens allowed to start an Expression in Expression()
+                        switch (CurrentToken.TokenKind)
+                        {
+                            case TokenKind.LeftParenthesis:
+                            //case TokenKind.Exclamation: //This is allowed in NVelocity
+                            case TokenKind.Dollar:
+                            case TokenKind.Minus:
+                            case TokenKind.NumericLiteral:
+                            case TokenKind.StringLiteral:
+                            case TokenKind.InterpolatedStringLiteral:
+                            case TokenKind.Identifier:
+                            case TokenKind.LeftSquareBracket:
+                            case TokenKind.EndOfFile:
+                                value = Property(value, identifier);
+                                textSoFar.Append(CurrentToken.GetValue());
+                                goto end;
+                            default:
+                                value = Method(value, identifier);
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        value = Property(value, identifier);
+                    }
+                }
+
+end:
+                var reference = new ReferenceNode
+                {
+                    IsFormal = isFormal,
+                    IsSilent = isSilent,
+                    Value = value
+                };
+                nodeBuilder.Add(reference);
+            }
 
         }
 
+        protected virtual SyntaxNode ReferenceOrText()
+        {
+            var dollarToken = Eat(TokenKind.Dollar);
+
+            if (CurrentToken.TokenKind == TokenKind.Dollar)
+            {
+                return new TextNode("$");
+            }
+
+            bool isSilent = TryEat(TokenKind.Exclamation);
+            bool isFormal = TryEat(TokenKind.LeftCurley);
+
+            var possibleIdentifier = CurrentToken;
+            if(!TryEat(TokenKind.Identifier))
+            {
+                var text = "$";
+                if (isSilent)
+                    text += "!";
+                if (isFormal)
+                    text += "{";
+
+                return new TextNode(text);
+            }
+
+            return ReferenceInternal(isSilent, isFormal, possibleIdentifier);
+        }
 
 
         protected virtual ReferenceNode Reference()
@@ -85,7 +202,11 @@ namespace IronVelocity.Parser
             bool isFormal = TryEat(TokenKind.LeftCurley);
 
             var identifier = Eat(TokenKind.Identifier);
+            return ReferenceInternal(isSilent, isFormal, identifier);
+        }
 
+        private ReferenceNode ReferenceInternal(bool isSilent, bool isFormal, Token identifier)
+        {
             //Root variable
             ReferenceNodePart value = Variable(identifier);
 
@@ -246,6 +367,7 @@ namespace IronVelocity.Parser
             TryEatWhitespace();
 
             ExpressionNode result;
+            //N.B. any additions here should also be added to ReferenceOrText
             switch (CurrentToken.TokenKind)
             {
                 case TokenKind.LeftParenthesis:
