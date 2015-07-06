@@ -82,5 +82,23 @@ namespace IronVelocity.Tests.ParserTests
             Assert.That(secondVariable.Name, Is.EqualTo("mat"));
             Assert.That(parser.HasReachedEndOfFile);
         }
+
+        [Test]
+        public void SameArgumentListInstanceReturnedIfArgumentsDontChange()
+        {
+            var arguments = new ArgumentsNode(new ExpressionNode[0]);
+            var updated = arguments.Update(arguments.Arguments);
+
+            Assert.That(updated, Is.EqualTo(arguments));
+        }
+
+        [Test]
+        public void DifferentArgumentListInstanceReturnedIfArgumentsChange()
+        {
+            var arguments = new ArgumentsNode(new ExpressionNode[0]);
+            var updated = arguments.Update(new ExpressionNode[] { null });
+
+            Assert.That(updated, Is.Not.EqualTo(arguments));
+        }
     }
 }

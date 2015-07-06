@@ -38,7 +38,7 @@ namespace IronVelocity.Parser
 
 
             var textSoFar = new StringBuilder();
-            while(true)
+            while (true)
             {
                 var token = CurrentToken;
                 switch (token.TokenKind)
@@ -52,14 +52,14 @@ namespace IronVelocity.Parser
                         ReferenceOrText(textSoFar, children);
                         _lexer.State = LexerState.Text;
                         break;
-                        /*
-                        if (textSoFar.Length > 0)
-                        {
-                            children.Add(new TextNode(textSoFar.ToString()));
-                            textSoFar.Clear();
-                        }
-                        children.Add(ReferenceOrText());
-                        break;*/
+                    /*
+                    if (textSoFar.Length > 0)
+                    {
+                        children.Add(new TextNode(textSoFar.ToString()));
+                        textSoFar.Clear();
+                    }
+                    children.Add(ReferenceOrText());
+                    break;*/
                     case TokenKind.EndOfFile:
                         if (textSoFar.Length > 0)
                         {
@@ -89,7 +89,7 @@ namespace IronVelocity.Parser
             bool isSilent = TryEat(TokenKind.Exclamation);
             bool isFormal = TryEat(TokenKind.LeftCurley);
 
-            if(CurrentToken.TokenKind != TokenKind.Identifier)
+            if (CurrentToken.TokenKind != TokenKind.Identifier)
             {
                 textSoFar.Append('$');
                 if (isSilent)
@@ -154,13 +154,8 @@ namespace IronVelocity.Parser
                     }
                 }
 
-end:
-                var reference = new ReferenceNode
-                {
-                    IsFormal = isFormal,
-                    IsSilent = isSilent,
-                    Value = value
-                };
+            end:
+                var reference = new ReferenceNode(value, isSilent, isFormal);
                 nodeBuilder.Add(reference);
             }
 
@@ -179,7 +174,7 @@ end:
             bool isFormal = TryEat(TokenKind.LeftCurley);
 
             var possibleIdentifier = CurrentToken;
-            if(!TryEat(TokenKind.Identifier))
+            if (!TryEat(TokenKind.Identifier))
             {
                 var text = "$";
                 if (isSilent)
@@ -230,37 +225,23 @@ end:
                 Eat(TokenKind.RightCurley);
             }
 
-            return new ReferenceNode
-            {
-                IsSilent = isSilent,
-                IsFormal = isFormal,
-                Value = value,
-            };
-
+            return new ReferenceNode(value, isSilent, isFormal);
         }
 
         protected virtual Variable Variable(Token identifier)
         {
-            return new Variable {
-                Name = identifier.Value
-            };
+            return new Variable(identifier.Value);
         }
 
         protected virtual Method Method(ReferenceNodePart target, Token identifier)
         {
-            return new Method {
-                Name = identifier.Value, 
-                Target = target,
-                Arguments = ArgumentList(TokenKind.RightParenthesis)
-            };
+            var arguments = ArgumentList(TokenKind.RightParenthesis);
+            return new Method(identifier.Value, target, arguments);
         }
 
         protected virtual Property Property(ReferenceNodePart target, Token identifier)
         {
-            return new Property {
-                Name = identifier.Value,
-                Target = target
-            };
+            return new Property(identifier.Value, target);
         }
 
         private void AddRemainingArguments(ICollection<ExpressionNode> arguments, TokenKind closingToken)
@@ -283,7 +264,7 @@ end:
             var builder = ImmutableList.CreateBuilder<ExpressionNode>();
             AddRemainingArguments(builder, closingToken);
 
-            return new ArgumentsNode { Arguments = builder.ToImmutableArray() };
+            return new ArgumentsNode(builder.ToImmutableArray());
         }
 
         protected virtual ExpressionNode Number()
@@ -296,7 +277,7 @@ end:
                 ? "-" + numberToken.Value
                 : numberToken.Value;
 
-            if(TryEat(TokenKind.Dot))
+            if (TryEat(TokenKind.Dot))
                 return FloatingPointLiteral(integerPart);
             else
                 return IntegerLiteral(integerPart);
@@ -305,7 +286,7 @@ end:
         protected virtual IntegerLiteralNode IntegerLiteral(string integerPart)
         {
             var integerValue = int.Parse(integerPart);
-            return new IntegerLiteralNode { Value = integerValue };
+            return new IntegerLiteralNode(integerValue);
         }
 
         protected virtual FloatingPointLiteralNode FloatingPointLiteral(string integerPart)
@@ -314,56 +295,42 @@ end:
             var fractionalPart = numberToken.Value;
 
             var floatValue = float.Parse(integerPart + "." + fractionalPart);
-            return new FloatingPointLiteralNode { Value = floatValue };
+            return new FloatingPointLiteralNode(floatValue);
 
         }
 
         protected virtual StringNode StringLiteral()
         {
             var token = Eat(TokenKind.StringLiteral);
-            return new StringNode
-            {
-                IsInterpolated = false,
-                Value = token.Value
-            };
+            return new StringNode(token.Value, false);
         }
 
         protected virtual StringNode InterpolatedString()
         {
             var token = Eat(TokenKind.InterpolatedStringLiteral);
-            return new StringNode
-            {
-                IsInterpolated = true,
-                Value = token.Value
-            };
-
+            return new StringNode(token.Value, true);
         }
 
         protected virtual UnaryExpressionNode Not()
         {
             Eat(TokenKind.Exclamation);
 
-            return new UnaryExpressionNode{
-                Operation = UnaryOperation.Not,
-                Value = Expression()
-            };
+            var target = Expression();
+            return new UnaryExpressionNode(UnaryOperation.Not, target);
 
         }
 
         protected virtual UnaryExpressionNode Parenthesised()
         {
             Eat(TokenKind.LeftParenthesis);
-            var result = new UnaryExpressionNode
-            {
-                Operation = UnaryOperation.Parenthesised,
-                Value = Expression()
-            };
+            var target = Expression();
+            var result = new UnaryExpressionNode(UnaryOperation.Parenthesised, target);
             Eat(TokenKind.RightParenthesis);
             return result;
         }
 
         public virtual ExpressionNode Expression()
-        { 
+        {
             TryEatWhitespace();
 
             ExpressionNode result;
@@ -450,25 +417,12 @@ end:
 
                 if (soFarBinary != null && HasHigherPrecedence(operation, soFarBinary.Operation))
                 {
-                    soFar = soFarBinary = new BinaryExpressionNode
-                    {
-                        Left = soFarBinary.Left,
-                        Operation = soFarBinary.Operation,
-                        Right = new BinaryExpressionNode {
-                            Left = soFarBinary.Right,
-                            Right = operand,
-                            Operation = operation
-                        }
-                    };
+                    var right = new BinaryExpressionNode(operation, soFarBinary.Right, operand);
+                    soFar = new BinaryExpressionNode(soFarBinary.Operation, soFarBinary.Left, right);
                 }
                 else
-                { 
-                    soFar= soFarBinary = new BinaryExpressionNode
-                    {
-                        Left = soFar,
-                        Right = operand,
-                        Operation = operation
-                    };
+                {
+                    soFar = soFarBinary = new BinaryExpressionNode(operation, soFar, operand);
                 }
 
             }
@@ -483,7 +437,7 @@ end:
             else if (value == "false")
                 return BooleanLiteralNode.False;
             else
-                return new WordNode { Name = value };
+                return new WordNode(value);
         }
 
         protected virtual ExpressionNode RangeOrList()
@@ -522,7 +476,7 @@ end:
             var right = Expression();
             Eat(TokenKind.RightSquareBracket);
 
-            return new BinaryExpressionNode { Left = left, Right = right, Operation = BinaryOperation.Range };
+            return new BinaryExpressionNode(BinaryOperation.Range, left, right);
         }
 
         private Token Eat(TokenKind tokenKind)
@@ -565,7 +519,7 @@ end:
         {
             return TryEat(TokenKind.Whitespace);
         }
-        
+
 
     }
 

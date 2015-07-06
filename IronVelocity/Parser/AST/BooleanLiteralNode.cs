@@ -8,7 +8,7 @@ namespace IronVelocity.Parser.AST
 
         public bool Value { get; private set; }
 
-        public BooleanLiteralNode(bool value)
+        private BooleanLiteralNode(bool value)
         {
             Value = value;
         }
@@ -17,5 +17,6 @@ namespace IronVelocity.Parser.AST
         {
             return visitor.VisitBooleanLiteralNode(this);
         }
+
     }
 }

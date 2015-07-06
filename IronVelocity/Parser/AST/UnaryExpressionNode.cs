@@ -8,8 +8,17 @@ namespace IronVelocity.Parser.AST
 {
     public class UnaryExpressionNode : ExpressionNode
     {
-        public ExpressionNode Value { get; set; }
         public UnaryOperation Operation { get; set; }
+        public ExpressionNode Value { get; set; }
+
+        public UnaryExpressionNode(UnaryOperation operation, ExpressionNode target)
+        {
+            if (target == null)
+                throw new ArgumentNullException("value");
+
+            Operation = operation;
+            Value = target;
+        }
 
         public override T Accept<T>(IAstVisitor<T> visitor)
         {

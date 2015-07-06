@@ -1,24 +1,37 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+
 
 namespace IronVelocity.Parser.AST
 {
     public class ListExpressionNode : ExpressionNode
     {
+        public IReadOnlyList<ExpressionNode> Elements { get; private set; }
+
         public ListExpressionNode(ExpressionNode singleValue)
         {
-            Values = new[] { singleValue };
+            Elements = new[] { singleValue };
         }
 
-        public ListExpressionNode(IReadOnlyList<ExpressionNode> values)
+        public ListExpressionNode(IReadOnlyList<ExpressionNode> elements)
         {
-            Values = values;
+            if (elements == null)
+                throw new ArgumentNullException("elements");
+
+            Elements = elements;
         }
 
-        public IReadOnlyList<ExpressionNode> Values { get; private set; }
 
         public override T Accept<T>(IAstVisitor<T> visitor)
         {
             return visitor.VisitListExpressionNode(this);
+        }
+
+        public ListExpressionNode Update(IReadOnlyList<ExpressionNode> elements)
+        {
+            return elements == Elements
+                ? this
+                : new ListExpressionNode(elements);
         }
     }
 }

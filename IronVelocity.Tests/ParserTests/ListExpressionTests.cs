@@ -21,7 +21,7 @@ namespace IronVelocity.Tests.ParserTests
 
             Assert.That(result, Is.TypeOf<ListExpressionNode>());
             var node = (ListExpressionNode)result;
-            Assert.That(node.Values.Count, Is.EqualTo(elementCount));
+            Assert.That(node.Elements.Count, Is.EqualTo(elementCount));
         }
 
         [Test]
@@ -39,17 +39,35 @@ namespace IronVelocity.Tests.ParserTests
             Assert.That(result, Is.TypeOf<ListExpressionNode>());
             var outerList = (ListExpressionNode)result;
 
-            Assert.That(outerList.Values.Count, Is.EqualTo(1));
-            Assert.That(outerList.Values[0], Is.TypeOf<ListExpressionNode>());
+            Assert.That(outerList.Elements.Count, Is.EqualTo(1));
+            Assert.That(outerList.Elements[0], Is.TypeOf<ListExpressionNode>());
 
-            var innerList = (ListExpressionNode)outerList.Values[0];
-            Assert.That(innerList.Values.Count, Is.EqualTo(1));
+            var innerList = (ListExpressionNode)outerList.Elements[0];
+            Assert.That(innerList.Elements.Count, Is.EqualTo(1));
 
-            Assert.That(innerList.Values[0], Is.TypeOf<IntegerLiteralNode>());
-            var innerListValue = (IntegerLiteralNode)innerList.Values[0];
+            Assert.That(innerList.Elements[0], Is.TypeOf<IntegerLiteralNode>());
+            var innerListValue = (IntegerLiteralNode)innerList.Elements[0];
 
             Assert.That(innerListValue.Value, Is.EqualTo(123));
         }
 
+
+        [Test]
+        public void SameListExpressionInstanceReturnedIfElementsDontChange()
+        {
+            var list = new ListExpressionNode(new ExpressionNode[0]);
+            var updated = list.Update(list.Elements);
+
+            Assert.That(updated, Is.EqualTo(list));
+        }
+
+        [Test]
+        public void DifferentListExpressionInstanceReturnedIfElementsDontChange()
+        {
+            var list = new ListExpressionNode(new ExpressionNode[0]);
+            var updated = list.Update(new ExpressionNode[] { null });
+
+            Assert.That(updated, Is.Not.EqualTo(list));
+        }
     }
 }

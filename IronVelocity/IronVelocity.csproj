@@ -134,7 +134,7 @@
     <Compile Include="Parser\IAstVisitor.cs" />
     <Compile Include="Parser\AST\ArgumentsNode.cs" />
     <Compile Include="Parser\AST\BinaryExpressionNode.cs" />
-    <Compile Include="Parser\AST\BinaryOperation.cs" />
+    <Compile Include="Parser\BinaryOperation.cs" />
     <Compile Include="Parser\AST\BooleanLiteralNode.cs" />
     <Compile Include="Parser\AST\ExpressionNode.cs" />
     <Compile Include="Parser\AST\FloatingPointLiteralNode.cs" />
