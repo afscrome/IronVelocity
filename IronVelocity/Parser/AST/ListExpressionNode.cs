@@ -15,5 +15,10 @@ namespace IronVelocity.Parser.AST
         }
 
         public IReadOnlyList<ExpressionNode> Values { get; private set; }
+
+        public override T Accept<T>(IAstVisitor<T> visitor)
+        {
+            return visitor.VisitListExpressionNode(this);
+        }
     }
 }

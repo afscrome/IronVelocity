@@ -5,5 +5,10 @@ namespace IronVelocity.Parser.AST
     {
         public string Value { get; set; }
         public bool IsInterpolated { get; set; }
+
+        public override T Accept<T>(IAstVisitor<T> visitor)
+        {
+            return visitor.VisitStringNode(this);
+        }
     }
 }

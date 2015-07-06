@@ -10,5 +10,10 @@ namespace IronVelocity.Parser.AST
     {
         public ExpressionNode Value { get; set; }
         public UnaryOperation Operation { get; set; }
+
+        public override T Accept<T>(IAstVisitor<T> visitor)
+        {
+            return visitor.VisitUnaryExpression(this);
+        }
     }
 }

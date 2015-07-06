@@ -131,6 +131,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="EventSources\TemplateGenerationEventSource.cs" />
     <Compile Include="IParser.cs" />
+    <Compile Include="Parser\IAstVisitor.cs" />
     <Compile Include="Parser\AST\ArgumentsNode.cs" />
     <Compile Include="Parser\AST\BinaryExpressionNode.cs" />
     <Compile Include="Parser\AST\BinaryOperation.cs" />
@@ -147,7 +148,7 @@
     <Compile Include="Parser\AST\StringNode.cs" />
     <Compile Include="Parser\AST\SyntaxNode.cs" />
     <Compile Include="Parser\AST\TextNode.cs" />
-    <Compile Include="Parser\AST\UnaryExpression.cs" />
+    <Compile Include="Parser\AST\UnaryExpressionNode.cs" />
     <Compile Include="Parser\AST\UnaryOperation.cs" />
     <Compile Include="Parser\AST\Variable.cs" />
     <Compile Include="Parser\AST\WordNode.cs" />
@@ -155,6 +156,7 @@
     <Compile Include="Parser\VelocityParser.cs" />
     <Compile Include="Parser\Token.cs" />
     <Compile Include="Parser\TokenKind.cs" />
+    <Compile Include="Parser\Visitor.cs" />
     <Compile Include="Reflection\ArgumentConverter.cs" />
     <Compile Include="Reflection\IArgumentConverter.cs" />
     <Compile Include="Reflection\IExpressionConverter.cs" />

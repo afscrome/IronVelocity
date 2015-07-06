@@ -12,5 +12,10 @@ namespace IronVelocity.Parser.AST
         {
             Value = value;
         }
+
+        public override T Accept<T>(IAstVisitor<T> visitor)
+        {
+            return visitor.VisitBooleanLiteralNode(this);
+        }
     }
 }
