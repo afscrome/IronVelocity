@@ -25,7 +25,7 @@ namespace IronVelocity.Compilation.Directives
         public ForeachDirective(ASTDirective node, NVelocityNodeToExpressionConverter converter)
             : base(converter.Builder)
         {
-            if (converter == null)
+            if (node == null)
                 throw new ArgumentOutOfRangeException("node");
 
             if (converter == null)
@@ -53,7 +53,7 @@ namespace IronVelocity.Compilation.Directives
                 return null;
         }
 
-        private Expression GetExpressionBlock(ICollection<Expression>[] parts, ForeachSection section)
+        private static Expression GetExpressionBlock(ICollection<Expression>[] parts, ForeachSection section)
         {
             var expressions = parts[(int)section];
             if (expressions == null)

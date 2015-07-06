@@ -22,7 +22,6 @@ namespace IronVelocity.Compilation.AST
                 
             if (Value.Type.IsValueType)
             {
-                var type = Value.Type;
                 var method = MethodHelpers.OutputValueTypeMethodInfo.MakeGenericMethod(Value.Type);
 
                 return Expression.Call(Constants.OutputParameter, method, Value);

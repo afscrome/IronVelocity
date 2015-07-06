@@ -11,6 +11,10 @@
       <Word>globals</Word>
       <Word>Initalise</Word>
       <Word>Awaiter</Word>
+      <Word>Lexer</Word>
+      <Word>Vtl</Word>
+      <Word>Whitespace</Word>
+      <Word>Parenthesised</Word>
     </Recognized>
   </Words>
   <Acronyms>

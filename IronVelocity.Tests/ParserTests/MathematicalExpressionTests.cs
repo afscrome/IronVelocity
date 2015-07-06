@@ -34,7 +34,7 @@ namespace IronVelocity.Tests.ParserTests
             }
         }
 
-        [TestCase("1 + 2", BinaryOperation.Adddition)]
+        [TestCase("1 + 2", BinaryOperation.Addition)]
         [TestCase("1 - 2", BinaryOperation.Subtraction)]
         [TestCase("1 * 2", BinaryOperation.Multiplication)]
         [TestCase("1 / 2", BinaryOperation.Division)]
@@ -55,7 +55,7 @@ namespace IronVelocity.Tests.ParserTests
             Assert.That(binaryExpression.Operation == expectedOperation);
         }
 
-        [TestCase("1 + 2 + 3", BinaryOperation.Adddition)]
+        [TestCase("1 + 2 + 3", BinaryOperation.Addition)]
         [TestCase("1 - 2 - 3", BinaryOperation.Subtraction)]
         [TestCase("1 * 2 * 3", BinaryOperation.Multiplication)]
         [TestCase("1 / 2 / 3", BinaryOperation.Division)]
@@ -85,27 +85,27 @@ namespace IronVelocity.Tests.ParserTests
 
 
 
-        [TestCase("1 + 2 - 3", BinaryOperation.Subtraction, BinaryOperation.Adddition, true)]
-        [TestCase("1 + 2 * 3", BinaryOperation.Adddition, BinaryOperation.Multiplication, false)]
-        [TestCase("1 + 2 / 3", BinaryOperation.Adddition, BinaryOperation.Division, false)]
-        [TestCase("1 + 2 % 3", BinaryOperation.Adddition, BinaryOperation.Modulo, false)]
+        [TestCase("1 + 2 - 3", BinaryOperation.Subtraction, BinaryOperation.Addition, true)]
+        [TestCase("1 + 2 * 3", BinaryOperation.Addition, BinaryOperation.Multiplication, false)]
+        [TestCase("1 + 2 / 3", BinaryOperation.Addition, BinaryOperation.Division, false)]
+        [TestCase("1 + 2 % 3", BinaryOperation.Addition, BinaryOperation.Modulo, false)]
         
-        [TestCase("1 - 2 + 3", BinaryOperation.Adddition, BinaryOperation.Subtraction, true)]
+        [TestCase("1 - 2 + 3", BinaryOperation.Addition, BinaryOperation.Subtraction, true)]
         [TestCase("1 - 2 * 3", BinaryOperation.Subtraction, BinaryOperation.Multiplication, false)]
         [TestCase("1 - 2 / 3", BinaryOperation.Subtraction, BinaryOperation.Division, false)]
         [TestCase("1 - 2 % 3", BinaryOperation.Subtraction, BinaryOperation.Modulo, false)]
 
-        [TestCase("1 * 2 + 3", BinaryOperation.Adddition, BinaryOperation.Multiplication, true)]
+        [TestCase("1 * 2 + 3", BinaryOperation.Addition, BinaryOperation.Multiplication, true)]
         [TestCase("1 * 2 - 3", BinaryOperation.Subtraction, BinaryOperation.Multiplication, true)]
         [TestCase("1 * 2 / 3", BinaryOperation.Division, BinaryOperation.Multiplication, true)]
         [TestCase("1 * 2 % 3", BinaryOperation.Modulo, BinaryOperation.Multiplication, true)]
 
-        [TestCase("1 / 2 + 3", BinaryOperation.Adddition, BinaryOperation.Division, true)]
+        [TestCase("1 / 2 + 3", BinaryOperation.Addition, BinaryOperation.Division, true)]
         [TestCase("1 / 2 - 3", BinaryOperation.Subtraction, BinaryOperation.Division, true)]
         [TestCase("1 / 2 * 3", BinaryOperation.Multiplication, BinaryOperation.Division, true)]
         [TestCase("1 / 2 % 3", BinaryOperation.Modulo, BinaryOperation.Division, true)]
 
-        [TestCase("1 % 2 + 3", BinaryOperation.Adddition, BinaryOperation.Modulo, true)]
+        [TestCase("1 % 2 + 3", BinaryOperation.Addition, BinaryOperation.Modulo, true)]
         [TestCase("1 % 2 - 3", BinaryOperation.Subtraction, BinaryOperation.Modulo, true)]
         [TestCase("1 % 2 * 3", BinaryOperation.Multiplication, BinaryOperation.Modulo, true)]
         [TestCase("1 % 2 / 3", BinaryOperation.Division, BinaryOperation.Modulo, true)]

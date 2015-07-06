@@ -588,7 +588,7 @@ namespace IronVelocity.Compilation
             return new SourceInfo(startToken.BeginLine, startToken.BeginColumn, endToken.EndLine, endToken.EndColumn);
         }
 
-        private SourceInfo GetSourceInfoFromINode(INode node)
+        private static SourceInfo GetSourceInfoFromINode(INode node)
         {
             if (node == null)
                 throw new ArgumentNullException("node");

@@ -105,7 +105,7 @@ namespace IronVelocity
 
         }
 
-        private string GetExpressionDebugView(Expression expression)
+        private static string GetExpressionDebugView(Expression expression)
         {
             return (String)_debugViewMethod.Invoke(expression, new object[0]);
         }

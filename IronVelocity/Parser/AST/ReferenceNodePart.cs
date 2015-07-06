@@ -4,11 +4,6 @@ namespace IronVelocity.Parser.AST
 {
     public abstract class ReferenceNodePart : SyntaxNode
     {
-        [Obsolete]
-        protected ReferenceNodePart()
-        {
-        }
-
         protected ReferenceNodePart(string name)
         {
             if (String.IsNullOrWhiteSpace(name))

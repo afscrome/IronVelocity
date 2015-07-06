@@ -250,7 +250,6 @@ namespace IronVelocity.Parser
         {
             _builder.Clear();
             char quoteChar = _nextChar;
-            bool isInterpolated = quoteChar == '"';
 
             char nextChar = Advance();
             while(true)

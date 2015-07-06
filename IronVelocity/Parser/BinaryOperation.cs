@@ -12,7 +12,7 @@ namespace IronVelocity.Parser.AST
         Division = 0xF0000001,
         Modulo = 0xF0000002,
         //Additive
-        Adddition = 0xE0000000,
+        Addition = 0xE0000000,
         Subtraction = 0xE0000001,
         //Relational
         LessThan = 0xD0000000,

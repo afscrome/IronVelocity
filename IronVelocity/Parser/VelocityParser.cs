@@ -77,9 +77,7 @@ namespace IronVelocity.Parser
 
         protected virtual void ReferenceOrText(StringBuilder textSoFar, ImmutableList<SyntaxNode>.Builder nodeBuilder)
         {
-            var dollarToken = Eat(TokenKind.Dollar);
-
-            int refStart = textSoFar.Length;
+            Eat(TokenKind.Dollar);
 
             while (TryEat(TokenKind.Dollar))
             {
@@ -163,7 +161,7 @@ namespace IronVelocity.Parser
 
         protected virtual SyntaxNode ReferenceOrText()
         {
-            var dollarToken = Eat(TokenKind.Dollar);
+            Eat(TokenKind.Dollar);
 
             if (CurrentToken.TokenKind == TokenKind.Dollar)
             {
@@ -376,7 +374,7 @@ namespace IronVelocity.Parser
             return result;
         }
 
-        private bool HasHigherPrecedence(BinaryOperation left, BinaryOperation right)
+        private static bool HasHigherPrecedence(BinaryOperation left, BinaryOperation right)
         {
             left &= (BinaryOperation)0xFFFF0000;
             right &= (BinaryOperation)0xFFFF0000;
@@ -395,7 +393,7 @@ namespace IronVelocity.Parser
                 switch (tokenKind)
                 {
                     case TokenKind.Plus:
-                        operation = BinaryOperation.Adddition;
+                        operation = BinaryOperation.Addition;
                         break;
                     case TokenKind.Minus:
                         operation = BinaryOperation.Subtraction;
