@@ -51,7 +51,7 @@ namespace IronVelocity.Tests.Binders
                 GenerateTestCaseData(TimeSpan.FromSeconds(10), TimeSpan.FromMilliseconds(50), false, true, false, "TimeSpan"),
                 GenerateTestCaseData(guid1, guid2, true, false, false, "Structs with same values but different instances"),
                 GenerateTestCaseData(new OverloadedEquals(), new OverloadedEquals(), true, false, false, "Object with Overloaded Equality Operators"),
-                GenerateTestCaseData(new OverriddenEquals(), new OverriddenEquals(), true, false, false, "Object with Overridden Equals Method").Select(x => x.Ignore()),
+                GenerateTestCaseData(new OverriddenEquals(), new OverriddenEquals(), true, false, false, "Object with Overridden Equals Method").Select(x => x.Ignore("TODO: implement comparisons based on operators, IEquatable, IComparable")),
             }.SelectMany(x => x);
         }
 

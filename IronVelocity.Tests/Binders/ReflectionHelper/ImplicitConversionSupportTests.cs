@@ -43,9 +43,9 @@ namespace IronVelocity.Tests.Binders
         */
 
         //6.1.4 Implicit nullable conversions
-        [TestCase(typeof(int?), typeof(long?), true, Ignore = true)]
+        [TestCase(typeof(int?), typeof(long?), true)]
         [TestCase(typeof(long?), typeof(int?), false)]
-        [TestCase(typeof(int), typeof(long?), true, Ignore = true)]
+        [TestCase(typeof(int), typeof(long?), true)]
         [TestCase(typeof(long), typeof(int?), false)]
         public void ImplicitNullableConversions(Type from, Type to, bool isConvertable)
         {

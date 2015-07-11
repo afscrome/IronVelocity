@@ -23,7 +23,7 @@ namespace IronVelocity.Tests.OutputTests
 
         [TestCase("'test'", "test", TestName="MacroWithStringArgument")]
         [TestCase("123", 123, TestName = "MacroWithIntegerArgument")]
-        [TestCase("3.14", 3.14, TestName = "MacroWithFloatArgument", Ignore=true, Description="Is this disallowed by velocity, or an NVelocity parser specific issue")]
+        [TestCase("3.14", 3.14, TestName = "MacroWithFloatArgument", Ignore=true, IgnoreReason="Not sure why this is invalid, but the velocity parser doesn't like this")]
         [TestCase("true", true, TestName = "MacroWithBooleanArgument")]
         [TestCase("'837'", 837, TestName = "MacroWithQoutedIntegerArgument")]
         [TestCase("'7.824'", 7.824, TestName = "MacroWithQuotedFloatArgument")]

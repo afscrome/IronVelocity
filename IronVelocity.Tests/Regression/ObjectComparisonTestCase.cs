@@ -169,7 +169,7 @@ leq
 		/// string value of that object will be used.  Char does an ascii comparison.
 		/// </summary>
 		[Test]
-        [Ignore("Currently not supporting non equality comparisons for strings")]
+        [Ignore("TODO: Not sure what sense it makes to say do relational comparisons on strings")]
 		public void CompareString()
 		{
 			string aaa = "aaa";

@@ -49,8 +49,18 @@ namespace IronVelocity.Reflection
                 return GetConverter(Enum.GetUnderlyingType(from), to);
             */
 
+            if (from.IsGenericType && from.GetGenericTypeDefinition() == typeof(Nullable<>))
+            {
+                from = from.GenericTypeArguments[0];
+            }
+
             if (from.IsPrimitive)
             {
+                if (to.IsGenericType && to.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    to = to.GenericTypeArguments[0];
+                }
+
                 Type[] supportedConversions;
                 if (_implicitNumericConversions.TryGetValue(from, out supportedConversions))
                     return supportedConversions.Contains(to)
