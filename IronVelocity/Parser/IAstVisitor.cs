@@ -9,6 +9,7 @@ namespace IronVelocity.Parser
 {
     public interface IAstVisitor<T>
     {
+        T Visit(SyntaxNode node);
         T VisitArgumentsNode(ArgumentsNode node);
         T VisitBinaryExpressionNode(BinaryExpressionNode node);
         T VisitBooleanLiteralNode(BooleanLiteralNode node);

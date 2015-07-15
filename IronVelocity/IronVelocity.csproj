@@ -92,6 +92,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Compilation\TemporaryLocalReuse.cs" />
+    <Compile Include="Compilation\VelocityExpressionConverter.cs" />
     <Compile Include="Compilation\VelocityExpressionVisitor.cs" />
     <Compile Include="EventSources\BindingEventSource.cs" />
     <Compile Include="Binders\VelocityComparisonOperationBinder.cs" />
