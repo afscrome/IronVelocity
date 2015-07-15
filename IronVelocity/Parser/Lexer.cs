@@ -46,7 +46,6 @@ namespace IronVelocity.Parser
             {
                 case '\0':
                     token.TokenKind = TokenKind.EndOfFile;
-                    Advance();
                     break;
                 case '$':
                     Advance();
@@ -70,7 +69,7 @@ namespace IronVelocity.Parser
                 {
                     case '\0':
                     case '$':
-                    case '#':
+                    //case '#':
                         token.TokenKind = TokenKind.Text;
                         token.Value = _builder.ToString();
                         return;
@@ -270,6 +269,8 @@ namespace IronVelocity.Parser
                     case '\r':
                     case '\n':
                         throw new Exception("Unexpected newline in string");
+                    case '\0':
+                        throw new Exception("Unexpected end of file in string");
                     default:
                         _builder.Append(nextChar);
                         nextChar = Advance();
@@ -418,8 +419,10 @@ namespace IronVelocity.Parser
         private char Advance()
         {
             _position++;
-            if (_position >= _input.Length)
+            if (_position == _input.Length)
                 return _nextChar = default(char);
+            else if (_position > _input.Length)
+                throw new Exception("Cannot advance past end of file");
 
             return _nextChar = _input[_position];
         }
