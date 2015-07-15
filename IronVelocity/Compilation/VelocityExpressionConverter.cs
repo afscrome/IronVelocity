@@ -54,7 +54,8 @@ namespace IronVelocity.Compilation
         public Expression VisitMethod(Method node)
         {
             var target = Visit(node.Target);
-            return new MethodInvocationExpression(target, node.Name, null, _tempSourceInfo);
+            var visitedChildren = VisitChildren(node.Arguments.Arguments);
+            return new MethodInvocationExpression(target, node.Name, visitedChildren, _tempSourceInfo);
         }
 
 
