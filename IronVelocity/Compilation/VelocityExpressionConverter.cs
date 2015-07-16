@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IronVelocity.Parser.AST;
 using IronVelocity.Compilation.AST;
+using IronVelocity.Binders;
 
 namespace IronVelocity.Compilation
 {
@@ -26,7 +27,44 @@ namespace IronVelocity.Compilation
 
         public Expression VisitBinaryExpressionNode(BinaryExpressionNode node)
         {
-            throw new NotImplementedException();
+            var left = Visit(node.Left);
+            var right = Visit(node.Right);
+            switch (node.Operation)
+            {
+                case BinaryOperation.Multiplication:
+                    return new MathematicalExpression(left, right, _tempSourceInfo, MathematicalOperation.Multiply);
+                case BinaryOperation.Division:
+                    return new MathematicalExpression(left, right, _tempSourceInfo, MathematicalOperation.Divide);
+                case BinaryOperation.Modulo:
+                    return new MathematicalExpression(left, right, _tempSourceInfo, MathematicalOperation.Modulo);
+                case BinaryOperation.Addition:
+                    return new MathematicalExpression(left, right, _tempSourceInfo, MathematicalOperation.Add);
+                case BinaryOperation.Subtraction:
+                    return new MathematicalExpression(left, right, _tempSourceInfo, MathematicalOperation.Subtract);
+                case BinaryOperation.LessThan:
+                    return new ComparisonExpression(left, right, _tempSourceInfo, ComparisonOperation.LessThan);
+                case BinaryOperation.GreaterThan:
+                    return new ComparisonExpression(left, right, _tempSourceInfo, ComparisonOperation.GreaterThan);
+                case BinaryOperation.LessThanOrEqual:
+                    return new ComparisonExpression(left, right, _tempSourceInfo, ComparisonOperation.LessThanOrEqual);
+                case BinaryOperation.GreaterThanOrEqual:
+                    return new ComparisonExpression(left, right, _tempSourceInfo, ComparisonOperation.GreaterThanOrEqual);
+                case BinaryOperation.Equal:
+                    return new ComparisonExpression(left, right, _tempSourceInfo, ComparisonOperation.Equal);
+                case BinaryOperation.NotEqual:
+                    return new ComparisonExpression(left, right, _tempSourceInfo, ComparisonOperation.NotEqual);
+                case BinaryOperation.And:
+                    return Expression.AndAlso(left, right);
+                case BinaryOperation.Or:
+                    return Expression.OrElse(left, right);
+                case BinaryOperation.Range:
+                    return new IntegerRangeExpression(left, right, _tempSourceInfo);
+                case BinaryOperation.Assignment:
+                    return new SetDirective(left, right, _tempSourceInfo);
+                default:
+                    throw new NotImplementedException();
+            }
+
         }
 
         public Expression VisitBooleanLiteralNode(BooleanLiteralNode node)
@@ -130,6 +168,12 @@ namespace IronVelocity.Compilation
             }
 
             return newChildren;
+        }
+
+
+        public Expression VisitDirective(DirectiveNode node)
+        {
+            throw new NotImplementedException();
         }
     }
 }
