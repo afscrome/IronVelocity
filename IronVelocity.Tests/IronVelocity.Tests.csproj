@@ -34,6 +34,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Moq, Version=4.2.1507.118, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.2.1507.0118\lib\net40\Moq.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="nunit.core, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnitTestAdapter.2.0.0\lib\nunit.core.dll</HintPath>
       <Private>True</Private>
@@ -77,6 +81,7 @@
     <Compile Include="ParserTests\MathematicalExpressionTests.cs" />
     <Compile Include="ParserTests\NotExpressionTests.cs" />
     <Compile Include="ParserTests\ParenthesisedExpressionTests.cs" />
+    <Compile Include="ParserTests\SetTests.cs" />
     <Compile Include="ParserTests\TextTests.cs" />
     <Compile Include="ParserTests\VelocityParserWithStatistics.cs" />
     <Compile Include="ParserTests\WordTests.cs" />

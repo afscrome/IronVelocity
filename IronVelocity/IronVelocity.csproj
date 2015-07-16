@@ -132,6 +132,7 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="EventSources\TemplateGenerationEventSource.cs" />
     <Compile Include="IParser.cs" />
+    <Compile Include="Parser\AST\DirectiveNode.cs" />
     <Compile Include="Parser\IAstVisitor.cs" />
     <Compile Include="Parser\AST\ArgumentsNode.cs" />
     <Compile Include="Parser\AST\BinaryExpressionNode.cs" />

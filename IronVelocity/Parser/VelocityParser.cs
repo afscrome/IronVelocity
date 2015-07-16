@@ -52,14 +52,6 @@ namespace IronVelocity.Parser
                         ReferenceOrText(textSoFar, children);
                         _lexer.State = LexerState.Text;
                         break;
-                    /*
-                    if (textSoFar.Length > 0)
-                    {
-                        children.Add(new TextNode(textSoFar.ToString()));
-                        textSoFar.Clear();
-                    }
-                    children.Add(ReferenceOrText());
-                    break;*/
                     case TokenKind.EndOfFile:
                         if (textSoFar.Length > 0)
                         {
@@ -67,6 +59,14 @@ namespace IronVelocity.Parser
                             textSoFar.Clear();
                         }
                         return new RenderedOutputNode(children.ToImmutableArray());
+                    case TokenKind.Hash:
+                        if (textSoFar.Length > 0)
+                        {
+                            children.Add(new TextNode(textSoFar.ToString()));
+                            textSoFar.Clear();
+                        }
+                        children.Add(Directive());
+                        break;
                     default:
                         textSoFar.Append(token.GetValue());
                         MoveNext();
@@ -74,6 +74,7 @@ namespace IronVelocity.Parser
                 }
             }
         }
+
 
         protected virtual void ReferenceOrText(StringBuilder textSoFar, ImmutableList<SyntaxNode>.Builder nodeBuilder)
         {
@@ -158,6 +159,43 @@ namespace IronVelocity.Parser
             }
 
         }
+
+        protected virtual SyntaxNode Directive()
+        {
+            Eat(TokenKind.Hash);
+            _lexer.State = LexerState.Vtl;
+            var identifier = CurrentToken;
+            if (!TryEat(TokenKind.Identifier))
+                return new DirectiveNode(String.Empty);
+
+            var name = identifier.Value;
+
+            SyntaxNode result;
+            if (name == "set")
+            {
+                result = SetDirective();
+            }
+            else
+            {
+                result = new DirectiveNode(name);
+            }
+            _lexer.State = LexerState.Text;
+
+            return result;
+        }
+
+        public virtual BinaryExpressionNode SetDirective()
+        {
+            Eat(TokenKind.LeftParenthesis);
+            var left = Expression();
+            Eat(TokenKind.Equals);
+            var right = CompoundExpression();
+            Eat(TokenKind.RightParenthesis);
+            _lexer.State = LexerState.Text;
+
+            return new BinaryExpressionNode(BinaryOperation.Assignment, left, right);
+        }
+
 
         protected virtual SyntaxNode ReferenceOrText()
         {

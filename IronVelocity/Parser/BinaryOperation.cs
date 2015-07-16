@@ -21,10 +21,12 @@ namespace IronVelocity.Parser.AST
         GreaterThanOrEqual = 0xD0000003,
         //Equality
         Equal = 0xC0000000,
-        NotEqual = 0xC0000000,
+        NotEqual = 0xC0000001,
         //BooleanLogic
         And = 0xB0000000,
         Or = 0xA0000000,
         Range = 0x90000000,
+        
+        Assignment
     }
 }

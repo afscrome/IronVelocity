@@ -2,6 +2,7 @@
 {
     public enum TokenKind
     {
+        None = 0,
         Dollar,
         Dot,
         DotDot,
@@ -28,6 +29,8 @@
         Minus,
         Multiply,
         Divide,
-        Modulo
+        Modulo,
+        Hash,
+        Equals
     }
 }

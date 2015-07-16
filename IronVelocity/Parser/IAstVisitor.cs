@@ -25,5 +25,6 @@ namespace IronVelocity.Parser
         T VisitUnaryExpression(UnaryExpressionNode node);
         T VisitVariable(Variable node);
         T VisitWordNode(WordNode node);
+        T VisitDirective(DirectiveNode node);
     }
 }

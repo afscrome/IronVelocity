@@ -47,7 +47,12 @@ namespace IronVelocity.Parser
                 case '\0':
                     token.TokenKind = TokenKind.EndOfFile;
                     break;
+                case '#':
+                    token.TokenKind = TokenKind.Hash;
+                    Advance();
+                    break;
                 case '$':
+                    token.TokenKind = TokenKind.Dollar;
                     Advance();
                     break;
                 default:
@@ -95,6 +100,10 @@ namespace IronVelocity.Parser
                     break;
                 case '$':
                     token.TokenKind = TokenKind.Dollar;
+                    Advance();
+                    break;
+                case '#':
+                    token.TokenKind = TokenKind.Hash;
                     Advance();
                     break;
                 case '!':
@@ -163,6 +172,10 @@ namespace IronVelocity.Parser
                     token.TokenKind = TokenKind.Modulo;
                     Advance();
                     break;
+                case '=':
+                    token.TokenKind = TokenKind.Equals;
+                    Advance();
+                    break;
                 case '\'':
                 case '"':
                     ScanString(ref token);
@@ -172,6 +185,7 @@ namespace IronVelocity.Parser
                     ScanWhitespace(ref token);
                     break;
 
+                //TODO: Treat newlines as their own token, not text
                 case 'a':
                 case 'b':
                 case 'c':
