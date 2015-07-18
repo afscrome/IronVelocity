@@ -11,17 +11,17 @@ namespace IronVelocity.Parser
 
     public class Lexer
     {
-        private readonly string _input;
+        private readonly ITextWindow _input;
+
         private StringBuilder _builder = new StringBuilder();
-        private int _position = -1;
         private char _nextChar;
         public LexerState State {get; set;}
 
         public Lexer(string input, LexerState state)
         {
-            _input = input;
+            _input = new StringTextWindow(input);
             State = state;
-            _nextChar = Advance();
+            _nextChar = _input.CurrentChar;
         }
 
 
@@ -65,8 +65,7 @@ namespace IronVelocity.Parser
 
         public void Text(ref Token token)
         {
-
-            _builder.Clear();
+            int startPosition = _input.CurrentPosition;
             char nextChar = _nextChar;
             while (true)
             {
@@ -261,11 +260,11 @@ namespace IronVelocity.Parser
 
         private void ScanString(ref Token token)
         {
-            _builder.Clear();
             char quoteChar = _nextChar;
-
             char nextChar = Advance();
-            while(true)
+            int startPosition = _input.CurrentPosition;
+
+            while (true)
             {
                 switch (nextChar)
                 {
@@ -274,7 +273,7 @@ namespace IronVelocity.Parser
                         if (nextChar != quoteChar)
                             goto default;
 
-                        token.Value = _builder.ToString();
+                        token.Value = _input.GetRange(startPosition, _input.CurrentPosition -1);
                         token.TokenKind = quoteChar == '"'
                             ? TokenKind.InterpolatedStringLiteral
                             : TokenKind.StringLiteral;
@@ -295,7 +294,7 @@ namespace IronVelocity.Parser
 
         private void ScanNumber(ref Token token)
         {
-            _builder.Clear();
+            int startPosition = _input.CurrentPosition;
 
             var nextChar = _nextChar;
             while (true)
@@ -312,11 +311,10 @@ namespace IronVelocity.Parser
                     case '7':
                     case '8':
                     case '9':
-                        _builder.Append(nextChar);
                         break;
                     default:
                         token.TokenKind = TokenKind.NumericLiteral;
-                        token.Value = _builder.ToString();
+                        token.Value = _input.GetRange(startPosition, _input.CurrentPosition -1);
                         return;
 
                 }
@@ -327,7 +325,7 @@ namespace IronVelocity.Parser
 
         private void ScanIdentifier(ref Token token)
         {
-            _builder.Clear();
+            int startPosition = _input.CurrentPosition;
 
             var nextChar = _nextChar;
             while (true)
@@ -398,11 +396,10 @@ namespace IronVelocity.Parser
                     case '9':
                     case '_':
                     case '-':
-                        _builder.Append(nextChar);
                         break;
                     default:
                         token.TokenKind = TokenKind.Identifier;
-                        token.Value = _builder.ToString();
+                        token.Value = _input.GetRange(startPosition, _input.CurrentPosition -1);
                         return;
                 }
                 nextChar = Advance();
@@ -411,7 +408,7 @@ namespace IronVelocity.Parser
 
         private void ScanWhitespace(ref Token token)
         {
-            _builder.Clear();
+            int startPosition = _input.CurrentPosition;
             char nextChar = _nextChar;
             while(true)
             {
@@ -419,12 +416,11 @@ namespace IronVelocity.Parser
                 {
                     case ' ':
                     case '\t':
-                        _builder.Append(nextChar);
                         nextChar = Advance();
                         break;
                     default:
                         token.TokenKind = TokenKind.Whitespace;
-                        token.Value = _builder.ToString();
+                        token.Value = _input.GetRange(startPosition, _input.CurrentPosition -1);
                         return;
                 }
             }
@@ -432,13 +428,7 @@ namespace IronVelocity.Parser
 
         private char Advance()
         {
-            _position++;
-            if (_position == _input.Length)
-                return _nextChar = default(char);
-            else if (_position > _input.Length)
-                throw new Exception("Cannot advance past end of file");
-
-            return _nextChar = _input[_position];
+            return _nextChar = _input.MoveNext();
         }
     }
 }

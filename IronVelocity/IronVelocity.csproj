@@ -155,7 +155,9 @@
     <Compile Include="Parser\AST\Variable.cs" />
     <Compile Include="Parser\AST\WordNode.cs" />
     <Compile Include="Parser\IronVelocityParser.cs" />
+    <Compile Include="Parser\ITextWindow.cs" />
     <Compile Include="Parser\Lexer.cs" />
+    <Compile Include="Parser\StringTextWindow.cs" />
     <Compile Include="Parser\VelocityParser.cs" />
     <Compile Include="Parser\Token.cs" />
     <Compile Include="Parser\TokenKind.cs" />

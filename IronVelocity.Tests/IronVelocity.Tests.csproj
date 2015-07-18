@@ -82,6 +82,7 @@
     <Compile Include="ParserTests\NotExpressionTests.cs" />
     <Compile Include="ParserTests\ParenthesisedExpressionTests.cs" />
     <Compile Include="ParserTests\SetTests.cs" />
+    <Compile Include="ParserTests\StringTextReaderTests.cs" />
     <Compile Include="ParserTests\TextTests.cs" />
     <Compile Include="ParserTests\VelocityParserWithStatistics.cs" />
     <Compile Include="ParserTests\WordTests.cs" />

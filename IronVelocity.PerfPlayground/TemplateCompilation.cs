@@ -40,7 +40,7 @@ namespace IronVelocity.PerfPlayground
                 Directory.CreateDirectory(OutputDir);
         }
 
-        [TestCaseSource("CreateTemplateTestCases")]
+        [Ignore,TestCaseSource("CreateTemplateTestCases")]
         public void TemplateCompilationTests(string path, string assemblyName)
         {
             var template = File.ReadAllText(path);
