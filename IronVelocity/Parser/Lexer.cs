@@ -67,6 +67,8 @@ namespace IronVelocity.Parser
         {
             int startPosition = _input.CurrentPosition;
             char nextChar = _nextChar;
+
+            _builder.Clear();
             while (true)
             {
                 switch (nextChar)

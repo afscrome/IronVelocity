@@ -130,6 +130,7 @@ namespace IronVelocity.Parser
                         switch (CurrentToken.TokenKind)
                         {
                             case TokenKind.LeftParenthesis:
+                            case TokenKind.RightParenthesis:
                             //case TokenKind.Exclamation: //This is allowed in NVelocity
                             case TokenKind.Dollar:
                             case TokenKind.Minus:
@@ -139,11 +140,13 @@ namespace IronVelocity.Parser
                             case TokenKind.Identifier:
                             case TokenKind.LeftSquareBracket:
                             case TokenKind.EndOfFile:
-                                value = Property(value, identifier);
-                                textSoFar.Append(CurrentToken.GetValue());
+                            case TokenKind.Whitespace:
+                                textSoFar.Clear();
+                                value = Method(value, identifier);
                                 goto end;
                             default:
-                                value = Method(value, identifier);
+                                value = Property(value, identifier);
+                                textSoFar.Append(CurrentToken.GetValue());
                                 break;
                         }
                     }
