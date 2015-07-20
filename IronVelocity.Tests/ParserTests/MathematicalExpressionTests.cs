@@ -9,31 +9,6 @@ namespace IronVelocity.Tests.ParserTests
     [TestFixture]
     public class MathematicalExpressionTests
     {
-
-        private class ScrewedUp
-        {
-            int i = 1;
-            int j = 4;
-
-            public int a() { return i++; }
-            public int b() { return j++; }
-            public int c() { throw new Exception("stuff"); }
-        }
-
-        [Test]
-        public void Stuff()
-        {
-            var stuff = new ScrewedUp();
-            try
-            {
-                var x = 1 * 2 * 3 % 4 - 5 / 6;
-            }
-            catch
-            {
-                //do nothing
-            }
-        }
-
         [TestCase("1 + 2", BinaryOperation.Addition)]
         [TestCase("1 - 2", BinaryOperation.Subtraction)]
         [TestCase("1 * 2", BinaryOperation.Multiplication)]
