@@ -12,10 +12,10 @@ namespace IronVelocity.Compilation.Directives
             : base(converter.Builder)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             if (node.ChildrenCount != 1)
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             _literal = node.GetChild(0).Literal;
         }

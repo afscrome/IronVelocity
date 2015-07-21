@@ -14,10 +14,10 @@ namespace IronVelocity.Compilation.AST
             EndColumn = endColumn;
         }
 
-        public int StartLine { get; private set; }
-        public int StartColumn { get; private set; }
-        public int EndLine { get; private set; }
-        public int EndColumn { get; private set; }
+        public int StartLine { get; }
+        public int StartColumn { get; }
+        public int EndLine { get; }
+        public int EndColumn { get; }
 
         public override bool Equals(object obj)
         {

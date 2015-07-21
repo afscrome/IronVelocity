@@ -15,10 +15,10 @@ namespace IronVelocity.Compilation.Directives
 
         private static readonly Expression _nullEnumerable = Expression.Constant(null, typeof(IEnumerable));
 
-        public Expression Enumerable { get; private set; }
-        public Expression CurrentIndex { get; private set; }
-        public Expression CurrentItem { get; private set; }
-        public string Name { get; private set; }
+        public Expression Enumerable { get; }
+        public Expression CurrentIndex { get; }
+        public Expression CurrentItem { get; }
+        public string Name { get; }
 
         private INode _body;
 
@@ -26,10 +26,10 @@ namespace IronVelocity.Compilation.Directives
             : base(converter.Builder)
         {
             if (node == null)
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             if (converter == null)
-                throw new ArgumentOutOfRangeException("converter");
+                throw new ArgumentOutOfRangeException(nameof(converter));
 
             _converter = converter;
 

@@ -6,7 +6,7 @@ namespace IronVelocity.Parser.AST
 {
     public class ListExpressionNode : ExpressionNode
     {
-        public IReadOnlyList<ExpressionNode> Elements { get; private set; }
+        public IReadOnlyList<ExpressionNode> Elements { get; }
 
         public ListExpressionNode(ExpressionNode singleValue)
         {
@@ -16,7 +16,7 @@ namespace IronVelocity.Parser.AST
         public ListExpressionNode(IReadOnlyList<ExpressionNode> elements)
         {
             if (elements == null)
-                throw new ArgumentNullException("elements");
+                throw new ArgumentNullException(nameof(elements));
 
             Elements = elements;
         }

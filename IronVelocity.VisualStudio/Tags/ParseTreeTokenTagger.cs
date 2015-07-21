@@ -169,7 +169,7 @@ namespace IronVelocity.VisualStudio.Tags
 
                 default:
 #if DEBUG
-                    throw new ArgumentOutOfRangeException("node");
+                    throw new ArgumentOutOfRangeException(nameof(node));
 
 #else
                     return TokenType.Ignore;

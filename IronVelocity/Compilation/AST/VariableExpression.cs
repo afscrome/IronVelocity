@@ -5,7 +5,7 @@ namespace IronVelocity.Compilation.AST
 {
     public class VariableExpression : VelocityExpression
     {
-        public string Name { get; private set; }
+        public string Name { get; }
 
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.Variable; } }
 

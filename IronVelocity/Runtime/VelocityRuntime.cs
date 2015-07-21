@@ -15,7 +15,7 @@ namespace IronVelocity
         public VelocityRuntime(IParser parser, IDictionary<string, object> globals)
         {
             if (parser == null)
-                throw new ArgumentNullException("parser");
+                throw new ArgumentNullException(nameof(parser));
 
             _parser = parser;
 

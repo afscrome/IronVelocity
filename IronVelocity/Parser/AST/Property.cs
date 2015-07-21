@@ -4,13 +4,13 @@ namespace IronVelocity.Parser.AST
 {
     public class Property : ReferenceNodePart
     {
-        public ReferenceNodePart Target { get; private set; }
+        public ReferenceNodePart Target { get; }
 
         public Property(string name, ReferenceNodePart target)
             : base(name)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
             Target = target;
         }

@@ -3,7 +3,7 @@ namespace IronVelocity.Parser.AST
 {
     public class FloatingPointLiteralNode : ExpressionNode
     {
-        public float Value { get; private set; }
+        public float Value { get; }
 
         public FloatingPointLiteralNode(float value)
         {

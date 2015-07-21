@@ -16,12 +16,12 @@ namespace IronVelocity.Compilation.Directives
         public override Expression Build(ASTDirective node, NVelocityNodeToExpressionConverter converter)
         {
             if (node.ChildrenCount < 2)
-                throw new ArgumentOutOfRangeException("node", "Macro Node needs at least 2 children");
+                throw new ArgumentOutOfRangeException(nameof(node), "Macro Node needs at least 2 children");
 
             var firstChild = node.GetChild(0);
 
             if (!(firstChild is ASTWord))
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             var name = firstChild.Literal;
 
@@ -60,7 +60,7 @@ namespace IronVelocity.Compilation.Directives
             public VariableReplacementVisitor(IDictionary<string, Expression> variableReplacements)
             {
                 if (variableReplacements == null)
-                    throw new ArgumentNullException("variableReplacements");
+                    throw new ArgumentNullException(nameof(variableReplacements));
 
                 _variableReplacements = variableReplacements;
             }

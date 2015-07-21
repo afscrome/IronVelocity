@@ -29,7 +29,7 @@ namespace IronVelocity.Tests.Binders.Reuse
 
         public class SetMemberHelper
         {
-            public int Property { get; private set; }
+            public int Property { get; }
         }
     }
 }

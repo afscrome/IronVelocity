@@ -8,7 +8,7 @@ namespace IronVelocity.Binders
     public class VelocityComparisonOperationBinder : DynamicMetaObjectBinder 
     {
         public override Type ReturnType { get { return typeof(bool); } }
-        public ComparisonOperation Operation { get; private set; }
+        public ComparisonOperation Operation { get; }
 
         public VelocityComparisonOperationBinder(ComparisonOperation type)
         {
@@ -18,14 +18,14 @@ namespace IronVelocity.Binders
         public override DynamicMetaObject Bind(DynamicMetaObject target, DynamicMetaObject[] args)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
             if (args == null)
-                throw new ArgumentNullException("args");
+                throw new ArgumentNullException(nameof(args));
 
 
             if (args.Length != 1)
-                throw new ArgumentOutOfRangeException("args");
+                throw new ArgumentOutOfRangeException(nameof(args));
 
             var arg = args[0];
             switch (Operation)

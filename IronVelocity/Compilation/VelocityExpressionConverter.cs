@@ -140,7 +140,7 @@ namespace IronVelocity.Compilation
                 case UnaryOperation.Parenthesised:
                     return value;
                 default:
-                    throw new ArgumentOutOfRangeException("node");
+                    throw new ArgumentOutOfRangeException(nameof(node));
             }
         }
 

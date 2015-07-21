@@ -8,7 +8,7 @@ namespace IronVelocity.Parser.AST
 {
     public class DirectiveNode : SyntaxNode
     {
-        public string Name { get; private set; }
+        public string Name { get; }
 
         public DirectiveNode(string name)
         {

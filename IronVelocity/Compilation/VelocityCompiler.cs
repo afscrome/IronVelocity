@@ -15,7 +15,7 @@ namespace IronVelocity.Compilation
         private const string _methodName = "Execute";
         private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(VelocityOutput) };
         private static readonly ConstructorInfo _debugAttributeConstructorInfo = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
-        protected IReadOnlyDictionary<string, Type> Globals { get; private set; }
+        protected IReadOnlyDictionary<string, Type> Globals { get; }
 
         private readonly AssemblyName _assemblyName;
 
@@ -95,9 +95,9 @@ namespace IronVelocity.Compilation
         protected static void AddDebugAttributes(AssemblyBuilder assemblyBuilder, ModuleBuilder moduleBuilder)
         {
             if (assemblyBuilder == null)
-                throw new ArgumentNullException("assemblyBuilder");
+                throw new ArgumentNullException(nameof(assemblyBuilder));
             if (moduleBuilder == null)
-                throw new ArgumentNullException("moduleBuilder");
+                throw new ArgumentNullException(nameof(moduleBuilder));
 
             var debugAttributes =
                 DebuggableAttribute.DebuggingModes.Default |

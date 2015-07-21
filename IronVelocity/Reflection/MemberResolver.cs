@@ -15,7 +15,7 @@ namespace IronVelocity.Reflection
         public MemberInfo GetMember(string name, Type type, bool caseSensitive)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
 
             var flags = caseSensitive
                 ? _caseSensitiveBindingFlags
@@ -43,7 +43,7 @@ namespace IronVelocity.Reflection
         public Expression MemberExpression(string name, DynamicMetaObject target)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
             // Also if the value is typeof(ENUM), then return the relevant enumerated type
             if (target.Value is Type)
@@ -66,10 +66,10 @@ namespace IronVelocity.Reflection
         public Expression MemberExpression(string name, Type type, Expression expression)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
 
             if (name == null)
-                throw new ArgumentNullException("name");
+                throw new ArgumentNullException(nameof(name));
 
             if (type.IsPrimitive || type == typeof(string) || type == typeof(decimal))
             {

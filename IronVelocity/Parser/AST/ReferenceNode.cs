@@ -4,14 +4,14 @@ namespace IronVelocity.Parser.AST
 {
     public class ReferenceNode : ExpressionNode
     {
-        public ReferenceNodePart Value { get; private set; }
-        public bool IsSilent { get; private set; }
-        public bool IsFormal { get; private set; }
+        public ReferenceNodePart Value { get; }
+        public bool IsSilent { get; }
+        public bool IsFormal { get; }
 
         public ReferenceNode(ReferenceNodePart value, bool isSilent, bool isFormal)
         {
             if (value == null)
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
 
             Value = value;
             IsSilent = isSilent;

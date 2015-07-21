@@ -8,7 +8,7 @@ namespace IronVelocity.Parser.AST
 {
     public class TextNode : SyntaxNode
     {
-        public string Content { get; private set; }
+        public string Content { get; }
 
         public TextNode(string content)
         {

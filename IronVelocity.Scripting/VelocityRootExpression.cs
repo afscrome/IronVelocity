@@ -10,7 +10,7 @@ namespace IronVelocity.Scripting
 {
     public class VelocityRootExpression : Expression
     {
-        public IReadOnlyCollection<Expression> Children { get; private set; }
+        public IReadOnlyCollection<Expression> Children { get; }
         private readonly IDictionary<string, DirectiveExpressionBuilder> _directiveHandlers;
         private readonly string _name;
         private readonly bool _staticTypeWherePossible;

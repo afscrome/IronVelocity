@@ -7,7 +7,7 @@ namespace IronVelocity.Compilation.AST
     public class VelocityExpressionBuilder
     {
         private readonly IDictionary<string, DirectiveExpressionBuilder> _directiveHandlers;
-        public Stack<CustomDirectiveExpression> CustomDirectives { get; private set; }
+        public Stack<CustomDirectiveExpression> CustomDirectives { get; }
 
         public IDictionary<string, DirectiveExpressionBuilder> DirectiveHandlers
         {

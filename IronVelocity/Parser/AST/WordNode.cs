@@ -4,12 +4,12 @@ namespace IronVelocity.Parser.AST
 {
     public class WordNode : ExpressionNode
     {
-        public string Name { get; private set; }
+        public string Name { get; }
 
         public WordNode(string name)
         {
             if (String.IsNullOrWhiteSpace(name))
-                throw new ArgumentOutOfRangeException("name");
+                throw new ArgumentOutOfRangeException(nameof(name));
 
             Name = name;
         }

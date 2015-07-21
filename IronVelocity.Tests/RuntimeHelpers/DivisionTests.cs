@@ -44,7 +44,7 @@ namespace IronVelocity.Tests.Runtime
 
         public class OverloadedDivision
         {
-            public int Value { get; private set; }
+            public int Value { get; }
             public OverloadedDivision(int value)
             {
                 Value = value;

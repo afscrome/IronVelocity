@@ -21,7 +21,7 @@ namespace IronVelocity.Compilation
         //private bool computableReference = true;
         private bool escaped = false;
 
-        public string RootString { get; private set; }
+        public string RootString { get; }
         public ReferenceType RefType { get { return referenceType; } }
         public bool Escaped { get { return escaped; } }
         public string EscapePrefix { get { return escPrefix; } }

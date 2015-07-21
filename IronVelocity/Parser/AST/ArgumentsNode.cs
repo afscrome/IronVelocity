@@ -5,12 +5,12 @@ namespace IronVelocity.Parser.AST
 {
     public class ArgumentsNode : SyntaxNode
     {
-        public IReadOnlyList<ExpressionNode> Arguments { get; private set; }
+        public IReadOnlyList<ExpressionNode> Arguments { get; }
 
         public ArgumentsNode(IReadOnlyList<ExpressionNode> arguments)
         {
             if (arguments == null)
-                throw new ArgumentNullException("arguments");
+                throw new ArgumentNullException(nameof(arguments));
 
             Arguments = arguments;
         }

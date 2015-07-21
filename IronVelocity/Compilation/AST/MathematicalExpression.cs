@@ -6,8 +6,8 @@ namespace IronVelocity.Compilation.AST
 {
     public class MathematicalExpression : VelocityBinaryExpression
     {
-        public MathematicalOperation Operation { get; private set; }
-        public ExpressionType ExpressionType { get; private set; }
+        public MathematicalOperation Operation { get; }
+        public ExpressionType ExpressionType { get; }
 
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.Mathematical; } }
 
@@ -55,7 +55,7 @@ namespace IronVelocity.Compilation.AST
                 case MathematicalOperation.Modulo:
                     return ExpressionType.Modulo;
                 default:
-                    throw new ArgumentOutOfRangeException("op");
+                    throw new ArgumentOutOfRangeException(nameof(op));
             }
         }
 

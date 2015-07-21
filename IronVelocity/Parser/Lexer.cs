@@ -34,7 +34,7 @@ namespace IronVelocity.Parser
                 case LexerState.Vtl:
                    return GetNextVtlToken();
                 default:
-                    throw new ArgumentOutOfRangeException("state");
+                    throw new ArgumentOutOfRangeException(nameof(State));
             }
         }
 

@@ -14,7 +14,7 @@ namespace IronVelocity.Parser.AST
         public UnaryExpressionNode(UnaryOperation operation, ExpressionNode target)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
             Operation = operation;
             Value = target;

@@ -9,11 +9,11 @@ namespace IronVelocity.Compilation.AST
         private readonly string _literal;
         public override Type Type { get { return typeof(string); } }
 
-        public string Name { get; private set; }
+        public string Name { get; }
         public UnrecognisedDirective(ASTDirective node)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             _literal = node.Literal;
             Name = node.DirectiveName;

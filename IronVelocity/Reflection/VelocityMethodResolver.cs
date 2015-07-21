@@ -20,10 +20,10 @@ namespace IronVelocity.Reflection
         public Expression ConvertMethodParameters(MethodInfo method, Expression target, DynamicMetaObject[] args)//, Type[] argTypeArray)
         {
             if (method == null)
-                throw new ArgumentNullException("method");
+                throw new ArgumentNullException(nameof(method));
 
             if (args == null)
-                throw new ArgumentNullException("args");
+                throw new ArgumentNullException(nameof(args));
 
             var parameters = method.GetParameters();
             var lastParameter = parameters.LastOrDefault();
@@ -86,7 +86,7 @@ namespace IronVelocity.Reflection
         public MethodInfo ResolveMethod(TypeInfo type, string name, params Type[] argTypes)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
 
             // Loosely based on C# resolution algorithm
             // C# 1.0 resolution algorithm at http://msdn.microsoft.com/en-us/library/aa691336(v=vs.71).aspx
@@ -112,7 +112,7 @@ namespace IronVelocity.Reflection
         public bool IsArgumentCompatible(Type runtimeType, ParameterInfo parameter)
         {
             if (parameter == null)
-                throw new ArgumentNullException("parameter");
+                throw new ArgumentNullException(nameof(parameter));
 
             if (_conversionHelper.CanBeConverted(runtimeType, parameter.ParameterType))
                 return true;
@@ -124,7 +124,7 @@ namespace IronVelocity.Reflection
         public bool IsMethodApplicable(MethodInfo method, params Type[] argTypes)
         {
             if (method == null)
-                throw new ArgumentNullException("method");
+                throw new ArgumentNullException(nameof(method));
 
             if (argTypes == null)
                 argTypes = new Type[0];
@@ -167,7 +167,7 @@ namespace IronVelocity.Reflection
         public MethodInfo GetBestFunctionMember(IEnumerable<MethodInfo> applicableFunctionMembers)
         {
             if (applicableFunctionMembers == null)
-                throw new ArgumentNullException("applicableFunctionMembers");
+                throw new ArgumentNullException(nameof(applicableFunctionMembers));
 
             if (!applicableFunctionMembers.Any())
                 return null;
@@ -214,9 +214,9 @@ namespace IronVelocity.Reflection
         public MethodSpecificityComparison IsBetterFunctionMember(MethodBase left, MethodBase right)
         {
             if (left == null)
-                throw new ArgumentNullException("left");
+                throw new ArgumentNullException(nameof(left));
             if (right == null)
-                throw new ArgumentNullException("right");
+                throw new ArgumentNullException(nameof(right));
 
             var leftArgs = left.GetParameters();
             var rightArgs = right.GetParameters();

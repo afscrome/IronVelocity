@@ -7,7 +7,7 @@ namespace IronVelocity.Parser.AST
         protected ReferenceNodePart(string name)
         {
             if (String.IsNullOrWhiteSpace(name))
-                throw new ArgumentOutOfRangeException("name");
+                throw new ArgumentOutOfRangeException(nameof(name));
 
             Name = name;
         }

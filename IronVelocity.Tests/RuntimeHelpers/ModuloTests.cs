@@ -43,7 +43,7 @@ namespace IronVelocity.Tests.Runtime
 
         public class OverloadedModulo
         {
-            public int Value { get; private set; }
+            public int Value { get; }
             public OverloadedModulo(int value)
             {
                 Value = value;

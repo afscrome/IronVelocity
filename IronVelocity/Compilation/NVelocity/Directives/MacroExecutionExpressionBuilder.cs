@@ -16,10 +16,10 @@ namespace IronVelocity.Compilation.Directives
         public MacroExecutionExpressionBuilder(string name, LambdaExpression macro)
         {
             if (String.IsNullOrEmpty(name))
-                throw new ArgumentOutOfRangeException("name");
+                throw new ArgumentOutOfRangeException(nameof(name));
 
             if (macro == null)
-                throw new ArgumentNullException("macro");
+                throw new ArgumentNullException(nameof(macro));
 
             _name = name;
             _macro = macro;
@@ -28,10 +28,10 @@ namespace IronVelocity.Compilation.Directives
         public override Expression Build(ASTDirective node, NVelocityNodeToExpressionConverter builder)
         {
             if (node.DirectiveName != Name)
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             if (_macro.Parameters.Count != node.ChildrenCount)
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             var arguments = new Expression[node.ChildrenCount];
 

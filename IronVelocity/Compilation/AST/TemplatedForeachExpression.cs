@@ -14,20 +14,20 @@ namespace IronVelocity.Compilation.AST
 
         private readonly ParameterExpression _internalIndex = Expression.Parameter(typeof(int), "foreachIndex");
 
-        public Expression Enumerable { get; private set; }
-        public Expression LoopVariable { get; private set; }
-        public Expression LoopIndex { get; private set; }
+        public Expression Enumerable { get; }
+        public Expression LoopVariable { get; }
+        public Expression LoopIndex { get; }
 
 
-        public Expression BeforeAll { get; private set; }
-        public Expression Before { get; private set; }
-        public Expression Odd { get; private set; }
-        public Expression Even { get; private set; }
-        public Expression Between { get; private set; }
-        public Expression After { get; private set; }
-        public Expression AfterAll { get; private set; }
-        public Expression Each { get; private set; }
-        public Expression NoData { get; private set; }
+        public Expression BeforeAll { get; }
+        public Expression Before { get; }
+        public Expression Odd { get; }
+        public Expression Even { get; }
+        public Expression Between { get; }
+        public Expression After { get; }
+        public Expression AfterAll { get; }
+        public Expression Each { get; }
+        public Expression NoData { get; }
 
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.TemplatedForeach; } }
         public override Type Type { get { return typeof(void); } }
@@ -35,16 +35,16 @@ namespace IronVelocity.Compilation.AST
         public TemplatedForeachExpression(Expression enumerable, Expression loopVariable, Expression beforeAll, Expression before, Expression odd, Expression even, Expression between, Expression after, Expression afterAll, Expression each, Expression noData, LabelTarget breakLabel, Expression loopIndex)
         {
             if (enumerable == null)
-                throw new ArgumentNullException("enumerable");
+                throw new ArgumentNullException(nameof(enumerable));
             if (!typeof(IEnumerable).IsAssignableFrom(enumerable.Type))
-                throw new ArgumentOutOfRangeException("enumerable");
+                throw new ArgumentOutOfRangeException(nameof(enumerable));
 
             if (loopVariable == null)
-                throw new ArgumentNullException("loopVariable");
+                throw new ArgumentNullException(nameof(loopVariable));
             if (loopIndex == null)
-                throw new ArgumentNullException("loopIndex");
+                throw new ArgumentNullException(nameof(loopIndex));
             if (breakLabel == null)
-                throw new ArgumentNullException("breakLabel");
+                throw new ArgumentNullException(nameof(breakLabel));
 
             Enumerable = enumerable;
             LoopVariable = loopVariable;

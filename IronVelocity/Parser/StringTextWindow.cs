@@ -7,7 +7,7 @@ namespace IronVelocity.Parser
         private readonly string _text;
 
         public int CurrentPosition { get; private set; }
-        public char CurrentChar { get; private set;  }
+        public char CurrentChar { get; private set; }
         public int EndPosition { get { return _text.Length; } }
         public int StartPosition { get { return 0; } }
 

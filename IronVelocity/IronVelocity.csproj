@@ -52,6 +52,9 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionSuppressions.cs">
+      <Link>Properties\SolutionSuppressions.cs</Link>
+    </Compile>
     <Compile Include="Binders\BinaryOperationHelper.cs" />
     <Compile Include="Binders\BinderHelper.cs" />
     <Compile Include="Binders\ReflectionHelper.cs" />

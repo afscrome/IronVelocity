@@ -118,7 +118,7 @@ namespace IronVelocity.Tests.Regression
 	{
 		public String Dump(IDictionary options)
 		{
-			if (options == null) throw new ArgumentNullException("options");
+			if (options == null) throw new ArgumentNullException(nameof(options));
 
 			StringBuilder stringBuilder = new StringBuilder();
 

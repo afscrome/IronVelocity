@@ -13,13 +13,13 @@ namespace IronVelocity.Compilation.AST
         public RenderedBlock(IEnumerable<Expression> expressions)
         {
             if (expressions == null)
-                throw new ArgumentNullException("expressions");
+                throw new ArgumentNullException(nameof(expressions));
 
             Children = expressions.ToList();
         }
 
 
-        public IReadOnlyCollection<Expression> Children { get; private set; }
+        public IReadOnlyCollection<Expression> Children { get; }
 
         public override Expression Reduce()
         {

@@ -17,7 +17,7 @@ namespace IronVelocity.Compilation
 {
     public class NVelocityNodeToExpressionConverter
     {
-        public VelocityExpressionBuilder Builder {get; private set;}
+        public VelocityExpressionBuilder Builder { get; }
         private readonly RuntimeInstance _runtimeInstance;
         private readonly string _templateName;
 
@@ -34,11 +34,11 @@ namespace IronVelocity.Compilation
         public IReadOnlyCollection<Expression> GetBlockExpressions(INode node)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             //ASTprocess is a special case for the root, otherwise it behaves exactly like ASTBlock
             if (!(node is ASTBlock || node is ASTprocess))
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             var expressions = new List<Expression>(node.ChildrenCount);
 
@@ -86,7 +86,7 @@ namespace IronVelocity.Compilation
             var directiveNode = (ASTDirective)node;
 
             if (directiveNode == null)
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             if (directiveNode.DirectiveName == "include")
                 throw new NotSupportedException("TODO: #include support");
@@ -112,13 +112,13 @@ namespace IronVelocity.Compilation
         public ConditionalExpression IfDirective(INode node)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             if (!(node is ASTIfStatement))
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             if (node.ChildrenCount < 2)
-                throw new ArgumentOutOfRangeException("node", "Expected at least 2 children");
+                throw new ArgumentOutOfRangeException(nameof(node), "Expected at least 2 children");
 
 
             var condition = new CoerceToBooleanExpression(Expr(node.GetChild(0)));
@@ -157,10 +157,10 @@ namespace IronVelocity.Compilation
         public SetDirective Set(INode node)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             if (node.Type != ParserTreeConstants.SET_DIRECTIVE)
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             return Assignment(node.GetChild(0).GetChild(0));
         }
@@ -184,7 +184,7 @@ namespace IronVelocity.Compilation
         public ObjectArrayExpression ObjectArray(INode node)
         {
             if (!(node is ASTObjectArray))
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             var expressions = new Expression[node.ChildrenCount];
             for (int i = 0; i < node.ChildrenCount; i++)
@@ -244,7 +244,7 @@ namespace IronVelocity.Compilation
         private UnaryExpression Not(INode node)
         {
             if (!(node is ASTNotNode))
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             var operand = Operand(node.GetChild(0));
             var expression = VelocityExpressions.CoerceToBoolean(operand);
@@ -325,11 +325,11 @@ namespace IronVelocity.Compilation
         public ReferenceExpression Reference(INode node)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             var refNode = node as ASTReference;
             if (refNode == null)
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             var metadata = new ASTReferenceMetadata(refNode);
             Expression value = Variable(metadata.RootString);
@@ -360,10 +360,10 @@ namespace IronVelocity.Compilation
         public Expression Method(INode node, Expression target)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
 
             var name = node.FirstToken.Image;
@@ -391,10 +391,10 @@ namespace IronVelocity.Compilation
         public Expression Property(INode node, Expression target)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
             var name = node.Literal;
 
@@ -411,10 +411,10 @@ namespace IronVelocity.Compilation
         public Expression NVelocityString(INode node)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             if (!(node is ASTStringLiteral))
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             var value = node.Literal.Substring(1, node.Literal.Length - 2);
 
@@ -479,13 +479,13 @@ namespace IronVelocity.Compilation
         public Expression Expr(INode node)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             if (!(node is ASTExpression))
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             if (node.ChildrenCount != 1)
-                throw new ArgumentOutOfRangeException("node", "Only expected one child");
+                throw new ArgumentOutOfRangeException(nameof(node), "Only expected one child");
 
             var child = node.GetChild(0);
             return Operand(child);
@@ -495,7 +495,7 @@ namespace IronVelocity.Compilation
         public Expression Operand(INode node)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             switch (node.Type)
             {
@@ -563,13 +563,13 @@ namespace IronVelocity.Compilation
             where T : INode
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             if (!(node is T))
-                throw new ArgumentOutOfRangeException("node");
+                throw new ArgumentOutOfRangeException(nameof(node));
 
             if (node.ChildrenCount != 2)
-                throw new ArgumentOutOfRangeException("node", "Expected exactly two children for a binary expression");
+                throw new ArgumentOutOfRangeException(nameof(node), "Expected exactly two children for a binary expression");
 
             left = Operand(node.GetChild(0));
             right = Operand(node.GetChild(1));
@@ -578,10 +578,10 @@ namespace IronVelocity.Compilation
         private SourceInfo GetBinaryExpressionLineInfo(INode node)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             if (node.ChildrenCount != 2)
-                throw new ArgumentOutOfRangeException("node", "Expected exactly two children for a binary expression");
+                throw new ArgumentOutOfRangeException(nameof(node), "Expected exactly two children for a binary expression");
 
             var startToken = node.GetChild(0).FirstToken;
             var endToken = node.GetChild(1).LastToken;
@@ -591,7 +591,7 @@ namespace IronVelocity.Compilation
         private static SourceInfo GetSourceInfoFromINode(INode node)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             return new SourceInfo(
                 startLine: node.FirstToken.BeginLine,

@@ -41,7 +41,7 @@ namespace IronVelocity.Binders
         public static bool IsConstantType(Expression expression)
         {
             if (expression == null)
-                throw new ArgumentNullException("expression");
+                throw new ArgumentNullException(nameof(expression));
 
             if (expression is DynamicExpression || typeof(IDynamicMetaObjectProvider).IsAssignableFrom(expression.Type))
                 return false;
@@ -78,7 +78,7 @@ namespace IronVelocity.Binders
         public static bool IsNullableType(Type type)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
 
             return !(type.IsValueType && Nullable.GetUnderlyingType(type) == null);
         }

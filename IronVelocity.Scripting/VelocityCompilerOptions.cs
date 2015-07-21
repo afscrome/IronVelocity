@@ -37,11 +37,11 @@ namespace IronVelocity.Scripting
 
         }
 
-        public IReadOnlyDictionary<Type, DirectiveExpressionBuilder> DirectiveHandlers { get; private set; }
-        public IReadOnlyDictionary<string, Type> StaticGlobalTypes { get; private set; }
+        public IReadOnlyDictionary<Type, DirectiveExpressionBuilder> DirectiveHandlers { get; }
+        public IReadOnlyDictionary<string, Type> StaticGlobalTypes { get; }
         public bool OutputAsText { get; set; }
         public bool DebugSymbols { get; set; }
         public bool StaticTypeGlobals { get { return DirectiveHandlers != null && DirectiveHandlers.Any(); } }
-        public RuntimeInstance Runtime { get; private set; }
+        public RuntimeInstance Runtime { get; }
     }
 }

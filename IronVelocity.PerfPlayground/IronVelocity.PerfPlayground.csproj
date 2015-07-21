@@ -63,6 +63,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SolutionSuppressions.cs">
+      <Link>Properties\SolutionSuppressions.cs</Link>
+    </Compile>
     <Compile Include="TemplateCompilation.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

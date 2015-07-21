@@ -8,7 +8,7 @@ namespace IronVelocity.Parser.AST
 {
     public class RenderedOutputNode : SyntaxNode
     {
-        public IReadOnlyList<SyntaxNode> Children { get; private set; }
+        public IReadOnlyList<SyntaxNode> Children { get; }
 
         public RenderedOutputNode(IReadOnlyList<SyntaxNode> children)
         {

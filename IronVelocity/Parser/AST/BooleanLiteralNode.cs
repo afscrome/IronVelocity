@@ -6,7 +6,7 @@ namespace IronVelocity.Parser.AST
         public static readonly BooleanLiteralNode True = new BooleanLiteralNode(true);
         public static readonly BooleanLiteralNode False = new BooleanLiteralNode(false);
 
-        public bool Value { get; private set; }
+        public bool Value { get; }
 
         private BooleanLiteralNode(bool value)
         {

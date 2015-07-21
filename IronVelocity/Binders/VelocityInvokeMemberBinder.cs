@@ -24,9 +24,9 @@ namespace IronVelocity.Binders
         public override DynamicMetaObject FallbackInvokeMember(DynamicMetaObject target, DynamicMetaObject[] args, DynamicMetaObject errorSuggestion)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
             if (args == null)
-                throw new ArgumentNullException("args");
+                throw new ArgumentNullException(nameof(args));
 
             //TODO: Support dictionary --> arguments
             //TODO: Support optional params?  BindingFlags.OptionalParamBinding

@@ -4,17 +4,17 @@ namespace IronVelocity.Parser.AST
 {
     public class BinaryExpressionNode : ExpressionNode
     {
-        public BinaryOperation Operation { get; private set; }
-        public ExpressionNode Left { get; private set; }
-        public ExpressionNode Right { get; private set; }
+        public BinaryOperation Operation { get; }
+        public ExpressionNode Left { get; }
+        public ExpressionNode Right { get; }
 
         public BinaryExpressionNode(BinaryOperation operation, ExpressionNode left, ExpressionNode right)
         {
             if (left == null)
-                throw new ArgumentNullException("left");
+                throw new ArgumentNullException(nameof(left));
 
             if (right == null)
-                throw new ArgumentNullException("right");
+                throw new ArgumentNullException(nameof(right));
 
             Operation = operation;
             Left = left;

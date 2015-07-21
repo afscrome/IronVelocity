@@ -4,13 +4,13 @@ namespace IronVelocity.Parser.AST
 {
     public class StringNode : ExpressionNode
     {
-        public string Value { get; private set; }
-        public bool IsInterpolated { get; private set; }
+        public string Value { get; }
+        public bool IsInterpolated { get; }
 
         public StringNode(string value, bool isInterpolated)
         {
             if (value == null) //Empty string & whitespace is allowed, so only check against null
-                throw new ArgumentNullException("value");
+                throw new ArgumentNullException(nameof(value));
 
             Value = value;
             IsInterpolated = isInterpolated;

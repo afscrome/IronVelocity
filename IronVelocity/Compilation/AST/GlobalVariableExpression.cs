@@ -5,15 +5,15 @@ namespace IronVelocity.Compilation.AST
 {
     public class GlobalVariableExpression : VelocityExpression
     {
-        public string Name { get; private set; }
-        public object Value { get; private set; }
+        public string Name { get; }
+        public object Value { get; }
         public override Type Type { get { return Value.GetType(); } }
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.GlobalVariable; } }
 
         public GlobalVariableExpression(string name, object value)
         {
             if (String.IsNullOrWhiteSpace(name))
-                throw new ArgumentOutOfRangeException("name");
+                throw new ArgumentOutOfRangeException(nameof(name));
 
             Name = name;
             Value = value;
