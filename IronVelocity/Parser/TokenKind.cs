@@ -31,6 +31,7 @@
         Divide,
         Modulo,
         Hash,
-        Equals
+        Equals,
+        Newline
     }
 }

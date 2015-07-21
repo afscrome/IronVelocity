@@ -55,6 +55,28 @@ namespace IronVelocity.Parser
                     token.TokenKind = TokenKind.Dollar;
                     Advance();
                     break;
+                case ' ':
+                case '\t':
+                    ScanWhitespace(ref token);
+                    break;
+                case '\r':
+                    token.TokenKind = TokenKind.Newline;
+                    var nextChar = Advance();
+                    if (nextChar == '\n')
+                    {
+                        token.Value = "\r\n";
+                        Advance();
+                    }
+                    else
+                    {
+                        token.Value = "\r";
+                    }
+                    break;
+                case '\n':
+                    token.TokenKind = TokenKind.Newline;
+                    token.Value = "\n";
+                    Advance();
+                    break;
                 default:
                     Text(ref token);
                     break;

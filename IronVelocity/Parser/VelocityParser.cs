@@ -195,7 +195,8 @@ namespace IronVelocity.Parser
             var right = CompoundExpression();
             Eat(TokenKind.RightParenthesis);
             _lexer.State = LexerState.Text;
-
+            TryEatWhitespace();
+            TryEat(TokenKind.Newline);
             return new BinaryExpressionNode(BinaryOperation.Assignment, left, right);
         }
 
