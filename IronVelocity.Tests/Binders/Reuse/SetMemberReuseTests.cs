@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace IronVelocity.Tests.Binders.Reuse
 {
@@ -29,7 +30,8 @@ namespace IronVelocity.Tests.Binders.Reuse
 
         public class SetMemberHelper
         {
-            public int Property { get; }
+            [SuppressMessage("Language", "CSE0002:Use getter-only auto properties", Justification = "Test needs to be able to set property")]
+            public int Property { get; private set; }
         }
     }
 }
