@@ -13,23 +13,12 @@ using Antlr4.Runtime.Tree;
 
 namespace IronVelocity.Tests.Parser
 {
+
+
     public class ParserTest
     {
         [TestCase("Basic Test")]
-        [TestCase("$foo")]
-        [TestCase("$!bar")]
-        [TestCase("${foo}")]
-        [TestCase("$!{bar}")]
-        [TestCase("Hello $name")]
-        [TestCase("$color Box")]
         [TestCase("$salutation $name")]
-        [TestCase("$")]
-        [TestCase("$$")]
-        [TestCase("$$foo")]
-        [TestCase("$!")]
-        [TestCase("$!!")]
-        [TestCase("$!!foo")]
-        [TestCase("$!$!!foo")]
         public void BasicTest(string input)
         {
             var charStream = new AntlrInputStream(input);
@@ -39,6 +28,7 @@ namespace IronVelocity.Tests.Parser
 
             var parsed = parser.template();
 
+
             var visitor = new TestVisitor();
             visitor.Visit(parsed);
 
@@ -47,8 +37,39 @@ namespace IronVelocity.Tests.Parser
         }
 
 
+        [TestCase("$")]
+        [TestCase("$$")]
+        [TestCase("$!")]
+        [TestCase("$!!")]
+        [TestCase("$!!{")]
+        public void ReferenceLikeTextThatShouldBeTreatedAsText(string input)
+        {
+            BasicTest(input);
+        }
+
+        [TestCase("$foo")]
+        [TestCase("$!bar")]
+        [TestCase("${foo}")]
+        [TestCase("$!{bar}")]
+        public void BasicVariableReferences(string input)
+        {
+            BasicTest(input);
+        }
+
+        [TestCase("Hello $name")]
+        [TestCase("$color Box")]
+        [TestCase("$$foo")]
+        [TestCase("$!$!!foo")]
+        public void MixedTextAndVariableReferences(string input)
+        {
+            BasicTest(input);
+        }
+
+
+        [TestCase("${")]
+        [TestCase("$${")]
         [TestCase("${foo")]
-        public void ErrorTests(string input)
+        public void ShouldProduceParserError(string input)
         {
             var charStream = new AntlrInputStream(input);
             var lexer = new VelocityLexer(charStream);
@@ -61,7 +82,7 @@ namespace IronVelocity.Tests.Parser
             visitor.Visit(parsed);
 
             if (visitor.Errors.Any())
-                Assert.Fail($"No Parse ERrors Occurred;");
+                Assert.Fail($"No Parse Errors Occurred;");
         }
 
         //TODO: investigate behaviour around when un-closed paranthesis is allowed at the end of a reference
