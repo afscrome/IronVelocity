@@ -59,6 +59,25 @@ namespace IronVelocity.Tests.Parser
             Assert.That(property.GetText(), Is.EqualTo(propertyName));
         }
 
+
+        [TestCase("$foo.dog()", "dog")]
+        [TestCase("$!bar.cat()", "cat")]
+        [TestCase("${foo.fish()}", "fish")]
+        [TestCase("$!{bar.bear()}", "bear")]
+        public void ReferenceWithZeroArgumentMethodInvocation(string input, string propertyName)
+        {
+            PrintTokens(input);
+            var result = ParseEnsuringNoErrors(input);
+            var flattened = FlattenParseTree(result);
+
+            Assert.That(flattened, Has.No.InstanceOf<VelocityParser.TextContext>());
+            var reference = flattened.OfType<VelocityParser.ReferenceContext>().Single();
+            Assert.That(reference.GetText(), Is.EqualTo(input));
+
+            var property = flattened.OfType<VelocityParser.Method_invocationContext>().Single();
+            Assert.That(property.GetText(), Is.EqualTo(propertyName + "()"));
+        }
+
         [TestCase("Hello ", "$world")]
         [TestCase("$", "$foo")]
         [TestCase("$!", "$foo")]
@@ -89,6 +108,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$informal", "}")]
         [TestCase("$informal", "}more")]
         [TestCase("$informal", "}}")]
+        [TestCase("$variable", "(")]
         public void ReferenceFollowedByText(string reference, string text)
         {
             var input =  reference + text;
@@ -128,6 +148,13 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$${")]
         [TestCase("${foo")]
         [TestCase("${foo    ")]
+        [TestCase("$foo.bar( ")]
+        [TestCase("$foo.bar(", Ignore = true, IgnoreReason = "Determine whether this should or shouldn't be a parse error")]
+        [TestCase("$foo.bar(.", Ignore = true, IgnoreReason = "Determine whether this should or shouldn't be a parse error")]
+        [TestCase("$foo.bar(hello", Ignore = true, IgnoreReason = "Determine whether this should or shouldn't be a parse error")]
+        //TODO: investigate behavior around when un-closed parenthesis is allowed at the end of a reference
+        // In NVelocity, the following are treated as text: "$foo.(", "$foo.(   ", "$foo.(."
+        // But the following are errors "$foo.(123", "$foo.(123"
         public void ShouldProduceParserError(string input)
         {
             var parser = CreateParser(input);
@@ -143,9 +170,7 @@ namespace IronVelocity.Tests.Parser
 
 
 
-        //TODO: investigate behaviour around when un-closed paranthesis is allowed at the end of a reference
-        // In NVelocity, the followign are treated as text: "$foo.(", "$foo.(   ", "$foo.(."
-        // But the followign are errors "$foo.(123", "$foo.(123"
+
 
 
         protected VelocityParser CreateParser(string input)

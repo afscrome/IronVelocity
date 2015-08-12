@@ -24,6 +24,7 @@ mode REFERENCE_MEMBER ;
 MEMBER_INVOCATION : '.' ;
 MEMBER_NAME : IDENTIFIER -> type(IDENTIFIER) ;
 FORMAL_END : '}' -> popMode;
+METHOD_ARGUMENTS_START : '(' -> pushMode(ARGUMENTS) ;
 
 //Handle two references one after the other - e.g. "$one$two""
 REFERENCE_END_DOLLAR : '$' -> type(DOLLAR), mode(REFERENCE) ;
@@ -31,6 +32,7 @@ REFERENCE_END_DOLLAR : '$' -> type(DOLLAR), mode(REFERENCE) ;
 // ".." should be treated as text, not as two MEMBER_INVOCATION tokens
 REFERENCE_END_TEXT : (. | '..')  -> type(TEXT), popMode ;
 
-//Not sure about this??
+mode ARGUMENTS ;
+METHOD_ARGUMENTS_END : ')' -> popMode ;
 
 
