@@ -11,6 +11,7 @@ using Antlr4.Runtime.Atn;
 
 namespace IronVelocity.Tests.Parser
 {
+    [TestFixture]
     public class ParserTest
     {
         [TestCase("Sample Text")]
@@ -20,6 +21,15 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!!")]
         [TestCase("$!!{")]
         [TestCase("$!$!!foo")]
+        [TestCase("${}")]
+        [TestCase("${{")]
+        [TestCase("${{foo")]
+        [TestCase("${123")]
+        [TestCase("${ foo }")]
+        [TestCase("$!{}")]
+        [TestCase("$!{{foo")]
+        [TestCase("$!{123")]
+        [TestCase("$!{ foo }")]
         public void BasicTextTests(string input)
         {
             var result = ParseEnsuringNoErrors(input);

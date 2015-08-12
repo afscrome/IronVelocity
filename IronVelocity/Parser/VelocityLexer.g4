@@ -17,9 +17,20 @@ mode REFERENCE ;
 VARIABLE_NAME : IDENTIFIER -> type(IDENTIFIER), mode(REFERENCE_POSSIBLE_MEMBER) ;
 DOLLAR_REFERENCE : '$' -> type(DOLLAR) ;
 SILENT : '!' ;
-FORMAL_START : '{';
+FORMAL_START : '{' -> mode(REFERENCE_FORMAL);
 // "$!!" should be considered as text
 TEXT_REFERENCE : (. | '!!') -> type(TEXT), popMode ;
+
+
+//===================================
+// We have what looks like a formal reference ("${" or "$!{")
+// If we have an identifier, then continue with the formal reference
+// otherwise treat what we have so far as text.
+mode REFERENCE_FORMAL ;
+
+REFERENCE_FORMAL_IDENTIFIER : IDENTIFIER -> type(IDENTIFIER), mode(REFERENCE_POSSIBLE_MEMBER) ;
+REFERENCE_FORMAL_TEXT : . -> type(TEXT), popMode ;
+
 
 //===================================
 mode REFERENCE_POSSIBLE_MEMBER ;
