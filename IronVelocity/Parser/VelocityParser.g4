@@ -6,7 +6,10 @@ options {
 
 template : (text | reference)* ;
 
-text : (TEXT | DOLLAR SILENT? | FORMAL_END | MEMBER_INVOCATION | FORMAL_START ~IDENTIFIER )+ ;
+//Not sure about FORMAL_START on it's own.  "FORMAL_START ~IDENTIFIER" would be better
+//however causes failures if there is a textual "{" followed by EOF
+
+text : (TEXT | DOLLAR SILENT? | FORMAL_END | MEMBER_INVOCATION | FORMAL_START)+ ;
 
 
 variable : IDENTIFIER;
