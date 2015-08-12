@@ -6,7 +6,7 @@ options {
 
 template : (text | reference)* ;
 
-text : (TEXT | DOLLAR SILENT? | FORMAL_END | MEMBER_INVOCATION | METHOD_ARGUMENTS_START)+ ;
+text : (TEXT | DOLLAR SILENT? | FORMAL_END | MEMBER_INVOCATION )+ ;
 
 
 variable : IDENTIFIER;
