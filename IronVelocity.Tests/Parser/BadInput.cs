@@ -27,6 +27,7 @@ namespace IronVelocity.Tests.Parser
 
             if (parser.NumberOfSyntaxErrors == 0)
             {
+                PrintTokens(input);
                 Console.WriteLine(parsed.ToStringTree(parser.TokenNames));
                 Assert.Fail($"No Parse Errors Occurred;");
             }

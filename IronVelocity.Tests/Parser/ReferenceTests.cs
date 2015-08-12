@@ -32,7 +32,6 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!{bar.bear}", "bear")]
         public void Property(string input, string propertyName)
         {
-            PrintTokens(input);
             var result = ParseEnsuringNoErrors(input);
             var flattened = FlattenParseTree(result);
 
@@ -51,7 +50,6 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!{bar.bear()}", "bear")]
         public void ZeroArgumentMethod(string input, string methodName)
         {
-            PrintTokens(input);
             var result = ParseEnsuringNoErrors(input);
             var flattened = FlattenParseTree(result);
 
