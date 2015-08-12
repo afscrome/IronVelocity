@@ -13,21 +13,24 @@ fragment IDENTIFIER : [a-zA-Z][a-zA-Z0-9]* ;
 
 mode REFERENCE ;
 
-VARIABLE_NAME : IDENTIFIER -> type(IDENTIFIER) ;
+VARIABLE_NAME : IDENTIFIER -> type(IDENTIFIER), mode(REFERENCE_MEMBER) ;
 DOLLAR_REFERENCE : '$' -> type(DOLLAR) ;
 SILENT : '!' ;
 FORMAL_START : '{';
-FORMAL_END : '}' -> popMode;
 TEXT_REFERENCE : (. | '!!') -> type(TEXT), popMode ;
-
-
-//Not sure about this??
-
 
 mode REFERENCE_MEMBER ;
 
 MEMBER_INVOCATION : '.' ;
-METHOD_ARGUMENTS_START : '(' ;
-METHOD_ARGUMENTS_END : ')' ;
-TEXT_REFERENCE_MEMBER : . -> type(TEXT), popMode ;
 MEMBER_NAME : IDENTIFIER -> type(IDENTIFIER) ;
+FORMAL_END : '}' -> popMode;
+
+//Handle two references one after the other - e.g. "$one$two""
+REFERENCE_END_DOLLAR : '$' -> type(DOLLAR), mode(REFERENCE) ;
+
+// ".." should be treated as text, not as two MEMBER_INVOCATION tokens
+REFERENCE_END_TEXT : (. | '..')  -> type(TEXT), popMode ;
+
+//Not sure about this??
+
+

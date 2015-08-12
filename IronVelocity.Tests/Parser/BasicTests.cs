@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime.Tree;
+using Antlr4.Runtime.Dfa;
+using Antlr4.Runtime.Sharpen;
+using Antlr4.Runtime.Atn;
 
 namespace IronVelocity.Tests.Parser
 {
@@ -38,6 +41,24 @@ namespace IronVelocity.Tests.Parser
             Assert.That(flattened, Has.Exactly(1).InstanceOf<VelocityParser.ReferenceContext>());
         }
 
+        [TestCase("$foo.dog", "dog")]
+        [TestCase("$!bar.cat", "cat")]
+        [TestCase("${foo.fish}", "fish")]
+        [TestCase("$!{bar.bear}", "bear")]
+        public void ReferenceWithPropertyInvocation(string input, string propertyName)
+        {
+            PrintTokens(input);
+            var result = ParseEnsuringNoErrors(input);
+            var flattened = FlattenParseTree(result);
+
+            Assert.That(flattened, Has.No.InstanceOf<VelocityParser.TextContext>());
+            var reference = flattened.OfType<VelocityParser.ReferenceContext>().Single();
+            Assert.That(reference.GetText(), Is.EqualTo(input));
+
+            var property = flattened.OfType<VelocityParser.Property_invocationContext>().Single();
+            Assert.That(property.GetText(), Is.EqualTo(propertyName));
+        }
+
         [TestCase("Hello ", "$world")]
         [TestCase("$", "$foo")]
         [TestCase("$!", "$foo")]
@@ -63,6 +84,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$baz", "$!!")]
         [TestCase("$bat", "$!!{")]
         [TestCase("${formal}", "text")]
+        [TestCase("$ref", ".")]
         [TestCase("${formal}", "}")]
         [TestCase("$informal", "}")]
         [TestCase("$informal", "}more")]
@@ -131,7 +153,29 @@ namespace IronVelocity.Tests.Parser
             var charStream = new AntlrInputStream(input);
             var lexer = new VelocityLexer(charStream);
             var tokenStream = new CommonTokenStream(lexer);
-            return new VelocityParser(tokenStream);
+            var parser = new VelocityParser(tokenStream);
+
+            var lexerErrorListener = new LexerErrorListener();
+            var parserErrorListener = new ParserErrorListener();
+
+            lexer.ErrorListeners.Clear();
+            parser.ErrorListeners.Clear();
+            lexer.ErrorListeners.Add(lexerErrorListener);
+            parser.ErrorListeners.Add(parserErrorListener);
+
+            return parser;
+        }
+
+        protected void PrintTokens(string input)
+        {
+            var charStream = new AntlrInputStream(input);
+            var lexer = new VelocityLexer(charStream);
+
+            foreach (var token in lexer.GetAllTokens())
+            {
+                Console.WriteLine(token);
+            }
+
         }
 
         protected IParseTree ParseEnsuringNoErrors(string input)
@@ -145,6 +189,12 @@ namespace IronVelocity.Tests.Parser
                 Console.WriteLine(parsed.ToStringTree(parser.TokenNames));
                 Assert.Fail($"{parser.NumberOfSyntaxErrors} errors occurred;");
             }
+#if DEBUG
+            else
+            {
+                Console.WriteLine(parsed.ToStringTree(parser.TokenNames));
+            }
+#endif
 
             return parsed;
         }
@@ -165,6 +215,45 @@ namespace IronVelocity.Tests.Parser
                 }
             }
             while (nodes.Any());
+        }
+
+
+        private class LexerErrorListener : ConsoleErrorListener<int>
+        {
+            public int ErrorCount { get; private set; }
+
+            public override void SyntaxError(IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
+            {
+                ErrorCount++;
+                base.SyntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
+            }
+        }
+
+        private class ParserErrorListener : ConsoleErrorListener<IToken>, IParserErrorListener
+        {
+            public int ErrorCount { get; private set; }
+
+            public void ReportAmbiguity(Antlr4.Runtime.Parser recognizer, DFA dfa, int startIndex, int stopIndex, bool exact, BitSet ambigAlts, ATNConfigSet configs)
+            {
+                Console.WriteLine("Ambiguity!");
+                ErrorCount++;
+            }
+
+            public void ReportAttemptingFullContext(Antlr4.Runtime.Parser recognizer, DFA dfa, int startIndex, int stopIndex, BitSet conflictingAlts, SimulatorState conflictState)
+            {
+                ErrorCount++;
+            }
+
+            public void ReportContextSensitivity(Antlr4.Runtime.Parser recognizer, DFA dfa, int startIndex, int stopIndex, int prediction, SimulatorState acceptState)
+            {
+                ErrorCount++;
+            }
+
+            public override void SyntaxError(IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
+            {
+                ErrorCount++;
+                base.SyntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
+            }
         }
 
     }
