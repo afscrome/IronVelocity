@@ -98,6 +98,8 @@ namespace IronVelocity.Tests.Parser
 
         [TestCase("$color", " Box")]
         [TestCase("$salutation", ",")]
+        [TestCase("$mario.luigi", " Jump")]
+        [TestCase("$sim.city()", " Build")]
         [TestCase("$i", "$")]
         [TestCase("$bar", "$!")]
         [TestCase("$baz", "$!!")]
@@ -109,6 +111,8 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$informal", "}more")]
         [TestCase("$informal", "}}")]
         [TestCase("$variable", "(")]
+        [TestCase("$bugs.bunny", ".")]
+        [TestCase("$harry.potter()", ".")]
         public void ReferenceFollowedByText(string reference, string text)
         {
             var input =  reference + text;
@@ -127,13 +131,46 @@ namespace IronVelocity.Tests.Parser
         [TestCase("${formal}", "$informal")]
         [TestCase("$informal", "${formal}")]
         [TestCase("${prefix}", "${suffix}")]
-        public void TwoVariables(string reference1, string reference2)
+        [TestCase("$some.thing", "$or.other")]
+        [TestCase("$that.is()", "$the.question()")]
+        [TestCase("$loud", "$!silent")]
+        public void TwoReferences(string reference1, string reference2)
         {
             var input = reference1 + reference2;
             var result = ParseEnsuringNoErrors(input);
 
             var flattened = FlattenParseTree(result);
             Assert.That(flattened, Has.No.InstanceOf<VelocityParser.TextContext>());
+
+            var references = flattened.OfType<VelocityParser.ReferenceContext>()
+                .Select(x => x.GetText())
+                .ToList();
+
+            Assert.That(references, Contains.Item(reference1));
+            Assert.That(references, Contains.Item(reference2));
+        }
+
+        [TestCase("$firstname", " ", "$lastname")]
+        [TestCase("$greeting", ", ", "$name")]
+        [TestCase("${length}", "x", "${width}")]
+        [TestCase("$dollars", "$", "$cents")]
+        [TestCase("$mama", "!", "$mia")]
+        [TestCase("$go", "}", "$again")]
+        [TestCase("$pounds", ".", "$pennies")]
+        [TestCase("$user.firstname", " ", "$user.lastname")]
+        [TestCase("$welcome.greeting", ", ", "$welcome.name")]
+        [TestCase("${item.length}", "x", "${item.width}")]
+        [TestCase("$cost.pounds", ".", "$cost.pennies")]
+        [TestCase("$cost.dollars", "$", "$cost.cents")]
+        public void TwoReferenceswithTextInBetween(string reference1, string text, string reference2)
+        {
+            var input = reference1 + text + reference2;
+            var result = ParseEnsuringNoErrors(input);
+
+            var flattened = FlattenParseTree(result);
+
+            var textNode = flattened.OfType<VelocityParser.TextContext>().Single();
+            Assert.That(textNode.GetText(), Is.EqualTo(text));
 
             var references = flattened.OfType<VelocityParser.ReferenceContext>()
                 .Select(x => x.GetText())

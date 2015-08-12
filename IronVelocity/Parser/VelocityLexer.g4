@@ -35,18 +35,18 @@ REFERENCE_POSSIBLE_MEMBER_DOLLAR : '$' -> type(DOLLAR), mode(REFERENCE) ;
 REFERENCE_POSSIBLE_MEMBER_TEXT : (. | '..')  -> type(TEXT), popMode ;
 
 //===================================
-//At this point we have what looks like a property call (e.g. "$foo.bar").  But it may not be a property call
-// * Could be the end of a formal reference (e.g. "${foo.bar}")
-// * Could be followed by text (e.g. "$foo.bar ", "$foo.bar!")
-// * Could become a method call (e.g. "$foo.bar(")
-// * Could have a further member invocation (e.g. "$foo.bar.")
-// * Could be followed by another reference (E.g. "$foo.bar$")
+//At this point we have a certain member invocation (e.g. "$foo.bar"), but are not yet sure what kind of member invocation it is
+// * Method call if followed by "(" (e.g. "foo.bar(" )
+// * Another reference expression if followed by "$" (E.g. "$foo.bar$")
+// * If followed by "." (but not ".."), need to go back to REFERENCE_POSSIBLE_MEMBER (e.g. "$foo.bar.")
+// * A property if followed by text, or in a formal reference, and followed by "}" (e.g. "$foo.bar%", "${foo.bar}).
 mode REFERENCE_MEMBER ;
 
-REFERENCE_MEMBER_MEMBER_INVOCATION : '.' -> mode(REFERENCE_POSSIBLE_MEMBER) ;
+REFERENCE_MEMBER_MEMBER_INVOCATION : '.' -> type(MEMBER_INVOCATION), mode(REFERENCE_POSSIBLE_MEMBER) ;
 METHOD_ARGUMENTS_START : '(' -> pushMode(ARGUMENTS) ;
-REFERENCE_MEMBERFORMAL_END2 : '}' -> popMode, type(FORMAL_END);
-
+REFERENCE_MEMBER_FORMAL_END : '}' -> popMode, type(FORMAL_END);
+REFERENCE_MEMBER_DOLLAR : '$' -> type(DOLLAR), mode(REFERENCE) ;
+REFERENCE_MEMBER_TEXT : (. | '..')  -> type(TEXT), popMode ;
 
 mode ARGUMENTS ;
 METHOD_ARGUMENTS_END : ')' -> popMode ;
