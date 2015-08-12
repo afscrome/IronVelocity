@@ -11,13 +11,21 @@ blockpart : text | reference;
 
 variable : IDENTIFIER;
 
-reference : DOLLAR SILENT? reference_invocation  
-	| DOLLAR SILENT? FORMAL_START reference_invocation FORMAL_END;
+reference : informal_reference
+	| formal_reference;
 
-reference_invocation : variable
-	| reference_invocation MEMBER_INVOCATION IDENTIFIER
-	| reference_invocation MEMBER_INVOCATION IDENTIFIER method_arguments;
+informal_reference : DOLLAR SILENT? reference_body  ;
+formal_reference : DOLLAR SILENT? FORMAL_START reference_body FORMAL_END;
+
+reference_body : variable
+	| reference_body  MEMBER_INVOCATION property_invocation
+	| reference_body  MEMBER_INVOCATION method_invocation ;
+
+property_invocation: IDENTIFIER ;
+method_invocation: IDENTIFIER method_arguments ;
 
 method_arguments : METHOD_ARGUMENTS_START METHOD_ARGUMENTS_END  ;
 
-text : (TEXT | DOLLAR | DOLLAR SILENT)+ ;
+text : (TEXT | DOLLAR SILENT? | FORMAL_END)+ ;
+//FORMAL_END required to cope with ${formal}}
+//DOLLAR SILENT? required to cope with "$" and "$!" without a trailing identifier

@@ -4,47 +4,25 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Antlr4.Runtime.Atn;
-using Antlr4.Runtime.Dfa;
-using Antlr4.Runtime.Sharpen;
 using Antlr4.Runtime.Tree;
 
 namespace IronVelocity.Tests.Parser
 {
-
-
     public class ParserTest
     {
-        [TestCase("Basic Test")]
-        [TestCase("$salutation $name")]
-        public void BasicTest(string input)
-        {
-            var charStream = new AntlrInputStream(input);
-            var lexer = new VelocityLexer(charStream);
-            var tokenStream = new CommonTokenStream(lexer);
-            var parser = new VelocityParser(tokenStream);
-
-            var parsed = parser.template();
-
-
-            var visitor = new TestVisitor();
-            visitor.Visit(parsed);
-
-            if (visitor.Errors.Any())
-                Assert.Fail($"{visitor.Errors.Count} errors occurred;");
-        }
-
-
+        [TestCase("Sample Text")]
         [TestCase("$")]
         [TestCase("$$")]
         [TestCase("$!")]
         [TestCase("$!!")]
         [TestCase("$!!{")]
-        public void ReferenceLikeTextThatShouldBeTreatedAsText(string input)
+        [TestCase("$!$!!foo")]
+        public void BasicTextTests(string input)
         {
-            BasicTest(input);
+            var result = ParseEnsuringNoErrors(input);
+
+            var text = FlattenParseTree(result).OfType<VelocityParser.TextContext>().Single();
+            Assert.That(text.GetText(), Is.EqualTo(input));
         }
 
         [TestCase("$foo")]
@@ -53,107 +31,141 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!{bar}")]
         public void BasicVariableReferences(string input)
         {
-            BasicTest(input);
+            var result = ParseEnsuringNoErrors(input);
+            var flattened = FlattenParseTree(result);
+
+            Assert.That(flattened, Has.No.InstanceOf<VelocityParser.TextContext>());
+            Assert.That(flattened, Has.Exactly(1).InstanceOf<VelocityParser.ReferenceContext>());
         }
 
-        [TestCase("Hello $name")]
-        [TestCase("$color Box")]
-        [TestCase("$$foo")]
-        [TestCase("$!$!!foo")]
-        public void MixedTextAndVariableReferences(string input)
+        [TestCase("Hello ", "$world")]
+        [TestCase("$", "$foo")]
+        [TestCase("$!", "$foo")]
+        [TestCase("$!!{", "$foo")]
+        public void TextFollowedByVariableReferences(string text, string reference)
         {
-            BasicTest(input);
+            var input = text + reference;
+            var result = ParseEnsuringNoErrors(input);
+
+            var flattened = FlattenParseTree(result);
+
+            var textNode = flattened.OfType<VelocityParser.TextContext>().Single();
+            var referenceNode = flattened.OfType<VelocityParser.ReferenceContext>().Single();
+
+            Assert.That(textNode.GetText(), Is.EqualTo(text));
+            Assert.That(referenceNode.GetText(), Is.EqualTo(reference));
         }
 
+        [TestCase("$color", " Box")]
+        [TestCase("$salutation", ",")]
+        [TestCase("$i", "$")]
+        [TestCase("$bar", "$!")]
+        [TestCase("$baz", "$!!")]
+        [TestCase("$bat", "$!!{")]
+        [TestCase("${formal}", "text")]
+        [TestCase("${formal}", "}")]
+        [TestCase("$informal", "}")]
+        [TestCase("$informal", "}more")]
+        [TestCase("$informal", "}}")]
+        public void ReferenceFollowedByText(string reference, string text)
+        {
+            var input =  reference + text;
+            var result = ParseEnsuringNoErrors(input);
 
+            var flattened = FlattenParseTree(result);
+
+            var referenceNode = flattened.OfType<VelocityParser.ReferenceContext>().Single();
+            var textNode = flattened.OfType<VelocityParser.TextContext>().Single();
+
+            Assert.That(referenceNode.GetText(), Is.EqualTo(reference));
+            Assert.That(textNode.GetText(), Is.EqualTo(text));
+        }
+
+        [TestCase("$first", "$second")]
+        [TestCase("${formal}", "$informal")]
+        [TestCase("$informal", "${formal}")]
+        [TestCase("${prefix}", "${suffix}")]
+        public void TwoVariables(string reference1, string reference2)
+        {
+            var input = reference1 + reference2;
+            var result = ParseEnsuringNoErrors(input);
+
+            var flattened = FlattenParseTree(result);
+            Assert.That(flattened, Has.No.InstanceOf<VelocityParser.TextContext>());
+
+            var references = flattened.OfType<VelocityParser.ReferenceContext>()
+                .Select(x => x.GetText())
+                .ToList();
+
+            Assert.That(references, Contains.Item(reference1));
+            Assert.That(references, Contains.Item(reference2));
+        }
+
+        //If we start a formal reference, but don't' finish it, can't fallback to text
         [TestCase("${")]
         [TestCase("$${")]
         [TestCase("${foo")]
+        [TestCase("${foo    ")]
         public void ShouldProduceParserError(string input)
         {
-            var charStream = new AntlrInputStream(input);
-            var lexer = new VelocityLexer(charStream);
-            var tokenStream = new CommonTokenStream(lexer);
-            var parser = new VelocityParser(tokenStream);
+            var parser = CreateParser(input);
 
             var parsed = parser.template();
 
-            var visitor = new TestVisitor();
-            visitor.Visit(parsed);
-
-            if (visitor.Errors.Any())
+            if (parser.NumberOfSyntaxErrors == 0)
+            {
+                Console.WriteLine(parsed.ToStringTree(parser.TokenNames));
                 Assert.Fail($"No Parse Errors Occurred;");
+            }
         }
+
+
 
         //TODO: investigate behaviour around when un-closed paranthesis is allowed at the end of a reference
         // In NVelocity, the followign are treated as text: "$foo.(", "$foo.(   ", "$foo.(."
         // But the followign are errors "$foo.(123", "$foo.(123"
 
 
-        public class TestVisitor : VelocityParserBaseVisitor<object>
+        protected VelocityParser CreateParser(string input)
         {
-            public ICollection<IErrorNode> Errors { get; } = new List<IErrorNode>();
+            var charStream = new AntlrInputStream(input);
+            var lexer = new VelocityLexer(charStream);
+            var tokenStream = new CommonTokenStream(lexer);
+            return new VelocityParser(tokenStream);
+        }
 
-            public override object VisitErrorNode(IErrorNode node)
+        protected IParseTree ParseEnsuringNoErrors(string input)
+        {
+            var parser = CreateParser(input);
+
+            var parsed = parser.template();
+
+            if (parser.NumberOfSyntaxErrors > 0)
             {
-                Errors.Add(node);
-                return null;
+                Console.WriteLine(parsed.ToStringTree(parser.TokenNames));
+                Assert.Fail($"{parser.NumberOfSyntaxErrors} errors occurred;");
             }
+
+            return parsed;
         }
 
 
-        /*
-        var lexerErrorListener = new LexerErrorListener();
-        var parserErrorListener = new ParserErrorListener();
-
-        lexer.ErrorListeners.Clear();
-        parser.ErrorListeners.Clear();
-        lexer.ErrorListeners.Add(lexerErrorListener);
-        parser.ErrorListeners.Add(parserErrorListener);
-
-        if (lexerErrorListener.ErrorCount > 0 || parserErrorListener.ErrorCount > 0)
-            Assert.Fail($"{lexerErrorListener.ErrorCount} lexer errors occurred, {parserErrorListener.ErrorCount} parser errors occurred.");
-
-        */
-
-        private class LexerErrorListener : ConsoleErrorListener<int>
+        protected IEnumerable<IParseTree> FlattenParseTree(IParseTree parseTree)
         {
-            public int ErrorCount { get; private set; }
+            Stack<IParseTree> nodes = new Stack<IParseTree>();
+            nodes.Push(parseTree);
 
-            public override void SyntaxError(IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
+            do
             {
-                ErrorCount++;
-                base.SyntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
+                var node = nodes.Pop();
+                yield return node;
+                for (int i = 0; i < node.ChildCount; i++)
+                {
+                    nodes.Push(node.GetChild(i));
+                }
             }
+            while (nodes.Any());
         }
-
-        private class ParserErrorListener : ConsoleErrorListener<IToken>, IParserErrorListener
-        {
-            public int ErrorCount { get; private set; }
-
-            public void ReportAmbiguity(Antlr4.Runtime.Parser recognizer, DFA dfa, int startIndex, int stopIndex, bool exact, BitSet ambigAlts, ATNConfigSet configs)
-            {
-                ErrorCount++;
-            }
-
-            public void ReportAttemptingFullContext(Antlr4.Runtime.Parser recognizer, DFA dfa, int startIndex, int stopIndex, BitSet conflictingAlts, SimulatorState conflictState)
-            {
-                ErrorCount++;
-            }
-
-            public void ReportContextSensitivity(Antlr4.Runtime.Parser recognizer, DFA dfa, int startIndex, int stopIndex, int prediction, SimulatorState acceptState)
-            {
-                ErrorCount++;
-            }
-
-            public override void SyntaxError(IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
-            {
-                ErrorCount++;
-                base.SyntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
-            }
-        }
-
-
 
     }
 }
