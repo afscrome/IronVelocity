@@ -4,13 +4,15 @@ options {
     tokenVocab=VelocityLexer;
 }
 
-template : (text | reference)* ;
+template : (text | reference | comment)* ;
 
 //Not sure about FORMAL_START on it's own.  "FORMAL_START ~IDENTIFIER" would be better
 //however causes failures if there is a textual "{" followed by EOF
+//FORMAL_END required to cope with ${formal}}
+//DOLLAR SILENT? required to cope with "$" and "$!" without a trailing identifier
+text : (TEXT | HASH | DOLLAR SILENT? | FORMAL_END | MEMBER_INVOCATION | FORMAL_START)+ ;
 
-text : (TEXT | DOLLAR SILENT? | FORMAL_END | MEMBER_INVOCATION | FORMAL_START)+ ;
-
+comment : COMMENT ;
 
 variable : IDENTIFIER;
 
@@ -29,5 +31,3 @@ method_invocation: IDENTIFIER method_arguments ;
 
 method_arguments : METHOD_ARGUMENTS_START METHOD_ARGUMENTS_END  ;
 
-//FORMAL_END required to cope with ${formal}}
-//DOLLAR SILENT? required to cope with "$" and "$!" without a trailing identifier

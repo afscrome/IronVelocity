@@ -8,6 +8,7 @@ using Antlr4.Runtime.Tree;
 using Antlr4.Runtime.Dfa;
 using Antlr4.Runtime.Sharpen;
 using Antlr4.Runtime.Atn;
+using System.Diagnostics;
 
 namespace IronVelocity.Tests.Parser
 {
@@ -78,6 +79,10 @@ namespace IronVelocity.Tests.Parser
             foreach (var token in lexer.GetAllTokens())
             {
                 Console.WriteLine(token);
+                if (Debugger.IsAttached)
+                {
+                    Debug.WriteLine(token);
+                }
             }
 
         }

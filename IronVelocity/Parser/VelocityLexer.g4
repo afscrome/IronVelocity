@@ -2,12 +2,17 @@ lexer grammar VelocityLexer;
 
 tokens {
 	IDENTIFIER,
+	COMMENT,
 }
 
 DOLLAR : '$' ->  pushMode(REFERENCE) ;
-TEXT : ~[$]+ ;
+HASH : '#' ;
+SINGLE_LINE_COMMENT : '##' ~('\r' | '\n')* NEWLINE? -> type(COMMENT);
+TEXT : ~('$'| '#')+ ;
 
 fragment IDENTIFIER : [a-zA-Z][a-zA-Z0-9]* ;
+fragment NEWLINE : '\r' | '\n' | '\r\n' ;
+
 
 
 
