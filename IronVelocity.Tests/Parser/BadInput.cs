@@ -19,6 +19,9 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$foo.bar(", Ignore = true, IgnoreReason = "Determine whether this should or shouldn't be a parse error")]
         [TestCase("$foo.bar(.", Ignore = true, IgnoreReason = "Determine whether this should or shouldn't be a parse error")]
         [TestCase("$foo.bar(hello", Ignore = true, IgnoreReason = "Determine whether this should or shouldn't be a parse error")]
+        //Incomplete block comments
+        [TestCase("#*")]
+        [TestCase("#* #* *#")]
         public void ShouldProduceParserError(string input)
         {
             var parser = CreateParser(input);

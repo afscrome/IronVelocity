@@ -10,16 +10,35 @@ namespace IronVelocity.Tests.Parser
 {
     public class CommentTests : ParserTestBase
     {
+        [TestCase("##")]
         [TestCase("##Comment")]
         [TestCase("##$reference")]
         [TestCase("##set")]
         [TestCase("##Comment\r")]
         [TestCase("##Comment\n")]
         [TestCase("##Comment\r\n")]
-        public void SimpleSingleLineComment(string input)
-        {
-            PrintTokens(input);
+        public void SingleLineComment(string input) => SingleComment(input);
 
+        [TestCase("#*Multi Line*#")]
+        [TestCase("#*Multi \r Line*#")]
+        public void MultiLineComment(string input) => SingleComment(input);
+
+        [TestCase("#**Formal*#")]
+        [TestCase("#**Formal\r\nComment*#")]
+        public void FormalComment(string input) => SingleComment(input);
+
+        [TestCase("#*Outer #*Nested*# Outer*#")]
+        [TestCase("#**Outer Formal #* Nested Informal *# Outer*#")]
+        [TestCase("#*Outer Informal #** Nested Formal *# Outer*#")]
+        [TestCase("#*#**#*#")]
+        [TestCase("#*  #**#*#")]
+        [TestCase("#*#**#   *#")]
+        [TestCase("#* #*1*#  *#")]
+        public void NestedComments(string input) => SingleComment(input);
+
+
+        public void SingleComment(string input)
+        {
             var result = ParseEnsuringNoErrors(input);
 
             var comment = FlattenParseTree(result).OfType<VelocityParser.CommentContext>().Single();

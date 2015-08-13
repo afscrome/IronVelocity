@@ -8,12 +8,22 @@ tokens {
 DOLLAR : '$' ->  pushMode(REFERENCE) ;
 HASH : '#' ;
 SINGLE_LINE_COMMENT : '##' ~('\r' | '\n')* NEWLINE? -> type(COMMENT);
+BLOCK_COMMENT_START : '#*' -> pushMode(BLOCK_COMMENT) ;
 TEXT : ~('$'| '#')+ ;
 
 fragment IDENTIFIER : [a-zA-Z][a-zA-Z0-9]* ;
 fragment NEWLINE : '\r' | '\n' | '\r\n' ;
 
 
+//===================================
+// In Velocity, block comments can be nested.  i.e. the string "#* #*comment*# *#" is fully a comment
+// In c style languages, only up to the first "*#" is typically considered a comment
+// Because of this, we need match start & close comment tokens by pushing & poping the mode.
+mode BLOCK_COMMENT ;
+
+NESTED_BLOCK_COMMENT_START : '#*' -> pushMode(BLOCK_COMMENT), type(BLOCK_COMMENT_START) ;
+BLOCK_COMMENT_END : '*#' -> popMode ;
+BLOCK_COMMENT_BODY :  (~('#' | '*') | '#' ~'*' | '*' ~'#')* ;
 
 
 //===================================
