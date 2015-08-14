@@ -91,6 +91,7 @@ mode ARGUMENTS ;
 
 WHITESPACE : (' ' | '\t')+ ;
 COMMA : ',' ;
+LEFT_PARENTHESIS2 : '(' -> type(LEFT_PARENTHESIS), pushMode(ARGUMENTS);
 RIGHT_PARENTHESIS : ')' -> popMode ;
 TRUE : 'true' ;
 FALSE : 'false' ;
@@ -99,3 +100,9 @@ NUMBER : ('0'..'9')+ ;
 DOT3 : '.' -> type(DOT) ;
 STRING : '\'' ~('\'')* '\'' ;
 INTERPOLATED_STRING : '"' ~('"')* '"' ;
+DOLLAR7 : '$' -> type(DOLLAR) ;
+IDENTIFIER4 : IDENTIFIER_TEXT -> type(IDENTIFIER) ;
+EXCLAMATION2 : '!' -> type(EXCLAMATION) ;
+LEFT_CURLEY2 : '{' -> type(LEFT_CURLEY);
+RIGHT_CURLEY3 : '}' -> type(RIGHT_CURLEY);
+
