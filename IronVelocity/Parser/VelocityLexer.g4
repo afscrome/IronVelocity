@@ -5,8 +5,8 @@ tokens {
 	COMMENT,
 }
 
-DOLLAR : '$' ->  pushMode(REFERENCE) ;
-HASH : '#' -> pushMode(HASH_SEEN) ;
+DOLLAR : '$' ->  mode(REFERENCE) ;
+HASH : '#' -> mode(HASH_SEEN) ;
 TEXT : ~('$'| '#')+ ;
 
 fragment IDENTIFIER : [a-zA-Z][a-zA-Z0-9]* ;
@@ -17,10 +17,11 @@ fragment NEWLINE : '\r' | '\n' | '\r\n' ;
 // the parser can distinguish between a textual '#', comments and directives
 mode HASH_SEEN ;
 
-SINGLE_LINE_COMMENT : '#' ~('\r' | '\n')* NEWLINE? -> type(COMMENT), popMode;
-BLOCK_COMMENT_START : '*' -> mode(BLOCK_COMMENT) ;
+SINGLE_LINE_COMMENT : '#' ~('\r' | '\n')* NEWLINE? -> type(COMMENT), mode(DEFAULT_MODE);
+//Need to switch to default mode before pushing so that when the the matching end tag pops, we end back in text mode.
+BLOCK_COMMENT_START : '*' -> mode(DEFAULT_MODE), pushMode(BLOCK_COMMENT) ;
 DOLLAR2 : '$' ->  mode(REFERENCE), type(DOLLAR) ;
-DIRECTIVE_TEXT : . -> type(TEXT), popMode ;
+DIRECTIVE_TEXT : . -> type(TEXT), mode(DEFAULT_MODE) ;
 
 
 //===================================
@@ -43,7 +44,7 @@ DOLLAR3 : '$' -> type(DOLLAR) ;
 SILENT : '!' ;
 FORMAL_START : '{' -> mode(REFERENCE_FORMAL);
 // "$!!" should be considered as text
-TEXT_REFERENCE : (. | '!!') -> type(TEXT), popMode ;
+TEXT2 : (. | '!!') -> type(TEXT), mode(DEFAULT_MODE) ;
 
 
 //===================================
@@ -55,7 +56,7 @@ mode REFERENCE_FORMAL ;
 REFERENCE_FORMAL_IDENTIFIER : IDENTIFIER -> type(IDENTIFIER), mode(REFERENCE_POSSIBLE_MEMBER) ;
 DOLLAR4 : '$' -> type(DOLLAR), mode(REFERENCE) ;
 HASH3 : '#' -> mode(HASH_SEEN), type(HASH);
-REFERENCE_FORMAL_TEXT : . -> type(TEXT), popMode ;
+TEXT3 : . -> type(TEXT), mode(DEFAULT_MODE) ;
 
 
 //===================================
@@ -63,14 +64,14 @@ mode REFERENCE_POSSIBLE_MEMBER ;
 
 MEMBER_INVOCATION : '.' ;
 MEMBER_NAME : IDENTIFIER -> type(IDENTIFIER) , mode(REFERENCE_MEMBER) ;
-FORMAL_END : '}' -> popMode;
+FORMAL_END : '}' -> mode(DEFAULT_MODE);
 
 //Handle two references one after the other - e.g. "$one$two""
 DOLLAR5 : '$' -> type(DOLLAR), mode(REFERENCE) ;
 HASH4 : '#' -> mode(HASH_SEEN), type(HASH);
 
 // ".." should be treated as text, not as two MEMBER_INVOCATION tokens
-REFERENCE_POSSIBLE_MEMBER_TEXT : (. | '..')  -> type(TEXT), popMode ;
+TEXT4 : (. | '..')  -> type(TEXT), mode(DEFAULT_MODE) ;
 
 //===================================
 //At this point we have a certain member invocation (e.g. "$foo.bar"), but are not yet sure what kind of member invocation it is
@@ -82,10 +83,10 @@ mode REFERENCE_MEMBER ;
 
 REFERENCE_MEMBER_MEMBER_INVOCATION : '.' -> type(MEMBER_INVOCATION), mode(REFERENCE_POSSIBLE_MEMBER) ;
 METHOD_ARGUMENTS_START : '(' -> pushMode(ARGUMENTS) ;
-REFERENCE_MEMBER_FORMAL_END : '}' -> popMode, type(FORMAL_END);
+REFERENCE_MEMBER_FORMAL_END : '}' -> type(FORMAL_END), mode(DEFAULT_MODE);
 DOLLAR6 : '$' -> type(DOLLAR), mode(REFERENCE) ;
 HASH5 : '#' -> mode(HASH_SEEN), type(HASH);
-REFERENCE_MEMBER_TEXT : (. | '..')  -> type(TEXT), popMode ;
+TEXT5 : (. | '..')  -> type(TEXT), mode(DEFAULT_MODE) ;
 
 mode ARGUMENTS ;
 METHOD_ARGUMENTS_END : ')' -> popMode ;
