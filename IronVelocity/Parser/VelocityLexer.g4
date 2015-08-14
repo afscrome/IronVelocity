@@ -12,6 +12,9 @@ TEXT : ~('$'| '#')+ ;
 fragment IDENTIFIER : [a-zA-Z][a-zA-Z0-9]* ;
 fragment NEWLINE : '\r' | '\n' | '\r\n' ;
 
+//===================================
+//The mode is for when a hash has been seen in a location that allows text so
+// the parser can distinguish between a textual '#', comments and directives
 mode HASH_SEEN ;
 
 SINGLE_LINE_COMMENT : '#' ~('\r' | '\n')* NEWLINE? -> type(COMMENT), popMode;
