@@ -89,4 +89,13 @@ TEXT5 : (. | '..')  -> type(TEXT), mode(DEFAULT_MODE) ;
 
 mode ARGUMENTS ;
 
+WHITESPACE : (' ' | '\t')+ ;
+COMMA : ',' ;
 RIGHT_PARENTHESIS : ')' -> popMode ;
+TRUE : 'true' ;
+FALSE : 'false' ;
+MINUS : '-' ;
+NUMBER : ('0'..'9')+ ;
+DOT3 : '.' -> type(DOT) ;
+STRING : '\'' ~('\'')* '\'' ;
+INTERPOLATED_STRING : '"' ~('"')* '"' ;

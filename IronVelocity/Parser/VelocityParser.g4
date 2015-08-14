@@ -28,7 +28,22 @@ reference_body : variable
 	| reference_body DOT method_invocation ;
 
 property_invocation: IDENTIFIER ;
-method_invocation: IDENTIFIER method_arguments ;
+method_invocation: IDENTIFIER method_argument_list ;
 
-method_arguments : LEFT_PARENTHESIS RIGHT_PARENTHESIS  ;
+method_argument_list : LEFT_PARENTHESIS arguments RIGHT_PARENTHESIS  ;
 
+arguments : WHITESPACE?
+	| WHITESPACE? argument WHITESPACE?
+	| argument COMMA arguments ;
+
+argument: reference 
+	| boolean_expression 
+	| integer
+	| float 
+	| STRING
+	| INTERPOLATED_STRING;
+
+integer : MINUS? NUMBER ;
+float: MINUS? NUMBER DOT NUMBER ;
+
+boolean_expression : TRUE | FALSE ;
