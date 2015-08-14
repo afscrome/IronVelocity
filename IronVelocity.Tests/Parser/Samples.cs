@@ -48,6 +48,15 @@ namespace IronVelocity.Tests.Parser
             "]"
         };
 
+        public static IEnumerable<string> Comments { get; } = new[]
+        {
+            "##Single\r",
+            "##Line\n",
+            "##Comment\r\n",
+            "#*SingleLineBlock*#",
+            "#*Multi\rLine\nBlock*#",
+            "#*Nested #*Block*# #*Comment*# *#"
+        };
 
     }
 }

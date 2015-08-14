@@ -19,8 +19,11 @@ namespace IronVelocity.Tests.Parser
         [TestCase("##Comment\r\n")]
         public void SingleLineComment(string input) => SingleComment(input);
 
+        [TestCase("#**#")]
         [TestCase("#*Multi Line*#")]
         [TestCase("#*Multi \r Line*#")]
+        [TestCase("#*Multi \n Line*#")]
+        [TestCase("#*Multi \r\n Line*#")]
         public void MultiLineComment(string input) => SingleComment(input);
 
         [TestCase("#**Formal*#")]

@@ -61,23 +61,6 @@ namespace IronVelocity.Tests.Parser
             Assert.That(property.GetText(), Is.EqualTo(methodName + "()"));
         }
 
-        [TestCaseSource("TwoReferenceTestCaseData")]
-        public void TwoReferences(string reference1, string reference2)
-        {
-            var input = reference1 + reference2;
-            var result = ParseEnsuringNoErrors(input);
-
-            var flattened = FlattenParseTree(result);
-            Assert.That(flattened, Has.No.InstanceOf<VelocityParser.TextContext>());
-
-            var references = flattened.OfType<VelocityParser.ReferenceContext>()
-                .Select(x => x.GetText())
-                .ToList();
-
-            Assert.That(references, Contains.Item(reference1));
-            Assert.That(references, Contains.Item(reference2));
-        }
-
         public void TwoReferenceswithTextInBetween(string reference1, string text, string reference2)
         {
             var input = reference1 + text + reference2;
@@ -94,18 +77,6 @@ namespace IronVelocity.Tests.Parser
 
             Assert.That(references, Contains.Item(reference1));
             Assert.That(references, Contains.Item(reference2));
-        }
-
-        public IEnumerable<TestCaseData> TwoReferenceTestCaseData()
-        {
-            foreach (var left in Samples.References)
-            {
-                foreach (var right in Samples.References)
-                {
-                    yield return new TestCaseData(left, right)
-                        .SetName($"Two References - '{left}', '{right}'");
-                }
-            }
         }
     }
 }

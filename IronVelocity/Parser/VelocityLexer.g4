@@ -6,13 +6,18 @@ tokens {
 }
 
 DOLLAR : '$' ->  pushMode(REFERENCE) ;
-HASH : '#' ;
-SINGLE_LINE_COMMENT : '##' ~('\r' | '\n')* NEWLINE? -> type(COMMENT);
-BLOCK_COMMENT_START : '#*' -> pushMode(BLOCK_COMMENT) ;
+HASH : '#' -> pushMode(HASH_SEEN) ;
 TEXT : ~('$'| '#')+ ;
 
 fragment IDENTIFIER : [a-zA-Z][a-zA-Z0-9]* ;
 fragment NEWLINE : '\r' | '\n' | '\r\n' ;
+
+mode HASH_SEEN ;
+
+SINGLE_LINE_COMMENT : '#' ~('\r' | '\n')* NEWLINE? -> type(COMMENT), popMode;
+BLOCK_COMMENT_START : '*' -> mode(BLOCK_COMMENT) ;
+DOLLAR2 : '$' ->  mode(REFERENCE), type(DOLLAR) ;
+DIRECTIVE_TEXT : . -> type(TEXT), popMode ;
 
 
 //===================================
@@ -21,7 +26,7 @@ fragment NEWLINE : '\r' | '\n' | '\r\n' ;
 // Because of this, we need match start & close comment tokens by pushing & poping the mode.
 mode BLOCK_COMMENT ;
 
-NESTED_BLOCK_COMMENT_START : '#*' -> pushMode(BLOCK_COMMENT), type(BLOCK_COMMENT_START) ;
+BLOCK_COMMENT_START2 : '#*' -> pushMode(BLOCK_COMMENT), type(BLOCK_COMMENT_START);
 BLOCK_COMMENT_END : '*#' -> popMode ;
 BLOCK_COMMENT_BODY :  (~('#' | '*') | '#' ~'*' | '*' ~'#')* ;
 
@@ -30,7 +35,8 @@ BLOCK_COMMENT_BODY :  (~('#' | '*') | '#' ~'*' | '*' ~'#')* ;
 mode REFERENCE ;
 
 VARIABLE_NAME : IDENTIFIER -> type(IDENTIFIER), mode(REFERENCE_POSSIBLE_MEMBER) ;
-DOLLAR_REFERENCE : '$' -> type(DOLLAR) ;
+HASH2 : '#' -> mode(HASH_SEEN), type(HASH);
+DOLLAR3 : '$' -> type(DOLLAR) ;
 SILENT : '!' ;
 FORMAL_START : '{' -> mode(REFERENCE_FORMAL);
 // "$!!" should be considered as text
@@ -44,7 +50,8 @@ TEXT_REFERENCE : (. | '!!') -> type(TEXT), popMode ;
 mode REFERENCE_FORMAL ;
 
 REFERENCE_FORMAL_IDENTIFIER : IDENTIFIER -> type(IDENTIFIER), mode(REFERENCE_POSSIBLE_MEMBER) ;
-REFERENCE_FORMAL_DOLLAR : '$' -> type(DOLLAR), mode(REFERENCE) ;
+DOLLAR4 : '$' -> type(DOLLAR), mode(REFERENCE) ;
+HASH3 : '#' -> mode(HASH_SEEN), type(HASH);
 REFERENCE_FORMAL_TEXT : . -> type(TEXT), popMode ;
 
 
@@ -56,7 +63,8 @@ MEMBER_NAME : IDENTIFIER -> type(IDENTIFIER) , mode(REFERENCE_MEMBER) ;
 FORMAL_END : '}' -> popMode;
 
 //Handle two references one after the other - e.g. "$one$two""
-REFERENCE_POSSIBLE_MEMBER_DOLLAR : '$' -> type(DOLLAR), mode(REFERENCE) ;
+DOLLAR5 : '$' -> type(DOLLAR), mode(REFERENCE) ;
+HASH4 : '#' -> mode(HASH_SEEN), type(HASH);
 
 // ".." should be treated as text, not as two MEMBER_INVOCATION tokens
 REFERENCE_POSSIBLE_MEMBER_TEXT : (. | '..')  -> type(TEXT), popMode ;
@@ -72,7 +80,8 @@ mode REFERENCE_MEMBER ;
 REFERENCE_MEMBER_MEMBER_INVOCATION : '.' -> type(MEMBER_INVOCATION), mode(REFERENCE_POSSIBLE_MEMBER) ;
 METHOD_ARGUMENTS_START : '(' -> pushMode(ARGUMENTS) ;
 REFERENCE_MEMBER_FORMAL_END : '}' -> popMode, type(FORMAL_END);
-REFERENCE_MEMBER_DOLLAR : '$' -> type(DOLLAR), mode(REFERENCE) ;
+DOLLAR6 : '$' -> type(DOLLAR), mode(REFERENCE) ;
+HASH5 : '#' -> mode(HASH_SEEN), type(HASH);
 REFERENCE_MEMBER_TEXT : (. | '..')  -> type(TEXT), popMode ;
 
 mode ARGUMENTS ;

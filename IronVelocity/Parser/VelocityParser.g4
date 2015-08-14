@@ -12,7 +12,7 @@ template : (text | reference | comment)* ;
 //DOLLAR SILENT? required to cope with "$" and "$!" without a trailing identifier
 text : (TEXT | HASH | DOLLAR SILENT? | FORMAL_END | MEMBER_INVOCATION | FORMAL_START)+ ;
 
-comment : COMMENT | block_comment;
+comment : HASH COMMENT | HASH block_comment;
 block_comment : BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | block_comment)*?  BLOCK_COMMENT_END ;
 
 variable : IDENTIFIER;

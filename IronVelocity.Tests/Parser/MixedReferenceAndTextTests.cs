@@ -7,20 +7,6 @@ namespace IronVelocity.Tests.Parser
 {
     public class MixedReferenceAndTextTests : ParserTestBase
     {
-        [TestCaseSource("ReferenceMixedWithReferenceLikeText")]
-        [TestCaseSource("ReferenceFollowedByPotentiallyAmbigiousCharcter")]
-        public void TextAndReference(string input, string expectedText, string expectedReference)
-        {
-            var result = ParseEnsuringNoErrors(input);
-
-            var flattened = FlattenParseTree(result);
-
-            var textNode = flattened.OfType<VelocityParser.TextContext>().Single();
-            var referenceNode = flattened.OfType<VelocityParser.ReferenceContext>().Single();
-
-            Assert.That(textNode.GetText(), Is.EqualTo(expectedText));
-            Assert.That(referenceNode.GetText(), Is.EqualTo(expectedReference));
-        }
 
         [TestCaseSource("TwoReferencesWithPotentiallyAmbigiousCharcterInBetween")]
         public void TwoReferenceswithTextInBetween(string input, string reference1, string text, string reference2)
@@ -38,41 +24,6 @@ namespace IronVelocity.Tests.Parser
 
             Assert.That(references, Contains.Item(reference1));
             Assert.That(references, Contains.Item(reference2));
-        }
-
-        public IEnumerable<TestCaseData> ReferenceMixedWithReferenceLikeText()
-        {
-            string input;
-            foreach (var text in Samples.ReferenceLikeText)
-            {
-                foreach (var reference in Samples.References)
-                {
-                    input = text + reference;
-                    yield return new TestCaseData(input, text, reference)
-                        .SetName("TextFollowedByReference - " + input);
-
-                    input = reference + text;
-                    yield return new TestCaseData(input, text, reference)
-                        .SetName("ReferenceFollowedByText - " + input);
-
-                }
-            }
-        }
-
-
-
-        public IEnumerable<TestCaseData> ReferenceFollowedByPotentiallyAmbigiousCharcter()
-        {
-            string input;
-            foreach (var text in Samples.PotentiallyAmbigiousReferenceDelimiters)
-            {
-                foreach (var reference in Samples.References)
-                {
-                    input = reference + text;
-                    yield return new TestCaseData(input, text, reference)
-                        .SetName("ReferenceFollowedByPotentiallyAmbigiousCharcter - " + input);
-                }
-            }
         }
 
         public IEnumerable<TestCaseData> TwoReferencesWithPotentiallyAmbigiousCharcterInBetween()
