@@ -11,7 +11,7 @@ namespace IronVelocity.Tests.Parser
         [TestCaseSource("TwoReferencesWithPotentiallyAmbigiousCharcterInBetween")]
         public void TwoReferenceswithTextInBetween(string input, string reference1, string text, string reference2)
         {
-            var result = ParseEnsuringNoErrors(input);
+            var result = CreateParser(input).template();
 
             var flattened = FlattenParseTree(result);
 

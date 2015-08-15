@@ -31,7 +31,7 @@ namespace IronVelocity.Tests.Parser
         [TestCaseSource("CombinationTestSource")]
         public void CombinationTest(string input, Type expectedNodeType1, string expectedText1, Type expectedNodeType2, string expectedText2)
         {
-            var result = ParseEnsuringNoErrors(input);
+            var result = CreateParser(input).template();
 
             var flattened = FlattenParseTree(result);
 

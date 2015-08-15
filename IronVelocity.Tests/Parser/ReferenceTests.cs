@@ -19,7 +19,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$WithNumbers")]
         public void VariableReferences(string input)
         {
-            var result = ParseEnsuringNoErrors(input);
+            var result = CreateParser(input).template();
             var flattened = FlattenParseTree(result);
 
             Assert.That(flattened, Has.No.InstanceOf<VelocityParser.TextContext>());
@@ -32,7 +32,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!{bar.bear}", "bear")]
         public void Property(string input, string propertyName)
         {
-            var result = ParseEnsuringNoErrors(input);
+            var result = CreateParser(input).template();
             var flattened = FlattenParseTree(result);
 
             Assert.That(flattened, Has.No.InstanceOf<VelocityParser.TextContext>());
@@ -53,7 +53,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$hello.world( \t  \t\t )", "world( \t  \t\t )")]
         public void ZeroArgumentMethod(string input, string methodText)
         {
-            var result = ParseEnsuringNoErrors(input);
+            var result = CreateParser(input).template();
             var flattened = FlattenParseTree(result);
 
             Assert.That(flattened, Has.No.InstanceOf<VelocityParser.TextContext>());
@@ -84,7 +84,7 @@ namespace IronVelocity.Tests.Parser
         public void OneArgumentMethod(string argument)
         {
             var input = $"$obj.method({argument})";
-            var result = ParseEnsuringNoErrors(input);
+            var result = CreateParser(input).template();
             var flattened = FlattenParseTree(result);
 
             //Assert.That(flattened, Has.Exactly(1).InstanceOf<VelocityParser.Method_invocationContext>());
@@ -97,7 +97,7 @@ namespace IronVelocity.Tests.Parser
         public void TwoArguments()
         {
             var input = "$variable.method(123, true)";
-            var result = ParseEnsuringNoErrors(input);
+            var result = CreateParser(input).template();
             var flattened = FlattenParseTree(result);
 
             Assert.That(flattened, Has.Exactly(1).InstanceOf<VelocityParser.Method_invocationContext>());
@@ -107,7 +107,7 @@ namespace IronVelocity.Tests.Parser
         public void TwoReferenceswithTextInBetween(string reference1, string text, string reference2)
         {
             var input = reference1 + text + reference2;
-            var result = ParseEnsuringNoErrors(input);
+            var result = CreateParser(input).template();
 
             var flattened = FlattenParseTree(result);
 

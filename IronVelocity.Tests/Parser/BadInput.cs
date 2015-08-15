@@ -1,4 +1,6 @@
-﻿using NUnit.Framework;
+﻿using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Tree;
+using NUnit.Framework;
 using System;
 
 namespace IronVelocity.Tests.Parser
@@ -27,14 +29,19 @@ namespace IronVelocity.Tests.Parser
         {
             var parser = CreateParser(input);
 
-            var parsed = parser.template();
-
-            if (parser.NumberOfSyntaxErrors == 0)
-            {
-                PrintTokens(input);
-                Console.WriteLine(parsed.ToStringTree(parser.TokenNames));
-                Assert.Fail($"No Parse Errors Occurred;");
+            IParseTree parsed;
+            try {
+                parsed = parser.template();
             }
+            catch(ParseCanceledException)
+            {
+                Assert.Pass();
+                throw;
+            }
+
+            TestBailErrorStrategy.PrintTokens(input);
+            Console.WriteLine(parsed.ToStringTree(parser));
+            Assert.Fail("No Parse Errors Occurred;");
         }
     }
 }

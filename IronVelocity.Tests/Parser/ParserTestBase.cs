@@ -58,56 +58,13 @@ namespace IronVelocity.Tests.Parser
             var charStream = new AntlrInputStream(input);
             var lexer = new VelocityLexer(charStream);
             var tokenStream = new CommonTokenStream(lexer);
-            var parser = new VelocityParser(tokenStream);
-
-            var lexerErrorListener = new LexerErrorListener();
-            var parserErrorListener = new ParserErrorListener();
-
-            lexer.ErrorListeners.Clear();
-            parser.ErrorListeners.Clear();
-            lexer.ErrorListeners.Add(lexerErrorListener);
-            parser.ErrorListeners.Add(parserErrorListener);
+            var parser = new VelocityParser(tokenStream)
+            {
+                ErrorHandler = new TestBailErrorStrategy(input)
+            };
 
             return parser;
         }
-
-        protected void PrintTokens(string input)
-        {
-            var charStream = new AntlrInputStream(input);
-            var lexer = new VelocityLexer(charStream);
-
-            foreach (var token in lexer.GetAllTokens())
-            {
-                Console.WriteLine(token);
-                if (Debugger.IsAttached)
-                {
-                    Debug.WriteLine(token);
-                }
-            }
-
-        }
-
-        protected IParseTree ParseEnsuringNoErrors(string input)
-        {
-            var parser = CreateParser(input);
-
-
-            var parsed = parser.template();
-
-            if (parser.NumberOfSyntaxErrors > 0)
-            {
-                PrintTokens(input);
-                Console.WriteLine(parsed.ToStringTree(parser.TokenNames));
-                Assert.Fail($"{parser.NumberOfSyntaxErrors} errors occurred;");
-            }
-            else
-            {
-                //Console.WriteLine(parsed.ToStringTree(parser.TokenNames));
-            }
-
-            return parsed;
-        }
-
 
         protected IEnumerable<IParseTree> FlattenParseTree(IParseTree parseTree)
         {
@@ -125,45 +82,5 @@ namespace IronVelocity.Tests.Parser
             }
             while (nodes.Any());
         }
-
-
-        private class LexerErrorListener : ConsoleErrorListener<int>
-        {
-            public int ErrorCount { get; private set; }
-
-            public override void SyntaxError(IRecognizer recognizer, int offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
-            {
-                ErrorCount++;
-                base.SyntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
-            }
-        }
-
-        private class ParserErrorListener : ConsoleErrorListener<IToken>, IParserErrorListener
-        {
-            public int ErrorCount { get; private set; }
-
-            public void ReportAmbiguity(Antlr4.Runtime.Parser recognizer, DFA dfa, int startIndex, int stopIndex, bool exact, BitSet ambigAlts, ATNConfigSet configs)
-            {
-                Console.WriteLine("Ambiguity!");
-                ErrorCount++;
-            }
-
-            public void ReportAttemptingFullContext(Antlr4.Runtime.Parser recognizer, DFA dfa, int startIndex, int stopIndex, BitSet conflictingAlts, SimulatorState conflictState)
-            {
-                ErrorCount++;
-            }
-
-            public void ReportContextSensitivity(Antlr4.Runtime.Parser recognizer, DFA dfa, int startIndex, int stopIndex, int prediction, SimulatorState acceptState)
-            {
-                ErrorCount++;
-            }
-
-            public override void SyntaxError(IRecognizer recognizer, IToken offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
-            {
-                ErrorCount++;
-                base.SyntaxError(recognizer, offendingSymbol, line, charPositionInLine, msg, e);
-            }
-        }
-
     }
 }

@@ -42,7 +42,7 @@ namespace IronVelocity.Tests.Parser
 
         public void SingleComment(string input)
         {
-            var result = ParseEnsuringNoErrors(input);
+            var result = CreateParser(input).template();
 
             var comment = FlattenParseTree(result).OfType<VelocityParser.CommentContext>().Single();
 
@@ -56,7 +56,7 @@ namespace IronVelocity.Tests.Parser
             var expectedText = "hello ";
             var expectedComment = "##world";
 
-            var result = ParseEnsuringNoErrors(input);
+            var result = CreateParser(input).template();
 
             var flattened = FlattenParseTree(result);
 
@@ -71,7 +71,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("hello##world", "hello", "##world")]
         public void CommentAndText(string input, string expectedText, string expectedComment)
         {
-            var result = ParseEnsuringNoErrors(input);
+            var result = CreateParser(input).template();
 
             var flattened = FlattenParseTree(result);
 

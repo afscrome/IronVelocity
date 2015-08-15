@@ -84,6 +84,7 @@
     <Compile Include="Parser\MixedReferenceAndTextTests.cs" />
     <Compile Include="Parser\ReferenceTests.cs" />
     <Compile Include="Parser\Samples.cs" />
+    <Compile Include="Parser\TestBailErrorStrategy.cs" />
     <Compile Include="Parser\TextTests.cs" />
     <Compile Include="StaticTyping\DictionaryTests.cs" />
     <Compile Include="StaticTyping\If.cs" />
