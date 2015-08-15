@@ -31,7 +31,7 @@ mode BLOCK_COMMENT ;
 
 BLOCK_COMMENT_START2 : '#*' -> pushMode(BLOCK_COMMENT), type(BLOCK_COMMENT_START);
 BLOCK_COMMENT_END : '*#' -> popMode ;
-BLOCK_COMMENT_BODY :  (~('#' | '*') | '#' ~'*' | '*' ~'#')* ;
+BLOCK_COMMENT_BODY :  (~('#' | '*') | '#' ~'*' | '*' ~'#')+ ;
 
 
 //===================================
