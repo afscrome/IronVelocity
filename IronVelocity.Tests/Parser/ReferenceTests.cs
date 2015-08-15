@@ -78,6 +78,9 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!{foo}")]
         [TestCase("$foo.Bar")]
         [TestCase("$foo.Baz()")]
+        [TestCase("[]")]
+        [TestCase("[ ]")]
+        //TODO: the following test can't test for methods with arguments, non-empty lists or ranges
         public void OneArgumentMethod(string argument)
         {
             var input = $"$obj.method({argument})";

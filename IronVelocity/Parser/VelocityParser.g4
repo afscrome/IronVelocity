@@ -15,8 +15,6 @@ text : (TEXT | HASH | DOLLAR EXCLAMATION? | RIGHT_CURLEY | DOT | LEFT_CURLEY)+ ;
 comment : HASH COMMENT | HASH block_comment;
 block_comment : BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | block_comment)*?  BLOCK_COMMENT_END ;
 
-variable : IDENTIFIER;
-
 reference : informal_reference
 	| formal_reference;
 
@@ -27,6 +25,7 @@ reference_body : variable
 	| reference_body DOT property_invocation
 	| reference_body DOT method_invocation ;
 
+variable : IDENTIFIER;
 property_invocation: IDENTIFIER ;
 method_invocation: IDENTIFIER method_argument_list ;
 
@@ -41,9 +40,15 @@ argument: reference
 	| integer
 	| float 
 	| STRING
-	| INTERPOLATED_STRING;
+	| INTERPOLATED_STRING
+	| list 
+	| range ;
 
 integer : MINUS? NUMBER ;
 float: MINUS? NUMBER DOT NUMBER ;
+
+list : LEFT_SQUARE arguments RIGHT_SQUARE ;
+//TODO: can we reuse WHITESPACE? argument WHITESPACE?
+range : LEFT_SQUARE WHITESPACE? argument WHITESPACE? DOTDOT WHITESPACE? argument WHITESPACE? RIGHT_SQUARE ;
 
 boolean_expression : TRUE | FALSE ;
