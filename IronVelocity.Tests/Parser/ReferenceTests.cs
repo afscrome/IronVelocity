@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace IronVelocity.Tests.Parser
 {
-    class ReferenceTests : ParserTestBase
+    public class ReferenceTests : ParserTestBase
     {
         [TestCase("$foo")]
         [TestCase("$!bar")]
