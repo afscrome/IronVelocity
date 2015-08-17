@@ -80,17 +80,20 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$foo.Baz()")]
         [TestCase("[]")]
         [TestCase("[ ]")]
-        //TODO: the following test can't test for methods with arguments, non-empty lists or ranges
-        public void OneArgumentMethod(string argument)
+        [TestCase("[123]", "123")]
+        [TestCase("[\"hello\", 'world']", "\"hello\"", "'world'")]
+        [TestCase("[$foo..6]", "$foo", "6")]
+        public void OneArgumentMethod(string inputArgument, params string[] additionalArguments)
         {
-            var input = $"$obj.method({argument})";
+            var input = $"$obj.method({inputArgument})";
             var result = CreateParser(input).template();
             var flattened = FlattenParseTree(result);
 
-            //Assert.That(flattened, Has.Exactly(1).InstanceOf<VelocityParser.Method_invocationContext>());
-            var arg = flattened.OfType<VelocityParser.ArgumentContext>().Single();
+            var argsText = flattened.OfType<VelocityParser.ArgumentContext>().Select(x => x.GetText());
 
-            Assert.That(arg.GetText(), Is.EqualTo(argument));
+            var expectedArguments = new[] { inputArgument }.Concat(additionalArguments);
+
+            Assert.That(argsText, Is.EquivalentTo(expectedArguments));
         }
 
         [Test]
