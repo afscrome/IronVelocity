@@ -64,8 +64,6 @@ namespace IronVelocity.Tests.Parser
             Assert.That(property.GetText(), Is.EqualTo(methodText));
         }
 
-        [TestCase("true")]
-        [TestCase("false")]
         [TestCase("$foo")]
         [TestCase("$!foo")]
         [TestCase("${foo}")]
