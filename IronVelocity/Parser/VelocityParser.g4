@@ -36,19 +36,20 @@ arguments : WHITESPACE?
 	| argument COMMA arguments ;
 
 argument: reference 
-	| boolean_expression 
+	| boolean
 	| integer
 	| float 
-	| STRING
-	| INTERPOLATED_STRING
+	| string
+	| interpolated_string
 	| list 
 	| range ;
 
+boolean : TRUE | FALSE ;
 integer : MINUS? NUMBER ;
 float: MINUS? NUMBER DOT NUMBER ;
+string : STRING ;
+interpolated_string : INTERPOLATED_STRING ;
 
 list : LEFT_SQUARE arguments RIGHT_SQUARE ;
 //TODO: can we reuse WHITESPACE? argument WHITESPACE?
 range : LEFT_SQUARE WHITESPACE? argument WHITESPACE? DOTDOT WHITESPACE? argument WHITESPACE? RIGHT_SQUARE ;
-
-boolean_expression : TRUE | FALSE ;

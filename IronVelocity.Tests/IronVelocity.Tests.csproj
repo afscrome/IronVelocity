@@ -82,10 +82,12 @@
     <Compile Include="Parser\CommentTests.cs" />
     <Compile Include="Parser\IntegerTests.cs" />
     <Compile Include="Parser\FloatTests.cs" />
+    <Compile Include="Parser\InterpolatedStringTests.cs" />
     <Compile Include="Parser\ParserTestBase.cs" />
     <Compile Include="Parser\MixedReferenceAndTextTests.cs" />
     <Compile Include="Parser\ReferenceTests.cs" />
     <Compile Include="Parser\Samples.cs" />
+    <Compile Include="Parser\StringTests.cs" />
     <Compile Include="Parser\TestBailErrorStrategy.cs" />
     <Compile Include="Parser\TextTests.cs" />
     <Compile Include="StaticTyping\DictionaryTests.cs" />

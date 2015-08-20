@@ -66,8 +66,6 @@ namespace IronVelocity.Tests.Parser
 
         [TestCase("true")]
         [TestCase("false")]
-        [TestCase("'simple string'")]
-        [TestCase("\"Interpolated String\"")]
         [TestCase("$foo")]
         [TestCase("$!foo")]
         [TestCase("${foo}")]
