@@ -51,9 +51,7 @@ namespace IronVelocity.Tests.Parser
     */
 
 
-
-
-        protected VelocityParser CreateParser(string input)
+        protected VelocityParser CreateParser(string input, int? lexerMode = null)
         {
             var charStream = new AntlrInputStream(input);
             var lexer = new VelocityLexer(charStream);
@@ -62,6 +60,9 @@ namespace IronVelocity.Tests.Parser
             {
                 ErrorHandler = new TestBailErrorStrategy(input)
             };
+
+            if (lexerMode.HasValue)
+                lexer.Mode(lexerMode.Value);
 
             return parser;
         }

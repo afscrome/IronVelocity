@@ -80,6 +80,8 @@
     <Compile Include="Parser\BadInput.cs" />
     <Compile Include="Parser\CombinationTests.cs" />
     <Compile Include="Parser\CommentTests.cs" />
+    <Compile Include="Parser\IntegerTests.cs" />
+    <Compile Include="Parser\FloatTests.cs" />
     <Compile Include="Parser\ParserTestBase.cs" />
     <Compile Include="Parser\MixedReferenceAndTextTests.cs" />
     <Compile Include="Parser\ReferenceTests.cs" />
