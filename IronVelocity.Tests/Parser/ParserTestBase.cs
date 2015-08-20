@@ -58,7 +58,7 @@ namespace IronVelocity.Tests.Parser
             var tokenStream = new CommonTokenStream(lexer);
             var parser = new VelocityParser(tokenStream)
             {
-                ErrorHandler = new TestBailErrorStrategy(input)
+                ErrorHandler = new TestBailErrorStrategy(input, lexerMode)
             };
 
             if (lexerMode.HasValue)
