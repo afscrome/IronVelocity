@@ -17,7 +17,7 @@ namespace IronVelocity.Tests.Parser
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));
 
-            Assert.That(result.arguments(), Is.Not.Null);
+            Assert.That(result.argument_list(), Is.Not.Null);
         }
     }
 }

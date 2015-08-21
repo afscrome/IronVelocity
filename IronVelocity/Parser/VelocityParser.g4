@@ -29,11 +29,10 @@ variable : IDENTIFIER;
 property_invocation: IDENTIFIER ;
 method_invocation: IDENTIFIER method_argument_list ;
 
-method_argument_list : LEFT_PARENTHESIS arguments RIGHT_PARENTHESIS  ;
+method_argument_list : LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS  ;
 
-arguments : WHITESPACE?
-	| WHITESPACE? argument WHITESPACE?
-	| argument COMMA arguments ;
+argument_list : WHITESPACE? (argument WHITESPACE? (COMMA WHITESPACE? argument WHITESPACE?)*)? ;
+
 
 argument: reference 
 	| boolean
@@ -50,6 +49,6 @@ float: MINUS? NUMBER DOT NUMBER ;
 string : STRING ;
 interpolated_string : INTERPOLATED_STRING ;
 
-list : LEFT_SQUARE arguments RIGHT_SQUARE ;
+list : LEFT_SQUARE argument_list RIGHT_SQUARE ;
 //TODO: can we reuse WHITESPACE? argument WHITESPACE?
 range : LEFT_SQUARE WHITESPACE? argument WHITESPACE? DOTDOT WHITESPACE? argument WHITESPACE? RIGHT_SQUARE ;
