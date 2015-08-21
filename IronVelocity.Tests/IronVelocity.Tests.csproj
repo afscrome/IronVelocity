@@ -84,6 +84,7 @@
     <Compile Include="Parser\IntegerTests.cs" />
     <Compile Include="Parser\FloatTests.cs" />
     <Compile Include="Parser\InterpolatedStringTests.cs" />
+    <Compile Include="Parser\ListTests.cs" />
     <Compile Include="Parser\ParserTestBase.cs" />
     <Compile Include="Parser\MixedReferenceAndTextTests.cs" />
     <Compile Include="Parser\RangeTests.cs" />
