@@ -15,24 +15,16 @@ text : (TEXT | HASH | DOLLAR EXCLAMATION? | RIGHT_CURLEY | DOT | LEFT_CURLEY)+ ;
 comment : HASH COMMENT | HASH block_comment;
 block_comment : BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | block_comment)*?  BLOCK_COMMENT_END ;
 
-reference : informal_reference
-	| formal_reference;
+reference : DOLLAR EXCLAMATION? reference_body
+	| DOLLAR EXCLAMATION? LEFT_CURLEY reference_body RIGHT_CURLEY;
 
-informal_reference : DOLLAR EXCLAMATION? reference_body  ;
-formal_reference : DOLLAR EXCLAMATION? LEFT_CURLEY reference_body RIGHT_CURLEY;
-
-reference_body : variable 
-	| reference_body DOT property_invocation
-	| reference_body DOT method_invocation ;
+reference_body : variable (DOT (property_invocation | method_invocation))* ;
 
 variable : IDENTIFIER;
 property_invocation: IDENTIFIER ;
-method_invocation: IDENTIFIER method_argument_list ;
-
-method_argument_list : LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS  ;
+method_invocation: IDENTIFIER LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS;
 
 argument_list : WHITESPACE? (argument WHITESPACE? (COMMA WHITESPACE? argument WHITESPACE?)*)? ;
-
 
 argument: reference 
 	| boolean

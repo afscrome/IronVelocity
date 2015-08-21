@@ -1,29 +1,34 @@
 ﻿using IronVelocity.Parser;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Tests.Parser
 {
     public class ReferenceTests : ParserTestBase
     {
-        [TestCase("$foo")]
-        [TestCase("$!bar")]
-        [TestCase("${foo}")]
-        [TestCase("$!{bar}")]
-        [TestCase("$CAPITAL")]
-        [TestCase("$MiXeDCaSe")]
-        [TestCase("$WithNumbers")]
-        public void VariableReferences(string input)
-        {
-            var result = CreateParser(input).template();
-            var flattened = FlattenParseTree(result);
+        //TODO: the below tests need to be repeated in both ARGUMENT context, and TEXT lexer states.
+        //TODO: Add tests for multiple invocations - e.g. $var.prop.method().prop 
+        private readonly int LexerInitialState = VelocityLexer.ARGUMENTS;
 
-            Assert.That(flattened, Has.No.InstanceOf<VelocityParser.TextContext>());
-            Assert.That(flattened, Has.Exactly(1).InstanceOf<VelocityParser.ReferenceContext>());
+        [TestCase("$foo", "foo")]
+        [TestCase("$!bar", "bar")]
+        [TestCase("${foo}", "foo")]
+        [TestCase("$!{bar}", "bar")]
+        [TestCase("$CAPITAL", "CAPITAL")]
+        [TestCase("$MiXeDCaSe", "MiXeDCaSe")]
+        [TestCase("$WithNumbers123", "WithNumbers123")]
+        [TestCase("$abcdefghijklmnopqrstuvwxyz_-ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890", "abcdefghijklmnopqrstuvwxyz_-ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890")]
+        //TODO: Are ${x-} and ${y_} valid variables (i.e. ending in - or _ )
+        public void VariableParseTests(string input, string variableName)
+        {
+            var reference = CreateParser(input, LexerInitialState).reference();
+            Assert.That(reference, Is.Not.Null);
+            Assert.That(reference.GetText(), Is.EqualTo(input));
+
+            var variable = reference?.reference_body()?.variable();
+            Assert.That(variable, Is.Not.Null);
+
+            Assert.That(variable.IDENTIFIER().GetText(), Is.EqualTo(variableName));
         }
 
         [TestCase("$foo.dog", "dog")]
@@ -32,72 +37,32 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!{bar.bear}", "bear")]
         public void Property(string input, string propertyName)
         {
-            var result = CreateParser(input).template();
-            var flattened = FlattenParseTree(result);
-
-            Assert.That(flattened, Has.No.InstanceOf<VelocityParser.TextContext>());
-            var reference = flattened.OfType<VelocityParser.ReferenceContext>().Single();
+            var reference = CreateParser(input, LexerInitialState).reference();
+            Assert.That(reference, Is.Not.Null);
             Assert.That(reference.GetText(), Is.EqualTo(input));
 
-            var property = flattened.OfType<VelocityParser.Property_invocationContext>().Single();
-            Assert.That(property.GetText(), Is.EqualTo(propertyName));
+            var property = reference.reference_body()?.property_invocation().Single();
+            Assert.That(property, Is.Not.Null);
+            Assert.That(property.IDENTIFIER()?.GetText(), Is.EqualTo(propertyName));
         }
 
 
-        [TestCase("$foo.dog()", "dog()")]
-        [TestCase("$!bar.cat()", "cat()")]
-        [TestCase("${foo.fish()}", "fish()")]
-        [TestCase("$!{bar.bear()}", "bear()")]
-        [TestCase("$hello.world( )", "world( )")]
-        [TestCase("$hello.world(\t)", "world(\t)")]
-        [TestCase("$hello.world( \t  \t\t )", "world( \t  \t\t )")]
-        public void ZeroArgumentMethod(string input, string methodText)
+        [TestCase("$foo.dog()", "dog")]
+        [TestCase("$!bar.cat()", "cat")]
+        [TestCase("${foo.fish()}", "fish")]
+        [TestCase("$!{bar.bear()}", "bear")]
+        public void Method(string input, string methodName)
         {
-            var result = CreateParser(input).template();
-            var flattened = FlattenParseTree(result);
-
-            Assert.That(flattened, Has.No.InstanceOf<VelocityParser.TextContext>());
-            var reference = flattened.OfType<VelocityParser.ReferenceContext>().Single();
+            var reference = CreateParser(input, LexerInitialState).reference();
+            Assert.That(reference, Is.Not.Null);
             Assert.That(reference.GetText(), Is.EqualTo(input));
 
-            var property = flattened.OfType<VelocityParser.Method_invocationContext>().Single();
-            Assert.That(property.GetText(), Is.EqualTo(methodText));
+            var method = reference.reference_body()?.method_invocation().Single();
+            Assert.That(method, Is.Not.Null);
+            Assert.That(method.IDENTIFIER()?.GetText(), Is.EqualTo(methodName));
+            Assert.That(method.argument_list(), Is.Not.Null);
         }
 
-        [TestCase("$foo")]
-        [TestCase("$!foo")]
-        [TestCase("${foo}")]
-        [TestCase("$!{foo}")]
-        [TestCase("$foo.Bar")]
-        [TestCase("$foo.Baz()")]
-        [TestCase("[]")]
-        [TestCase("[ ]")]
-        [TestCase("[123]", "123")]
-        [TestCase("[\"hello\", 'world']", "\"hello\"", "'world'")]
-        [TestCase("[$foo..6]", "$foo", "6")]
-        public void OneArgumentMethod(string inputArgument, params string[] additionalArguments)
-        {
-            var input = $"$obj.method({inputArgument})";
-            var result = CreateParser(input).template();
-            var flattened = FlattenParseTree(result);
-
-            var argsText = flattened.OfType<VelocityParser.ArgumentContext>().Select(x => x.GetText());
-
-            var expectedArguments = new[] { inputArgument }.Concat(additionalArguments);
-
-            Assert.That(argsText, Is.EquivalentTo(expectedArguments));
-        }
-
-        [Test]
-        public void TwoArguments()
-        {
-            var input = "$variable.method(123, true)";
-            var result = CreateParser(input).template();
-            var flattened = FlattenParseTree(result);
-
-            Assert.That(flattened, Has.Exactly(1).InstanceOf<VelocityParser.Method_invocationContext>());
-            Assert.That(flattened, Has.Exactly(2).InstanceOf<VelocityParser.ArgumentContext>());
-        }
 
         public void TwoReferenceswithTextInBetween(string reference1, string text, string reference2)
         {

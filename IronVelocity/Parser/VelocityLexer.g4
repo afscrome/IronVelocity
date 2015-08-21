@@ -4,7 +4,7 @@ tokens {
 	COMMENT,
 }
 
-fragment IDENTIFIER_TEXT : [a-zA-Z][a-zA-Z0-9]* ;
+fragment IDENTIFIER_TEXT : ('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | '0'..'9' | '-' | '_'  )* ;
 fragment NEWLINE : '\r' | '\n' | '\r\n' ;
 
 DOLLAR : '$' ->  mode(REFERENCE) ;
