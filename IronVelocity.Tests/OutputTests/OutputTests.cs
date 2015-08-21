@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace IronVelocity.Tests
 {
     [TestFixture]
-    public class TextAndCommentTests
+    public class TextAndCommentTests : OutputTestBase
     {
         [Test]
         public void TextOnly()
@@ -12,7 +12,7 @@ namespace IronVelocity.Tests
             var input = "Hello World";
             var expected = "Hello World";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            TestExpectedMarkupGenerated(input, expected);
         }
 
         [Test]
@@ -21,7 +21,7 @@ namespace IronVelocity.Tests
             var input = "dd ##bar\r\n";
             var expected = "dd ";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            TestExpectedMarkupGenerated(input, expected);
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace IronVelocity.Tests
             var input = "foo#*bar*#baz";
             var expected = "foobaz";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            TestExpectedMarkupGenerated(input, expected);
         }
 
         [Test]
@@ -40,7 +40,7 @@ namespace IronVelocity.Tests
             var expected = "Hello ";
             var ctx = new Dictionary<string, object>();
             ctx["x"] = new VoidTest();
-            Utility.TestExpectedMarkupGenerated(input, expected, ctx);
+            TestExpectedMarkupGenerated(input, expected, ctx);
         }
 
         public class VoidTest

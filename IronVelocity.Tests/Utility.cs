@@ -17,7 +17,7 @@ namespace IronVelocity.Tests
     {
         public static bool DefaultToGlobals = true;
 
-        private static string GetName()
+        public static string GetName()
         {
             var testContext = NUnit.Framework.TestContext.CurrentContext;
             return testContext == null
