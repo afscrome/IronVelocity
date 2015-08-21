@@ -69,15 +69,10 @@ namespace IronVelocity.Tests.Parser
             var input = reference1 + text + reference2;
             var result = CreateParser(input).template();
 
-            var flattened = FlattenParseTree(result);
+            var textNode = result.text().Single();
+            var references = result.reference();
 
-            var textNode = flattened.OfType<VelocityParser.TextContext>().Single();
             Assert.That(textNode.GetText(), Is.EqualTo(text));
-
-            var references = flattened.OfType<VelocityParser.ReferenceContext>()
-                .Select(x => x.GetText())
-                .ToList();
-
             Assert.That(references, Contains.Item(reference1));
             Assert.That(references, Contains.Item(reference2));
         }

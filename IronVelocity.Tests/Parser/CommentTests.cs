@@ -42,29 +42,10 @@ namespace IronVelocity.Tests.Parser
 
         public void SingleComment(string input)
         {
-            var result = CreateParser(input).template();
+            var comment = CreateParser(input).comment();
 
-            var comment = FlattenParseTree(result).OfType<VelocityParser.CommentContext>().Single();
-
+            Assert.That(comment, Is.Not.Null);
             Assert.That(comment.GetText(), Is.EqualTo(input));
-        }
-
-        [Test]
-        public void TextFollowedByComment()
-        {
-            string input = "hello ##world";
-            var expectedText = "hello ";
-            var expectedComment = "##world";
-
-            var result = CreateParser(input).template();
-
-            var flattened = FlattenParseTree(result);
-
-            var textNode = flattened.OfType<VelocityParser.TextContext>().Single();
-            var commentNode = flattened.OfType<VelocityParser.CommentContext>().Single();
-
-            Assert.That(textNode.GetText(), Is.EqualTo(expectedText));
-            Assert.That(commentNode.GetText(), Is.EqualTo(expectedComment));
         }
 
         [TestCase("##hello\r\nworld", "world", "##hello\r\n")]
@@ -73,10 +54,8 @@ namespace IronVelocity.Tests.Parser
         {
             var result = CreateParser(input).template();
 
-            var flattened = FlattenParseTree(result);
-
-            var textNode = flattened.OfType<VelocityParser.TextContext>().Single();
-            var commentNode = flattened.OfType<VelocityParser.CommentContext>().Single();
+            var textNode = result.text().Single();
+            var commentNode = result.comment().Single();
 
             Assert.That(textNode.GetText(), Is.EqualTo(expectedText));
             Assert.That(commentNode.GetText(), Is.EqualTo(expectedComment));

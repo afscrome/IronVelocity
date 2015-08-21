@@ -12,9 +12,7 @@ namespace IronVelocity.Tests.Parser
         [TestCaseSource("TextThatLooksLikeReferenceData")]
         public void BasicText(string input)
         {
-            var result = CreateParser(input).template();
-
-            var text = FlattenParseTree(result).OfType<VelocityParser.TextContext>().Single();
+            var text = CreateParser(input).text();
             Assert.That(text.GetText(), Is.EqualTo(input));
         }
 

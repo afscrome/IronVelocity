@@ -12,18 +12,13 @@ namespace IronVelocity.Tests.Parser
         public void TwoReferenceswithTextInBetween(string input, string reference1, string text, string reference2)
         {
             var result = CreateParser(input).template();
-
-            var flattened = FlattenParseTree(result);
-
-            var textNode = flattened.OfType<VelocityParser.TextContext>().Single();
+            var textNode = result.text().Single();
             Assert.That(textNode.GetText(), Is.EqualTo(text));
 
-            var references = flattened.OfType<VelocityParser.ReferenceContext>()
-                .Select(x => x.GetText())
-                .ToList();
+            var referenceTexts = result.reference().Select(x => x.GetText());
 
-            Assert.That(references, Contains.Item(reference1));
-            Assert.That(references, Contains.Item(reference2));
+            Assert.That(referenceTexts, Contains.Item(reference1));
+            Assert.That(referenceTexts, Contains.Item(reference2));
         }
 
         public IEnumerable<TestCaseData> TwoReferencesWithPotentiallyAmbigiousCharcterInBetween()
