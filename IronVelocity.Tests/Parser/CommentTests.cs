@@ -17,18 +17,18 @@ namespace IronVelocity.Tests.Parser
         [TestCase("##Comment\r")]
         [TestCase("##Comment\n")]
         [TestCase("##Comment\r\n")]
-        public void SingleLineComment(string input) => SingleComment(input);
+        public void ParseSingleLineComment(string input) => SingleComment(input);
 
         [TestCase("#**#")]
         [TestCase("#*Multi Line*#")]
         [TestCase("#*Multi \r Line*#")]
         [TestCase("#*Multi \n Line*#")]
         [TestCase("#*Multi \r\n Line*#")]
-        public void MultiLineComment(string input) => SingleComment(input);
+        public void ParseMultiLineComment(string input) => SingleComment(input);
 
         [TestCase("#**Formal*#")]
         [TestCase("#**Formal\r\nComment*#")]
-        public void FormalComment(string input) => SingleComment(input);
+        public void ParseFormalComment(string input) => SingleComment(input);
 
         [TestCase("#*Outer #*Nested*# Outer*#")]
         [TestCase("#**Outer Formal #* Nested Informal *# Outer*#")]
@@ -37,7 +37,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#*  #**#*#")]
         [TestCase("#*#**#   *#")]
         [TestCase("#* #*1*#  *#")]
-        public void NestedComments(string input) => SingleComment(input);
+        public void ParseNestedComments(string input) => SingleComment(input);
 
 
         public void SingleComment(string input)
@@ -50,7 +50,7 @@ namespace IronVelocity.Tests.Parser
 
         [TestCase("##hello\r\nworld", "world", "##hello\r\n")]
         [TestCase("hello##world", "hello", "##world")]
-        public void CommentAndText(string input, string expectedText, string expectedComment)
+        public void ParseCommentAndText(string input, string expectedText, string expectedComment)
         {
             var result = CreateParser(input).template();
 

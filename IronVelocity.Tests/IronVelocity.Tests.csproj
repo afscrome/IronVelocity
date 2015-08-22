@@ -78,7 +78,7 @@
     <Compile Include="Binders\Reuse\SetMemberReuseTests.cs" />
     <Compile Include="OutputTests\Macro.cs" />
     <Compile Include="OutputTests\OutputTestBase.cs" />
-    <Compile Include="Parser\ArgumentsParseTests.cs" />
+    <Compile Include="Parser\ArgumentListTests.cs" />
     <Compile Include="Parser\ArgumentTests.cs" />
     <Compile Include="Parser\AssignmentTests.cs" />
     <Compile Include="Parser\BadInput.cs" />

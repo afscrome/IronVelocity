@@ -10,7 +10,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("[ ]")]
         [TestCase("[1]")]
         [TestCase("[ [] ]")]
-        public void ListParseTest(string input)
+        public void ParseList(string input)
         {
             var result = CreateParser(input, VelocityLexer.ARGUMENTS).list();
 

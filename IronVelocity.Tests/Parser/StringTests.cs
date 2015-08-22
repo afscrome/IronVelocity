@@ -8,7 +8,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("''")]
         [TestCase("'Hello World'")]
         [TestCase("'\"'")]
-        public void StringParseTests(string input)
+        public void ParseStringLiteral(string input)
         {
             var result = CreateParser(input, VelocityLexer.ARGUMENTS).@string();
 

@@ -11,7 +11,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("04")]
         [TestCase("1234567890")]
         [TestCase("-8765432109")]
-        public void IntegerParseTests(string input)
+        public void ParseIntegerLiteral(string input)
         {
             var result = CreateParser(input, VelocityLexer.ARGUMENTS).integer();
 

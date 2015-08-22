@@ -7,7 +7,7 @@ namespace IronVelocity.Tests.Parser
     {
         [TestCase("true")]
         [TestCase("false")]
-        public void BooleanParseTests(string input)
+        public void ParseBooleanLiteral(string input)
         {
             var result = CreateParser(input, VelocityLexer.ARGUMENTS).boolean();
 

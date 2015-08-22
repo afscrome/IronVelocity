@@ -11,7 +11,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$x.method().prop=123")]
         [TestCase("$x = 123")]
         [TestCase(" $x = 123 ")]
-        public void AssignmentParseTest(string input)
+        public void ParseAssignmentExpression(string input)
         {
             var result = CreateParser(input, VelocityLexer.ARGUMENTS).assignment();
 

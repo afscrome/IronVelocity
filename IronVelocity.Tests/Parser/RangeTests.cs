@@ -11,7 +11,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("[-53..$var]", typeof(VelocityParser.IntegerContext), typeof(VelocityParser.ReferenceContext))]
         [TestCase("[$ref..$otherRef]", typeof(VelocityParser.ReferenceContext), typeof(VelocityParser.ReferenceContext))]
         [TestCase("[true..[]]", typeof(VelocityParser.BooleanContext), typeof(VelocityParser.ListContext), IgnoreReason = "This currently passes, but should it?" )]
-        public void RangeParseTest(string input, Type leftArgType, Type rightArgType)
+        public void ParseRangeExpression(string input, Type leftArgType, Type rightArgType)
         {
             var result = CreateParser(input, VelocityLexer.ARGUMENTS).range();
 

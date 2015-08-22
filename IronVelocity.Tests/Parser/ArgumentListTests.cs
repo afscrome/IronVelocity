@@ -18,7 +18,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase(1, "  1   ")]
         [TestCase(3, "1,1,1")]
         [TestCase(3, " 1 , 1 , 1 ")]
-        public void ArgumentListParseTest(int argumentCount, string input)
+        public void ParseArgumentList(int argumentCount, string input)
         {
             var result = CreateParser(input, VelocityLexer.ARGUMENTS).argument_list();
 
@@ -34,7 +34,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("1,,1")]
         [TestCase("1,")]
         [TestCase(",1")]
-        public void InvalidArgumentListParseTest(string input)
+        public void ParseInvalidArgumentList(string input)
         {
             var parser = CreateParser(input, VelocityLexer.ARGUMENTS);
 

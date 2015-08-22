@@ -10,7 +10,7 @@ namespace IronVelocity.Tests.Parser
     {
         [TestCase("Hello World")]
         [TestCaseSource("TextThatLooksLikeReferenceData")]
-        public void BasicText(string input)
+        public void ParseText(string input)
         {
             var text = CreateParser(input).text();
             Assert.That(text.GetText(), Is.EqualTo(input));
@@ -19,7 +19,7 @@ namespace IronVelocity.Tests.Parser
 
         public IEnumerable<TestCaseData> TextThatLooksLikeReferenceData()
         {
-            return Samples.ReferenceLikeText.Select(x => new TestCaseData(x).SetName("TextThatLooksLikeReference - " + x));
+            return Samples.ReferenceLikeText.Select(x => new TestCaseData(x).SetName("ParseTextThatLooksLikeReference - " + x));
         }
     }
 }

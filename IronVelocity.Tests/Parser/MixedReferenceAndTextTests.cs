@@ -9,7 +9,7 @@ namespace IronVelocity.Tests.Parser
     {
 
         [TestCaseSource("TwoReferencesWithPotentiallyAmbigiousCharcterInBetween")]
-        public void TwoReferenceswithTextInBetween(string input, string reference1, string text, string reference2)
+        public void ParseTwoReferenceswithTextInBetween(string input, string reference1, string text, string reference2)
         {
             var result = CreateParser(input).template();
             var textNode = result.text().Single();
@@ -32,7 +32,7 @@ namespace IronVelocity.Tests.Parser
                     {
                         input = reference1 + text + reference2;
                         yield return new TestCaseData(input, reference1, text, reference2)
-                            .SetName("TwoReferencesWithPotentiallyAmbigiousCharcterInBetween - " + input);
+                            .SetName("ParseTwoReferencesWithTextInBetween - " + input);
                     }
                 }
             }

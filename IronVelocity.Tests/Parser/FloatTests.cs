@@ -14,7 +14,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase(".72", Ignore = true, IgnoreReason = "TODO: Not allowed in NVelocity, should it be allowed?")]
         [TestCase("-.1", Ignore = true, IgnoreReason = "TODO: Not allowed in NVelocity, should it be allowed?")]
         //TODO: Looks like velocity 1.7 allows specifying floats int he form 1.4E12
-        public void FloatParseTests(string input)
+        public void ParseFloatLiteral(string input)
         {
             var result = CreateParser(input, VelocityLexer.ARGUMENTS).@float();
 

@@ -97,5 +97,23 @@ namespace IronVelocity.Tests.Parser
                 }
             }
         }
+
+
+        private IEnumerable<IParseTree> FlattenParseTree(IParseTree parseTree)
+        {
+            Stack<IParseTree> nodes = new Stack<IParseTree>();
+            nodes.Push(parseTree);
+
+            do
+            {
+                var node = nodes.Pop();
+                yield return node;
+                for (int i = 0; i < node.ChildCount; i++)
+                {
+                    nodes.Push(node.GetChild(i));
+                }
+            }
+            while (nodes.Any());
+        }
     }
 }

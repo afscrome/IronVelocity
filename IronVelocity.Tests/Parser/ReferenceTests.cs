@@ -19,7 +19,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$WithNumbers123", "WithNumbers123")]
         [TestCase("$abcdefghijklmnopqrstuvwxyz_-ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890", "abcdefghijklmnopqrstuvwxyz_-ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890")]
         //TODO: Are ${x-} and ${y_} valid variables (i.e. ending in - or _ )
-        public void VariableParseTests(string input, string variableName)
+        public void ParseReferenceWithVariable(string input, string variableName)
         {
             var reference = CreateParser(input, LexerInitialState).reference();
             Assert.That(reference, Is.Not.Null);
@@ -35,7 +35,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!bar.cat", "cat")]
         [TestCase("${foo.fish}", "fish")]
         [TestCase("$!{bar.bear}", "bear")]
-        public void Property(string input, string propertyName)
+        public void ParseReferenceWithProperty(string input, string propertyName)
         {
             var reference = CreateParser(input, LexerInitialState).reference();
             Assert.That(reference, Is.Not.Null);
@@ -51,7 +51,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!bar.cat()", "cat")]
         [TestCase("${foo.fish()}", "fish")]
         [TestCase("$!{bar.bear()}", "bear")]
-        public void Method(string input, string methodName)
+        public void ParseReferenceWithMethod(string input, string methodName)
         {
             var reference = CreateParser(input, LexerInitialState).reference();
             Assert.That(reference, Is.Not.Null);
@@ -63,18 +63,5 @@ namespace IronVelocity.Tests.Parser
             Assert.That(method.argument_list(), Is.Not.Null);
         }
 
-
-        public void TwoReferenceswithTextInBetween(string reference1, string text, string reference2)
-        {
-            var input = reference1 + text + reference2;
-            var result = CreateParser(input).template();
-
-            var textNode = result.text().Single();
-            var references = result.reference();
-
-            Assert.That(textNode.GetText(), Is.EqualTo(text));
-            Assert.That(references, Contains.Item(reference1));
-            Assert.That(references, Contains.Item(reference2));
-        }
     }
 }

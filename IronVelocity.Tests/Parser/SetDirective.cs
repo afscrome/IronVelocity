@@ -16,7 +16,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#set($x = 123)   \r\n", IgnoreReason = "TODO: Implement correct Whitespace Eating")]
         [TestCase(" #set($x = 123)", IgnoreReason = "TODO: Implement correct Whitespace Eating")]
         [TestCase("\t \t\t  #set($x = 123)", IgnoreReason = "TODO: Implement correct Whitespace Eating")]
-        public void SetDirectiveParseTest(string input)
+        public void ParseSetDirective(string input)
         {
             var result = CreateParser(input).set_directive();
 

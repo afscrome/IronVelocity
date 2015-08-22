@@ -13,7 +13,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("\"interpolated\"", typeof(VelocityParser.Interpolated_stringContext))]
         [TestCase("[ ]", typeof(VelocityParser.ListContext))]
         [TestCase("[1..3]", typeof(VelocityParser.RangeContext))]
-        public void ArgumentParseTest(string input, Type parsedNodeType)
+        public void ParseArgument(string input, Type parsedNodeType)
         {
             var result = CreateParser(input, VelocityLexer.ARGUMENTS).argument();
 
