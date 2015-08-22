@@ -55,13 +55,19 @@ namespace IronVelocity.Parser
                 var innerContext = further[i];
                 var property = innerContext as VelocityParser.Property_invocationContext;
                 if (property != null)
-                    throw new NotImplementedException();
-                var method = innerContext as VelocityParser.Method_invocationContext;
-                if (method != null)
                 {
-                    var name = method.IDENTIFIER().GetText();
-                    var args = VisitMany(method.argument_list().argument());
-                    result = new MethodInvocationExpression(result, name, args, GetSourceInfo(innerContext));
+                    var name = property.IDENTIFIER().GetText();
+                    result = new PropertyAccessExpression(result, name, GetSourceInfo(innerContext));
+                }
+                else
+                {
+                    var method = innerContext as VelocityParser.Method_invocationContext;
+                    if (method != null)
+                    {
+                        var name = method.IDENTIFIER().GetText();
+                        var args = VisitMany(method.argument_list().argument());
+                        result = new MethodInvocationExpression(result, name, args, GetSourceInfo(innerContext));
+                    }
                 }
             }
 
@@ -112,16 +118,18 @@ namespace IronVelocity.Parser
 
         public override Expression VisitString([NotNull] VelocityParser.StringContext context)
         {
-            //TODO: I think this will (incorrectly) capture the quotes in the string
-            return Expression.Constant(context.GetText());
+            //HACK: This really should be handled at the parser level, not through a substring operation
+            var quotedText = context.GetText();
+            var unquotedString = quotedText.Substring(1, quotedText.Length - 2);
+            return Expression.Constant(unquotedString);
         }
 
         public override Expression VisitInterpolated_string([NotNull] VelocityParser.Interpolated_stringContext context)
         {
-            //TODO: I think this will (incorrectly) capture the quotes in the string
-            //TODO: need to process the interpolated string
-            //TODO: account for dictionary strings
-            return Expression.Constant(context.GetText());
+            //HACK: This really should be handled at the parser level, not through a substring operation
+            var quotedText = context.GetText();
+            var unquotedString = quotedText.Substring(1, quotedText.Length - 2);
+            return Expression.Constant(unquotedString);
         }
 
         public override Expression VisitList([NotNull] VelocityParser.ListContext context)
@@ -146,15 +154,38 @@ namespace IronVelocity.Parser
             if (contexts.Count == 0)
                 return new Expression[0]; //TODO: Use Array.Empty
 
-            var visited = new Expression[contexts.Count];
+            var visitedExpressions = new Expression[contexts.Count];
 
             for (int i = 0; i < contexts.Count; i++)
             {
-                visited[i] = Visit(contexts[i]);
+                var visitedContext = Visit(contexts[i]);
+                if (visitedContext == null)
+                    throw new InvalidOperationException("Failed to visit");
+
+                visitedExpressions[i] = visitedContext;
             }
 
-            return visited;
+            return visitedExpressions;
+        }
 
+        public override Expression VisitSet_directive([NotNull] VelocityParser.Set_directiveContext context)
+        {
+            return VisitAssignment(context.assignment());
+        }
+
+        public override Expression VisitAssignment([NotNull] VelocityParser.AssignmentContext context)
+        {
+            var left = Visit(context.reference());
+
+            if (left is MethodInvocationExpression)
+            {
+                //TODO: log?, throw?
+                throw new InvalidOperationException("Cannot assign to a method");
+            }
+
+            var right = Visit(context.argument());
+
+            return new SetDirective(left, right, GetSourceInfo(context));
         }
 
         private SourceInfo GetSourceInfo(ParserRuleContext context)

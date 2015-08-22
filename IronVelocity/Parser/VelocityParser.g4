@@ -4,7 +4,7 @@ options {
     tokenVocab=VelocityLexer;
 }
 
-template : (text | reference | comment)* ;
+template : (text | reference | comment | set_directive)* EOF;
 
 //Not sure about LEFT_CURLEY on it's own.  "LEFT_CURLEY ~IDENTIFIER" would be better
 //however causes failures if there is a textual "{" followed by EOF
@@ -24,16 +24,19 @@ variable : IDENTIFIER;
 property_invocation: IDENTIFIER ;
 method_invocation: IDENTIFIER LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS;
 
-argument_list : WHITESPACE? (argument WHITESPACE? (COMMA WHITESPACE? argument WHITESPACE?)*)? ;
+argument_list : WHITESPACE?
+	| argument (COMMA argument)* ;
 
-argument: reference 
-	| boolean
-	| integer
-	| float 
-	| string
-	| interpolated_string
-	| list 
-	| range ;
+argument:  WHITESPACE? 
+	(	 reference 
+		| boolean
+		| integer
+		| float 
+		| string
+		| interpolated_string
+		| list 
+		| range
+	) WHITESPACE?;
 
 boolean : TRUE | FALSE ;
 integer : MINUS? NUMBER ;
@@ -42,5 +45,7 @@ string : STRING ;
 interpolated_string : INTERPOLATED_STRING ;
 
 list : LEFT_SQUARE argument_list RIGHT_SQUARE ;
-//TODO: can we reuse WHITESPACE? argument WHITESPACE?
-range : LEFT_SQUARE WHITESPACE? argument WHITESPACE? DOTDOT WHITESPACE? argument WHITESPACE? RIGHT_SQUARE ;
+range : LEFT_SQUARE argument  DOTDOT argument RIGHT_SQUARE ;
+
+set_directive: WHITESPACE? HASH SET assignment RIGHT_PARENTHESIS WHITESPACE? NEWLINE? ;
+assignment: WHITESPACE? reference WHITESPACE? EQUAL argument ;

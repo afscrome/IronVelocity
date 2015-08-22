@@ -5,21 +5,23 @@ tokens {
 }
 
 fragment IDENTIFIER_TEXT : ('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | '0'..'9' | '-' | '_'  )* ;
-fragment NEWLINE : '\r' | '\n' | '\r\n' ;
+fragment NEWLINE_CHARS : '\r' | '\n' | '\r\n' ;
 
 DOLLAR : '$' ->  mode(REFERENCE) ;
 HASH : '#' -> mode(HASH_SEEN) ;
 TEXT : ~('$'| '#')+ ;
+NEWLINE : NEWLINE_CHARS;
 
 //===================================
 //The mode is for when a hash has been seen in a location that allows text so
 // the parser can distinguish between a textual '#', comments and directives
 mode HASH_SEEN ;
 
-SINGLE_LINE_COMMENT : '#' ~('\r' | '\n')* NEWLINE? -> type(COMMENT), mode(DEFAULT_MODE);
+SINGLE_LINE_COMMENT : '#' ~('\r' | '\n')* NEWLINE_CHARS? -> type(COMMENT), mode(DEFAULT_MODE);
 //Need to switch to default mode before pushing so that when the the matching end tag pops, we end back in text mode.
 BLOCK_COMMENT_START : '*' -> mode(DEFAULT_MODE), pushMode(BLOCK_COMMENT) ;
 DOLLAR2 : '$' ->  mode(REFERENCE), type(DOLLAR) ;
+SET : 'set(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
 DIRECTIVE_TEXT : . -> type(TEXT), mode(DEFAULT_MODE) ;
 
 
@@ -108,3 +110,4 @@ RIGHT_CURLEY3 : '}' -> type(RIGHT_CURLEY);
 LEFT_SQUARE : '[' ;
 RIGHT_SQUARE : ']' ;
 DOTDOT : '..' ;
+EQUAL : '=' ;

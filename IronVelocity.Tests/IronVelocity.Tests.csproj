@@ -80,6 +80,7 @@
     <Compile Include="OutputTests\OutputTestBase.cs" />
     <Compile Include="Parser\ArgumentsParseTests.cs" />
     <Compile Include="Parser\ArgumentTests.cs" />
+    <Compile Include="Parser\AssignmentTests.cs" />
     <Compile Include="Parser\BadInput.cs" />
     <Compile Include="Parser\BooleanTests.cs" />
     <Compile Include="Parser\CombinationTests.cs" />
@@ -93,6 +94,7 @@
     <Compile Include="Parser\RangeTests.cs" />
     <Compile Include="Parser\ReferenceTests.cs" />
     <Compile Include="Parser\Samples.cs" />
+    <Compile Include="Parser\SetDirective.cs" />
     <Compile Include="Parser\StringTests.cs" />
     <Compile Include="Parser\TestBailErrorStrategy.cs" />
     <Compile Include="Parser\TextTests.cs" />

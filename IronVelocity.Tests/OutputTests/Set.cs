@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace IronVelocity.Tests
 {
     [TestFixture]
-    public class SetDirectiveTests
+    public class SetDirectiveTests : OutputTestBase 
     {
         [Test]
         public void BasicIntegerSet()
@@ -12,7 +12,7 @@ namespace IronVelocity.Tests
             var input = "#set($foo = 5)$foo";
             var expectedOutput = "5";
 
-            Utility.TestExpectedMarkupGenerated(input, expectedOutput);
+            TestExpectedMarkupGenerated(input, expectedOutput);
         }
 
         [Test]
@@ -21,7 +21,7 @@ namespace IronVelocity.Tests
             var input = "#set($foo = \"hello world\")$foo";
             var expectedOutput = "hello world";
 
-            Utility.TestExpectedMarkupGenerated(input, expectedOutput);
+            TestExpectedMarkupGenerated(input, expectedOutput);
         }
 
         [Test]
@@ -30,7 +30,7 @@ namespace IronVelocity.Tests
             var input = "#set($foo = 8)#set($bar = $foo)$bar";
             var expectedOutput = "8";
 
-            Utility.TestExpectedMarkupGenerated(input, expectedOutput);
+            TestExpectedMarkupGenerated(input, expectedOutput);
         }
 
         [Test]
@@ -43,12 +43,13 @@ namespace IronVelocity.Tests
         }
 
         [Test]
+        [Ignore("Interpolated strings not yet supported in Antlr Parser")]
         public void InterpolatedStringSet()
         {
             var input = "#set($foo = 'Jim')#set($bar = \"Hello $foo\")$bar";
             var expectedOutput = "Hello Jim";
 
-            Utility.TestExpectedMarkupGenerated(input, expectedOutput);
+            TestExpectedMarkupGenerated(input, expectedOutput);
         }
 
         [Test]
@@ -58,7 +59,7 @@ namespace IronVelocity.Tests
             var context = new Dictionary<string, object>();
             context["x"] = x;
 
-            Utility.TestExpectedMarkupGenerated("#set($y = $x.GetCallCount()) $y $y", " 0 0", context);
+            TestExpectedMarkupGenerated("#set($y = $x.GetCallCount()) $y $y", " 0 0", context);
             Assert.AreEqual(1, x.CallCount);
         }
 
@@ -69,7 +70,7 @@ namespace IronVelocity.Tests
             var context = new Dictionary<string, object>();
             context["x"] = x;
 
-            Utility.TestExpectedMarkupGenerated("#set($y = $x.CallCount) $y $y", " 0 0", context);
+            TestExpectedMarkupGenerated("#set($y = $x.CallCount) $y $y", " 0 0", context);
             Assert.AreEqual(1, x.CallCount);
         }
 
