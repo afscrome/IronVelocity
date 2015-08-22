@@ -41,7 +41,12 @@ namespace IronVelocity.Parser
 
         public override Expression VisitReference([NotNull] VelocityParser.ReferenceContext context)
         {
-            return Visit(context.reference_body());
+            return new ReferenceExpression2(
+                value: Visit(context.reference_body()),
+                raw: context.GetText(),
+                isSilent: context.EXCLAMATION() != null,
+                isFormal: context.LEFT_CURLEY() != null
+                );
         }
 
         public override Expression VisitReference_body([NotNull] VelocityParser.Reference_bodyContext context)

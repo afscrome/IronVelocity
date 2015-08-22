@@ -51,6 +51,8 @@ namespace IronVelocity.Compilation
                     return VisitObjectArray((ObjectArrayExpression)node);
                 case VelocityExpressionType.PropertyAccess:
                     return VisitPropertyAccess((PropertyAccessExpression)node);
+                case VelocityExpressionType.Reference2:
+                    return VisitReference2((ReferenceExpression2)node);
                 case VelocityExpressionType.Reference:
                     return VisitReference((ReferenceExpression)node);
                 case VelocityExpressionType.RenderableReference:
@@ -145,6 +147,11 @@ namespace IronVelocity.Compilation
         }
 
         protected virtual Expression VisitReference(ReferenceExpression node)
+        {
+            return base.VisitExtension(node);
+        }
+
+        protected virtual Expression VisitReference2(ReferenceExpression2 node)
         {
             return base.VisitExtension(node);
         }

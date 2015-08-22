@@ -17,7 +17,7 @@ NEWLINE : NEWLINE_CHARS;
 // the parser can distinguish between a textual '#', comments and directives
 mode HASH_SEEN ;
 
-SINGLE_LINE_COMMENT : '#' ~('\r' | '\n')* NEWLINE_CHARS? -> type(COMMENT), mode(DEFAULT_MODE);
+SINGLE_LINE_COMMENT : '#' ~('\r' | '\n')* -> type(COMMENT), mode(DEFAULT_MODE);
 //Need to switch to default mode before pushing so that when the the matching end tag pops, we end back in text mode.
 BLOCK_COMMENT_START : '*' -> mode(DEFAULT_MODE), pushMode(BLOCK_COMMENT) ;
 DOLLAR2 : '$' ->  mode(REFERENCE), type(DOLLAR) ;

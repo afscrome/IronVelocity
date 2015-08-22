@@ -50,14 +50,5 @@ namespace IronVelocity.Tests.OutputTests
         }
 
 
-        [Test]
-        public void NonExistantProperty()
-        {
-            var input = "#set($x = 'hello world')$x.IDontExist";
-            var expected = "$x.IDontExist";
-
-            Utility.TestExpectedMarkupGenerated(input, expected);
-        }
-
     }
 }
