@@ -22,8 +22,11 @@ SINGLE_LINE_COMMENT : '#' ~('\r' | '\n')* -> type(COMMENT), mode(DEFAULT_MODE);
 BLOCK_COMMENT_START : '*' -> mode(DEFAULT_MODE), pushMode(BLOCK_COMMENT) ;
 DOLLAR2 : '$' ->  mode(REFERENCE), type(DOLLAR) ;
 SET : 'set(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
+IF : 'if(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
+ELSEIF : 'elseif(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
+ELSE : 'else' -> mode(DEFAULT_MODE) ;
+END : 'end' -> mode(DEFAULT_MODE) ;
 DIRECTIVE_TEXT : . -> type(TEXT), mode(DEFAULT_MODE) ;
-
 
 //===================================
 // In Velocity, block comments can be nested.  i.e. the string "#* #*comment*# *#" is fully a comment

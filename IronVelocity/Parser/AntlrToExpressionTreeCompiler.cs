@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using IronVelocity.Compilation.AST;
@@ -20,6 +17,11 @@ namespace IronVelocity.Parser
 
         public override Expression VisitTemplate([NotNull] VelocityParser.TemplateContext context)
         {
+            return Visit(context.block());
+        }
+
+        public override Expression VisitBlock([NotNull] VelocityParser.BlockContext context)
+        {
             return new RenderedBlock(
                 VisitMany(context.GetRuleContexts<ParserRuleContext>())
                 );
@@ -29,6 +31,7 @@ namespace IronVelocity.Parser
         {
             return Constants.EmptyExpression;
         }
+
         public override Expression VisitComment([NotNull] VelocityParser.CommentContext context)
         {
             return Constants.EmptyExpression;
@@ -84,15 +87,9 @@ namespace IronVelocity.Parser
             return new VariableExpression(context.IDENTIFIER().GetText());
         }
 
-        public override Expression VisitMethod_invocation([NotNull] VelocityParser.Method_invocationContext context)
+        public override Expression VisitArgument([NotNull] VelocityParser.ArgumentContext context)
         {
-            throw new InvalidOperationException("Method Invocation node should not be visited directly");
-        }
-
-
-        public override Expression VisitArgument_list([NotNull] VelocityParser.Argument_listContext context)
-        {
-            throw new InvalidOperationException("Arguments list node should not be visited directly");
+            return Visit(context.GetRuleContext<ParserRuleContext>(0));
         }
 
         public override Expression VisitInteger([NotNull] VelocityParser.IntegerContext context)
@@ -193,10 +190,43 @@ namespace IronVelocity.Parser
             return new SetDirective(left, right, GetSourceInfo(context));
         }
 
+        public override Expression VisitIf_block([NotNull] VelocityParser.If_blockContext context)
+        {
+            var elseBlock = context.if_else_block();
+            Expression falseContent = elseBlock == null
+                ? Constants.EmptyExpression
+                : Visit(elseBlock.block());
+
+            var elseIfBlocks = context.GetRuleContexts<VelocityParser.If_elseif_blockContext>();
+            for (int i = elseIfBlocks.Count - 1; i >= 0; i--)
+            {
+                var elseIf = elseIfBlocks[i];
+                var innerCondition = new CoerceToBooleanExpression(Visit(elseIf.argument()));
+                var elseIfContent = Visit(elseIf.block());
+
+                falseContent = Expression.IfThenElse(innerCondition, elseIfContent, falseContent);
+            }
+
+            var condition = new CoerceToBooleanExpression(Visit(context.argument()));
+            var trueContent = Visit(context.block());
+
+            return Expression.IfThenElse(condition, trueContent, falseContent);
+        }
+
         private SourceInfo GetSourceInfo(ParserRuleContext context)
         {
             //TODO: the stop info is incorrect here
             return new SourceInfo(context.start.Line, context.start.Column, context.stop.Line, context.stop.Column);
+        }
+
+        public override Expression VisitTerminal(ITerminalNode node)
+        {
+            throw new InvalidOperationException("Terminal nodes should not be visited directly");
+        }
+
+        protected override Expression AggregateResult(Expression aggregate, Expression nextResult)
+        {
+            throw new InvalidOperationException("This method should not be called");
         }
     }
 }

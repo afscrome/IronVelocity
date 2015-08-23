@@ -77,7 +77,6 @@
     <Compile Include="Binders\Reuse\InvokeMemberReuseTests.cs" />
     <Compile Include="Binders\Reuse\SetMemberReuseTests.cs" />
     <Compile Include="OutputTests\Macro.cs" />
-    <Compile Include="OutputTests\OutputTestBase.cs" />
     <Compile Include="Parser\ArgumentListTests.cs" />
     <Compile Include="Parser\ArgumentTests.cs" />
     <Compile Include="Parser\AssignmentTests.cs" />
@@ -130,10 +129,9 @@
     <Compile Include="RuntimeHelpers\IntegerRangeTests.cs" />
     <Compile Include="OutputTests\Method.cs" />
     <Compile Include="OutputTests\Identifer.cs" />
-    <Compile Include="OutputTests\If.cs" />
+    <Compile Include="TemplateExecution\IfTests.cs" />
     <Compile Include="OutputTests\Numeric\AdditionTests.cs" />
     <Compile Include="OutputTests\Numeric\SubtractionTests.cs" />
-    <Compile Include="OutputTests\Set.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Regression\Provider\BoolObj.cs" />
     <Compile Include="Regression\Provider\Child.cs" />
@@ -141,6 +139,9 @@
     <Compile Include="Regression\RegressionTests.cs" />
     <Compile Include="Regression\Provider\TestProvider.cs" />
     <Compile Include="SymbolInformationTests.cs" />
+    <Compile Include="TemplateExecution\CommentTests.cs" />
+    <Compile Include="TemplateExecution\ReferenceTests.cs" />
+    <Compile Include="TemplateExecution\SetTests.cs" />
     <Compile Include="TemplateExecution\TemplateExecutionBase.cs" />
     <Compile Include="TemplateExecution\OutputTests.cs" />
     <Compile Include="Utility.cs" />

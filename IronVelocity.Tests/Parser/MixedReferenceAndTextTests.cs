@@ -11,7 +11,7 @@ namespace IronVelocity.Tests.Parser
         [TestCaseSource("TwoReferencesWithPotentiallyAmbigiousCharcterInBetween")]
         public void ParseTwoReferenceswithTextInBetween(string input, string reference1, string text, string reference2)
         {
-            var result = CreateParser(input).template();
+            var result = CreateParser(input).block();
             var textNode = result.text().Single();
             Assert.That(textNode.GetText(), Is.EqualTo(text));
 

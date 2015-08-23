@@ -11,11 +11,6 @@ namespace IronVelocity.Tests.Parser
     public class SetDirective : ParserTestBase
     {
         [TestCase("#set($x = 123)")]
-        [TestCase("#set($x = 123)   ", IgnoreReason = "TODO: Implement correct Whitespace Eating")] //This shouldn't pass yet, not sure why it does
-        [TestCase("#set($x = 123)\r\n", IgnoreReason = "TODO: Implement correct Whitespace Eating")]
-        [TestCase("#set($x = 123)   \r\n", IgnoreReason = "TODO: Implement correct Whitespace Eating")]
-        [TestCase(" #set($x = 123)", IgnoreReason = "TODO: Implement correct Whitespace Eating")]
-        [TestCase("\t \t\t  #set($x = 123)", IgnoreReason = "TODO: Implement correct Whitespace Eating")]
         public void ParseSetDirective(string input)
         {
             var result = CreateParser(input).set_directive();

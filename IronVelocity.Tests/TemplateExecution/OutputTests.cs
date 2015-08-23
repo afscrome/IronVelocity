@@ -7,27 +7,12 @@ namespace IronVelocity.Tests.TemplateExecution
     {
         [TestCase("Hello World")]
         [TestCase("With\r\nNewlines")]
-        public void SimpleText(string input)
+        public void When_RenderingText_Should_RenderAsIs(string input)
         {
             var result = ExecuteTemplate(input);
 
             Assert.That(result.Output, Is.EqualTo(input));
         }
-
-        [TestCase("##Boo", "")]
-        [TestCase("#*ya*#", "")]
-        [TestCase("Hello##World", "Hello")]
-        [TestCase("Hello #*Cruel*# World", "Hello  World")]
-        [TestCase("##Hello\r\nWorld", "\r\nWorld")]
-        [TestCase("Hello##World\r\n", "Hello\r\n")]
-        [TestCase("Hello #* #* very *# Cruel*# World", "Hello  World")]
-        public void OutputForCommentMixedWithText(string input, string expectedOutput)
-        {
-            var result = ExecuteTemplate(input);
-
-            Assert.That(result.Output, Is.EqualTo(expectedOutput));
-        }
-
 
         [TestCase("$undefined")]
         [TestCase("$variable.Undefined")]
@@ -35,7 +20,7 @@ namespace IronVelocity.Tests.TemplateExecution
         [TestCase("$variable.ToString().AnotherUndefined")]
         [TestCase("$variable.Undefined.AnotherUndefined()")]
         [TestCase("${undefinedFormal}")]
-        public void OutputForUnsilencedReferences(string input)
+        public void When_RenderingAnUndefinedUnsilencedReference_Should_RenderReferenceSourceCode(string input)
         {
             var context = new Dictionary<string, object>
             {
@@ -53,7 +38,7 @@ namespace IronVelocity.Tests.TemplateExecution
         [TestCase("$!variable.ToString().AnotherUndefined")]
         [TestCase("$!variable.Undefined.AnotherUndefined()")]
         [TestCase("$!{undefinedFormal}")]
-        public void OutputForSilencedReferences(string input)
+        public void When_RenderingAnUndefinedSilencedReference_Should_RenderNothing(string input)
         {
             var context = new Dictionary<string, object>
             {
@@ -66,7 +51,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
-        public void OutputForVoidMethodIsEmpty()
+        public void When_RenderingVoidMethod_Should_OutputNothing()
         {
             var context = new Dictionary<string, object>
             {

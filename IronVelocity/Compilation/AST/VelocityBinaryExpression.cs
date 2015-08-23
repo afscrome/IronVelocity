@@ -10,6 +10,12 @@ namespace IronVelocity.Compilation.AST
 
         protected VelocityBinaryExpression(Expression left, Expression right, SourceInfo sourceInfo)
         {
+            if (left == null)
+                throw new ArgumentNullException(nameof(left));
+
+            if (right == null)
+                throw new ArgumentNullException(nameof(right));
+
             Left = left;
             Right = right;
             SourceInfo = sourceInfo;

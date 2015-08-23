@@ -4,7 +4,9 @@ options {
     tokenVocab=VelocityLexer;
 }
 
-template : (text | reference | comment | set_directive)* EOF;
+template : block? EOF;
+
+block: (text | reference | comment | set_directive | if_block)* ;
 
 //Not sure about LEFT_CURLEY on it's own.  "LEFT_CURLEY ~IDENTIFIER" would be better
 //however causes failures if there is a textual "{" followed by EOF
@@ -47,5 +49,10 @@ interpolated_string : INTERPOLATED_STRING ;
 list : LEFT_SQUARE argument_list RIGHT_SQUARE ;
 range : LEFT_SQUARE argument  DOTDOT argument RIGHT_SQUARE ;
 
-set_directive: WHITESPACE? HASH SET assignment RIGHT_PARENTHESIS WHITESPACE? NEWLINE? ;
+set_directive: HASH SET assignment RIGHT_PARENTHESIS;
+if_block : HASH IF argument RIGHT_PARENTHESIS block if_elseif_block* if_else_block? HASH END ;
+if_elseif_block : HASH ELSEIF argument RIGHT_PARENTHESIS block ;
+if_else_block : HASH ELSE block ;
+
+
 assignment: WHITESPACE? reference WHITESPACE? EQUAL argument ;

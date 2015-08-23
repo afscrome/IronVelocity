@@ -1,9 +1,9 @@
 ﻿using NUnit.Framework;
 
-namespace IronVelocity.Tests
+namespace IronVelocity.Tests.TemplateExecution
 {
     [TestFixture]
-    public class IfDirectiveTests
+    public class IfTests : TemplateExeuctionBase
     {
         [Test]
         public void IfTrue()
@@ -11,7 +11,9 @@ namespace IronVelocity.Tests
             var input = "#if(true)foo#end";
             var expected = "foo";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            var result = ExecuteTemplate(input);
+
+            Assert.That(result.Output, Is.EqualTo(expected));
         }
         [Test]
         public void IfFalse()
@@ -19,7 +21,9 @@ namespace IronVelocity.Tests
             var input = "#if(false)foo#end";
             var expected = "";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            var result = ExecuteTemplate(input);
+
+            Assert.That(result.Output, Is.EqualTo(expected));
         }
 
         [Test]
@@ -28,15 +32,20 @@ namespace IronVelocity.Tests
             var input = "#if(true)foo#else bar#end";
             var expected = "foo";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            var result = ExecuteTemplate(input);
+
+            Assert.That(result.Output, Is.EqualTo(expected));
         }
+
         [Test]
         public void IfElseFalse()
         {
             var input = "#if(false)foo#else bar#end";
             var expected = " bar";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            var result = ExecuteTemplate(input);
+
+            Assert.That(result.Output, Is.EqualTo(expected));
         }
 
         [Test]
@@ -45,7 +54,9 @@ namespace IronVelocity.Tests
             var input = "#if(true)foo#elseif(true)bar#else baz#end";
             var expected = "foo";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            var result = ExecuteTemplate(input);
+
+            Assert.That(result.Output, Is.EqualTo(expected));
         }
 
         [Test]
@@ -54,7 +65,9 @@ namespace IronVelocity.Tests
             var input = "#if(false)foo#elseif(true)bar#else baz#end";
             var expected = "bar";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            var result = ExecuteTemplate(input);
+
+            Assert.That(result.Output, Is.EqualTo(expected));
         }
 
         [Test]
@@ -63,7 +76,9 @@ namespace IronVelocity.Tests
             var input = "#if(false)foo#elseif(false)bar#else baz#end";
             var expected = " baz";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            var result = ExecuteTemplate(input);
+
+            Assert.That(result.Output, Is.EqualTo(expected));
         }
         [Test]
         public void IfElseIfNoMatch()
@@ -71,7 +86,9 @@ namespace IronVelocity.Tests
             var input = "#if(false)foo#elseif(false)bar#end";
             var expected = "";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            var result = ExecuteTemplate(input);
+
+            Assert.That(result.Output, Is.EqualTo(expected));
         }
 
 
@@ -81,15 +98,30 @@ namespace IronVelocity.Tests
             var input = "#if('hello')foo#end";
             var expected = "foo";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            var result = ExecuteTemplate(input);
+
+            Assert.That(result.Output, Is.EqualTo(expected));
         }
+
         [Test]
         public void IfWithCoercionFalse()
         {
             var input = "#if($null)foo#end";
             var expected = "";
 
-            Utility.TestExpectedMarkupGenerated(input, expected);
+            var result = ExecuteTemplate(input);
+
+            Assert.That(result.Output, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void When_MultipleElseIfMatches_Should_ExecuteFirstMatching()
+        {
+            var input = "#if(false)ONE#elseif(true)TWO#elseif(true)THREE#end";
+            var expected = "TWO";
+
+            var result = ExecuteTemplate(input);
+            Assert.That(result.Output, Is.EqualTo(expected));
         }
     }
 

@@ -13,10 +13,7 @@ namespace IronVelocity.Parser
             var charStream = new AntlrInputStream(input);
             var lexer = new VelocityLexer(charStream);
             var tokenStream = new CommonTokenStream(lexer);
-            var parser = new VelocityParser(tokenStream)
-            {
-                ErrorHandler = new BailErrorStrategy()
-            };
+            var parser = new VelocityParser(tokenStream);
 
             log.ParseStart(name);
             var template = parser.template();
