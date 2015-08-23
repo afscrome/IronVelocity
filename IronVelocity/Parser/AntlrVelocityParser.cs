@@ -13,11 +13,16 @@ namespace IronVelocity.Parser
             var charStream = new AntlrInputStream(input);
             var lexer = new VelocityLexer(charStream);
             var tokenStream = new CommonTokenStream(lexer);
-            var parser = new VelocityParser(tokenStream);
+            var parser = new VelocityParser(tokenStream)
+            {
+                ErrorHandler = new BailErrorStrategy()
+            };
 
             log.ParseStart(name);
             var template = parser.template();
             log.ParseStop(name);
+
+            //TODO: Log parse tree to ETW - update "log.LogParsedExpressionTree();" to use antlr parse tree.
 
             var visitor = new AntlrToExpressionTreeCompiler();
 
