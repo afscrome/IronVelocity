@@ -5,17 +5,19 @@ tokens {
 }
 
 fragment IDENTIFIER_TEXT : ('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | '0'..'9' | '-' | '_'  )* ;
-fragment NEWLINE_CHARS : '\r' | '\n' | '\r\n' ;
 
 
 //===================================
-// Text mode
+// Default mode used for parsing text
+// Moves to the HASH_SEEN or DOLLAR_SEEN states upon seeing '$' or '#' respectively
 mode DEFAULT_MODE ;
 
+TEXT : ~('$'| '#')+ ;
 DOLLAR : '$' ->  mode(DOLLAR_SEEN) ;
 HASH : '#' -> mode(HASH_SEEN) ;
-TEXT : ~('$'| '#')+ ;
-NEWLINE : NEWLINE_CHARS;
+DOLLARDOT : '$.' -> type(TEXT) ;
+
+
 
 //===================================
 // The mode is for when a hash has been seen in a location that allows text so
@@ -31,7 +33,9 @@ IF : 'if(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
 ELSEIF : 'elseif(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
 ELSE : 'else' -> mode(DEFAULT_MODE) ;
 END : 'end' -> mode(DEFAULT_MODE) ;
-DIRECTIVE_TEXT : . -> type(TEXT), mode(DEFAULT_MODE) ;
+TEXT2 : . -> type(TEXT), mode(DEFAULT_MODE) ;
+
+
 
 //===================================
 // In Velocity, block comments can be nested.  i.e. the string "#* #*comment*# *#" is fully a comment
@@ -44,62 +48,57 @@ BLOCK_COMMENT_END : '*#' -> popMode ;
 BLOCK_COMMENT_BODY :  (~('#' | '*') | '#' ~'*' | '*' ~'#')+ ;
 
 
+
 //===================================
+// The mode is for when a dollar has been seen to parse a possible reference
+//
+// This mode should not recognise '.', otherwise you end up with funky results for things like
+// "$.test"
 mode DOLLAR_SEEN ;
 
 IDENTIFIER : IDENTIFIER_TEXT -> mode(REFERENCE) ;
 EXCLAMATION : '!' ;
-//LEFT_CURLEY : '{' -> mode(POSSIBLE_FORMAL_REFERENCE);
 LEFT_CURLEY : '{';
-// "$!!" should be considered as text
-//Escape
-HASH4 : '#' -> mode(HASH_SEEN), type(HASH);
 DOLLAR4 : '$' -> type(DOLLAR) ;
-TEXT4 : (. | '!!') -> type(TEXT), mode(DEFAULT_MODE) ;
+HASH4 : '#' -> type(HASH), mode(HASH_SEEN);
+TEXT4 : . -> type(TEXT), mode(DEFAULT_MODE) ;
 
-
-//===================================
-// We have what looks like a formal reference ("${" or "$!{")
-// If we have an identifier, then switch to REFERENCE mode,
-// otherwise switch back to text (default) mode.
-// This is needed by the parser so that the "${" in "${$var" is considered text
-//TODO: Would like to remove this mode completely - think it can be done
-//mode POSSIBLE_FORMAL_REFERENCE ;
-
-//IDENTIFIER5 : IDENTIFIER_TEXT -> type(IDENTIFIER), mode(REFERENCE) ;
-
-//Escape
-//DOLLAR5 : '$' -> type(DOLLAR), mode(DOLLAR_SEEN) ;
-//HASH5 : '#' -> mode(HASH_SEEN), type(HASH);
-//TEXT5 : . -> type(TEXT), mode(DEFAULT_MODE) ;
 
 
 //===================================
+// The mode is for when a dollar has been seen in a location that allows text so
+// the parser can distinguish between a textual '$' and a tr
 mode REFERENCE ;
 
-DOT : '.' ;
-IDENTIFIER6 : IDENTIFIER_TEXT -> type(IDENTIFIER) , mode(REFERENCE_MEMBER) ;
+DOT : '.' ->  mode(REFERENCE_MODIFIER) ;
+RIGHT_CURLEY : '}' ->  mode(DEFAULT_MODE);
 
-//No Longer a Reference
-RIGHT_CURLEY : '}' -> mode(DEFAULT_MODE);
-DOLLAR6 : '$' -> type(DOLLAR), mode(DOLLAR_SEEN) ;
-HASH6 : '#' -> mode(HASH_SEEN), type(HASH);
-TEXT6 : (. | '..') -> type(TEXT), mode(DEFAULT_MODE) ;
+DOLLAR5 : '$' -> type(DOLLAR), mode(DOLLAR_SEEN) ;
+HASH5 : '#' -> type(HASH), mode(HASH_SEEN);
+TEXT5 : . -> type(TEXT), mode(DEFAULT_MODE) ;
+
 
 //===================================
-// When  we have a certain member invocation (e.g. "$foo.bar"), but are not yet sure what kind of member invocation it is
-// * Method call if followed by "(" (e.g. "foo.bar(" )
-// * Another reference expression if followed by "$" (E.g. "$foo.bar$")
-// * If followed by "." (but not ".."), need to go back to REFERENCE (e.g. "$foo.bar.")
-// * A property if followed by text, or in a formal reference, and followed by "}" (e.g. "$foo.bar%", "${foo.bar}).
-mode REFERENCE_MEMBER ;
+// This is identical to the DOLLAR_SEEN_VARIABLE mode, with the addition of a rule
+// for '(' which transitions into the ARGUMENTS lexer state.
+// This is because the left parenthesis in "$test(" is text (and shouldn't transition
+// to the ARGUMENTS state), whereas in "$test.method(" it should transition.
+mode REFERENCE_MODIFIER ;
 
-DOT7 : '.' -> type(DOT), mode(REFERENCE) ;
+DOT6 : '.' -> type(DOT) ;
+IDENTIFIER6 : IDENTIFIER_TEXT -> type(IDENTIFIER) ;
 LEFT_PARENTHESIS : '(' -> pushMode(ARGUMENTS) ;
-RIGHT_CURLEY7 : '}' -> type(RIGHT_CURLEY), mode(DEFAULT_MODE);
-DOLLAR7 : '$' -> type(DOLLAR), mode(DOLLAR_SEEN) ;
-HASH7 : '#' -> mode(HASH_SEEN), type(HASH);
-TEXT7 : (. | '..')  -> type(TEXT), mode(DEFAULT_MODE) ;
+RIGHT_CURLEY6 : '}' -> type(RIGHT_CURLEY),  mode(DEFAULT_MODE);
+
+//
+DOLLAR6 : '$' -> type(DOLLAR), mode(DOLLAR_SEEN) ;
+HASH6 : '#' -> type(HASH), mode(HASH_SEEN);
+TEXT6 : (. | '..')  -> type(TEXT), mode(DEFAULT_MODE) ;
+
+
+// Three states may seem excessive for parsing references, however:
+// DOLALR_SEEN and REFERENCE are seperate as otherwise the parser has problems parsing "$."
+// REFERENCE and REFERENCE_MODIFIER are seperate otherwise the parser has problems parsing $test()
 
 //===================================
 // Used when parsing arguments in either a method call "$foo.bar(ARGUMENTS)",
@@ -108,20 +107,20 @@ mode ARGUMENTS ;
 
 WHITESPACE : (' ' | '\t')+ ;
 COMMA : ',' ;
-LEFT_PARENTHESIS2 : '(' -> type(LEFT_PARENTHESIS), pushMode(ARGUMENTS);
+LEFT_PARENTHESIS7 : '(' -> type(LEFT_PARENTHESIS), pushMode(ARGUMENTS);
 RIGHT_PARENTHESIS : ')' -> popMode ;
 TRUE : 'true' ;
 FALSE : 'false' ;
 MINUS : '-' ;
 NUMBER : ('0'..'9')+ ;
-DOT8 : '.' -> type(DOT) ;
-STRING : '\'' ~('\'')* '\'' ;
-INTERPOLATED_STRING : '"' ~('"')* '"' ;
-DOLLAR8 : '$' -> type(DOLLAR) ;
-IDENTIFIER4 : IDENTIFIER_TEXT -> type(IDENTIFIER) ;
-EXCLAMATION8 : '!' -> type(EXCLAMATION) ;
-LEFT_CURLEY8 : '{' -> type(LEFT_CURLEY);
-RIGHT_CURLEY8 : '}' -> type(RIGHT_CURLEY);
+DOT7 : '.' -> type(DOT) ;
+STRING : '\'' ~('\'' | '\r' | '\n' )* '\'' ;
+INTERPOLATED_STRING : '"' ~('"' | '\r' | '\n' )* '"' ;
+DOLLAR7 : '$' -> type(DOLLAR) ;
+IDENTIFIER7 : IDENTIFIER_TEXT -> type(IDENTIFIER) ;
+EXCLAMATION7 : '!' -> type(EXCLAMATION) ;
+LEFT_CURLEY7 : '{' -> type(LEFT_CURLEY);
+RIGHT_CURLEY7 : '}' -> type(RIGHT_CURLEY);
 LEFT_SQUARE : '[' ;
 RIGHT_SQUARE : ']' ;
 DOTDOT : '..' ;
