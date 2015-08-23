@@ -49,7 +49,6 @@ namespace IronVelocity.Tests.Parser
             "!",
             "#",
             "]",
-            //"()",
         };
 
         public static IEnumerable<string> Comments { get; } = new[]

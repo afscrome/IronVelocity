@@ -8,7 +8,7 @@ namespace IronVelocity.Tests.Parser
     {
         //TODO: the below tests need to be repeated in both ARGUMENT context, and TEXT lexer states.
         //TODO: Add tests for multiple invocations - e.g. $var.prop.method().prop 
-        private readonly int LexerInitialState = VelocityLexer.ARGUMENTS;
+        private readonly int LexerInitialState = VelocityLexer.DefaultMode;
 
         [TestCase("$foo", "foo")]
         [TestCase("$!bar", "bar")]
@@ -61,6 +61,16 @@ namespace IronVelocity.Tests.Parser
             Assert.That(method, Is.Not.Null);
             Assert.That(method.IDENTIFIER()?.GetText(), Is.EqualTo(methodName));
             Assert.That(method.argument_list(), Is.Not.Null);
+        }
+
+        [TestCase("$!alpha.bravo().charlie()")]
+        [TestCase("$!variable.Undefined.AnotherUndefined()")]
+        public void ParsesReferenceWithMultipleParts(string input)
+        {
+            var reference = CreateParser(input, LexerInitialState).reference();
+
+            Assert.That(reference, Is.Not.Null);
+            Assert.That(reference.GetText(), Is.EqualTo(input));
         }
 
     }

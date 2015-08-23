@@ -7,7 +7,7 @@ namespace IronVelocity.Tests.Parser
 {
     public class MixedReferenceAndTextTests : ParserTestBase
     {
-
+        [TestCase("$test.stuff()($test", "$test.stuff()", "(", "$test")]
         [TestCaseSource("TwoReferencesWithPotentiallyAmbigiousCharcterInBetween")]
         public void ParseTwoReferenceswithTextInBetween(string input, string reference1, string text, string reference2)
         {

@@ -15,7 +15,6 @@ mode DEFAULT_MODE ;
 TEXT : ~('$'| '#')+ ;
 DOLLAR : '$' ->  mode(DOLLAR_SEEN) ;
 HASH : '#' -> mode(HASH_SEEN) ;
-DOLLARDOT : '$.' -> type(TEXT) ;
 
 
 
@@ -70,12 +69,13 @@ TEXT4 : . -> type(TEXT), mode(DEFAULT_MODE) ;
 // the parser can distinguish between a textual '$' and a tr
 mode REFERENCE ;
 
-DOT : '.' ->  mode(REFERENCE_MODIFIER) ;
+DOT : '.' ;
+IDENTIFIER65: IDENTIFIER_TEXT -> type(IDENTIFIER) , mode(REFERENCE_POSSIBLE_METHOD) ;
 RIGHT_CURLEY : '}' ->  mode(DEFAULT_MODE);
 
 DOLLAR5 : '$' -> type(DOLLAR), mode(DOLLAR_SEEN) ;
 HASH5 : '#' -> type(HASH), mode(HASH_SEEN);
-TEXT5 : . -> type(TEXT), mode(DEFAULT_MODE) ;
+TEXT5 : (. | '..') -> type(TEXT), mode(DEFAULT_MODE) ;
 
 
 //===================================
@@ -83,11 +83,10 @@ TEXT5 : . -> type(TEXT), mode(DEFAULT_MODE) ;
 // for '(' which transitions into the ARGUMENTS lexer state.
 // This is because the left parenthesis in "$test(" is text (and shouldn't transition
 // to the ARGUMENTS state), whereas in "$test.method(" it should transition.
-mode REFERENCE_MODIFIER ;
+mode REFERENCE_POSSIBLE_METHOD ;
 
-DOT6 : '.' -> type(DOT) ;
-IDENTIFIER6 : IDENTIFIER_TEXT -> type(IDENTIFIER) ;
-LEFT_PARENTHESIS : '(' -> pushMode(ARGUMENTS) ;
+DOT6 : '.' -> type(DOT), mode(REFERENCE);
+LEFT_PARENTHESIS : '(' -> mode(REFERENCE), pushMode(ARGUMENTS) ;
 RIGHT_CURLEY6 : '}' -> type(RIGHT_CURLEY),  mode(DEFAULT_MODE);
 
 //
@@ -99,6 +98,7 @@ TEXT6 : (. | '..')  -> type(TEXT), mode(DEFAULT_MODE) ;
 // Three states may seem excessive for parsing references, however:
 // DOLALR_SEEN and REFERENCE are seperate as otherwise the parser has problems parsing "$."
 // REFERENCE and REFERENCE_MODIFIER are seperate otherwise the parser has problems parsing $test()
+
 
 //===================================
 // Used when parsing arguments in either a method call "$foo.bar(ARGUMENTS)",
