@@ -12,7 +12,7 @@ block: (text | reference | comment | set_directive | if_block)* ;
 //however causes failures if there is a textual "{" followed by EOF
 //RIGHT_CURLEY required to cope with ${formal}}
 //DOLLAR EXCLAMATION? required to cope with "$" and "$!" without a trailing identifier
-text : (TEXT | HASH | DOLLAR EXCLAMATION? | RIGHT_CURLEY | DOT | LEFT_CURLEY)+ ;
+text : (TEXT | HASH | DOLLAR (EXCLAMATION | LEFT_CURLEY)* | RIGHT_CURLEY | DOT )+ ;
 
 comment : HASH COMMENT | HASH block_comment;
 block_comment : BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | block_comment)*?  BLOCK_COMMENT_END ;
