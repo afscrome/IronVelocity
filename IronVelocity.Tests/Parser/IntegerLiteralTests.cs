@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace IronVelocity.Tests.Parser
 {
-    public class IntegerTests : ParserTestBase
+    public class IntegerLiteralTests : ParserTestBase
     {
         [TestCase("72")]
         [TestCase("-14")]

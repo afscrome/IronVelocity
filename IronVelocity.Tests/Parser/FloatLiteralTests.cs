@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace IronVelocity.Tests.Parser
 {
-    public class FloatTests : ParserTestBase
+    public class FloatLiteralTests : ParserTestBase
     {
         [TestCase("1.2")]
         [TestCase("-3.4")]

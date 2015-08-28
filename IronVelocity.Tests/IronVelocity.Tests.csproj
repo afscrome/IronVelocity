@@ -81,11 +81,11 @@
     <Compile Include="Parser\ArgumentTests.cs" />
     <Compile Include="Parser\AssignmentTests.cs" />
     <Compile Include="Parser\BadInput.cs" />
-    <Compile Include="Parser\BooleanTests.cs" />
+    <Compile Include="Parser\BooleanLiteralTests.cs" />
     <Compile Include="Parser\CombinationTests.cs" />
     <Compile Include="Parser\CommentTests.cs" />
-    <Compile Include="Parser\IntegerTests.cs" />
-    <Compile Include="Parser\FloatTests.cs" />
+    <Compile Include="Parser\IntegerLiteralTests.cs" />
+    <Compile Include="Parser\FloatLiteralTests.cs" />
     <Compile Include="Parser\InterpolatedStringTests.cs" />
     <Compile Include="Parser\ListTests.cs" />
     <Compile Include="Parser\ParserTestBase.cs" />

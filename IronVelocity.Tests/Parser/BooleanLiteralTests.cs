@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace IronVelocity.Tests.Parser
 {
-    public class BooleanTests : ParserTestBase
+    public class BooleanLiteralTests : ParserTestBase
     {
         [TestCase("true")]
         [TestCase("false")]
