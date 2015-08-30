@@ -58,3 +58,7 @@ if_else_block : HASH ELSE block ;
 
 
 assignment: WHITESPACE? reference WHITESPACE? EQUAL argument ;
+or_expression : argument
+	| or_expression OR and_expression ;
+and_expression : argument
+	| and_expression AND argument ;
