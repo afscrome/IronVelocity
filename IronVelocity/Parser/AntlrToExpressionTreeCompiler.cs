@@ -5,6 +5,7 @@ using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Tree;
 using IronVelocity.Compilation.AST;
 using Antlr4.Runtime;
+using IronVelocity.Compilation;
 
 namespace IronVelocity.Parser
 {
@@ -88,6 +89,11 @@ namespace IronVelocity.Parser
         }
 
         public override Expression VisitArgument([NotNull] VelocityParser.ArgumentContext context)
+        {
+            return Visit(context.GetRuleContext<ParserRuleContext>(0));
+        }
+
+        public override Expression VisitPrimary_expression([NotNull] VelocityParser.Primary_expressionContext context)
         {
             return Visit(context.GetRuleContext<ParserRuleContext>(0));
         }
@@ -211,6 +217,28 @@ namespace IronVelocity.Parser
             var trueContent = Visit(context.block());
 
             return Expression.IfThenElse(condition, trueContent, falseContent);
+        }
+
+        public override Expression VisitOr_expression([NotNull] VelocityParser.Or_expressionContext context)
+        {
+            if (context.ChildCount == 1)
+                return Visit(context.and_expression());
+
+            var left = VelocityExpressions.CoerceToBoolean(Visit(context.or_expression()));
+            var right = VelocityExpressions.CoerceToBoolean(Visit(context.and_expression()));
+
+            return Expression.OrElse(left, right);
+        }
+
+        public override Expression VisitAnd_expression([NotNull] VelocityParser.And_expressionContext context)
+        {
+            if (context.ChildCount == 1)
+                return Visit(context.primary_expression());
+
+            var left = VelocityExpressions.CoerceToBoolean(Visit(context.and_expression()));
+            var right = VelocityExpressions.CoerceToBoolean(Visit(context.primary_expression()));
+
+            return Expression.AndAlso(left, right);
         }
 
         private SourceInfo GetSourceInfo(ParserRuleContext context)

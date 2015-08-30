@@ -18,8 +18,8 @@ namespace IronVelocity.Tests.Parser
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));
 
-            Assert.That(result.argument(0)?.GetChild(0), Is.InstanceOf(leftArgType));
-            Assert.That(result.argument(1)?.GetChild(0), Is.InstanceOf(rightArgType));
+            Assert.That(result.argument(0)?.primary_expression()?.GetChild(0), Is.InstanceOf(leftArgType));
+            Assert.That(result.argument(1)?.primary_expression()?.GetChild(0), Is.InstanceOf(rightArgType));
 
         }
     }

@@ -243,7 +243,7 @@ namespace IronVelocity.Reflection
 
             if (leftMoreSpecific == rightMoreSpecific)
                 return MethodSpecificityComparison.Incomparable;
-            else if (leftMoreSpecific)
+            else if (leftMoreSpecific)                        
                 return MethodSpecificityComparison.Better;
             else if (rightMoreSpecific)
                 return MethodSpecificityComparison.Worse;

@@ -5,7 +5,7 @@ namespace IronVelocity.Tests.Parser
 {
     public class OrExpressionTests : ParserTestBase
     {
-        [TestCase("$x||$y ", "$x", "$y")]
+        [TestCase("$x||$y", "$x", "$y")]
         [TestCase(" false || true ", "false", "true")]
         [TestCase("${x}or${y} ", "${x}", "${y}")]
         [TestCase(" false or true ", "false", "true")]

@@ -80,7 +80,7 @@
     <Compile Include="Parser\AndExpressionTests.cs" />
     <Compile Include="Parser\OrExpressionTests.cs" />
     <Compile Include="Parser\ArgumentListTests.cs" />
-    <Compile Include="Parser\ArgumentTests.cs" />
+    <Compile Include="Parser\PrimaryExpressionTests.cs" />
     <Compile Include="Parser\AssignmentTests.cs" />
     <Compile Include="Parser\BadInput.cs" />
     <Compile Include="Parser\BooleanLiteralTests.cs" />
@@ -116,7 +116,6 @@
     <Compile Include="MethodInfoReflectionTests.cs" />
     <Compile Include="OutputTests\Directive.cs" />
     <Compile Include="OutputTests\Foreach.cs" />
-    <Compile Include="OutputTests\BooleanLogic.cs" />
     <Compile Include="OutputTests\Globals.cs" />
     <Compile Include="OutputTests\Strings.cs" />
     <Compile Include="Regression\ForeachBreakTest.cs" />
@@ -131,6 +130,7 @@
     <Compile Include="RuntimeHelpers\IntegerRangeTests.cs" />
     <Compile Include="OutputTests\Method.cs" />
     <Compile Include="OutputTests\Identifer.cs" />
+    <Compile Include="TemplateExecution\BooleanLogic.cs" />
     <Compile Include="TemplateExecution\IfTests.cs" />
     <Compile Include="OutputTests\Numeric\AdditionTests.cs" />
     <Compile Include="OutputTests\Numeric\SubtractionTests.cs" />

@@ -4,7 +4,7 @@ using System;
 
 namespace IronVelocity.Tests.Parser
 {
-    public class ArgumentTests : ParserTestBase
+    public class PrimaryExpressionTests : ParserTestBase
     {
         [TestCase("123", typeof(VelocityParser.IntegerContext))]
         [TestCase("7.4", typeof(VelocityParser.FloatContext))]
@@ -13,9 +13,9 @@ namespace IronVelocity.Tests.Parser
         [TestCase("\"interpolated\"", typeof(VelocityParser.Interpolated_stringContext))]
         [TestCase("[ ]", typeof(VelocityParser.ListContext))]
         [TestCase("[1..3]", typeof(VelocityParser.RangeContext))]
-        public void ParseArgument(string input, Type parsedNodeType)
+        public void ParsePrimaryExpression(string input, Type parsedNodeType)
         {
-            var result = CreateParser(input, VelocityLexer.ARGUMENTS).argument();
+            var result = CreateParser(input, VelocityLexer.ARGUMENTS).primary_expression();
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));

@@ -31,16 +31,18 @@ method_invocation: IDENTIFIER LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS;
 argument_list : WHITESPACE?
 	| argument (COMMA argument)* ;
 
-argument:  WHITESPACE? 
-	(	 reference 
+argument:  primary_expression | or_expression ;
+
+primary_expression : WHITESPACE? 
+	(reference 
 		| boolean
 		| integer
 		| float 
 		| string
 		| interpolated_string
-		| list 
-		| range
-	) WHITESPACE?;
+		| list
+		| range )
+	WHITESPACE? ;
 
 boolean : TRUE | FALSE ;
 integer : MINUS? NUMBER ;
@@ -57,8 +59,8 @@ if_elseif_block : HASH ELSEIF argument RIGHT_PARENTHESIS block ;
 if_else_block : HASH ELSE block ;
 
 
-assignment: WHITESPACE? reference WHITESPACE? EQUAL argument ;
-or_expression : argument
+assignment: WHITESPACE? reference WHITESPACE? ASSIGN argument ;
+or_expression : and_expression
 	| or_expression OR and_expression ;
-and_expression : argument
-	| and_expression AND argument ;
+and_expression : primary_expression
+	| and_expression AND primary_expression ;
