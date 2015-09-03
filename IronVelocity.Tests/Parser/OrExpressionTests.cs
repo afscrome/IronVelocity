@@ -12,24 +12,15 @@ namespace IronVelocity.Tests.Parser
         public void ParseBinaryOrExpressionTests(string input, string left, string right)
         {
             var result = CreateParser(input, VelocityLexer.ARGUMENTS).or_expression();
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.GetText(), Is.EqualTo(input));
-
-            Assert.That(result.or_expression()?.GetText()?.Trim(), Is.EqualTo(left));
-            Assert.That(result.and_expression()?.GetText()?.Trim(), Is.EqualTo(right));
+            ParseBinaryExpressionTest(result, input, left, right, VelocityLexer.OR);
         }
 
         [Test]
         public void ParseTernaryOrExpressionTests()
         {
-            var input = "$a || $b || $c";
+            var input = "$a || $b or $c";
             var result = CreateParser(input, VelocityLexer.ARGUMENTS).or_expression();
-
-            Assert.That(result, Is.Not.Null);
-
-            Assert.That(result.or_expression()?.or_expression()?.GetText().Trim(), Is.EqualTo("$a"));
-            Assert.That(result.or_expression()?.and_expression()?.GetText().Trim(), Is.EqualTo("$b"));
-            Assert.That(result.and_expression()?.GetText().Trim(), Is.EqualTo("$c"));
+            ParseTernaryExpressionWithEqualPrecedenceTest(result, input, VelocityLexer.OR, VelocityLexer.OR);
         }
 
     }
