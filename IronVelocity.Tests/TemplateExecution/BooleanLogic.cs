@@ -42,11 +42,9 @@ namespace IronVelocity.Tests.TemplateExecution
         [TestCase("$null", "$null", false)]
         public void OrCoercion(object left, object right, bool expectedResult)
         {
-            var input = string.Format($"#set($result = {left.ToString().ToLower()} || {right.ToString().ToLower()})");
+            var result = EvaluateExpression($"{left.ToString().ToLower()} || {right.ToString().ToLower()}");
 
-            var result = ExecuteTemplate(input);
-
-            Assert.That(result.Context["result"], Is.EqualTo(expectedResult));
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
 
         [TestCase(123, "'hello'", true)]
@@ -55,40 +53,34 @@ namespace IronVelocity.Tests.TemplateExecution
         [TestCase("$null", "$null", false)]
         public void AndCoercion(object left, object right, bool expectedResult)
         {
-            var input = string.Format($"#set($result = {left.ToString().ToLower()} && {right.ToString().ToLower()})");
+            var result = EvaluateExpression($"{left.ToString().ToLower()} && {right.ToString().ToLower()}");
 
-            var result = ExecuteTemplate(input);
-
-            Assert.That(result.Context["result"], Is.EqualTo(expectedResult));
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
 
         [Test]
         public void OrSecondOperandNotEvaluatedIfFirstIsTrue()
         {
-            var input = "#set($result = true || $helper.Fail())";
-
             var context = new Dictionary<string, object>{
-                ["result" ] = new ShortCircuitHelper()
+                ["helper" ] = new ShortCircuitHelper()
             };
 
-            var result = ExecuteTemplate(input);
+            var result = EvaluateExpression("true || $helper.Fail()");
 
-            Assert.That(result.Context["result"], Is.EqualTo(true));
+            Assert.That(result, Is.True);
         }
 
         [Test]
         public void AndSecondOperandNotEvaluatedIfFirstIsFalse()
         {
-            var input = "#set($result = false && $helper.Fail())";
-
             var context = new Dictionary<string, object>
             {
-                ["result"] = new ShortCircuitHelper()
+                ["helper"] = new ShortCircuitHelper()
             };
 
-            var result = ExecuteTemplate(input);
+            var result = EvaluateExpression("false && $helper.Fail()");
 
-            Assert.That(result.Context["result"], Is.EqualTo(false));
+            Assert.That(result, Is.False);
         }
 
         private class ShortCircuitHelper

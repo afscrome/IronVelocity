@@ -22,6 +22,14 @@ namespace IronVelocity.Tests.TemplateExecution
             }
         }
 
+        public object EvaluateExpression(string input, IDictionary<string, object> locals = null)
+        {
+            input = $"#set($result = {input})";
+            var result = ExecuteTemplate(input, locals);
+            Assert.That(result.Output, Is.Empty);
+            return result.Context["result"];
+        }
+
         public ExecutionResult ExecuteTemplate(string input, IDictionary<string,object> locals = null)
         {
             var template = CompileTemplate(input, fileName: Utility.GetName());
