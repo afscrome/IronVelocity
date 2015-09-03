@@ -60,7 +60,10 @@ if_else_block : HASH ELSE block ;
 
 
 assignment: WHITESPACE? reference WHITESPACE? ASSIGN argument ;
+
+equality_expression : primary_expression
+	| equality_expression (EQUAL | NOTEQUAL) primary_expression ;
+and_expression : equality_expression
+	| and_expression AND equality_expression ;
 or_expression : and_expression
 	| or_expression OR and_expression ;
-and_expression : primary_expression
-	| and_expression AND primary_expression ;

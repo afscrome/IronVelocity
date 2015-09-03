@@ -9,41 +9,41 @@ using IronVelocity.Compilation;
 
 namespace IronVelocity.Parser
 {
-    public class AntlrToExpressionTreeCompiler : VelocityParserBaseVisitor<Expression>
+    public class AntlrToExpressionTreeCompiler : IVelocityParserVisitor<Expression>
     {
-        public override Expression Visit(IParseTree tree)
+        public Expression Visit(IParseTree tree)
         {
-            return base.Visit(tree);
+            return tree.Accept(this);
         }
 
-        public override Expression VisitTemplate([NotNull] VelocityParser.TemplateContext context)
+        public Expression VisitTemplate([NotNull] VelocityParser.TemplateContext context)
         {
             return Visit(context.block());
         }
 
-        public override Expression VisitBlock([NotNull] VelocityParser.BlockContext context)
+        public Expression VisitBlock([NotNull] VelocityParser.BlockContext context)
         {
             return new RenderedBlock(
                 VisitMany(context.GetRuleContexts<ParserRuleContext>())
                 );
         }
 
-        public override Expression VisitBlock_comment([NotNull] VelocityParser.Block_commentContext context)
+        public Expression VisitBlock_comment([NotNull] VelocityParser.Block_commentContext context)
         {
             return Constants.EmptyExpression;
         }
 
-        public override Expression VisitComment([NotNull] VelocityParser.CommentContext context)
+        public Expression VisitComment([NotNull] VelocityParser.CommentContext context)
         {
             return Constants.EmptyExpression;
         }
 
-        public override Expression VisitText([NotNull] VelocityParser.TextContext context)
+        public Expression VisitText([NotNull] VelocityParser.TextContext context)
         {
             return Expression.Constant(context.GetText());
         }
 
-        public override Expression VisitReference([NotNull] VelocityParser.ReferenceContext context)
+        public Expression VisitReference([NotNull] VelocityParser.ReferenceContext context)
         {
             return new ReferenceExpression2(
                 value: Visit(context.reference_body()),
@@ -53,7 +53,7 @@ namespace IronVelocity.Parser
                 );
         }
 
-        public override Expression VisitReference_body([NotNull] VelocityParser.Reference_bodyContext context)
+        public Expression VisitReference_body([NotNull] VelocityParser.Reference_bodyContext context)
         {
             var result = VisitVariable(context.variable());
 
@@ -83,34 +83,34 @@ namespace IronVelocity.Parser
             return result;
         }
 
-        public override Expression VisitVariable([NotNull] VelocityParser.VariableContext context)
+        public Expression VisitVariable([NotNull] VelocityParser.VariableContext context)
         {
             return new VariableExpression(context.IDENTIFIER().GetText());
         }
 
-        public override Expression VisitArgument([NotNull] VelocityParser.ArgumentContext context)
+        public Expression VisitArgument([NotNull] VelocityParser.ArgumentContext context)
         {
             return Visit(context.GetRuleContext<ParserRuleContext>(0));
         }
 
-        public override Expression VisitPrimary_expression([NotNull] VelocityParser.Primary_expressionContext context)
+        public Expression VisitPrimary_expression([NotNull] VelocityParser.Primary_expressionContext context)
         {
             return Visit(context.GetRuleContext<ParserRuleContext>(0));
         }
 
-        public override Expression VisitInteger([NotNull] VelocityParser.IntegerContext context)
+        public Expression VisitInteger([NotNull] VelocityParser.IntegerContext context)
         {
             var value = int.Parse(context.GetText());
             return Expression.Constant(value);
         }
 
-        public override Expression VisitFloat([NotNull] VelocityParser.FloatContext context)
+        public Expression VisitFloat([NotNull] VelocityParser.FloatContext context)
         {
             var value = float.Parse(context.GetText());
             return Expression.Constant(value);
         }
 
-        public override Expression VisitBoolean([NotNull] VelocityParser.BooleanContext context)
+        public Expression VisitBoolean([NotNull] VelocityParser.BooleanContext context)
         {
             var text = context.GetText();
             switch (text)
@@ -124,7 +124,7 @@ namespace IronVelocity.Parser
             }
         }
 
-        public override Expression VisitString([NotNull] VelocityParser.StringContext context)
+        public Expression VisitString([NotNull] VelocityParser.StringContext context)
         {
             //HACK: This really should be handled at the parser level, not through a substring operation
             var quotedText = context.GetText();
@@ -132,7 +132,7 @@ namespace IronVelocity.Parser
             return Expression.Constant(unquotedString);
         }
 
-        public override Expression VisitInterpolated_string([NotNull] VelocityParser.Interpolated_stringContext context)
+        public Expression VisitInterpolated_string([NotNull] VelocityParser.Interpolated_stringContext context)
         {
             //HACK: This really should be handled at the parser level, not through a substring operation
             var quotedText = context.GetText();
@@ -140,7 +140,7 @@ namespace IronVelocity.Parser
             return Expression.Constant(unquotedString);
         }
 
-        public override Expression VisitList([NotNull] VelocityParser.ListContext context)
+        public Expression VisitList([NotNull] VelocityParser.ListContext context)
         {
             var elementContexts = context
                 .argument_list()
@@ -149,7 +149,7 @@ namespace IronVelocity.Parser
             return new ObjectArrayExpression(GetSourceInfo(context), VisitMany(elementContexts));
         }
 
-        public override Expression VisitRange([NotNull] VelocityParser.RangeContext context)
+        public Expression VisitRange([NotNull] VelocityParser.RangeContext context)
         {
             var left = Visit(context.argument(0));
             var right = Visit(context.argument(1));
@@ -176,12 +176,12 @@ namespace IronVelocity.Parser
             return visitedExpressions;
         }
 
-        public override Expression VisitSet_directive([NotNull] VelocityParser.Set_directiveContext context)
+        public Expression VisitSet_directive([NotNull] VelocityParser.Set_directiveContext context)
         {
             return VisitAssignment(context.assignment());
         }
 
-        public override Expression VisitAssignment([NotNull] VelocityParser.AssignmentContext context)
+        public Expression VisitAssignment([NotNull] VelocityParser.AssignmentContext context)
         {
             var left = Visit(context.reference());
 
@@ -196,7 +196,7 @@ namespace IronVelocity.Parser
             return new SetDirective(left, right, GetSourceInfo(context));
         }
 
-        public override Expression VisitIf_block([NotNull] VelocityParser.If_blockContext context)
+        public Expression VisitIf_block([NotNull] VelocityParser.If_blockContext context)
         {
             var elseBlock = context.if_else_block();
             Expression falseContent = elseBlock == null
@@ -219,7 +219,18 @@ namespace IronVelocity.Parser
             return Expression.IfThenElse(condition, trueContent, falseContent);
         }
 
-        public override Expression VisitOr_expression([NotNull] VelocityParser.Or_expressionContext context)
+        public Expression VisitEquality_expression([NotNull] VelocityParser.Equality_expressionContext context)
+        {
+            if (context.ChildCount == 1)
+                return Visit(context.primary_expression());
+
+            var left = VelocityExpressions.CoerceToBoolean(Visit(context.equality_expression()));
+            var right = VelocityExpressions.CoerceToBoolean(Visit(context.primary_expression()));
+
+            return Expression.Equal(left, right);
+        }
+
+        public Expression VisitOr_expression([NotNull] VelocityParser.Or_expressionContext context)
         {
             if (context.ChildCount == 1)
                 return Visit(context.and_expression());
@@ -230,13 +241,13 @@ namespace IronVelocity.Parser
             return Expression.OrElse(left, right);
         }
 
-        public override Expression VisitAnd_expression([NotNull] VelocityParser.And_expressionContext context)
+        public Expression VisitAnd_expression([NotNull] VelocityParser.And_expressionContext context)
         {
             if (context.ChildCount == 1)
-                return Visit(context.primary_expression());
+                return Visit(context.equality_expression());
 
             var left = VelocityExpressions.CoerceToBoolean(Visit(context.and_expression()));
-            var right = VelocityExpressions.CoerceToBoolean(Visit(context.primary_expression()));
+            var right = VelocityExpressions.CoerceToBoolean(Visit(context.equality_expression()));
 
             return Expression.AndAlso(left, right);
         }
@@ -247,14 +258,46 @@ namespace IronVelocity.Parser
             return new SourceInfo(context.start.Line, context.start.Column, context.stop.Line, context.stop.Column);
         }
 
-        public override Expression VisitTerminal(ITerminalNode node)
+        public Expression VisitTerminal(ITerminalNode node)
         {
             throw new InvalidOperationException("Terminal nodes should not be visited directly");
         }
 
-        protected override Expression AggregateResult(Expression aggregate, Expression nextResult)
+
+
+        public Expression VisitIf_else_block([NotNull] VelocityParser.If_else_blockContext context)
         {
-            throw new InvalidOperationException("This method should not be called");
+            throw new NotImplementedException();
+        }
+
+        public Expression VisitIf_elseif_block([NotNull] VelocityParser.If_elseif_blockContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Expression VisitProperty_invocation([NotNull] VelocityParser.Property_invocationContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Expression VisitMethod_invocation([NotNull] VelocityParser.Method_invocationContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Expression VisitArgument_list([NotNull] VelocityParser.Argument_listContext context)
+        {
+            throw new InvalidOperationException();
+        }
+
+        public Expression VisitChildren(IRuleNode node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Expression VisitErrorNode(IErrorNode node)
+        {
+            throw new NotImplementedException();
         }
     }
 }
