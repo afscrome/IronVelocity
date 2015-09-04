@@ -383,5 +383,8 @@ namespace IronVelocity.Parser
         {
             throw new NotImplementedException();
         }
+
+        public Expression VisitParenthesised_expression([NotNull] VelocityParser.Parenthesised_expressionContext context)
+            => Visit(context.argument());
     }
 }

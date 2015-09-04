@@ -41,7 +41,9 @@ primary_expression : WHITESPACE?
 		| string
 		| interpolated_string
 		| list
-		| range )
+		| range 
+		| parenthesised_expression
+		)
 	WHITESPACE? ;
 
 boolean : TRUE | FALSE ;
@@ -52,6 +54,7 @@ interpolated_string : INTERPOLATED_STRING ;
 
 list : LEFT_SQUARE argument_list RIGHT_SQUARE ;
 range : LEFT_SQUARE argument  DOTDOT argument RIGHT_SQUARE ;
+parenthesised_expression : LEFT_PARENTHESIS argument RIGHT_PARENTHESIS;
 
 set_directive: HASH SET assignment RIGHT_PARENTHESIS;
 if_block : HASH IF argument RIGHT_PARENTHESIS block if_elseif_block* if_else_block? HASH END ;
