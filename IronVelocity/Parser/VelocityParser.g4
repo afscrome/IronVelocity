@@ -61,8 +61,10 @@ if_else_block : HASH ELSE block ;
 
 assignment: WHITESPACE? reference WHITESPACE? ASSIGN argument ;
 
-multiplicative_expression : primary_expression
-	| multiplicative_expression (MULTIPLY | DIVIDE | MODULO) primary_expression;
+unary_expression : primary_expression
+	| EXCLAMATION unary_expression ;
+multiplicative_expression : unary_expression
+	| multiplicative_expression (MULTIPLY | DIVIDE | MODULO) unary_expression;
 additive_expression : multiplicative_expression
 	| additive_expression (PLUS | MINUS) multiplicative_expression;
 relational_expression : additive_expression

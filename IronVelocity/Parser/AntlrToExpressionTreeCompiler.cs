@@ -220,6 +220,17 @@ namespace IronVelocity.Parser
             return Expression.IfThenElse(condition, trueContent, falseContent);
         }
 
+
+
+        public Expression VisitUnary_expression([NotNull] VelocityParser.Unary_expressionContext context)
+        {
+            if (context.ChildCount == 1)
+                return Visit(context.GetChild(0));
+
+            var target = Visit(context.GetChild(1));
+            return Expression.Not(VelocityExpressions.CoerceToBoolean(target));
+        }
+
         public Expression VisitMultiplicative_expression([NotNull] VelocityParser.Multiplicative_expressionContext context)
             => VisitMathematicalExpression(context);
 
