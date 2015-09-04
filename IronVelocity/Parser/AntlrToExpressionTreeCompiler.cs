@@ -220,6 +220,41 @@ namespace IronVelocity.Parser
             return Expression.IfThenElse(condition, trueContent, falseContent);
         }
 
+        public Expression VisitMultiplicative_expression([NotNull] VelocityParser.Multiplicative_expressionContext context)
+            => VisitMathematicalExpression(context);
+
+        public Expression VisitAdditive_expression([NotNull] VelocityParser.Additive_expressionContext context)
+            => VisitMathematicalExpression(context);
+
+        private Expression VisitMathematicalExpression(ParserRuleContext context)
+        {
+            if (context.ChildCount == 1)
+                return Visit(context.GetChild(0));
+
+            if (context.ChildCount != 3)
+                throw new ArgumentOutOfRangeException(nameof(context));
+
+            var operatorKind = ((ITerminalNode)context.GetChild(1)).Symbol.Type;
+            MathematicalOperation operation;
+            switch (operatorKind)
+            {
+                case VelocityLexer.PLUS:
+                    operation = MathematicalOperation.Add;
+                    break;
+                case VelocityLexer.MINUS:
+                    operation = MathematicalOperation.Subtract;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(context));
+            }
+
+            var left = Visit(context.GetChild(0));
+            var right = Visit(context.GetChild(2));
+            var sourceInfo = GetSourceInfo(context);
+
+            return new MathematicalExpression(left, right, sourceInfo, operation);
+        }
+
         public Expression VisitRelational_expression([NotNull] VelocityParser.Relational_expressionContext context)
             => VisitComparisonExpression(context);
 
@@ -337,6 +372,5 @@ namespace IronVelocity.Parser
         {
             throw new NotImplementedException();
         }
-
     }
 }

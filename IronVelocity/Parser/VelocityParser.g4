@@ -61,8 +61,12 @@ if_else_block : HASH ELSE block ;
 
 assignment: WHITESPACE? reference WHITESPACE? ASSIGN argument ;
 
-relational_expression : primary_expression
-	| relational_expression (LESSTHAN | GREATERTHAN | LESSTHANOREQUAL | GREATERTHANOREQUAL) primary_expression;
+multiplicative_expression : primary_expression
+	| multiplicative_expression (MULTIPLY | DIVIDE | MODULO) primary_expression;
+additive_expression : multiplicative_expression
+	| additive_expression (PLUS | MINUS) multiplicative_expression;
+relational_expression : additive_expression
+	| relational_expression (LESSTHAN | GREATERTHAN | LESSTHANOREQUAL | GREATERTHANOREQUAL) additive_expression;
 equality_expression : relational_expression
 	| equality_expression (EQUAL | NOTEQUAL) relational_expression ;
 and_expression : equality_expression
