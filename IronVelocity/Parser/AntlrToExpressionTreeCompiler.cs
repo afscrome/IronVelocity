@@ -6,6 +6,7 @@ using Antlr4.Runtime.Tree;
 using IronVelocity.Compilation.AST;
 using Antlr4.Runtime;
 using IronVelocity.Compilation;
+using IronVelocity.Binders;
 
 namespace IronVelocity.Parser
 {
@@ -219,15 +220,52 @@ namespace IronVelocity.Parser
             return Expression.IfThenElse(condition, trueContent, falseContent);
         }
 
+        public Expression VisitRelational_expression([NotNull] VelocityParser.Relational_expressionContext context)
+            => VisitComparisonExpression(context);
+
         public Expression VisitEquality_expression([NotNull] VelocityParser.Equality_expressionContext context)
+            => VisitComparisonExpression(context);
+
+        private Expression VisitComparisonExpression(ParserRuleContext context)
         {
             if (context.ChildCount == 1)
-                return Visit(context.primary_expression());
+                return Visit(context.GetChild(0));
 
-            var left = VelocityExpressions.CoerceToBoolean(Visit(context.equality_expression()));
-            var right = VelocityExpressions.CoerceToBoolean(Visit(context.primary_expression()));
+            if (context.ChildCount != 3)
+                throw new ArgumentOutOfRangeException(nameof(context));
 
-            return Expression.Equal(left, right);
+            var operatorKind = ((ITerminalNode)context.GetChild(1)).Symbol.Type;
+
+            ComparisonOperation operation;
+            switch (operatorKind)
+            {
+                case VelocityLexer.LESSTHAN:
+                    operation = ComparisonOperation.LessThan;
+                    break;
+                case VelocityLexer.GREATERTHAN:
+                    operation = ComparisonOperation.GreaterThan;
+                    break;
+                case VelocityLexer.LESSTHANOREQUAL:
+                    operation = ComparisonOperation.LessThanOrEqual;
+                    break;
+                case VelocityLexer.GREATERTHANOREQUAL:
+                    operation = ComparisonOperation.GreaterThanOrEqual;
+                    break;
+                case VelocityLexer.EQUAL:
+                    operation = ComparisonOperation.Equal;
+                    break;
+                case VelocityLexer.NOTEQUAL:
+                    operation = ComparisonOperation.NotEqual;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(context));
+            }
+
+            var left = Visit(context.GetChild(0));
+            var right = Visit(context.GetChild(2));
+            var sourceInfo = GetSourceInfo(context);
+
+            return new ComparisonExpression(left, right, sourceInfo, operation);
         }
 
         public Expression VisitOr_expression([NotNull] VelocityParser.Or_expressionContext context)
@@ -299,5 +337,6 @@ namespace IronVelocity.Parser
         {
             throw new NotImplementedException();
         }
+
     }
 }

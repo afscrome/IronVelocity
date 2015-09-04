@@ -61,8 +61,10 @@ if_else_block : HASH ELSE block ;
 
 assignment: WHITESPACE? reference WHITESPACE? ASSIGN argument ;
 
-equality_expression : primary_expression
-	| equality_expression (EQUAL | NOTEQUAL) primary_expression ;
+relational_expression : primary_expression
+	| relational_expression (LESSTHAN | GREATERTHAN | LESSTHANOREQUAL | GREATERTHANOREQUAL) primary_expression;
+equality_expression : relational_expression
+	| equality_expression (EQUAL | NOTEQUAL) relational_expression ;
 and_expression : equality_expression
 	| and_expression AND equality_expression ;
 or_expression : and_expression
