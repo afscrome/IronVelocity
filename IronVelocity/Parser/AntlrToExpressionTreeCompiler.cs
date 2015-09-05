@@ -255,6 +255,15 @@ namespace IronVelocity.Parser
                 case VelocityLexer.MINUS:
                     operation = MathematicalOperation.Subtract;
                     break;
+                case VelocityLexer.MULTIPLY:
+                    operation = MathematicalOperation.Multiply;
+                    break;
+                case VelocityLexer.DIVIDE:
+                    operation = MathematicalOperation.Divide;
+                    break;
+                case VelocityLexer.MODULO:
+                    operation = MathematicalOperation.Modulo;
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(context));
             }
