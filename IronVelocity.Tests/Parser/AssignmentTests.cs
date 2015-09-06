@@ -1,6 +1,5 @@
 ﻿using IronVelocity.Parser;
 using NUnit.Framework;
-using System;
 
 namespace IronVelocity.Tests.Parser
 {
@@ -15,7 +14,7 @@ namespace IronVelocity.Tests.Parser
         {
             //Can't use base.ParseBinaryExpressionTest(..) here due to the way in which Set deals with internal whitespace
             //TODO: can this be fixed in the grammar?
-            var result = CreateParser(input, VelocityLexer.ARGUMENTS).assignment();
+            var result = Parse(input, x => x.assignment(), VelocityLexer.ARGUMENTS);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));

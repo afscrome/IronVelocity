@@ -21,7 +21,7 @@ namespace IronVelocity.Tests.Parser
         //TODO: Are ${x-} and ${y_} valid variables (i.e. ending in - or _ )
         public void ParseReferenceWithVariable(string input, string variableName)
         {
-            var reference = CreateParser(input, LexerInitialState).reference();
+            var reference = Parse(input, x => x.reference(), LexerInitialState);
             Assert.That(reference, Is.Not.Null);
             Assert.That(reference.GetText(), Is.EqualTo(input));
 
@@ -37,7 +37,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!{bar.bear}", "bear")]
         public void ParseReferenceWithProperty(string input, string propertyName)
         {
-            var reference = CreateParser(input, LexerInitialState).reference();
+            var reference = Parse(input, x => x.reference(), LexerInitialState);
             Assert.That(reference, Is.Not.Null);
             Assert.That(reference.GetText(), Is.EqualTo(input));
 
@@ -53,7 +53,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!{bar.bear()}", "bear")]
         public void ParseReferenceWithMethod(string input, string methodName)
         {
-            var reference = CreateParser(input, LexerInitialState).reference();
+            var reference = Parse(input, x => x.reference(), LexerInitialState);
             Assert.That(reference, Is.Not.Null);
             Assert.That(reference.GetText(), Is.EqualTo(input));
 
@@ -67,7 +67,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$!variable.Undefined.AnotherUndefined()")]
         public void ParsesReferenceWithMultipleParts(string input)
         {
-            var reference = CreateParser(input, LexerInitialState).reference();
+            var reference = Parse(input, x => x.reference(), LexerInitialState);
 
             Assert.That(reference, Is.Not.Null);
             Assert.That(reference.GetText(), Is.EqualTo(input));

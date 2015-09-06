@@ -14,16 +14,12 @@ namespace IronVelocity.Tests.Parser
         [TestCase("##Comment")]
         [TestCase("##$reference")]
         [TestCase("##set")]
-        [TestCase("##Comment\r")]
-        [TestCase("##Comment\n")]
-        [TestCase("##Comment\r\n")]
         public void ParseSingleLineComment(string input)
         {
-            var expectedCommentText = input.TrimEnd('\r', '\n');
-            var comment = CreateParser(input).comment();
+            var comment = Parse(input, x => x.comment());
 
             Assert.That(comment, Is.Not.Null);
-            Assert.That(comment.GetText(), Is.EqualTo(expectedCommentText));
+            Assert.That(comment.GetText(), Is.EqualTo(input));
         }
 
         [TestCase("#**#")]
@@ -49,7 +45,7 @@ namespace IronVelocity.Tests.Parser
 
         public void ParseBlockComment(string input)
         {
-            var comment = CreateParser(input).comment();
+            var comment = Parse(input, x => x.comment());
 
             Assert.That(comment, Is.Not.Null);
             Assert.That(comment.GetText(), Is.EqualTo(input));

@@ -1,7 +1,6 @@
 ﻿using IronVelocity.Parser;
 using NUnit.Framework;
 
-
 namespace IronVelocity.Tests.Parser
 {
     public class ListTests : ParserTestBase
@@ -12,7 +11,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("[ [] ]")]
         public void ParseList(string input)
         {
-            var result = CreateParser(input, VelocityLexer.ARGUMENTS).list();
+            var result = Parse(input, x => x.list(), VelocityLexer.ARGUMENTS);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));

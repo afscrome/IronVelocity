@@ -11,7 +11,7 @@ namespace IronVelocity.Tests.Parser
             var target= "$target";
             var input = @operator + target;
 
-            var parsed = CreateParser(input, VelocityLexer.ARGUMENTS).unary_expression();
+            var parsed = Parse(input, x => x.unary_expression(), VelocityLexer.ARGUMENTS);
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.GetText(), Is.EqualTo(input));
             Assert.That(parsed.ChildCount, Is.EqualTo(2));

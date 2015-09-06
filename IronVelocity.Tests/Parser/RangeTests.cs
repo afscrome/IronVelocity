@@ -13,7 +13,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("[true..[]]", typeof(VelocityParser.BooleanContext), typeof(VelocityParser.ListContext), IgnoreReason = "This currently passes, but should it?" )]
         public void ParseRangeExpression(string input, Type leftArgType, Type rightArgType)
         {
-            var result = CreateParser(input, VelocityLexer.ARGUMENTS).range();
+            var result = Parse(input, x => x.range(), VelocityLexer.ARGUMENTS);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));

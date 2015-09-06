@@ -125,7 +125,6 @@
     <Compile Include="Parser\Samples.cs" />
     <Compile Include="Parser\SetDirective.cs" />
     <Compile Include="Parser\StringTests.cs" />
-    <Compile Include="Parser\TestBailErrorStrategy.cs" />
     <Compile Include="Parser\TextTests.cs" />
     <Compile Include="StaticTyping\DictionaryTests.cs" />
     <Compile Include="StaticTyping\If.cs" />

@@ -1,7 +1,4 @@
-﻿using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Tree;
-using NUnit.Framework;
-using System;
+﻿using NUnit.Framework;
 
 namespace IronVelocity.Tests.Parser
 {
@@ -27,21 +24,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#* #* *#")]
         public void ShouldProduceParserError(string input)
         {
-            var parser = CreateParser(input);
-
-            IParseTree parsed;
-            try {
-                parsed = parser.template();
-            }
-            catch(ParseCanceledException)
-            {
-                Assert.Pass();
-                throw;
-            }
-
-            TestBailErrorStrategy.PrintTokens(input);
-            Console.WriteLine(parsed.ToStringTree(parser));
-            Assert.Fail("No Parse Errors Occurred;");
+            ParseShouldProduceError(input, x => x.template());
         }
     }
 }

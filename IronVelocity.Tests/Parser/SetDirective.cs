@@ -13,7 +13,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#set($x = 123)")]
         public void ParseSetDirective(string input)
         {
-            var result = CreateParser(input).set_directive();
+            var result = Parse(input, x => x.set_directive());
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));

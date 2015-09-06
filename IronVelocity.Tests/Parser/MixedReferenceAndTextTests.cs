@@ -1,5 +1,4 @@
-﻿using IronVelocity.Parser;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -11,7 +10,7 @@ namespace IronVelocity.Tests.Parser
         [TestCaseSource("TwoReferencesWithPotentiallyAmbigiousCharcterInBetween")]
         public void ParseTwoReferenceswithTextInBetween(string input, string reference1, string text, string reference2)
         {
-            var result = CreateParser(input).block();
+            var result = Parse(input, x => x.block());
             var textNode = result.text().Single();
             Assert.That(textNode.GetText(), Is.EqualTo(text));
 

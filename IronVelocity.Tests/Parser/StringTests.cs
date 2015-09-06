@@ -10,7 +10,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("'\"'")]
         public void ParseStringLiteral(string input)
         {
-            var result = CreateParser(input, VelocityLexer.ARGUMENTS).@string();
+            var result = Parse(input, x => x.@string(), VelocityLexer.ARGUMENTS);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));

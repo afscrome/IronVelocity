@@ -14,8 +14,7 @@ namespace IronVelocity.Tests.Parser
             var right = "$right";
             var input = $"{left} {@operator} {right}";
 
-            var result = CreateParser(input, VelocityLexer.ARGUMENTS).multiplicative_expression();
-            ParseBinaryExpressionTest(result, input, left, right, operatorTokenKind);
+            ParseBinaryExpressionTest(input, left, right, operatorTokenKind, x => x.multiplicative_expression());
         }
     }
 }

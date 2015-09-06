@@ -4,31 +4,59 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 using Antlr4.Runtime.Tree;
-
+using System;
+using Antlr4.Runtime.Misc;
+using System.Diagnostics;
 
 namespace IronVelocity.Tests.Parser
 {
     [Category("Parser")]
     public abstract class ParserTestBase
     {
-        protected VelocityParser CreateParser(string input, int? lexerMode = null)
+
+        protected T Parse<T>(string input, Func<VelocityParser, T> parseFunc, int? lexerMode = null)
+            where T : RuleContext
         {
+            return new AntlrVelocityParser().ParseTemplate(input, Utility.GetName(), parseFunc, lexerMode);
+        }
+
+
+        protected void ParseShouldProduceError(string input, Func<VelocityParser, RuleContext> parseFunc, int? lexerMode = null, bool shouldLexCompletely = true)
+        {
+            RuleContext parsed;
+            try
+            {
+                parsed = Parse(input, parseFunc, lexerMode);
+            }
+            catch(ParseCanceledException)
+            {
+                Assert.Pass();
+                throw;
+            }
+
+            //For debugging purposes, print the tokens & parse tree generated
+
             var charStream = new AntlrInputStream(input);
             var lexer = new VelocityLexer(charStream);
-            var tokenStream = new CommonTokenStream(lexer);
-            var parser = new VelocityParser(tokenStream)
-            {
-                ErrorHandler = new TestBailErrorStrategy(input, lexerMode)
-            };
-
             if (lexerMode.HasValue)
                 lexer.Mode(lexerMode.Value);
 
-            return parser;
+            foreach (var token in lexer.GetAllTokens())
+            {
+                Console.WriteLine(token);
+                if (Debugger.IsAttached)
+                {
+                    Debug.WriteLine(token);
+                }
+            }
+
+            Console.WriteLine(parsed.ToStringTree(new VelocityParser(null)));
+            Assert.Fail("No Parse Errors Occurred;");
         }
 
-        protected void ParseBinaryExpressionTest(IParseTree parsed, string input, string left, string right, int operatorTokenKind)
+        protected void ParseBinaryExpressionTest(string input, string left, string right, int operatorTokenKind, Func<VelocityParser, RuleContext> parseFunc)
         {
+            var parsed = Parse(input, parseFunc, VelocityLexer.ARGUMENTS);
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.GetText(), Is.EqualTo(input));
             Assert.That(parsed.ChildCount, Is.EqualTo(3));
@@ -39,8 +67,10 @@ namespace IronVelocity.Tests.Parser
             Assert.That(parsed.GetChild(2).GetText().Trim(), Is.EqualTo(right));
         }
 
-        protected void ParseTernaryExpressionWithEqualPrecedenceTest(IParseTree parsed, string input, int leftOperatorKind, int rightOperatorKind)
+
+        protected void ParseTernaryExpressionWithEqualPrecedenceTest(string input, int leftOperatorKind, int rightOperatorKind, Func<VelocityParser, RuleContext> parseFunc)
         {
+            var parsed = Parse(input, parseFunc, VelocityLexer.ARGUMENTS);
             Assert.That(parsed, Is.Not.Null);
 
             Assert.That(parsed.GetText(), Is.EqualTo(input));

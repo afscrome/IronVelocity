@@ -136,6 +136,7 @@
     <Compile Include="IParser.cs" />
     <Compile Include="Parser\AntlrToExpressionTreeCompiler.cs" />
     <Compile Include="Parser\AntlrVelocityParser.cs" />
+    <Compile Include="Parser\ErrorListener.cs" />
     <Compile Include="Reflection\ArgumentConverter.cs" />
     <Compile Include="Reflection\IArgumentConverter.cs" />
     <Compile Include="Reflection\IExpressionConverter.cs" />

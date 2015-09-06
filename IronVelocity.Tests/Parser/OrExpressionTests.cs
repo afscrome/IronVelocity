@@ -11,16 +11,14 @@ namespace IronVelocity.Tests.Parser
         [TestCase(" false or true ", "false", "true")]
         public void ParseBinaryOrExpressionTests(string input, string left, string right)
         {
-            var result = CreateParser(input, VelocityLexer.ARGUMENTS).or_expression();
-            ParseBinaryExpressionTest(result, input, left, right, VelocityLexer.OR);
+            ParseBinaryExpressionTest(input, left, right, VelocityLexer.OR, x => x.or_expression());
         }
 
         [Test]
         public void ParseTernaryOrExpressionTests()
         {
             var input = "$a || $b or $c";
-            var result = CreateParser(input, VelocityLexer.ARGUMENTS).or_expression();
-            ParseTernaryExpressionWithEqualPrecedenceTest(result, input, VelocityLexer.OR, VelocityLexer.OR);
+            ParseTernaryExpressionWithEqualPrecedenceTest(input, VelocityLexer.OR, VelocityLexer.OR, x=> x.or_expression());
         }
 
     }

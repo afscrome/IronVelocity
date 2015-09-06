@@ -16,7 +16,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("(1 + 2)", typeof(VelocityParser.Parenthesised_expressionContext))]
         public void ParsePrimaryExpression(string input, Type parsedNodeType)
         {
-            var result = CreateParser(input, VelocityLexer.ARGUMENTS).primary_expression();
+            var result = Parse(input, x => x.primary_expression(), VelocityLexer.ARGUMENTS);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));

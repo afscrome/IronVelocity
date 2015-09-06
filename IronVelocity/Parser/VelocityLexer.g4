@@ -137,3 +137,4 @@ NOTEQUAL : '!=' | 'ne' ;
 AND : '&&' | 'and' ;
 OR : '||' | 'or' ;
 IDENTIFIER7 : IDENTIFIER_TEXT -> type(IDENTIFIER) ;
+UNKNOWN_CHAR : . ;

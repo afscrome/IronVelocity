@@ -1,8 +1,5 @@
-﻿using Antlr4.Runtime.Misc;
-using Antlr4.Runtime.Tree;
-using IronVelocity.Parser;
+﻿using IronVelocity.Parser;
 using NUnit.Framework;
-using System;
 
 namespace IronVelocity.Tests.Parser
 {
@@ -20,7 +17,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase(3, " 1 , 1 , 1 ")]
         public void ParseArgumentList(int argumentCount, string input)
         {
-            var result = CreateParser(input, VelocityLexer.ARGUMENTS).argument_list();
+            var result = Parse(input, x => x.argument_list(), VelocityLexer.ARGUMENTS);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));
@@ -36,25 +33,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase(",1")]
         public void ParseInvalidArgumentList(string input)
         {
-            var parser = CreateParser(input, VelocityLexer.ARGUMENTS);
-
-            IParseTree parsed;
-            try
-            {
-                parsed = parser.argument_list();
-            }
-            catch (ParseCanceledException)
-            {
-                Assert.Pass();
-                throw;
-            }
-
-            if (parsed.GetText() == input)
-            {
-                TestBailErrorStrategy.PrintTokens(input);
-                Console.WriteLine(parsed.ToStringTree(parser));
-            }
-
+            ParseShouldProduceError(input, x => x.argument_list(), VelocityLexer.ARGUMENTS);
         }
     }
 }

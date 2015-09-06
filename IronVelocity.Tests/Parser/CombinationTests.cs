@@ -4,8 +4,6 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Tests.Parser
 {
@@ -31,7 +29,7 @@ namespace IronVelocity.Tests.Parser
         [TestCaseSource("CombinationTestSource")]
         public void CombinationTest(string input, Type expectedNodeType1, string expectedText1, Type expectedNodeType2, string expectedText2)
         {
-            var result = CreateParser(input).template();
+            var result = Parse(input, x => x.template());
 
             var flattened = FlattenParseTree(result);
 
