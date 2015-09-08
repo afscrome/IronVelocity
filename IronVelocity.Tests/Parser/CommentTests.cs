@@ -8,15 +8,28 @@ using System.Threading.Tasks;
 
 namespace IronVelocity.Tests.Parser
 {
+    [TestFixture(VelocityLexer.DefaultMode)]
+    [TestFixture(VelocityLexer.DOLLAR_SEEN)]
+    [TestFixture(VelocityLexer.REFERENCE)]
+    [TestFixture(VelocityLexer.REFERENCE_POSSIBLE_METHOD)]
+
     public class CommentTests : ParserTestBase
     {
+        private readonly int LexerInitialState;
+
+        public CommentTests(int initialLexerState)
+        {
+            LexerInitialState = initialLexerState;
+        }
+
+
         [TestCase("##")]
         [TestCase("##Comment")]
         [TestCase("##$reference")]
         [TestCase("##set")]
         public void ParseSingleLineComment(string input)
         {
-            var comment = Parse(input, x => x.comment());
+            var comment = Parse(input, x => x.comment(), LexerInitialState);
 
             Assert.That(comment, Is.Not.Null);
             Assert.That(comment.GetText(), Is.EqualTo(input));
@@ -45,7 +58,7 @@ namespace IronVelocity.Tests.Parser
 
         public void ParseBlockComment(string input)
         {
-            var comment = Parse(input, x => x.comment());
+            var comment = Parse(input, x => x.comment(), LexerInitialState);
 
             Assert.That(comment, Is.Not.Null);
             Assert.That(comment.GetText(), Is.EqualTo(input));

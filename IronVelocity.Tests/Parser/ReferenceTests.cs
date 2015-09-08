@@ -4,11 +4,20 @@ using System.Linq;
 
 namespace IronVelocity.Tests.Parser
 {
+    [TestFixture(VelocityLexer.DefaultMode)]
+    [TestFixture(VelocityLexer.HASH_SEEN)]
+    [TestFixture(VelocityLexer.DOLLAR_SEEN)]
+    [TestFixture(VelocityLexer.REFERENCE)]
+    [TestFixture(VelocityLexer.REFERENCE_POSSIBLE_METHOD)]
+    [TestFixture(VelocityLexer.ARGUMENTS)]
     public class ReferenceTests : ParserTestBase
     {
-        //TODO: the below tests need to be repeated in both ARGUMENT context, and TEXT lexer states.
-        //TODO: Add tests for multiple invocations - e.g. $var.prop.method().prop 
-        private readonly int LexerInitialState = VelocityLexer.DefaultMode;
+        private readonly int LexerInitialState;
+
+        public ReferenceTests(int initialLexerState)
+        {
+            LexerInitialState = initialLexerState;
+        }
 
         [TestCase("$foo", "foo")]
         [TestCase("$!bar", "bar")]
