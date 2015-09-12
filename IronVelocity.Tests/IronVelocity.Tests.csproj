@@ -171,6 +171,7 @@
     <Compile Include="TemplateExecution\CommentTests.cs" />
     <Compile Include="TemplateExecution\MathsTests.cs" />
     <Compile Include="TemplateExecution\OrderOfEvaluationTests.cs" />
+    <Compile Include="TemplateExecution\PrecedenceTests.cs" />
     <Compile Include="TemplateExecution\ReferenceTests.cs" />
     <Compile Include="TemplateExecution\SetTests.cs" />
     <Compile Include="TemplateExecution\TemplateExecutionBase.cs" />
