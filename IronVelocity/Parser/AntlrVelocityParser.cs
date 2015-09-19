@@ -37,6 +37,9 @@ namespace IronVelocity.Parser
             //parser.AddErrorListener(new DiagnosticErrorListener(false));
             parser.AddErrorListener(parserErrorListener);
 
+            var originalErrorStrategy = parser.ErrorHandler;
+            parser.ErrorHandler = new BailErrorStrategy();
+
             if (lexerMode.HasValue)
                 lexer.Mode(lexerMode.Value);
 
@@ -53,9 +56,11 @@ namespace IronVelocity.Parser
                 tokenStream.Reset();
                 parser.Reset();
                 parser.Interpreter.PredictionMode = PredictionMode.Ll;
+                parser.ErrorHandler = originalErrorStrategy;
 
                 template = parseFunc(parser);
-                throw new Exception("TODO: Log that we've needed to fallback to full LL parsing.  If this happens a lot, may want to fallback to single phase parsing");
+                Console.WriteLine("Fell back to full LL parsing");
+                //throw new Exception("TODO: Log that we've needed to fallback to full LL parsing.  If this happens a lot, may want to fallback to single phase parsing");
             }
 
             HandleFailures("Lexer error", lexerErrorListener);
