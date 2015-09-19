@@ -6,7 +6,7 @@ options {
 
 template : block? EOF;
 
-block: (text | reference | comment | set_directive | if_block)* ;
+block: (text | reference | comment | set_directive | if_block | custom_directive_single_line | custom_directive_multi_line)* ;
 
 //Not sure about LEFT_CURLEY on it's own.  "LEFT_CURLEY ~IDENTIFIER" would be better
 //however causes failures if there is a textual "{" followed by EOF
@@ -61,7 +61,10 @@ if_block : HASH IF LEFT_PARENTHESIS argument RIGHT_PARENTHESIS block if_elseif_b
 if_elseif_block : HASH ELSEIF LEFT_PARENTHESIS argument RIGHT_PARENTHESIS block ;
 if_else_block : HASH ELSE block ;
 
-custom_directive_single_line : HASH IDENTIFIER (LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS)? ;
+custom_directive_single_line : HASH IDENTIFIER (LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS)? 
+	{$IDENTIFIER.text != "multiLine"}? ;
+custom_directive_multi_line : HASH IDENTIFIER (LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS)? block  HASH END
+	{$IDENTIFIER.text == "multiLine"}? ;
 
 assignment: WHITESPACE? reference WHITESPACE? ASSIGN argument ;
 

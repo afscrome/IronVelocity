@@ -33,5 +33,45 @@ namespace IronVelocity.Tests.Parser
 
             Assert.That(result.argument_list(), Is.Not.Null);
         }
+
+        [TestCase("#multiLine()#end")]
+        [TestCase("#multiLine(   )#end")]
+        [TestCase("#multiLine( 123, 456 )#end")]
+        public void ShouldParseMultiLineCustomDirectiveWithNoArguments(string input)
+        {
+            var result = Parse(input, x => x.custom_directive_multi_line());
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("multiLine"));
+            Assert.That(result.argument_list(), Is.Not.Null);
+        }
+
+        [Test]
+        public void ShouldParseMultiLineCustomDirectiveWithContent()
+        {
+            var input = "#multiLine\r\nHello\r\n#end";
+            var result = Parse(input, x => x.custom_directive_multi_line());
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("multiLine"));
+        }
+
+        [Test]
+        public void ShouldParseMultiLineCustomDirectiveWithArguments()
+        {
+            var input = "#multiLine( $foo, $bar) #end";
+            var result = Parse(input, x => x.custom_directive_multi_line());
+
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("multiLine"));
+        }
+
+        [Test]
+        public void ShouldNotParseMultiLineDirectiveWithoutEnd()
+        {
+            var input = "#multiLine ABC123";
+            ParseShouldProduceError(input, x => x.template());
+        }
+
     }
 }

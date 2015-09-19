@@ -67,7 +67,7 @@ namespace IronVelocity.Parser
             HandleFailures("Parser error", parserErrorListener);
 
             if (lexer.Token.Type != -1)
-                throw new ParseCanceledException("LexerFailedToComplete");
+                throw new ParseCanceledException("Lexer failed to lex to end of file.");
 
             if (parser.NumberOfSyntaxErrors > 0)
                 throw new ParseCanceledException("Parser syntax errors occurred, but weren't reported properly");

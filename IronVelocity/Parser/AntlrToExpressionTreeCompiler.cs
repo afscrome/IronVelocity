@@ -400,5 +400,10 @@ namespace IronVelocity.Parser
         {
             throw new NotImplementedException();
         }
+
+        public Expression VisitCustom_directive_multi_line([NotNull] VelocityParser.Custom_directive_multi_lineContext context)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
