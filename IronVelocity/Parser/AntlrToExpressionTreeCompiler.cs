@@ -227,7 +227,7 @@ namespace IronVelocity.Parser
             if (context.ChildCount == 1)
                 return Visit(context.GetChild(0));
 
-            var target = Visit(context.GetChild(1));
+            var target = Visit(context.GetChild(context.ChildCount - 1));
             return Expression.Not(VelocityExpressions.CoerceToBoolean(target));
         }
 

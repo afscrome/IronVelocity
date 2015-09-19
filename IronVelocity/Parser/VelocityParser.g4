@@ -69,7 +69,7 @@ custom_directive_multi_line : HASH IDENTIFIER (LEFT_PARENTHESIS argument_list RI
 assignment: WHITESPACE? reference WHITESPACE? ASSIGN argument ;
 
 unary_expression : primary_expression
-	| EXCLAMATION unary_expression ;
+	| WHITESPACE? EXCLAMATION unary_expression ;
 multiplicative_expression : unary_expression
 	| multiplicative_expression (MULTIPLY | DIVIDE | MODULO) unary_expression;
 additive_expression : multiplicative_expression

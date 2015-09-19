@@ -33,7 +33,16 @@ namespace IronVelocity.Tests.TemplateExecution
             var result = ExecuteTemplate(input);
 
             Assert.That(result.Context["result"], Is.EqualTo(expectedResult));
+        }
 
+        [TestCase("!true", false)]
+        [TestCase("  !false", true)]
+        [TestCase("  !  false", true)]
+        public void BasicNot(string input, bool expectedResult)
+        {
+            var result = EvaluateExpression(input);
+
+            Assert.That(result, Is.EqualTo(expectedResult));
         }
 
         [TestCase(123, "'hello'", true)]
@@ -55,6 +64,14 @@ namespace IronVelocity.Tests.TemplateExecution
         {
             var result = EvaluateExpression($"{left.ToString().ToLower()} && {right.ToString().ToLower()}");
 
+            Assert.That(result, Is.EqualTo(expectedResult));
+        }
+
+        [TestCase("'abc'", false)]
+        [TestCase("$null", true)]
+        public void NotCoercion(object value, bool expectedResult)
+        {
+            var result = EvaluateExpression($"!{value}");
             Assert.That(result, Is.EqualTo(expectedResult));
         }
 
