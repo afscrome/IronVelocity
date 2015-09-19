@@ -1,4 +1,4 @@
-version: 0.0.1
+version: 0.0.2
 skip_tags: true
 configuration: Release
 assembly_info:
@@ -13,7 +13,7 @@ before_build:
 - ps: >-
     nuget restore
 
-    if ($env:APPVEYOR_REPO_BRANCH -ne 'master' -and !$env:APPVEYOR_PULL_REQUEST_NUMBER) {
+    if ($env:APPVEYOR_REPO_BRANCH -ne 'master' -or !$env:APPVEYOR_PULL_REQUEST_NUMBER) {
        Update-AppveyorBuild -Version "${env:APPVEYOR_BUILD_VERSION}-alpha${env:APPVEYOR_BUILD_NUMBER}"
     }
 build:
