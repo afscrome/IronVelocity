@@ -30,6 +30,7 @@ IF : 'if' -> mode(DIRECTIVE_ARGUMENTS) ;
 ELSEIF : 'elseif' -> mode(DIRECTIVE_ARGUMENTS);
 ELSE : 'else' -> mode(DEFAULT_MODE) ;
 END : 'end' -> mode(DEFAULT_MODE) ;
+IDENTIFIER : IDENTIFIER_TEXT -> mode(DIRECTIVE_ARGUMENTS);
 TEXT_FALLBACK2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 mode DIRECTIVE_ARGUMENTS ;
@@ -57,7 +58,7 @@ BLOCK_COMMENT_BODY :  (~('#' | '*') | '#' ~'*' | '*' ~'#')+ ;
 // "$.test"
 mode DOLLAR_SEEN ;
 
-IDENTIFIER : IDENTIFIER_TEXT -> mode(REFERENCE) ;
+IDENTIFIER4 : IDENTIFIER_TEXT -> type(IDENTIFIER), mode(REFERENCE) ;
 EXCLAMATION : '!' ;
 LEFT_CURLEY : '{';
 

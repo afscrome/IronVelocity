@@ -61,6 +61,8 @@ if_block : HASH IF LEFT_PARENTHESIS argument RIGHT_PARENTHESIS block if_elseif_b
 if_elseif_block : HASH ELSEIF LEFT_PARENTHESIS argument RIGHT_PARENTHESIS block ;
 if_else_block : HASH ELSE block ;
 
+custom_directive_single_line : HASH IDENTIFIER (LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS)? ;
+
 assignment: WHITESPACE? reference WHITESPACE? ASSIGN argument ;
 
 unary_expression : primary_expression

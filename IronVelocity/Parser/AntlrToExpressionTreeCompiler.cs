@@ -395,5 +395,10 @@ namespace IronVelocity.Parser
 
         public Expression VisitParenthesised_expression([NotNull] VelocityParser.Parenthesised_expressionContext context)
             => Visit(context.argument());
+
+        public Expression VisitCustom_directive_single_line([NotNull] VelocityParser.Custom_directive_single_lineContext context)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
