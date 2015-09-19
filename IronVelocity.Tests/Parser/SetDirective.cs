@@ -11,6 +11,7 @@ namespace IronVelocity.Tests.Parser
     public class SetDirective : ParserTestBase
     {
         [TestCase("#set($x = 123)")]
+        [TestCase("#set   ($x = 123)")]
         public void ParseSetDirective(string input)
         {
             var result = Parse(input, x => x.set_directive());

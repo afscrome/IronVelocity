@@ -35,7 +35,8 @@ TEXT_FALLBACK2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 mode DIRECTIVE_ARGUMENTS ;
 
-LEFT_PARENTHESIS : '(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
+//TODO: Including spaces in LEFT_PARENTHESIS is a bit of a hack
+LEFT_PARENTHESIS : ' '* '(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
 TEXT_FALLBACK2A : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
