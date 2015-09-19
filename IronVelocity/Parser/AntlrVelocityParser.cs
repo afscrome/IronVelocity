@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using Antlr4.Runtime.Tree;
 using Antlr4.Runtime.Misc;
+using Antlr4.Runtime.Atn;
 
 namespace IronVelocity.Parser
 {
@@ -39,10 +40,23 @@ namespace IronVelocity.Parser
             if (lexerMode.HasValue)
                 lexer.Mode(lexerMode.Value);
 
-            TemplateGenerationEventSource.Log.ParseStart(name);
-            var template = parseFunc(parser);
-            TemplateGenerationEventSource.Log.ParseStop(name);
+            parser.Interpreter.PredictionMode = PredictionMode.Sll;
 
+            T template;
+            try {
+                TemplateGenerationEventSource.Log.ParseStart(name);
+                template = parseFunc(parser);
+                TemplateGenerationEventSource.Log.ParseStop(name);
+            }
+            catch(Exception)
+            {
+                tokenStream.Reset();
+                parser.Reset();
+                parser.Interpreter.PredictionMode = PredictionMode.Ll;
+
+                template = parseFunc(parser);
+                throw new Exception("TODO: Log that we've needed to fallback to full LL parsing.  If this happens a lot, may want to fallback to single phase parsing");
+            }
 
             HandleFailures("Lexer error", lexerErrorListener);
             HandleFailures("Parser error", parserErrorListener);
