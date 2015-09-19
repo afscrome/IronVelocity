@@ -56,11 +56,10 @@ list : LEFT_SQUARE argument_list RIGHT_SQUARE ;
 range : LEFT_SQUARE argument  DOTDOT argument RIGHT_SQUARE ;
 parenthesised_expression : LEFT_PARENTHESIS argument RIGHT_PARENTHESIS;
 
-set_directive: HASH SET assignment RIGHT_PARENTHESIS;
-if_block : HASH IF argument RIGHT_PARENTHESIS block if_elseif_block* if_else_block? HASH END ;
-if_elseif_block : HASH ELSEIF argument RIGHT_PARENTHESIS block ;
+set_directive: HASH SET LEFT_PARENTHESIS assignment RIGHT_PARENTHESIS;
+if_block : HASH IF LEFT_PARENTHESIS argument RIGHT_PARENTHESIS block if_elseif_block* if_else_block? HASH END ;
+if_elseif_block : HASH ELSEIF LEFT_PARENTHESIS argument RIGHT_PARENTHESIS block ;
 if_else_block : HASH ELSE block ;
-
 
 assignment: WHITESPACE? reference WHITESPACE? ASSIGN argument ;
 

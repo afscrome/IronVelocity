@@ -25,12 +25,17 @@ mode HASH_SEEN ;
 SINGLE_LINE_COMMENT : '#' ~('\r' | '\n')* -> type(COMMENT), mode(DEFAULT_MODE);
 //Need to switch to default mode before pushing so that when the the matching end tag pops, we end back in text mode.
 BLOCK_COMMENT_START : '*' -> mode(DEFAULT_MODE), pushMode(BLOCK_COMMENT) ;
-SET : 'set(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
-IF : 'if(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
-ELSEIF : 'elseif(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
+SET : 'set' -> mode(DIRECTIVE_ARGUMENTS) ;
+IF : 'if' -> mode(DIRECTIVE_ARGUMENTS) ;
+ELSEIF : 'elseif' -> mode(DIRECTIVE_ARGUMENTS);
 ELSE : 'else' -> mode(DEFAULT_MODE) ;
 END : 'end' -> mode(DEFAULT_MODE) ;
 TEXT_FALLBACK2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
+
+mode DIRECTIVE_ARGUMENTS ;
+
+LEFT_PARENTHESIS : '(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
+TEXT_FALLBACK2A : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
 //===================================
@@ -81,7 +86,7 @@ TEXT_FALLBACK5 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 mode REFERENCE_POSSIBLE_METHOD ;
 
 DOT6 : '.' -> type(DOT), mode(REFERENCE);
-LEFT_PARENTHESIS : '(' -> mode(REFERENCE), pushMode(ARGUMENTS) ;
+LEFT_PARENTHESIS6 : '(' -> type(LEFT_PARENTHESIS), mode(REFERENCE), pushMode(ARGUMENTS) ;
 RIGHT_CURLEY6 : '}' -> type(RIGHT_CURLEY),  mode(DEFAULT_MODE);
 
 DOTDOT_TEXT6 : '..' -> type(TEXT), mode(DEFAULT_MODE) ;
