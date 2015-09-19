@@ -1,9 +1,4 @@
 version: 0.0.1
-branches:
-  except:
-    - master
-  version: '{version}-alpha{build}'
-
 skip_tags: true
 configuration: Release
 assembly_info:
@@ -15,7 +10,12 @@ assembly_info:
 nuget:
   disable_publish_on_pr: true
 before_build:
-- nuget restore
+- ps: >-
+    nuget restore
+
+    if ($env:APPVEYOR_REPO_BRANCH -ne 'master' -and !$env:APPVEYOR_PULL_REQUEST_NUMBER) {
+       Update-AppveyorBuild -Version "${env:APPVEYOR_BUILD_VERSION}-alpha${env:APPVEYOR_BUILD_NUMBER}"
+    }
 build:
   publish_nuget: true
   publish_nuget_symbols: true
