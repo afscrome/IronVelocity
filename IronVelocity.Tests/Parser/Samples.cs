@@ -42,6 +42,7 @@ namespace IronVelocity.Tests.Parser
         {
             ".",
             "..",
+            "..text",
             "$",
             ")",
             "}",

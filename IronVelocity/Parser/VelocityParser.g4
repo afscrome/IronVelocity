@@ -14,7 +14,7 @@ block: (text | reference | comment | set_directive | if_block)* ;
 //"DOLLAR  EXCLAMATION? LEFT_CURLEY?"" accounts for scenarios where the DOLLAR_SEEN
 // lexical state was entered, but did not move into the REFERENCE state
 
-text : (TEXT | HASH | DOLLAR | RIGHT_CURLEY | LEFT_CURLEY | DOT | EXCLAMATION )+ ;
+text : (TEXT | HASH | DOLLAR (EXCLAMATION | LEFT_CURLEY)* | RIGHT_CURLEY | DOT )+ ;
 
 comment : HASH COMMENT | HASH block_comment;
 block_comment : BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | block_comment)*  BLOCK_COMMENT_END ;

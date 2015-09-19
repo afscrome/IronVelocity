@@ -2,6 +2,7 @@ lexer grammar VelocityLexer;
 
 tokens {
 	COMMENT,
+	TRANSITION
 }
 
 fragment IDENTIFIER_TEXT : ('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | '0'..'9' | '-' | '_'  )* ;
@@ -10,8 +11,6 @@ fragment IDENTIFIER_TEXT : ('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | '0'..'9'
 //===================================
 // Default mode used for parsing text
 // Moves to the HASH_SEEN or DOLLAR_SEEN states upon seeing '$' or '#' respectively
-mode DEFAULT_MODE ;
-
 TEXT : ~('$'| '#')+ ;
 DOLLAR : '$' ->  mode(DOLLAR_SEEN) ;
 HASH : '#' -> mode(HASH_SEEN) ;
@@ -26,14 +25,12 @@ mode HASH_SEEN ;
 SINGLE_LINE_COMMENT : '#' ~('\r' | '\n')* -> type(COMMENT), mode(DEFAULT_MODE);
 //Need to switch to default mode before pushing so that when the the matching end tag pops, we end back in text mode.
 BLOCK_COMMENT_START : '*' -> mode(DEFAULT_MODE), pushMode(BLOCK_COMMENT) ;
-DOLLAR2 : '$' ->  mode(DOLLAR_SEEN), type(DOLLAR) ;
 SET : 'set(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
 IF : 'if(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
 ELSEIF : 'elseif(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
 ELSE : 'else' -> mode(DEFAULT_MODE) ;
 END : 'end' -> mode(DEFAULT_MODE) ;
-TEXT2 : . -> type(TEXT), mode(DEFAULT_MODE) ;
-
+TEXT_FALLBACK2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
 //===================================
@@ -58,9 +55,8 @@ mode DOLLAR_SEEN ;
 IDENTIFIER : IDENTIFIER_TEXT -> mode(REFERENCE) ;
 EXCLAMATION : '!' ;
 LEFT_CURLEY : '{';
-DOLLAR4 : '$' -> type(DOLLAR) ;
-HASH4 : '#' -> type(HASH), mode(HASH_SEEN);
-TEXT4 : . -> type(TEXT), mode(DEFAULT_MODE) ;
+
+TEXT_FALLBACK4 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
 
@@ -70,12 +66,11 @@ TEXT4 : . -> type(TEXT), mode(DEFAULT_MODE) ;
 mode REFERENCE ;
 
 DOT : '.' ;
-IDENTIFIER65: IDENTIFIER_TEXT -> type(IDENTIFIER) , mode(REFERENCE_POSSIBLE_METHOD) ;
+IDENTIFIER5: IDENTIFIER_TEXT -> type(IDENTIFIER) , mode(REFERENCE_POSSIBLE_METHOD) ;
 RIGHT_CURLEY : '}' ->  mode(DEFAULT_MODE);
 
-DOLLAR5 : '$' -> type(DOLLAR), mode(DOLLAR_SEEN) ;
-HASH5 : '#' -> type(HASH), mode(HASH_SEEN);
-TEXT5 : (. | '..') -> type(TEXT), mode(DEFAULT_MODE) ;
+DOTDOT_TEXT5 : '..' -> type(TEXT), mode(DEFAULT_MODE) ;
+TEXT_FALLBACK5 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
 //===================================
@@ -89,10 +84,8 @@ DOT6 : '.' -> type(DOT), mode(REFERENCE);
 LEFT_PARENTHESIS : '(' -> mode(REFERENCE), pushMode(ARGUMENTS) ;
 RIGHT_CURLEY6 : '}' -> type(RIGHT_CURLEY),  mode(DEFAULT_MODE);
 
-//
-DOLLAR6 : '$' -> type(DOLLAR), mode(DOLLAR_SEEN) ;
-HASH6 : '#' -> type(HASH), mode(HASH_SEEN);
-TEXT6 : (. | '..')  -> type(TEXT), mode(DEFAULT_MODE) ;
+DOTDOT_TEXT6 : '..' -> type(TEXT), mode(DEFAULT_MODE) ;
+TEXT_FALLBACK6 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
 // Three states may seem excessive for parsing references, however:
