@@ -2,7 +2,7 @@ version: 0.0.1
 branches:
   except:
     - master
-  version: {version}-alpha{build}
+  version: '{version}-alpha{build}'
 
 skip_tags: true
 configuration: Release
