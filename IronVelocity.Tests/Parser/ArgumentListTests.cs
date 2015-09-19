@@ -23,7 +23,7 @@ namespace IronVelocity.Tests.Parser
             Assert.That(result.GetText(), Is.EqualTo(input));
 
             var arguments = result.GetRuleContexts<VelocityParser.ArgumentContext>();
-            Assert.That(arguments.Count, Is.EqualTo(argumentCount));
+            Assert.That(arguments, Has.Length.EqualTo(argumentCount));
         }
 
         [TestCase(",")]

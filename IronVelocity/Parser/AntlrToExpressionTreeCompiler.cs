@@ -60,7 +60,7 @@ namespace IronVelocity.Parser
 
             var further = context.GetRuleContexts<ParserRuleContext>();
 
-            for (int i = 0; i < further.Count; i++)
+            for (int i = 0; i < further.Length; i++)
             {
                 var innerContext = further[i];
                 var property = innerContext as VelocityParser.Property_invocationContext;
@@ -205,7 +205,7 @@ namespace IronVelocity.Parser
                 : Visit(elseBlock.block());
 
             var elseIfBlocks = context.GetRuleContexts<VelocityParser.If_elseif_blockContext>();
-            for (int i = elseIfBlocks.Count - 1; i >= 0; i--)
+            for (int i = elseIfBlocks.Length - 1; i >= 0; i--)
             {
                 var elseIf = elseIfBlocks[i];
                 var innerCondition = new CoerceToBooleanExpression(Visit(elseIf.argument()));
