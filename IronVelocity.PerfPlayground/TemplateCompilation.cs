@@ -5,16 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.PerfPlayground
 {
-    [TestFixture(Category = "Performance")]
+    [TestFixture(Category="Performance")]
     [Explicit]
     public class TemplateCompilation
     {
@@ -22,15 +18,15 @@ namespace IronVelocity.PerfPlayground
 
         public TemplateCompilation()
         {
-            OutputDir = "CompiledTemplates";
-            TemplateDirectories = new[] { "../../templates/", "../../../IronVelocity.Tests/Regression/templates/" };
+            OutputDir= "CompiledTemplates";
+            TemplateDirectories = new[] {"../../templates/", "../../../IronVelocity.Tests/Regression/templates/"};
         }
 
         public bool SaveDlls { get; set; }
         public bool SaveIl { get; set; }
         public bool ExecuteTemplate { get; set; }
         public string OutputDir { get; set; }
-        public ICollection<string> TemplateDirectories { get; set; }
+        public ICollection<string> TemplateDirectories {get; set;}
 
         [TestFixtureSetUp]
         public void SetUp()
@@ -62,13 +58,13 @@ namespace IronVelocity.PerfPlayground
             {
                 compiler = new VelocityCompiler(null);
             }
-
+            
             var result = compiler.CompileWithSymbols(expressionTree, assemblyName, true, path);
 
             if (ExecuteTemplate)
             {
                 var context = new VelocityContext();
-                using (var writer = new StringWriter())
+                using(var writer = new StringWriter())
                 {
                     var output = new VelocityOutput(writer);
                     result(context, output);
@@ -130,7 +126,7 @@ namespace IronVelocity.PerfPlayground
                 AssemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(_assemblyName, AssemblyBuilderAccess.RunAndSave, outputDir);
             }
 
-            protected override ModuleBuilder CreateModuleBuilder(bool debugMode)
+            protected override  ModuleBuilder CreateModuleBuilder(bool debugMode)
             {
                 var name = _assemblyName.Name;
                 var moduleBuilder = AssemblyBuilder.DefineDynamicModule(name, name + ".dll", true);
