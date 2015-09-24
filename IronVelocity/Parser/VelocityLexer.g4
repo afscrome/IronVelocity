@@ -105,7 +105,7 @@ TEXT_FALLBACK6 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 // or a directive #directive(ARGUMENTS)
 mode ARGUMENTS ;
 
-WHITESPACE : (' ' | '\t')+ ;
+WHITESPACE : (' ' | '\t')+ -> channel(HIDDEN);
 COMMA : ',' ;
 LEFT_PARENTHESIS7 : '(' -> type(LEFT_PARENTHESIS), pushMode(ARGUMENTS);
 RIGHT_PARENTHESIS : ')' -> popMode ;

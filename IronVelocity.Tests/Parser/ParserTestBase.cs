@@ -54,11 +54,11 @@ namespace IronVelocity.Tests.Parser
             Assert.Fail("No Parse Errors Occurred;");
         }
 
-        protected void ParseBinaryExpressionTest(string input, string left, string right, int operatorTokenKind, Func<VelocityParser, RuleContext> parseFunc)
+        protected void ParseBinaryExpressionTest(string input, string left, string right, int operatorTokenKind, Func<VelocityParser, ParserRuleContext> parseFunc)
         {
             var parsed = Parse(input, parseFunc, VelocityLexer.ARGUMENTS);
             Assert.That(parsed, Is.Not.Null);
-            Assert.That(parsed.GetText(), Is.EqualTo(input));
+            Assert.That(parsed.GetFullText(), Is.EqualTo(input.Trim()));
             Assert.That(parsed.ChildCount, Is.EqualTo(3));
 
             Assert.That(GetTerminalNodeTokenType(parsed.GetChild(1)), Is.EqualTo(operatorTokenKind));
@@ -68,12 +68,12 @@ namespace IronVelocity.Tests.Parser
         }
 
 
-        protected void ParseTernaryExpressionWithEqualPrecedenceTest(string input, int leftOperatorKind, int rightOperatorKind, Func<VelocityParser, RuleContext> parseFunc)
+        protected void ParseTernaryExpressionWithEqualPrecedenceTest(string input, int leftOperatorKind, int rightOperatorKind, Func<VelocityParser, ParserRuleContext> parseFunc)
         {
             var parsed = Parse(input, parseFunc, VelocityLexer.ARGUMENTS);
             Assert.That(parsed, Is.Not.Null);
 
-            Assert.That(parsed.GetText(), Is.EqualTo(input));
+            Assert.That(parsed.GetFullText(), Is.EqualTo(input));
             Assert.That(parsed.ChildCount, Is.EqualTo(3));
             Assert.That(parsed.GetChild(0).ChildCount, Is.EqualTo(3));
 

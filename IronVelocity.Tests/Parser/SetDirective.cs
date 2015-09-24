@@ -17,7 +17,7 @@ namespace IronVelocity.Tests.Parser
             var result = Parse(input, x => x.set_directive());
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.GetText(), Is.EqualTo(input));
+            Assert.That(result.GetFullText(), Is.EqualTo(input));
 
             Assert.That(result.assignment(), Is.Not.Null);
         }

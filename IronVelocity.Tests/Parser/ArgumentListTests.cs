@@ -20,7 +20,7 @@ namespace IronVelocity.Tests.Parser
             var result = Parse(input, x => x.argument_list(), VelocityLexer.ARGUMENTS);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.GetText(), Is.EqualTo(input));
+            Assert.That(result.GetFullText(), Is.EqualTo(input.Trim()));
 
             var arguments = result.GetRuleContexts<VelocityParser.ArgumentContext>();
             Assert.That(arguments, Has.Length.EqualTo(argumentCount));

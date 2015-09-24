@@ -28,23 +28,20 @@ variable : IDENTIFIER;
 property_invocation: IDENTIFIER ;
 method_invocation: IDENTIFIER LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS;
 
-argument_list : WHITESPACE?
-	| argument (COMMA argument)* ;
+argument_list : (argument (COMMA argument)*)? ;
 
 argument:  primary_expression | or_expression ;
 
-primary_expression : WHITESPACE? 
-	(reference 
-		| boolean
-		| integer
-		| float 
-		| string
-		| interpolated_string
-		| list
-		| range 
-		| parenthesised_expression
-		)
-	WHITESPACE? ;
+primary_expression : reference 
+	| boolean
+	| integer
+	| float 
+	| string
+	| interpolated_string
+	| list
+	| range 
+	| parenthesised_expression
+	;
 
 boolean : TRUE | FALSE ;
 integer : MINUS? NUMBER ;
@@ -66,10 +63,10 @@ custom_directive_single_line : HASH IDENTIFIER (LEFT_PARENTHESIS argument_list R
 custom_directive_multi_line : HASH IDENTIFIER (LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS)? block  HASH END
 	{$IDENTIFIER.text == "multiLine"}? ;
 
-assignment: WHITESPACE? reference WHITESPACE? ASSIGN argument ;
+assignment: reference ASSIGN argument ;
 
 unary_expression : primary_expression
-	| WHITESPACE? EXCLAMATION unary_expression ;
+	| EXCLAMATION unary_expression ;
 multiplicative_expression : unary_expression
 	| multiplicative_expression (MULTIPLY | DIVIDE | MODULO) unary_expression;
 additive_expression : multiplicative_expression

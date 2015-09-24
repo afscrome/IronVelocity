@@ -12,15 +12,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase(" $x = 123 ", "$x", "123")]
         public void ParseAssignmentExpression(string input, string left, string right)
         {
-            //Can't use base.ParseBinaryExpressionTest(..) here due to the way in which Set deals with internal whitespace
-            //TODO: can this be fixed in the grammar?
-            var result = Parse(input, x => x.assignment(), VelocityLexer.ARGUMENTS);
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.GetText(), Is.EqualTo(input));
-
-            Assert.That(result.reference().GetText().Trim(), Is.EqualTo(left));
-            Assert.That(result.argument().GetText().Trim(), Is.EqualTo(right));
+            ParseBinaryExpressionTest(input, left, right, VelocityParser.ASSIGN, x => x.assignment());
         }
     }
 }
