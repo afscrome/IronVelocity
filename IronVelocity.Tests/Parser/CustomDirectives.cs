@@ -31,7 +31,7 @@ namespace IronVelocity.Tests.Parser
             Assert.That(result, Is.Not.Null);
             Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("custom"));
 
-            Assert.That(result.directive_argument_list(), Is.Not.Null);
+            Assert.That(result.directive_arguments(), Is.Not.Null);
             Assert.That(result.block(), Is.Null);
         }
 
@@ -44,7 +44,7 @@ namespace IronVelocity.Tests.Parser
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("multiLine"));
-            Assert.That(result.directive_argument_list(), Is.Not.Null);
+            Assert.That(result.directive_arguments(), Is.Not.Null);
             Assert.That(result.block(), Is.Not.Null);
         }
 

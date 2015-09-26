@@ -363,7 +363,7 @@ namespace IronVelocity.Parser
             if (handler.IsMultiline)
                 throw new InvalidOperationException($"Handler {handler.Name} is a multi line handler, but is expected to be single line.");
 
-            var args = VisitMany(context.directive_argument_list()?.directive_argument());
+            var args = VisitMany(context.directive_arguments()?.directive_argument());
 
             return handler.Build(args, null);
        }
@@ -433,7 +433,7 @@ namespace IronVelocity.Parser
         public Expression VisitParenthesised_expression([NotNull] VelocityParser.Parenthesised_expressionContext context)
             => Visit(context.argument());
 
-        public Expression VisitDirective_argument_list([NotNull] VelocityParser.Directive_argument_listContext context)
+        public Expression VisitDirective_arguments([NotNull] VelocityParser.Directive_argumentsContext context)
         {
             throw new InvalidOperationException();
         }

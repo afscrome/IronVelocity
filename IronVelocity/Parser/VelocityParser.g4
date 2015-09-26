@@ -31,7 +31,7 @@ method_invocation: IDENTIFIER LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS;
 argument_list : (argument (COMMA argument)*)? ;
 argument:  primary_expression | or_expression ;
 
-directive_argument_list: directive_argument* ;
+directive_arguments: (LEFT_PARENTHESIS directive_argument* RIGHT_PARENTHESIS)? ;
 directive_argument : argument | directive_word;
 directive_word : IDENTIFIER;
 primary_expression : reference 
@@ -62,8 +62,8 @@ if_else_block : HASH ELSE block ;
 
 
 custom_directive :
-	{_input.Lt(2).Text != "multiLine"}?  HASH IDENTIFIER (LEFT_PARENTHESIS directive_argument_list RIGHT_PARENTHESIS)? 
-	 |  {_input.Lt(2).Text == "multiLine"}? HASH IDENTIFIER (LEFT_PARENTHESIS directive_argument_list RIGHT_PARENTHESIS)? block  HASH END ;
+	{_input.Lt(2).Text != "multiLine"}?  HASH IDENTIFIER directive_arguments 
+	 |  {_input.Lt(2).Text == "multiLine"}? HASH IDENTIFIER directive_arguments block  HASH END ;
 
 assignment: reference ASSIGN argument ;
 

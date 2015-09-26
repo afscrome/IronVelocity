@@ -19,7 +19,8 @@ namespace IronVelocity.Tests.Parser
         [TestCase(3, "$a in $b")]
         public void ParseDirectiveArgumentList(int argumentCount, string input)
         {
-            var result = Parse(input, x => x.directive_argument_list(), VelocityLexer.ARGUMENTS);
+            input = $"({input})";
+            var result = Parse(input, x => x.directive_arguments(), VelocityLexer.ARGUMENTS);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetFullText(), Is.EqualTo(input.Trim()));
@@ -31,7 +32,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("1,1")]
         public void ParseInvalidDirectiveArgumentList(string input)
         {
-            ParseShouldProduceError(input, x => x.directive_argument_list(), VelocityLexer.ARGUMENTS);
+            ParseShouldProduceError(input, x => x.directive_arguments(), VelocityLexer.ARGUMENTS);
         }
     }
 }
