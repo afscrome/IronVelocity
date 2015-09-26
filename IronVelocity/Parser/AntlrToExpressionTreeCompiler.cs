@@ -360,12 +360,13 @@ namespace IronVelocity.Parser
             if (handler == null)
                 return Expression.Constant(context.GetText());
 
-            if (handler.IsMultiline)
-                throw new InvalidOperationException($"Handler {handler.Name} is a multi line handler, but is expected to be single line.");
-
             var args = VisitMany(context.directive_arguments()?.directive_argument());
 
-            return handler.Build(args, null);
+            var body = handler.IsBlockDirective
+                ? VisitBlock(context.block())
+                : null;
+
+            return handler.Build(args, body);
        }
 
 

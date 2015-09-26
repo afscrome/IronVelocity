@@ -10,9 +10,8 @@ namespace IronVelocity.Parser
     public abstract class CustomDirective
     {
         public abstract string Name { get; }
-        public abstract bool AcceptsParameters { get; }
-        public abstract bool IsMultiline { get; }
-        public abstract Expression Build(IReadOnlyList<Expression> arguments, Expression body);
+        public abstract bool IsBlockDirective { get; }
 
+        public abstract Expression Build(IReadOnlyList<Expression> arguments, Expression body);
     }
 }

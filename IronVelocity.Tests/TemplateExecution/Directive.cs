@@ -20,7 +20,7 @@ namespace IronVelocity.Tests.TemplateExecution
         [TestCase("#custom( 123 'hello world'  )", "This directive has 2 arguments")]
         public void SingleLineDirectiveTest(string input, string expected)
         {
-            var directives = new[] { new TestDirective() };
+            var directives = new[] { new SingleLineDirective() };
 
             var result = ExecuteTemplate(input, customDirectives: directives);
 
@@ -28,15 +28,36 @@ namespace IronVelocity.Tests.TemplateExecution
 
         }
 
+        [TestCase("#multiLine()BODY#end", "This block directive has 0 arguments")]
+        public void BlockDirectiveTest(string input, string expected)
+        {
+            var directives = new[] { new BlockDirective() };
 
-        private class TestDirective : CustomDirective
+            var result = ExecuteTemplate(input, customDirectives: directives);
+
+            Assert.That(result.Output, Is.EqualTo(expected));
+        }
+
+
+        private class SingleLineDirective : CustomDirective
         {
             public override string Name => "custom";
-            public override bool AcceptsParameters => true;
-            public override bool IsMultiline => false;
+            public override bool IsBlockDirective => false;
 
             public override Expression Build(IReadOnlyList<Expression> arguments, Expression body)
                 => Expression.Constant($"This directive has {arguments.Count} arguments");
+        }
+
+        private class BlockDirective : CustomDirective
+        {
+            public override string Name => "multiLine";
+            public override bool IsBlockDirective => true;
+
+            public override Expression Build(IReadOnlyList<Expression> arguments, Expression body)
+            {
+                Assert.That(body, Is.Not.Null);
+                return Expression.Constant($"This block directive has {arguments.Count} arguments");
+            }
         }
 
     }
