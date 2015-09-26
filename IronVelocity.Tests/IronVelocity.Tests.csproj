@@ -100,6 +100,7 @@
     <Compile Include="Binders\Reuse\InvokeMemberReuseTests.cs" />
     <Compile Include="Binders\Reuse\SetMemberReuseTests.cs" />
     <Compile Include="OutputTests\Macro.cs" />
+    <Compile Include="Parser\DirectiveArgumentListTests.cs" />
     <Compile Include="Parser\CustomDirectives.cs" />
     <Compile Include="Parser\IfTests.cs" />
     <Compile Include="Parser\UnaryExpressionTests.cs" />
@@ -160,6 +161,7 @@
     <Compile Include="OutputTests\Method.cs" />
     <Compile Include="OutputTests\Identifer.cs" />
     <Compile Include="TemplateExecution\BooleanLogic.cs" />
+    <Compile Include="TemplateExecution\Directive.cs" />
     <Compile Include="TemplateExecution\IfTests.cs" />
     <Compile Include="OutputTests\Numeric\AdditionTests.cs" />
     <Compile Include="OutputTests\Numeric\SubtractionTests.cs" />

@@ -17,7 +17,7 @@ namespace IronVelocity.Tests.Parser
         protected T Parse<T>(string input, Func<VelocityParser, T> parseFunc, int? lexerMode = null)
             where T : RuleContext
         {
-            return new AntlrVelocityParser().ParseTemplate(input, Utility.GetName(), parseFunc, lexerMode);
+            return new AntlrVelocityParser(null).ParseTemplate(input, Utility.GetName(), parseFunc, lexerMode);
         }
 
 

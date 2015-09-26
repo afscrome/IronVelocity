@@ -6,11 +6,19 @@ using System.Linq;
 using Antlr4.Runtime.Tree;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Atn;
+using System.Collections.Generic;
 
 namespace IronVelocity.Parser
 {
     public class AntlrVelocityParser : IParser
     {
+        private readonly IReadOnlyCollection<CustomDirective> _customDirectives;
+
+        public AntlrVelocityParser(IReadOnlyCollection<CustomDirective> customDirectives)
+        {
+            _customDirectives = customDirectives ?? new CustomDirective[0];
+        }
+
         public Expression<VelocityTemplateMethod> Parse(string input, string name)
         {
             var template = ParseTemplate(input, name, x=> x.template());
@@ -77,7 +85,7 @@ namespace IronVelocity.Parser
 
         internal Expression<VelocityTemplateMethod> CompileToTemplateMethod(RuleContext parsed, string name)
         {
-            var visitor = new AntlrToExpressionTreeCompiler();
+            var visitor = new AntlrToExpressionTreeCompiler(_customDirectives);
 
             TemplateGenerationEventSource.Log.ConvertToExpressionTreeStart(name);
             var body = visitor.Visit(parsed);

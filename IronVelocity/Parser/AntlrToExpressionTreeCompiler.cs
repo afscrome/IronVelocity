@@ -7,11 +7,19 @@ using IronVelocity.Compilation.AST;
 using Antlr4.Runtime;
 using IronVelocity.Compilation;
 using IronVelocity.Binders;
+using System.Linq;
 
 namespace IronVelocity.Parser
 {
     public class AntlrToExpressionTreeCompiler : IVelocityParserVisitor<Expression>
     {
+        private readonly IReadOnlyCollection<CustomDirective> _customDirectives;
+
+        public AntlrToExpressionTreeCompiler(IReadOnlyCollection<CustomDirective> customDirectives)
+        {
+            _customDirectives = customDirectives ?? new CustomDirective[0];
+        }
+
         public Expression Visit(IParseTree tree)
         {
             return tree.Accept(this);
@@ -160,7 +168,7 @@ namespace IronVelocity.Parser
 
         private IReadOnlyList<Expression> VisitMany(IReadOnlyList<ParserRuleContext> contexts)
         {
-            if (contexts.Count == 0)
+            if (contexts == null || contexts.Count == 0)
                 return new Expression[0]; //TODO: Use Array.Empty
 
             var visitedExpressions = new Expression[contexts.Count];
@@ -345,6 +353,26 @@ namespace IronVelocity.Parser
             return Expression.AndAlso(left, right);
         }
 
+        public Expression VisitCustom_directive_single_line([NotNull] VelocityParser.Custom_directive_single_lineContext context)
+        {
+            var handler = _customDirectives.SingleOrDefault(x => x.Name == context.IDENTIFIER().GetText());
+
+            if (handler == null)
+                return Expression.Constant(context.GetText());
+
+            if (handler.IsMultiline)
+                throw new InvalidOperationException($"Handler {handler.Name} is a multi line handler, but is expected to be single line.");
+
+            var args = VisitMany(context.directive_argument_list()?.argument());
+
+            return handler.Build(args, null);
+       }
+
+        public Expression VisitCustom_directive_multi_line([NotNull] VelocityParser.Custom_directive_multi_lineContext context)
+        {
+            throw new NotImplementedException();
+        }
+
         private SourceInfo GetSourceInfo(ParserRuleContext context)
         {
             //TODO: the stop info is incorrect here
@@ -396,14 +424,9 @@ namespace IronVelocity.Parser
         public Expression VisitParenthesised_expression([NotNull] VelocityParser.Parenthesised_expressionContext context)
             => Visit(context.argument());
 
-        public Expression VisitCustom_directive_single_line([NotNull] VelocityParser.Custom_directive_single_lineContext context)
+        public Expression VisitDirective_argument_list([NotNull] VelocityParser.Directive_argument_listContext context)
         {
-            throw new NotImplementedException();
-        }
-
-        public Expression VisitCustom_directive_multi_line([NotNull] VelocityParser.Custom_directive_multi_lineContext context)
-        {
-            throw new NotImplementedException();
+            throw new InvalidOperationException();
         }
     }
 }

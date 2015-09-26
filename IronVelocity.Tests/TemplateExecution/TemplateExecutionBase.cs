@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation;
+using IronVelocity.Parser;
 using IronVelocity.Runtime;
 using NUnit.Framework;
 using System.Collections.Generic;
@@ -30,9 +31,9 @@ namespace IronVelocity.Tests.TemplateExecution
             return result.Context["result"];
         }
 
-        public ExecutionResult ExecuteTemplate(string input, IDictionary<string,object> locals = null)
+        public ExecutionResult ExecuteTemplate(string input, IDictionary<string,object> locals = null, IReadOnlyCollection<CustomDirective> customDirectives = null)
         {
-            var template = CompileTemplate(input, fileName: Utility.GetName());
+            var template = CompileTemplate(input, fileName: Utility.GetName(), customDirectives: customDirectives);
 
             var context = new VelocityContext(locals);
 
@@ -46,9 +47,9 @@ namespace IronVelocity.Tests.TemplateExecution
             return new ExecutionResult(outputBuilder, context);
         }
 
-        private VelocityTemplateMethod CompileTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
+        private VelocityTemplateMethod CompileTemplate(string input, string fileName = "", IDictionary<string, object> globals = null, IReadOnlyCollection<CustomDirective> customDirectives = null)
         {
-            var parser = new IronVelocity.Parser.AntlrVelocityParser();
+            var parser = new AntlrVelocityParser(customDirectives);
             var runtime = new VelocityRuntime(parser, globals);
             return runtime.CompileTemplate(input, Utility.GetName(), fileName, true);
         }

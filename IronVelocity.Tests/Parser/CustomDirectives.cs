@@ -23,7 +23,7 @@ namespace IronVelocity.Tests.Parser
 
         [TestCase("#custom()")]
         [TestCase("#custom(   )")]
-        [TestCase("#custom( 123, 456 )")]
+        [TestCase("#custom( 123 456 )")]
         public void ShouldParseSingleLineCustomDirectiveWithArguments(string input)
         {
             var result = Parse(input, x => x.custom_directive_single_line());
@@ -31,19 +31,19 @@ namespace IronVelocity.Tests.Parser
             Assert.That(result, Is.Not.Null);
             Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("custom"));
 
-            Assert.That(result.argument_list(), Is.Not.Null);
+            Assert.That(result.directive_argument_list(), Is.Not.Null);
         }
 
         [TestCase("#multiLine()#end")]
         [TestCase("#multiLine(   )#end")]
-        [TestCase("#multiLine( 123, 456 )#end")]
+        [TestCase("#multiLine( 123 456 )#end")]
         public void ShouldParseMultiLineCustomDirectiveWithNoArguments(string input)
         {
             var result = Parse(input, x => x.custom_directive_multi_line());
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("multiLine"));
-            Assert.That(result.argument_list(), Is.Not.Null);
+            Assert.That(result.directive_argument_list(), Is.Not.Null);
         }
 
         [Test]
@@ -59,7 +59,7 @@ namespace IronVelocity.Tests.Parser
         [Test]
         public void ShouldParseMultiLineCustomDirectiveWithArguments()
         {
-            var input = "#multiLine( $foo, $bar) #end";
+            var input = "#multiLine( $foo $bar) #end";
             var result = Parse(input, x => x.custom_directive_multi_line());
 
             Assert.That(result, Is.Not.Null);

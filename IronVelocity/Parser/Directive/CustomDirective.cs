@@ -5,10 +5,11 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IronVelocity.Parser.Directive
+namespace IronVelocity.Parser
 {
     public abstract class CustomDirective
     {
+        public abstract string Name { get; }
         public abstract bool AcceptsParameters { get; }
         public abstract bool IsMultiline { get; }
         public abstract Expression Build(IReadOnlyList<Expression> arguments, Expression body);
