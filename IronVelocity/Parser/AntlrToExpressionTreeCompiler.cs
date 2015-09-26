@@ -363,7 +363,7 @@ namespace IronVelocity.Parser
             if (handler.IsMultiline)
                 throw new InvalidOperationException($"Handler {handler.Name} is a multi line handler, but is expected to be single line.");
 
-            var args = VisitMany(context.directive_argument_list()?.argument());
+            var args = VisitMany(context.directive_argument_list()?.directive_argument());
 
             return handler.Build(args, null);
        }
@@ -371,6 +371,19 @@ namespace IronVelocity.Parser
         public Expression VisitCustom_directive_multi_line([NotNull] VelocityParser.Custom_directive_multi_lineContext context)
         {
             throw new NotImplementedException();
+        }
+
+        public Expression VisitDirective_argument([NotNull] VelocityParser.Directive_argumentContext context)
+        {
+            var arg = context.argument();
+            return arg == null
+                ? VisitDirective_word(context.directive_word())
+                : VisitArgument(arg);
+        }
+
+        public Expression VisitDirective_word([NotNull] VelocityParser.Directive_wordContext context)
+        {
+            throw new NotImplementedException("TODO: define AST node for word");
         }
 
         private SourceInfo GetSourceInfo(ParserRuleContext context)

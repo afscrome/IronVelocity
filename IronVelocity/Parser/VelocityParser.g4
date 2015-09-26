@@ -31,8 +31,9 @@ method_invocation: IDENTIFIER LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS;
 argument_list : (argument (COMMA argument)*)? ;
 argument:  primary_expression | or_expression ;
 
-directive_argument_list: argument* ;
-
+directive_argument_list: directive_argument* ;
+directive_argument : argument | directive_word;
+directive_word : IDENTIFIER;
 primary_expression : reference 
 	| boolean
 	| integer
