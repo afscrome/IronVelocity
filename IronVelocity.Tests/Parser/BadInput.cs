@@ -26,5 +26,14 @@ namespace IronVelocity.Tests.Parser
         {
             ParseShouldProduceError(input, x => x.template());
         }
+
+        [Test]
+        public void UnexpectedEndProvidesHelpfulError()
+        {
+            var input = "#end";
+            var exception = ParseShouldProduceError(input, x => x.template());
+
+            Assert.That(exception.Message, Contains.Substring("Unexpected #end"));
+        }
     }
 }

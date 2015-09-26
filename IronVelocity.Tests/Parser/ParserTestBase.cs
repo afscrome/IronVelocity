@@ -20,18 +20,16 @@ namespace IronVelocity.Tests.Parser
             return new AntlrVelocityParser(null).ParseTemplate(input, Utility.GetName(), parseFunc, lexerMode);
         }
 
-
-        protected void ParseShouldProduceError(string input, Func<VelocityParser, RuleContext> parseFunc, int? lexerMode = null, bool shouldLexCompletely = true)
+        protected Exception ParseShouldProduceError(string input, Func<VelocityParser, RuleContext> parseFunc, int? lexerMode = null, bool shouldLexCompletely = true)
         {
             RuleContext parsed;
             try
             {
                 parsed = Parse(input, parseFunc, lexerMode);
             }
-            catch(ParseCanceledException)
+            catch(ParseCanceledException ex)
             {
-                Assert.Pass();
-                throw;
+                return ex;
             }
 
             //For debugging purposes, print the tokens & parse tree generated
@@ -52,6 +50,7 @@ namespace IronVelocity.Tests.Parser
 
             Console.WriteLine(parsed.ToStringTree(new VelocityParser(null)));
             Assert.Fail("No Parse Errors Occurred;");
+            throw new InvalidProgramException();
         }
 
         protected void ParseBinaryExpressionTest(string input, string left, string right, int operatorTokenKind, Func<VelocityParser, ParserRuleContext> parseFunc)

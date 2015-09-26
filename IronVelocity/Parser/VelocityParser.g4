@@ -4,7 +4,11 @@ options {
     tokenVocab=VelocityLexer;
 }
 
-template : block? EOF;
+template: block? 
+	(
+		EOF
+		| (HASH END {NotifyErrorListeners("Unexpected #end"); } template)
+	) ;
 
 block: (text | reference | comment | set_directive | if_block | custom_directive )* ;
 
