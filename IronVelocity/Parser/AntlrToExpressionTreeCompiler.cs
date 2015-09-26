@@ -379,9 +379,7 @@ namespace IronVelocity.Parser
         }
 
         public Expression VisitDirective_word([NotNull] VelocityParser.Directive_wordContext context)
-        {
-            throw new NotImplementedException("TODO: define AST node for word");
-        }
+            => new DirectiveWord(context.IDENTIFIER().GetText());
 
         private SourceInfo GetSourceInfo(ParserRuleContext context)
         {

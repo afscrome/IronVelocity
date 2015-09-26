@@ -32,6 +32,7 @@ namespace IronVelocity.Compilation.AST
         SetMember,
         TemplatedForeach,
         TemporaryVariableScope,
-        Variable
+        Variable,
+        DirectiveWord
     }
 }

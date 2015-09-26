@@ -57,6 +57,7 @@
     <Compile Include="Binders\BinaryOperationHelper.cs" />
     <Compile Include="Binders\BinderHelper.cs" />
     <Compile Include="Binders\ReflectionHelper.cs" />
+    <Compile Include="Compilation\AST\DirectiveWord.cs" />
     <Compile Include="Compilation\AST\MathematicalExpression.cs" />
     <Compile Include="Compilation\AST\ReferenceExpression2.cs" />
     <Compile Include="Compilation\AST\RenderableExpression.cs" />
