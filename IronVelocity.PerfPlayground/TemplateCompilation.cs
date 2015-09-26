@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation;
+using IronVelocity.Parser;
 using IronVelocity.Runtime;
 using NUnit.Framework;
 using System;
@@ -32,8 +33,8 @@ namespace IronVelocity.PerfPlayground
         public void SetUp()
         {
             OutputDir = "TemplateCompilation_" + DateTime.Now.ToString("yyy-MM-dd_HH-mm-ss") + "\\";
-            SaveDlls = true;
-            SaveIl = true;
+            SaveDlls = false;
+            SaveIl = false;
             ExecuteTemplate = false;
 
             if (!Directory.Exists(OutputDir))
@@ -44,7 +45,12 @@ namespace IronVelocity.PerfPlayground
         public void TemplateCompilationTests(string path, string assemblyName)
         {
             var template = File.ReadAllText(path);
-            var expressionTree = new NVelocityParser(null, null).Parse(template, assemblyName);
+            IParser parser;
+            //parser = new NVelocityParser(null, null);;
+            parser = new AntlrVelocityParser(null);
+            
+            var expressionTree = parser.Parse(template, assemblyName);
+
             AssemblyBuilder assemblyBuilder = null;
             VelocityCompiler compiler;
 

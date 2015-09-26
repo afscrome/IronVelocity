@@ -14,11 +14,11 @@ namespace IronVelocity.Tests.Parser
         {
             var input = "#test";
 
-            var result = Parse(input, x => x.custom_directive_single_line());
+            var result = Parse(input, x => x.custom_directive());
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("test"));
-
+            Assert.That(result.block(), Is.Null);
         }
 
         [TestCase("#custom()")]
@@ -26,12 +26,13 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#custom( 123 456 )")]
         public void ShouldParseSingleLineCustomDirectiveWithArguments(string input)
         {
-            var result = Parse(input, x => x.custom_directive_single_line());
+            var result = Parse(input, x => x.custom_directive());
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("custom"));
 
             Assert.That(result.directive_argument_list(), Is.Not.Null);
+            Assert.That(result.block(), Is.Null);
         }
 
         [TestCase("#multiLine()#end")]
@@ -39,31 +40,34 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#multiLine( 123 456 )#end")]
         public void ShouldParseMultiLineCustomDirectiveWithNoArguments(string input)
         {
-            var result = Parse(input, x => x.custom_directive_multi_line());
+            var result = Parse(input, x => x.custom_directive());
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("multiLine"));
             Assert.That(result.directive_argument_list(), Is.Not.Null);
+            Assert.That(result.block(), Is.Not.Null);
         }
 
         [Test]
         public void ShouldParseMultiLineCustomDirectiveWithContent()
         {
             var input = "#multiLine\r\nHello\r\n#end";
-            var result = Parse(input, x => x.custom_directive_multi_line());
+            var result = Parse(input, x => x.custom_directive());
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("multiLine"));
+            Assert.That(result.block(), Is.Not.Null);
         }
 
         [Test]
         public void ShouldParseMultiLineCustomDirectiveWithArguments()
         {
             var input = "#multiLine( $foo $bar) #end";
-            var result = Parse(input, x => x.custom_directive_multi_line());
+            var result = Parse(input, x => x.custom_directive());
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("multiLine"));
+            Assert.That(result.block(), Is.Not.Null);
         }
 
         [Test]

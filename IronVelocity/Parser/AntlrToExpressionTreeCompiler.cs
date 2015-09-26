@@ -353,7 +353,7 @@ namespace IronVelocity.Parser
             return Expression.AndAlso(left, right);
         }
 
-        public Expression VisitCustom_directive_single_line([NotNull] VelocityParser.Custom_directive_single_lineContext context)
+        public Expression VisitCustom_directive([NotNull] VelocityParser.Custom_directiveContext context)
         {
             var handler = _customDirectives.SingleOrDefault(x => x.Name == context.IDENTIFIER().GetText());
 
@@ -368,10 +368,6 @@ namespace IronVelocity.Parser
             return handler.Build(args, null);
        }
 
-        public Expression VisitCustom_directive_multi_line([NotNull] VelocityParser.Custom_directive_multi_lineContext context)
-        {
-            throw new NotImplementedException();
-        }
 
         public Expression VisitDirective_argument([NotNull] VelocityParser.Directive_argumentContext context)
         {
