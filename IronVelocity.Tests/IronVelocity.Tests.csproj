@@ -179,6 +179,7 @@
     <Compile Include="TemplateExecution\PrecedenceTests.cs" />
     <Compile Include="TemplateExecution\ReferenceTests.cs" />
     <Compile Include="TemplateExecution\SetTests.cs" />
+    <Compile Include="TemplateExecution\TemplatedForeachTests.cs" />
     <Compile Include="TemplateExecution\TemplateExecutionBase.cs" />
     <Compile Include="TemplateExecution\OutputTests.cs" />
     <Compile Include="Utility.cs" />

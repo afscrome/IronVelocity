@@ -356,10 +356,11 @@ namespace IronVelocity.Parser
 
         public Expression VisitCustom_directive([NotNull] VelocityParser.Custom_directiveContext context)
         {
-            var handler = _customDirectives.SingleOrDefault(x => x.Name == context.IDENTIFIER().GetText());
+            var name = context.IDENTIFIER().GetText();
+            var handler = _customDirectives.SingleOrDefault(x => x.Name == name);
 
             if (handler == null)
-                return Expression.Constant(context.GetText());
+                return new UnrecognisedDirective(name, context.GetFullText());
 
             var args = VisitMany(context.directive_arguments()?.directive_argument());
 
