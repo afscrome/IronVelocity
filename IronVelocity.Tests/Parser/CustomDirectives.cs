@@ -1,14 +1,17 @@
 ﻿using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using IronVelocity.Parser;
 
 namespace IronVelocity.Tests.Parser
 {
     public class CustomDirectives : ParserTestBase
     {
+
+        private VelocityParser.Custom_directiveContext ParseBlockDirective(VelocityParser parser)
+        {
+            parser.BlockDirectives = new[] { "multiLine" };
+            return parser.custom_directive();
+        } 
+
         [Test]
         public void ShouldParseLineCustomDirectiveWithNoArguments()
         {
@@ -40,7 +43,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#multiLine( 123 456 )#end")]
         public void ShouldParseBlockCustomDirectiveWithNoArguments(string input)
         {
-            var result = Parse(input, x => x.custom_directive());
+            var result = Parse(input, ParseBlockDirective);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("multiLine"));
@@ -52,7 +55,7 @@ namespace IronVelocity.Tests.Parser
         public void ShouldParseBlockCustomDirectiveWithContent()
         {
             var input = "#multiLine\r\nHello\r\n#end";
-            var result = Parse(input, x => x.custom_directive());
+            var result = Parse(input, ParseBlockDirective);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("multiLine"));
@@ -64,7 +67,7 @@ namespace IronVelocity.Tests.Parser
         public void ShouldParseBlockCustomDirectiveWithArguments()
         {
             var input = "#multiLine( $foo $bar) #end";
-            var result = Parse(input, x => x.custom_directive());
+            var result = Parse(input, ParseBlockDirective);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.IDENTIFIER()?.GetText(), Is.EqualTo("multiLine"));
@@ -76,7 +79,10 @@ namespace IronVelocity.Tests.Parser
         public void ShouldNotParseBlockDirectiveWithoutEnd()
         {
             var input = "#multiLine ABC123";
-            ParseShouldProduceError(input, x => x.template());
+            ParseShouldProduceError(input, x => {
+                x.BlockDirectives = new[] { "multiLine" };
+                return x.template();
+            });
         }
 
     }

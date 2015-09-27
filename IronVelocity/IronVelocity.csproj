@@ -139,6 +139,7 @@
     <Compile Include="Directives\CustomDirectiveBuilder.cs" />
     <Compile Include="Parser\ErrorListener.cs" />
     <Compile Include="Parser\ParserRuleContextExtensions.cs" />
+    <Compile Include="Parser\VelocityParser.cs" />
     <Compile Include="Reflection\ArgumentConverter.cs" />
     <Compile Include="Reflection\IArgumentConverter.cs" />
     <Compile Include="Reflection\IExpressionConverter.cs" />

@@ -1,8 +1,6 @@
 ﻿using Antlr4.Runtime;
 using IronVelocity.Parser;
 using NUnit.Framework;
-using System.Collections.Generic;
-using System.Linq;
 using Antlr4.Runtime.Tree;
 using System;
 using Antlr4.Runtime.Misc;
@@ -17,7 +15,7 @@ namespace IronVelocity.Tests.Parser
         protected T Parse<T>(string input, Func<VelocityParser, T> parseFunc, int? lexerMode = null)
             where T : RuleContext
         {
-            return new AntlrVelocityParser(null).ParseTemplate(input, Utility.GetName(), parseFunc, lexerMode);
+            return new AntlrVelocityParser().ParseTemplate(input, Utility.GetName(), parseFunc, lexerMode);
         }
 
         protected Exception ParseShouldProduceError(string input, Func<VelocityParser, RuleContext> parseFunc, int? lexerMode = null, bool shouldLexCompletely = true)

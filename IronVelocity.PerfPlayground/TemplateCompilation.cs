@@ -47,7 +47,7 @@ namespace IronVelocity.PerfPlayground
             var template = File.ReadAllText(path);
             IParser parser;
             //parser = new NVelocityParser(null, null);;
-            parser = new AntlrVelocityParser(null);
+            parser = new AntlrVelocityParser();
             
             var expressionTree = parser.Parse(template, assemblyName);
 

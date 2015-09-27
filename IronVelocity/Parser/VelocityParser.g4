@@ -66,8 +66,8 @@ if_else_block : HASH ELSE block ;
 
 
 custom_directive :
-	{_input.Lt(2).Text != "multiLine" && _input.Lt(2).Text != "foreach"}?  HASH IDENTIFIER directive_arguments 
-	 |  {_input.Lt(2).Text == "multiLine" || _input.Lt(2).Text == "foreach"}? HASH IDENTIFIER directive_arguments block  HASH END ;
+	{ !IsBlockDirective()}?  HASH IDENTIFIER directive_arguments 
+	 |  {IsBlockDirective()}? HASH IDENTIFIER directive_arguments block  HASH END ;
 
 assignment: reference ASSIGN argument ;
 

@@ -5,7 +5,6 @@ using IronVelocity.Runtime;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace IronVelocity.Tests.TemplateExecution
@@ -53,7 +52,6 @@ namespace IronVelocity.Tests.TemplateExecution
 
         private VelocityTemplateMethod CompileTemplate(string input, string fileName, IDictionary<string, object> globals, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
         {
-            customDirectives = customDirectives ?? DefaultCustomDirectives;
             var parser = new AntlrVelocityParser(customDirectives);
             var runtime = new VelocityRuntime(parser, globals);
             return runtime.CompileTemplate(input, Utility.GetName(), fileName, true);

@@ -13,11 +13,21 @@ namespace IronVelocity.Parser
 {
     public class AntlrVelocityParser : IParser
     {
+        public static IReadOnlyCollection<CustomDirectiveBuilder> DefaultDirectives { get; } = new[]
+        {
+            new ForeachDirectiveBuilder()
+        };
+
         private readonly IReadOnlyCollection<CustomDirectiveBuilder> _customDirectives;
+
+        public AntlrVelocityParser()
+            : this(null)
+        {
+        }
 
         public AntlrVelocityParser(IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
         {
-            _customDirectives = customDirectives ?? new CustomDirectiveBuilder[0];
+            _customDirectives = customDirectives ?? DefaultDirectives;
         }
 
         public Expression<VelocityTemplateMethod> Parse(string input, string name)
@@ -48,6 +58,7 @@ namespace IronVelocity.Parser
 
             var originalErrorStrategy = parser.ErrorHandler;
             parser.ErrorHandler = new BailErrorStrategy();
+            parser.BlockDirectives = _customDirectives.Where(x => x.IsBlockDirective).Select(x => x.Name).ToList();
 
             if (lexerMode.HasValue)
                 lexer.Mode(lexerMode.Value);
@@ -83,6 +94,7 @@ namespace IronVelocity.Parser
 
             return template;
         }
+
 
         internal Expression<VelocityTemplateMethod> CompileToTemplateMethod(RuleContext parsed, string name)
         {
