@@ -7,16 +7,17 @@ using Antlr4.Runtime.Tree;
 using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Atn;
 using System.Collections.Generic;
+using IronVelocity.Directives;
 
 namespace IronVelocity.Parser
 {
     public class AntlrVelocityParser : IParser
     {
-        private readonly IReadOnlyCollection<CustomDirective> _customDirectives;
+        private readonly IReadOnlyCollection<CustomDirectiveBuilder> _customDirectives;
 
-        public AntlrVelocityParser(IReadOnlyCollection<CustomDirective> customDirectives)
+        public AntlrVelocityParser(IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
         {
-            _customDirectives = customDirectives ?? new CustomDirective[0];
+            _customDirectives = customDirectives ?? new CustomDirectiveBuilder[0];
         }
 
         public Expression<VelocityTemplateMethod> Parse(string input, string name)

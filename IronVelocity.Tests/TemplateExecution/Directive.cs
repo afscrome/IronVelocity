@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
+using IronVelocity.Directives;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
@@ -39,7 +40,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
 
-        private class SingleLineDirective : CustomDirective
+        private class SingleLineDirective : CustomDirectiveBuilder
         {
             public override string Name => "custom";
             public override bool IsBlockDirective => false;
@@ -48,7 +49,7 @@ namespace IronVelocity.Tests.TemplateExecution
                 => Expression.Constant($"This directive has {arguments.Count} arguments");
         }
 
-        private class BlockDirective : CustomDirective
+        private class BlockDirective : CustomDirectiveBuilder
         {
             public override string Name => "multiLine";
             public override bool IsBlockDirective => true;

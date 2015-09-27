@@ -71,12 +71,8 @@
     <Compile Include="Compilation\NVelocity\Directives\DirectiveExpressionBuilder.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Compilation\NVelocity\Directives\ForeachDirective.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\Directives\ForeachDirectiveExpressionBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Compilation\NVelocity\Directives\ForeachDirective.cs" />
+    <Compile Include="Compilation\NVelocity\Directives\ForeachDirectiveExpressionBuilder.cs" />
     <Compile Include="Compilation\NVelocity\Directives\LiteralDirective.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -97,6 +93,9 @@
     </Compile>
     <Compile Include="Compilation\TemporaryLocalReuse.cs" />
     <Compile Include="Compilation\VelocityExpressionVisitor.cs" />
+    <Compile Include="Directives\ForeachDirective.cs" />
+    <Compile Include="Directives\ForeachDirectiveBuilder.cs" />
+    <Compile Include="Directives\ForeachSection.cs" />
     <Compile Include="EventSources\BindingEventSource.cs" />
     <Compile Include="Binders\VelocityComparisonOperationBinder.cs" />
     <Compile Include="Binders\VelocityBinaryMathematicalOperationBinder.cs" />
@@ -137,7 +136,7 @@
     <Compile Include="IParser.cs" />
     <Compile Include="Parser\AntlrToExpressionTreeCompiler.cs" />
     <Compile Include="Parser\AntlrVelocityParser.cs" />
-    <Compile Include="Parser\Directive\CustomDirective.cs" />
+    <Compile Include="Directives\CustomDirectiveBuilder.cs" />
     <Compile Include="Parser\ErrorListener.cs" />
     <Compile Include="Parser\ParserRuleContextExtensions.cs" />
     <Compile Include="Reflection\ArgumentConverter.cs" />

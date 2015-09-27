@@ -8,16 +8,17 @@ using Antlr4.Runtime;
 using IronVelocity.Compilation;
 using IronVelocity.Binders;
 using System.Linq;
+using IronVelocity.Directives;
 
 namespace IronVelocity.Parser
 {
     public class AntlrToExpressionTreeCompiler : IVelocityParserVisitor<Expression>
     {
-        private readonly IReadOnlyCollection<CustomDirective> _customDirectives;
+        private readonly IReadOnlyCollection<CustomDirectiveBuilder> _customDirectives;
 
-        public AntlrToExpressionTreeCompiler(IReadOnlyCollection<CustomDirective> customDirectives)
+        public AntlrToExpressionTreeCompiler(IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
         {
-            _customDirectives = customDirectives ?? new CustomDirective[0];
+            _customDirectives = customDirectives ?? new CustomDirectiveBuilder[0];
         }
 
         public Expression Visit(IParseTree tree)

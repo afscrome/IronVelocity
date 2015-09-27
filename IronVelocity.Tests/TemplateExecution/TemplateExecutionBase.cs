@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation;
+using IronVelocity.Directives;
 using IronVelocity.Parser;
 using IronVelocity.Runtime;
 using NUnit.Framework;
@@ -11,6 +12,8 @@ namespace IronVelocity.Tests.TemplateExecution
 {
     public abstract class TemplateExeuctionBase
     {
+        protected readonly IReadOnlyCollection<CustomDirectiveBuilder> DefaultCustomDirectives = new[] { new ForeachDirectiveBuilder() };
+
         public class ExecutionResult
         {
             public string Output { get; }
@@ -23,6 +26,7 @@ namespace IronVelocity.Tests.TemplateExecution
             }
         }
 
+
         public object EvaluateExpression(string input, IDictionary<string, object> locals = null)
         {
             input = $"#set($result = {input})";
@@ -31,9 +35,9 @@ namespace IronVelocity.Tests.TemplateExecution
             return result.Context["result"];
         }
 
-        public ExecutionResult ExecuteTemplate(string input, IDictionary<string,object> locals = null, IReadOnlyCollection<CustomDirective> customDirectives = null)
+        public ExecutionResult ExecuteTemplate(string input, IDictionary<string,object> locals = null, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives = null)
         {
-            var template = CompileTemplate(input, fileName: Utility.GetName(), customDirectives: customDirectives);
+            var template = CompileTemplate(input, Utility.GetName(), null, customDirectives);
 
             var context = new VelocityContext(locals);
 
@@ -47,8 +51,9 @@ namespace IronVelocity.Tests.TemplateExecution
             return new ExecutionResult(outputBuilder, context);
         }
 
-        private VelocityTemplateMethod CompileTemplate(string input, string fileName = "", IDictionary<string, object> globals = null, IReadOnlyCollection<CustomDirective> customDirectives = null)
+        private VelocityTemplateMethod CompileTemplate(string input, string fileName, IDictionary<string, object> globals, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
         {
+            customDirectives = customDirectives ?? DefaultCustomDirectives;
             var parser = new AntlrVelocityParser(customDirectives);
             var runtime = new VelocityRuntime(parser, globals);
             return runtime.CompileTemplate(input, Utility.GetName(), fileName, true);

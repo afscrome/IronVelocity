@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace IronVelocity.Parser
+namespace IronVelocity.Directives
 {
-    public abstract class CustomDirective
+    public abstract class CustomDirectiveBuilder
     {
         public abstract string Name { get; }
         public abstract bool IsBlockDirective { get; }
