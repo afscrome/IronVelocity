@@ -162,7 +162,7 @@
     <Compile Include="OutputTests\Identifer.cs" />
     <Compile Include="TemplateExecution\BooleanLogic.cs" />
     <Compile Include="TemplateExecution\Directive.cs" />
-    <Compile Include="TemplateExecution\ForeachTests.cs" />
+    <Compile Include="TemplateExecution\BasicForeachTests.cs" />
     <Compile Include="TemplateExecution\IfTests.cs" />
     <Compile Include="OutputTests\Numeric\AdditionTests.cs" />
     <Compile Include="OutputTests\Numeric\SubtractionTests.cs" />
