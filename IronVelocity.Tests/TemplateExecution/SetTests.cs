@@ -90,6 +90,67 @@ namespace IronVelocity.Tests.TemplateExecution
             Assert.That(item.Property, Is.EqualTo(originalPropertyValue));
         }
 
+        [Test]
+        public void ShouldSetFromVariable()
+        {
+            var context = new Dictionary<string, object>
+            {
+                ["input"] = 123
+            };
+
+            var input = "#set($output = $input)";
+            var result = ExecuteTemplate(input, context);
+
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(result.Context.Keys, Contains.Item("output"));
+            Assert.That(result.Context["output"], Is.EqualTo(123));
+        }
+
+
+        [Test]
+        public void ShouldSetFromProperty()
+        {
+            var context = new Dictionary<string, object>
+            {
+                ["input"] = "Hello World"
+            };
+            var input = "#set($output = $input.Length)";
+            var result = ExecuteTemplate(input, context);
+
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(result.Context.Keys, Contains.Item("output"));
+            Assert.That(result.Context["output"], Is.EqualTo(11));
+        }
+
+        [Test]
+        public void ShouldSetFromMethod()
+        {
+            var context = new Dictionary<string, object>
+            {
+                ["input"] = 7.52m
+            };
+            var input = "#set($output = $input.ToString())";
+            var result = ExecuteTemplate(input, context);
+
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(result.Context.Keys, Contains.Item("output"));
+            Assert.That(result.Context["output"], Is.EqualTo("7.52"));
+        }
+
+        [Test]
+        public void ShouldSetFromMethodWithParameters()
+        {
+            var context = new Dictionary<string, object>
+            {
+                ["input"] = 7.578
+            };
+            var input = "#set($output = $input.ToString('F1'))";
+            var result = ExecuteTemplate(input, context);
+
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(result.Context.Keys, Contains.Item("output"));
+            Assert.That(result.Context["output"], Is.EqualTo("7.6"));
+        }
 
         private class PropertyTest
         {

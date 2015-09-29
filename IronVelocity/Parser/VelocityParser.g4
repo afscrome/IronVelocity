@@ -26,22 +26,22 @@ block_comment : BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | block_comment)*  BLOCK
 reference : DOLLAR EXCLAMATION? reference_body
 	| DOLLAR EXCLAMATION? LEFT_CURLEY reference_body RIGHT_CURLEY;
 
-reference_body : variable (DOT (property_invocation | method_invocation))* ;
+reference_body : variable (DOT ( method_invocation | property_invocation))* ;
 
 variable : IDENTIFIER;
 property_invocation: IDENTIFIER ;
 method_invocation: IDENTIFIER LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS;
 
 argument_list : (argument (COMMA argument)*)? ;
-argument:  primary_expression | or_expression ;
+argument:  or_expression | primary_expression;
 
 directive_arguments: (LEFT_PARENTHESIS directive_argument* RIGHT_PARENTHESIS)? ;
 directive_argument : argument | directive_word;
 directive_word : IDENTIFIER;
 primary_expression : reference 
 	| boolean
+	| float
 	| integer
-	| float 
 	| string
 	| interpolated_string
 	| list

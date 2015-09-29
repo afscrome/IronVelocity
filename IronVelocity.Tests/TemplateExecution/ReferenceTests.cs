@@ -37,5 +37,33 @@ namespace IronVelocity.Tests.TemplateExecution
 
             Assert.That(result.Output, Is.EqualTo("3"));
         }
+
+        [Test]
+        public void ShouldRenderMethodCall()
+        {
+            var context = new Dictionary<string, object>
+            {
+                ["input"] = new Guid("35fae588-0bad-4ea0-b092-619e00323041")
+            };
+            var input = "$input.ToString()";
+
+            var result = ExecuteTemplate(input, context);
+
+            Assert.That(result.Output, Is.EqualTo("35fae588-0bad-4ea0-b092-619e00323041"));
+        }
+
+        [Test]
+        public void ShouldRenderMethodCallWithArgument()
+        {
+            var context = new Dictionary<string, object>
+            {
+                ["input"] = new Guid("35fae588-0bad-4ea0-b092-619e00323041")
+            };
+            var input = "$input.ToString('n')";
+
+            var result = ExecuteTemplate(input, context);
+
+            Assert.That(result.Output, Is.EqualTo("35fae5880bad4ea0b092619e00323041"));
+        }
     }
 }
