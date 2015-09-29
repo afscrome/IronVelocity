@@ -20,7 +20,7 @@ namespace IronVelocity.Tests.Parser
 
             var args = result.argument_list();
             Assert.That(args, Is.Not.Null);
-            Assert.That(args.argument(), Has.Length.EqualTo(argumentCount));
+            Assert.That(args.expression(), Has.Length.EqualTo(argumentCount));
         }
     }
 }

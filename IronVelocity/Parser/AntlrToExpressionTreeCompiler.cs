@@ -84,7 +84,7 @@ namespace IronVelocity.Parser
                     if (method != null)
                     {
                         var name = method.IDENTIFIER().GetText();
-                        var args = VisitMany(method.argument_list().argument());
+                        var args = VisitMany(method.argument_list().expression());
                         result = new MethodInvocationExpression(result, name, args, GetSourceInfo(innerContext));
                     }
                 }
@@ -98,10 +98,6 @@ namespace IronVelocity.Parser
             return new VariableExpression(context.IDENTIFIER().GetText());
         }
 
-        public Expression VisitArgument([NotNull] VelocityParser.ArgumentContext context)
-        {
-            return Visit(context.GetRuleContext<ParserRuleContext>(0));
-        }
 
         public Expression VisitPrimary_expression([NotNull] VelocityParser.Primary_expressionContext context)
         {
@@ -154,15 +150,15 @@ namespace IronVelocity.Parser
         {
             var elementContexts = context
                 .argument_list()
-                .argument();
+                .expression();
 
             return new ObjectArrayExpression(GetSourceInfo(context), VisitMany(elementContexts));
         }
 
         public Expression VisitRange([NotNull] VelocityParser.RangeContext context)
         {
-            var left = Visit(context.argument(0));
-            var right = Visit(context.argument(1));
+            var left = Visit(context.expression(0));
+            var right = Visit(context.expression(1));
 
             return new IntegerRangeExpression(left, right, GetSourceInfo(context));
         }
@@ -201,7 +197,7 @@ namespace IronVelocity.Parser
                 throw new InvalidOperationException("Cannot assign to a method");
             }
 
-            var right = Visit(context.argument());
+            var right = Visit(context.expression());
 
             return new SetDirective(left, right, GetSourceInfo(context));
         }
@@ -217,13 +213,13 @@ namespace IronVelocity.Parser
             for (int i = elseIfBlocks.Length - 1; i >= 0; i--)
             {
                 var elseIf = elseIfBlocks[i];
-                var innerCondition = new CoerceToBooleanExpression(Visit(elseIf.argument()));
+                var innerCondition = new CoerceToBooleanExpression(Visit(elseIf.expression()));
                 var elseIfContent = Visit(elseIf.block());
 
                 falseContent = Expression.IfThenElse(innerCondition, elseIfContent, falseContent);
             }
 
-            var condition = new CoerceToBooleanExpression(Visit(context.argument()));
+            var condition = new CoerceToBooleanExpression(Visit(context.expression()));
             var trueContent = Visit(context.block());
 
             return Expression.IfThenElse(condition, trueContent, falseContent);
@@ -332,12 +328,12 @@ namespace IronVelocity.Parser
             return new ComparisonExpression(left, right, sourceInfo, operation);
         }
 
-        public Expression VisitOr_expression([NotNull] VelocityParser.Or_expressionContext context)
+        public Expression VisitExpression([NotNull] VelocityParser.ExpressionContext context)
         {
             if (context.ChildCount == 1)
                 return Visit(context.and_expression());
 
-            var left = VelocityExpressions.CoerceToBoolean(Visit(context.or_expression()));
+            var left = VelocityExpressions.CoerceToBoolean(Visit(context.expression()));
             var right = VelocityExpressions.CoerceToBoolean(Visit(context.and_expression()));
 
             return Expression.OrElse(left, right);
@@ -374,10 +370,10 @@ namespace IronVelocity.Parser
 
         public Expression VisitDirective_argument([NotNull] VelocityParser.Directive_argumentContext context)
         {
-            var arg = context.argument();
+            var arg = context.expression();
             return arg == null
                 ? VisitDirective_word(context.directive_word())
-                : VisitArgument(arg);
+                : VisitExpression(arg);
         }
 
         public Expression VisitDirective_word([NotNull] VelocityParser.Directive_wordContext context)
@@ -432,7 +428,7 @@ namespace IronVelocity.Parser
         }
 
         public Expression VisitParenthesised_expression([NotNull] VelocityParser.Parenthesised_expressionContext context)
-            => Visit(context.argument());
+            => Visit(context.expression());
 
         public Expression VisitDirective_arguments([NotNull] VelocityParser.Directive_argumentsContext context)
         {

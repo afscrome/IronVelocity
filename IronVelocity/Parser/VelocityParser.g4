@@ -32,11 +32,10 @@ variable : IDENTIFIER;
 property_invocation: IDENTIFIER ;
 method_invocation: IDENTIFIER LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS;
 
-argument_list : (argument (COMMA argument)*)? ;
-argument:  or_expression | primary_expression;
+argument_list : (expression (COMMA expression)*)? ;
 
 directive_arguments: (LEFT_PARENTHESIS directive_argument* RIGHT_PARENTHESIS)? ;
-directive_argument : argument | directive_word;
+directive_argument : expression | directive_word;
 directive_word : IDENTIFIER;
 primary_expression : reference 
 	| boolean
@@ -56,12 +55,12 @@ string : STRING ;
 interpolated_string : INTERPOLATED_STRING ;
 
 list : LEFT_SQUARE argument_list RIGHT_SQUARE ;
-range : LEFT_SQUARE argument  DOTDOT argument RIGHT_SQUARE ;
-parenthesised_expression : LEFT_PARENTHESIS argument RIGHT_PARENTHESIS;
+range : LEFT_SQUARE expression  DOTDOT expression RIGHT_SQUARE ;
+parenthesised_expression : LEFT_PARENTHESIS expression RIGHT_PARENTHESIS;
 
 set_directive: HASH SET LEFT_PARENTHESIS assignment RIGHT_PARENTHESIS;
-if_block : HASH IF LEFT_PARENTHESIS argument RIGHT_PARENTHESIS block if_elseif_block* if_else_block? HASH END ;
-if_elseif_block : HASH ELSEIF LEFT_PARENTHESIS argument RIGHT_PARENTHESIS block ;
+if_block : HASH IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS block if_elseif_block* if_else_block? HASH END ;
+if_elseif_block : HASH ELSEIF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS block ;
 if_else_block : HASH ELSE block ;
 
 
@@ -69,7 +68,7 @@ custom_directive :
 	{ !IsBlockDirective()}?  HASH IDENTIFIER directive_arguments 
 	 |  {IsBlockDirective()}? HASH IDENTIFIER directive_arguments block  HASH END ;
 
-assignment: reference ASSIGN argument ;
+assignment: reference ASSIGN expression ;
 
 unary_expression : primary_expression
 	| EXCLAMATION unary_expression ;
@@ -83,5 +82,5 @@ equality_expression : relational_expression
 	| equality_expression (EQUAL | NOTEQUAL) relational_expression ;
 and_expression : equality_expression
 	| and_expression AND equality_expression ;
-or_expression : and_expression
-	| or_expression OR and_expression ;
+expression : and_expression
+	| expression OR and_expression ;

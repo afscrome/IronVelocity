@@ -22,7 +22,7 @@ namespace IronVelocity.Tests.Parser
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetFullText(), Is.EqualTo(input.Trim()));
 
-            var arguments = result.GetRuleContexts<VelocityParser.ArgumentContext>();
+            var arguments = result.GetRuleContexts<VelocityParser.ExpressionContext>();
             Assert.That(arguments, Has.Length.EqualTo(argumentCount));
         }
 

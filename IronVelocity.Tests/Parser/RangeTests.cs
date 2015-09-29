@@ -1,4 +1,6 @@
-﻿using IronVelocity.Parser;
+﻿using Antlr4.Runtime;
+using Antlr4.Runtime.Tree;
+using IronVelocity.Parser;
 using NUnit.Framework;
 using System;
 
@@ -18,9 +20,25 @@ namespace IronVelocity.Tests.Parser
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));
 
-            Assert.That(result.argument(0)?.primary_expression()?.GetChild(0), Is.InstanceOf(leftArgType));
-            Assert.That(result.argument(1)?.primary_expression()?.GetChild(0), Is.InstanceOf(rightArgType));
+            Assert.That(GetPrimaryExpression(result.expression(0))?.GetChild(0), Is.InstanceOf(leftArgType));
+            Assert.That(GetPrimaryExpression(result.expression(1))?.GetChild(0), Is.InstanceOf(rightArgType));
 
+        }
+
+        private VelocityParser.Primary_expressionContext GetPrimaryExpression(VelocityParser.ExpressionContext expression)
+        {
+            IParseTree tree = expression;
+
+            while (tree != null)
+            {
+                var primaryExpression = tree as VelocityParser.Primary_expressionContext;
+                if (primaryExpression != null)
+                    return primaryExpression;
+
+                tree = tree.GetChild(0);
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(expression));
         }
     }
 }
