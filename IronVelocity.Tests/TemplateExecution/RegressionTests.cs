@@ -35,8 +35,9 @@ namespace IronVelocity.Tests.TemplateExecution
 
             var input = File.ReadAllText(inputPath);
             var expected = Utility.NormaliseLineEndings(File.ReadAllText(expectedPath));
+            var context = CreateContext(name);
 
-            var result = ExecuteTemplate(input);
+            var result = ExecuteTemplate(input, context);
 
             try
             {
@@ -51,6 +52,23 @@ namespace IronVelocity.Tests.TemplateExecution
 
                 throw;
             }
+        }
+
+        private IDictionary<string, object> CreateContext(string name)
+        {
+            var context = new Dictionary<string, object>
+            {
+                ["provider"] = new Provider()
+            };
+
+            switch (name)
+            {
+                case "diabolical":
+                    context["stringarray"] = new[] { "first element", "second element" };
+                    break;
+            }
+
+            return context;
         }
 
 
@@ -82,5 +100,10 @@ namespace IronVelocity.Tests.TemplateExecution
             }
         }
 
+
+        private class Provider
+        {
+            public string Chop(string input, int count) => input.Substring(0, input.Length - count);
+        }
     }
 }

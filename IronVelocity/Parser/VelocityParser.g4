@@ -57,15 +57,15 @@ list : LEFT_SQUARE argument_list RIGHT_SQUARE ;
 range : LEFT_SQUARE expression  DOTDOT expression RIGHT_SQUARE ;
 parenthesised_expression : LEFT_PARENTHESIS expression RIGHT_PARENTHESIS;
 
-set_directive: HASH SET LEFT_PARENTHESIS assignment RIGHT_PARENTHESIS WHITESPACE? NEWLINE?;
-if_block : HASH IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS WHITESPACE? NEWLINE? block if_elseif_block* if_else_block?end ;
-if_elseif_block : HASH ELSEIF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS WHITESPACE? NEWLINE? block ;
-if_else_block : HASH ELSE WHITESPACE? NEWLINE? block ;
-end: HASH END WHITESPACE? NEWLINE? ;
+set_directive: HASH SET LEFT_PARENTHESIS assignment RIGHT_PARENTHESIS (WHITESPACE? NEWLINE)?;
+if_block : HASH IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS (WHITESPACE? NEWLINE)? block if_elseif_block* if_else_block?end ;
+if_elseif_block : HASH ELSEIF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS (WHITESPACE? NEWLINE)? block ;
+if_else_block : HASH ELSE (WHITESPACE? NEWLINE)? block ;
+end: HASH END (WHITESPACE? NEWLINE)? ;
 
 custom_directive :
-	{ !IsBlockDirective()}?  HASH IDENTIFIER directive_arguments WHITESPACE? NEWLINE?
-	 |  {IsBlockDirective()}? HASH IDENTIFIER directive_arguments WHITESPACE? NEWLINE? block end ;
+	{ !IsBlockDirective()}?  HASH IDENTIFIER directive_arguments (WHITESPACE? NEWLINE)?
+	 |  {IsBlockDirective()}? HASH IDENTIFIER directive_arguments (WHITESPACE? NEWLINE)? block end ;
 
 assignment: reference ASSIGN expression ;
 

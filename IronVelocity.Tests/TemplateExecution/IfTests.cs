@@ -41,7 +41,7 @@ namespace IronVelocity.Tests.TemplateExecution
         public void IfElseFalse()
         {
             var input = "#if(false)foo#else bar#end";
-            var expected = "bar";
+            var expected = " bar";
 
             var result = ExecuteTemplate(input);
 
@@ -74,7 +74,7 @@ namespace IronVelocity.Tests.TemplateExecution
         public void IfElseIfFinalMatch()
         {
             var input = "#if(false)foo#elseif(false)bar#else baz#end";
-            var expected = "baz";
+            var expected = " baz";
 
             var result = ExecuteTemplate(input);
 
