@@ -46,6 +46,10 @@ namespace IronVelocity.Tests.TemplateExecution
             }
             catch (AssertionException)
             {
+                if (result.OutputWithNormalisedLineEndings.Replace(" ", "").Replace("\t", "") == expected.Replace(" ", "").Replace("\t", ""))
+                {
+                    Assert.Fail("Differ only by whitespace");
+                }
                 var failurePath = Path.Combine(_failureResultsDir, name);
                 File.WriteAllText(failurePath + ".expected", expected);
                 File.WriteAllText(failurePath + ".actual", result.OutputWithNormalisedLineEndings);
