@@ -65,5 +65,29 @@ namespace IronVelocity.Tests.TemplateExecution
 
             Assert.That(result.Output, Is.EqualTo("35fae5880bad4ea0b092619e00323041"));
         }
+
+        [TestCase("$foo")]
+        [TestCase("${formal}")]
+        [TestCase("$bar.bat")]
+        [TestCase("$fizz.buzz()")]
+        [TestCase("$hello.world($fizzbuzz)")]
+        [TestCase("$one.two( $three )")]
+        public void ShouldRenderOriginalSourceForUnsilencedNullReference(string input)
+        {
+            var result = ExecuteTemplate(input);
+            Assert.That(result.Output, Is.EqualTo(input));
+        }
+
+        [TestCase("$!foo")]
+        [TestCase("$!{formal}")]
+        [TestCase("$!bar.bat")]
+        [TestCase("$!fizz.buzz()")]
+        [TestCase("$!hello.world($fizzbuzz)")]
+        [TestCase("$!one.two( $three )")]
+        public void ShouldRenderNothingForSilencedNullReference(string input)
+        {
+            var result = ExecuteTemplate(input);
+            Assert.That(result.Output, Is.Empty);
+        }
     }
 }

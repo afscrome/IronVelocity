@@ -57,7 +57,7 @@ namespace IronVelocity.Parser
         {
             return new ReferenceExpression2(
                 value: Visit(context.reference_body()),
-                raw: context.GetText(),
+                raw: context.GetFullText(),
                 isSilent: context.EXCLAMATION() != null,
                 isFormal: context.LEFT_CURLEY() != null
                 );
