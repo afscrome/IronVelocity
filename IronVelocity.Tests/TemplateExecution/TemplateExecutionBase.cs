@@ -16,6 +16,7 @@ namespace IronVelocity.Tests.TemplateExecution
         public class ExecutionResult
         {
             public string Output { get; }
+            public string OutputWithNormalisedLineEndings => Utility.NormaliseLineEndings(Output);
             public IReadOnlyDictionary<string, object> Context { get; set; }
 
             public ExecutionResult(StringBuilder output, IReadOnlyDictionary<string,object> context)
