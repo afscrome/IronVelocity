@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
@@ -58,13 +59,14 @@ namespace IronVelocity.Tests.TemplateExecution
         {
             var context = new Dictionary<string, object>
             {
-                ["provider"] = new Provider()
+                ["provider"] = new Provider(),
+                ["stringarray"] = new[] { "first element", "second element" },
             };
 
             switch (name)
             {
-                case "diabolical":
-                    context["stringarray"] = new[] { "first element", "second element" };
+                case "foreach-variable":
+                    context["list"] = new Provider().Customers;
                     break;
             }
 
@@ -104,6 +106,7 @@ namespace IronVelocity.Tests.TemplateExecution
         private class Provider
         {
             public string Chop(string input, int count) => input.Substring(0, input.Length - count);
+            public ArrayList Customers => new ArrayList { "ArrayList element 1", "ArrayList element 2", "ArrayList element 3", "ArrayList element 4" };
         }
     }
 }
