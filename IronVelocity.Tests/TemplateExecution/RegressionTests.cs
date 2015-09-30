@@ -105,6 +105,8 @@ namespace IronVelocity.Tests.TemplateExecution
 
         private class Provider
         {
+            public string this[string key] => key;
+
             public string Chop(string input, int count) => input.Substring(0, input.Length - count);
             public ArrayList Customers => new ArrayList { "ArrayList element 1", "ArrayList element 2", "ArrayList element 3", "ArrayList element 4" };
             public string Title => "lunatic";
