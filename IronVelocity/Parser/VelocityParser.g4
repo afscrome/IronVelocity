@@ -4,7 +4,7 @@ options {
     tokenVocab=VelocityLexer;
 }
 
-template: block? 
+template: block
 	(
 		EOF
 		| (HASH END {NotifyErrorListeners("Unexpected #end"); } template)
