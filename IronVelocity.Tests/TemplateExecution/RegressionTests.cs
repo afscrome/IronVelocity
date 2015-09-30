@@ -107,6 +107,17 @@ namespace IronVelocity.Tests.TemplateExecution
         {
             public string Chop(string input, int count) => input.Substring(0, input.Length - count);
             public ArrayList Customers => new ArrayList { "ArrayList element 1", "ArrayList element 2", "ArrayList element 3", "ArrayList element 4" };
+            public string Title => "lunatic";
+
+            public Hashtable Hashtable => new Hashtable
+            {
+                ["key0"] = "value0",
+                ["key1"] = "value1",
+                ["key2"] = "value2",
+            };
+
+
+            public override string ToString() => "test provider";
         }
     }
 }
