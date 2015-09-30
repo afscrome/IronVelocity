@@ -12,12 +12,10 @@ template: block
 
 block: (text | reference | comment | set_directive | if_block | custom_directive )* ;
 
-//Not sure about LEFT_CURLEY on it's own.  "LEFT_CURLEY ~IDENTIFIER" would be better
-//however causes failures if there is a textual "{" followed by EOF
-//RIGHT_CURLEY required to cope with ${formal}}
-//"DOLLAR  EXCLAMATION? LEFT_CURLEY?"" accounts for scenarios where the DOLLAR_SEEN
+//"DOLLAR  (EXCLAMATION | LEFT_CURLEY)*"" accounts for scenarios where the DOLLAR_SEEN
 // lexical state was entered, but did not move into the REFERENCE state
-
+// RIGHT_CURLEY required to cope with ${formal}}
+// DOT required to cope with "$name."
 text : (TEXT | HASH | DOLLAR (EXCLAMATION | LEFT_CURLEY)* | RIGHT_CURLEY | DOT )+ ;
 
 comment : HASH COMMENT | HASH block_comment;
