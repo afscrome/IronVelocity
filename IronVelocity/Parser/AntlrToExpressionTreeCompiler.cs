@@ -434,5 +434,10 @@ namespace IronVelocity.Parser
         {
             throw new InvalidOperationException();
         }
+
+        public Expression VisitEnd([NotNull] VelocityParser.EndContext context)
+        {
+            throw new InvalidOperationException();
+        }
     }
 }

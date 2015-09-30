@@ -7,14 +7,14 @@ tokens {
 
 fragment IDENTIFIER_TEXT : ('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | '0'..'9' | '-' | '_'  )* ;
 
-
 //===================================
 // Default mode used for parsing text
 // Moves to the HASH_SEEN or DOLLAR_SEEN states upon seeing '$' or '#' respectively
-TEXT : ~('$'| '#')+ ;
+TEXT : ~('$'| '#' | ' ' | '\t' | '\r' | '\n' )+ ;
 DOLLAR : '$' ->  mode(DOLLAR_SEEN) ;
 HASH : '#' -> mode(HASH_SEEN) ;
-
+WHITESPACE:  (' ' | '\t')+ ;
+NEWLINE : '\r' | '\n' | '\r\n' ;
 
 
 //===================================
@@ -105,7 +105,7 @@ TEXT_FALLBACK6 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 // or a directive #directive(ARGUMENTS)
 mode ARGUMENTS ;
 
-WHITESPACE : (' ' | '\t')+ -> channel(HIDDEN);
+WHITESPACE7 : (' ' | '\t')+ -> type(WHITESPACE), channel(HIDDEN);
 COMMA : ',' ;
 LEFT_PARENTHESIS7 : '(' -> type(LEFT_PARENTHESIS), pushMode(ARGUMENTS);
 RIGHT_PARENTHESIS : ')' -> popMode ;

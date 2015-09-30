@@ -7,7 +7,7 @@ options {
 template: block
 	(
 		EOF
-		| (HASH END {NotifyErrorListeners("Unexpected #end"); } template)
+		| (HASH end {NotifyErrorListeners("Unexpected #end"); } template)
 	) ;
 
 block: (text | reference | comment | set_directive | if_block | custom_directive )* ;
@@ -16,7 +16,8 @@ block: (text | reference | comment | set_directive | if_block | custom_directive
 // lexical state was entered, but did not move into the REFERENCE state
 // RIGHT_CURLEY required to cope with ${formal}}
 // DOT required to cope with "$name."
-text : (TEXT | HASH | DOLLAR (EXCLAMATION | LEFT_CURLEY)* | RIGHT_CURLEY | DOT )+ ;
+text : (TEXT | HASH | DOLLAR (EXCLAMATION | LEFT_CURLEY)* | RIGHT_CURLEY | DOT | WHITESPACE | NEWLINE )+ ;
+
 
 comment : HASH COMMENT | HASH block_comment;
 block_comment : BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | block_comment)*  BLOCK_COMMENT_END ;
@@ -56,15 +57,15 @@ list : LEFT_SQUARE argument_list RIGHT_SQUARE ;
 range : LEFT_SQUARE expression  DOTDOT expression RIGHT_SQUARE ;
 parenthesised_expression : LEFT_PARENTHESIS expression RIGHT_PARENTHESIS;
 
-set_directive: HASH SET LEFT_PARENTHESIS assignment RIGHT_PARENTHESIS;
-if_block : HASH IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS block if_elseif_block* if_else_block? HASH END ;
-if_elseif_block : HASH ELSEIF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS block ;
-if_else_block : HASH ELSE block ;
-
+set_directive: HASH SET LEFT_PARENTHESIS assignment RIGHT_PARENTHESIS WHITESPACE? NEWLINE?;
+if_block : HASH IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS WHITESPACE? NEWLINE? block if_elseif_block* if_else_block?end ;
+if_elseif_block : HASH ELSEIF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS WHITESPACE? NEWLINE? block ;
+if_else_block : HASH ELSE WHITESPACE? NEWLINE? block ;
+end: HASH END WHITESPACE? NEWLINE? ;
 
 custom_directive :
-	{ !IsBlockDirective()}?  HASH IDENTIFIER directive_arguments 
-	 |  {IsBlockDirective()}? HASH IDENTIFIER directive_arguments block  HASH END ;
+	{ !IsBlockDirective()}?  HASH IDENTIFIER directive_arguments WHITESPACE? NEWLINE?
+	 |  {IsBlockDirective()}? HASH IDENTIFIER directive_arguments WHITESPACE? NEWLINE? block end ;
 
 assignment: reference ASSIGN expression ;
 

@@ -13,7 +13,7 @@ namespace IronVelocity.Tests.TemplateExecution
             var input = "#foreach($x in $null)ABC#nodata Correct#end";
 
             var result = ExecuteTemplate(input);
-            Assert.That(result.Output, Is.EqualTo(" Correct"));
+            Assert.That(result.Output, Is.EqualTo("Correct"));
         }
 
         [Test]
@@ -22,7 +22,7 @@ namespace IronVelocity.Tests.TemplateExecution
             var input = "#foreach($x in 3.142)ABC#nodata Success#end";
 
             var result = ExecuteTemplate(input);
-            Assert.That(result.Output, Is.EqualTo(" Success"));
+            Assert.That(result.Output, Is.EqualTo("Success"));
 
         }
 
