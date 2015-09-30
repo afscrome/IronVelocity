@@ -19,7 +19,7 @@ block: (text | reference | comment | set_directive | if_block | custom_directive
 text : (TEXT | HASH | DOLLAR (EXCLAMATION | LEFT_CURLEY)* | RIGHT_CURLEY | DOT | WHITESPACE | NEWLINE )+ ;
 
 
-comment : HASH COMMENT | HASH block_comment;
+comment : HASH COMMENT (NEWLINE | EOF) | HASH block_comment;
 block_comment : BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | block_comment)*  BLOCK_COMMENT_END ;
 
 reference : DOLLAR EXCLAMATION? reference_body

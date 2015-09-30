@@ -32,7 +32,7 @@ namespace IronVelocity.Tests.Parser
             var comment = Parse(input, x => x.comment(), LexerInitialState);
 
             Assert.That(comment, Is.Not.Null);
-            Assert.That(comment.GetText(), Is.EqualTo(input));
+            Assert.That(comment.GetFullText(), Is.EqualTo(input));
         }
 
         [TestCase("#**#")]
