@@ -61,14 +61,8 @@ namespace IronVelocity.Tests.TemplateExecution
             {
                 ["provider"] = new Provider(),
                 ["stringarray"] = new[] { "first element", "second element" },
+                ["list"] = new Provider().Customers,
             };
-
-            switch (name)
-            {
-                case "foreach-variable":
-                    context["list"] = new Provider().Customers;
-                    break;
-            }
 
             return context;
         }
@@ -110,6 +104,10 @@ namespace IronVelocity.Tests.TemplateExecution
             public string Chop(string input, int count) => input.Substring(0, input.Length - count);
             public ArrayList Customers => new ArrayList { "ArrayList element 1", "ArrayList element 2", "ArrayList element 3", "ArrayList element 4" };
             public string Title => "lunatic";
+
+            //Yes, I have no idea why some concat operations use space seperators, but others don't
+            public string concat(IEnumerable<object> args) => string.Join(" ", args);
+            public string concat(string first, string second) => first + second;
 
             public Hashtable Hashtable => new Hashtable
             {
