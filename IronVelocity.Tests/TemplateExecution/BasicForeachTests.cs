@@ -1,4 +1,7 @@
 ﻿using NUnit.Framework;
+using System.Collections;
+using System;
+using System.Collections.Generic;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
@@ -50,6 +53,35 @@ namespace IronVelocity.Tests.TemplateExecution
             var result = ExecuteTemplate(input);
 
             Assert.That(result.Output, Is.EqualTo("123:A||123:B||"));
+        }
+
+        [Test]
+        public void EnumerableOnlyCalledOnce()
+        {
+            var input = @"#foreach($x in $test)$x #end";
+            var expected = "1 2 3 ";
+            var test = new CustomEnumerable();
+            var context = new Dictionary<string, object>{
+                {"test", test}
+            };
+
+            var result = ExecuteTemplate(input, context);
+
+            Assert.That(result.Output, Is.EqualTo(expected));
+        }
+
+        public class CustomEnumerable : IEnumerable
+        {
+            bool hasBeenCalled = false;
+
+            public IEnumerator GetEnumerator()
+            {
+                if (hasBeenCalled)
+                    Assert.Fail("Enumerable was executed twice");
+                hasBeenCalled = true;
+
+                return (new[] { 1, 2, 3 }).GetEnumerator();
+            }
         }
     }
 }

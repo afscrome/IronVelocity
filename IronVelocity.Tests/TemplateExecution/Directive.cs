@@ -39,6 +39,16 @@ namespace IronVelocity.Tests.TemplateExecution
             Assert.That(result.Output, Is.EqualTo(expected));
         }
 
+        [TestCase("#-")]
+        [TestCase("#unknown")]
+        [TestCase("#unknown(", IgnoreReason = "Come back to this - may need major surgery on lexer / parser")]
+        [TestCase("#unknown(123", IgnoreReason = "Come back to this - may need major surgery on lexer / parser")]
+        public void ShouldPrintUnrecognisedDirectiveAsIs(string input)
+        {
+            var result = ExecuteTemplate(input);
+            Assert.That(result.Output, Is.EqualTo(input));
+        }
+
 
         private class SingleLineDirective : CustomDirectiveBuilder
         {

@@ -129,7 +129,6 @@
     <Compile Include="Parser\SetDirective.cs" />
     <Compile Include="Parser\StringTests.cs" />
     <Compile Include="Parser\TextTests.cs" />
-    <Compile Include="TemplateExecution\Escape.cs" />
     <Compile Include="TemplateExecution\RegressionTests.cs" />
     <Compile Include="StaticTyping\DictionaryTests.cs" />
     <Compile Include="StaticTyping\If.cs" />
@@ -142,13 +141,10 @@
     <Compile Include="Binders\SetMemberBinderTests.cs" />
     <Compile Include="Binders\InvokeMemberBinderTests.cs" />
     <Compile Include="Binders\GetMemberBinderTests.cs" />
-    <Compile Include="BoxingTests.cs" />
+    <Compile Include="TemplateExecution\BoxingTests.cs" />
     <Compile Include="DummyClasses.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="MethodInfoReflectionTests.cs" />
-    <Compile Include="OutputTests\Directive.cs" />
-    <Compile Include="OutputTests\Foreach.cs" />
-    <Compile Include="OutputTests\Globals.cs" />
     <Compile Include="OutputTests\Strings.cs" />
     <Compile Include="Regression\ForeachBreakTest.cs" />
     <Compile Include="Regression\ForeachTest.cs" />
@@ -166,8 +162,6 @@
     <Compile Include="TemplateExecution\Directive.cs" />
     <Compile Include="TemplateExecution\BasicForeachTests.cs" />
     <Compile Include="TemplateExecution\IfTests.cs" />
-    <Compile Include="OutputTests\Numeric\AdditionTests.cs" />
-    <Compile Include="OutputTests\Numeric\SubtractionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Regression\Provider\BoolObj.cs" />
     <Compile Include="Regression\Provider\Child.cs" />

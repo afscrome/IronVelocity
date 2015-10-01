@@ -25,7 +25,7 @@ namespace IronVelocity.Tests
                 : testContext.Test.Name;
         }
 
-        public static VelocityTemplateMethod CompileTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
+        private static VelocityTemplateMethod CompileTemplate(string input, string fileName = "", IDictionary<string, object> globals = null)
         {
             var parser = new NVelocityParser(null, globals);
             var runtime = new VelocityRuntime(parser, globals);
