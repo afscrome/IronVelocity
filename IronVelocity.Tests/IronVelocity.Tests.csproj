@@ -129,6 +129,7 @@
     <Compile Include="Parser\SetDirective.cs" />
     <Compile Include="Parser\StringTests.cs" />
     <Compile Include="Parser\TextTests.cs" />
+    <Compile Include="TemplateExecution\Escape.cs" />
     <Compile Include="TemplateExecution\RegressionTests.cs" />
     <Compile Include="StaticTyping\DictionaryTests.cs" />
     <Compile Include="StaticTyping\If.cs" />

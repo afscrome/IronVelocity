@@ -5,6 +5,7 @@ using System.IO;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [Explicit]
     public class RegressionTests : TemplateExeuctionBase
     {
         private static readonly string _base = "..\\..\\Regression\\templates\\";
@@ -22,7 +23,7 @@ namespace IronVelocity.Tests.TemplateExecution
             }
         }
 
-        [TestCaseSource(nameof(TestsCases)), Explicit]
+        [TestCaseSource(nameof(TestsCases))]
         public void RegressionTest(string name)
         {
             var inputPath = Path.Combine(_base, name + ".vm");
@@ -61,11 +62,22 @@ namespace IronVelocity.Tests.TemplateExecution
 
         private IDictionary<string, object> CreateContext(string name)
         {
+            var provider = new Provider();
+
+
+
             var context = new Dictionary<string, object>
             {
-                ["provider"] = new Provider(),
+                ["provider"] = provider,
                 ["stringarray"] = new[] { "first element", "second element" },
-                ["list"] = new Provider().Customers,
+                ["list"] = provider.Customers,
+                ["hashtable"] = new Dictionary<string, string>
+                {
+                    ["Bar"] = "this is from a hashtable!",
+                    ["Foo"] = "this is from a hashtable too!"
+                },
+                ["hashmap"] = new Dictionary<string,object>(),
+                ["name"] = "jason",
             };
 
             return context;
@@ -122,6 +134,19 @@ namespace IronVelocity.Tests.TemplateExecution
 
 
             public override string ToString() => "test provider";
+
+            public Person Person => new Person();
+            public Child Child => new Child();
+
+            public string ShowPerson(Person person) => person.Name;
+
         }
+        private class Person {
+            public virtual string Name => "Person";
+        }
+        private class Child : Person {
+            public override string Name => "Child";
+        }
+
     }
 }
