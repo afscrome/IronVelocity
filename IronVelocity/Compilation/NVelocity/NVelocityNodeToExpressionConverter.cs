@@ -429,7 +429,7 @@ namespace IronVelocity.Compilation
                 case VelocityStringType.Constant:
                     return Expression.Constant(value);
                 case VelocityStringType.Dictionary:
-                    return new DictionaryStringExpression(value, this);
+                    return new DictionaryStringExpression(value);
                 case VelocityStringType.Interpolated:
                     return InterpolatedString(value);
                 default:

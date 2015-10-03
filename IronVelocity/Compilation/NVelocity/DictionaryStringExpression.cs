@@ -17,10 +17,9 @@ namespace IronVelocity.Compilation.AST
 
         private readonly NVelocityNodeToExpressionConverter _converter;
 
-        public DictionaryStringExpression(string value, NVelocityNodeToExpressionConverter converter)
+        public DictionaryStringExpression(string value)
         {
             Value = value;
-            _converter = converter;
         }
 
         public override Expression Reduce()
@@ -218,7 +217,9 @@ namespace IronVelocity.Compilation.AST
             var content = value.ToString().Trim();
             if (content.Contains('$'))
             {
-                var interpolated = _converter.InterpolatedString(content) as InterpolatedStringExpression;
+                //var interpolated = _converter.InterpolatedString(content) as InterpolatedStringExpression;
+                throw new NotImplementedException("TODO: Fix");
+                /*
                 if (interpolated != null && interpolated.Parts.Count == 1)
                     expr = interpolated.Parts.First();
                 else
@@ -227,7 +228,7 @@ namespace IronVelocity.Compilation.AST
                     //E.g. can be produced by:
                     //"%{Query=username:$loweredSearchText OR userdisplayname:$loweredSearchText,Filters='type::user',PageSize=20}"
                     expr = interpolated;
-                }
+                }*/
             }
             else
             {

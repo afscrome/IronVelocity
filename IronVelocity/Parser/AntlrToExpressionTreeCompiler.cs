@@ -141,11 +141,33 @@ namespace IronVelocity.Parser
 
         public Expression VisitInterpolated_string([NotNull] VelocityParser.Interpolated_stringContext context)
         {
-            var interval = new Interval(context.start.StartIndex + 1, context.Stop.StopIndex - 1);
-            var unquotedText = context.start.InputStream.GetText(interval);
+            //TODO: Should dictionary strings be handled in the lexer/parser?
+            // Yes - would be more efficient.
+            // No - these are NVelocity extensions, not standard velocity so don't belong in the parsegrammar.
+            var originalInputStream = context.Start.InputStream;
 
-            var charStream = new AntlrInputStream(unquotedText);
-            var stringTemplate = _parser.ParseTemplate(charStream, "Interpolated String", x => x.template());
+            var stringContentInterval = new Interval(context.Start.StartIndex + 1, context.Stop.StopIndex - 1);
+            var unquotedText = originalInputStream.GetText(stringContentInterval);
+
+            if (context.Stop.StopIndex - context.Start.StartIndex >= 3)
+            {
+                var dictionaryStringStartInterval = Interval.Of(context.Start.StartIndex + 1, context.Start.StartIndex + 2);
+                if (originalInputStream.GetText(dictionaryStringStartInterval) == "%{")
+                {
+                    var dictionaryStringEndInterval = Interval.Of(context.Stop.StopIndex - 1, context.Stop.StopIndex - 1);
+                    if (originalInputStream.GetText(dictionaryStringEndInterval) == "}")
+                    {
+                        return new DictionaryStringExpression(unquotedText);
+                    }
+
+                }
+            }
+
+
+
+
+            var interpolatedCharStream = new AntlrInputStream(unquotedText);
+            var stringTemplate = _parser.ParseTemplate(interpolatedCharStream, "Interpolated String", x => x.template());
 
             //TODO: This needs tidying up
             var parts = VisitMany(stringTemplate.block().GetRuleContexts<ParserRuleContext>());
