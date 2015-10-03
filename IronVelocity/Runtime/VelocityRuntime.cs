@@ -40,6 +40,12 @@ namespace IronVelocity
         }
 
 
+        public VelocityTemplateMethod CompileTemplate(Stream input, string typeName, string fileName, bool debugMode)
+        {
+            var template = _parser.Parse(input, typeName);
+            return _compiler.CompileWithSymbols(template, typeName, debugMode, fileName);
+        }
+
         public VelocityTemplateMethod CompileTemplate(string input, string typeName, string fileName, bool debugMode)
         {
             var template = _parser.Parse(input, typeName);

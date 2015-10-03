@@ -61,6 +61,14 @@ namespace IronVelocity.Compilation
             }
         }
 
+        public Expression<VelocityTemplateMethod> Parse(Stream input, string name)
+        {
+            using (var reader = new StreamReader(input))
+            {
+                return Parse(reader, name);
+            }
+        }
+
         public Expression<VelocityTemplateMethod> Parse(TextReader reader, string name)
         {
             var parser = _runtimeService.CreateNewParser();

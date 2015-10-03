@@ -8,6 +8,7 @@ using Antlr4.Runtime.Misc;
 using Antlr4.Runtime.Atn;
 using System.Collections.Generic;
 using IronVelocity.Directives;
+using System.IO;
 
 namespace IronVelocity.Parser
 {
@@ -32,20 +33,29 @@ namespace IronVelocity.Parser
 
         public Expression<VelocityTemplateMethod> Parse(string input, string name)
         {
-            var template = ParseTemplate(input, name, x=> x.template());
+            var charStream = new AntlrInputStream(input);
+
+            var template = ParseTemplate(charStream, name, x => x.template());
+            return CompileToTemplateMethod(template, name);
+        }
+
+        public Expression<VelocityTemplateMethod> Parse(Stream input, string name)
+        {
+            var charStream = new AntlrInputStream(input);
+
+            var template = ParseTemplate(charStream, name, x => x.template());
             return CompileToTemplateMethod(template, name);
         }
 
 
 
-        internal T ParseTemplate<T>(string input, string name, Func<VelocityParser, T> parseFunc, int? lexerMode = null)
+        internal T ParseTemplate<T>(ICharStream input, string name, Func<VelocityParser, T> parseFunc, int? lexerMode = null)
             where T : RuleContext
         {
             var lexerErrorListener = new ErrorListener<int>();
             var parserErrorListener = new ErrorListener<IToken>();
 
-            var charStream = new AntlrInputStream(input);
-            var lexer = new VelocityLexer(charStream);
+            var lexer = new VelocityLexer(input);
             var tokenStream = new CommonTokenStream(lexer);
             var parser = new VelocityParser(tokenStream);
 

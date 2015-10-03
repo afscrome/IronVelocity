@@ -53,71 +53,72 @@ namespace IronVelocity.PerfPlayground
         [TestCaseSource("CreateTemplateTestCases")]
         public void TemplateCompilationTests(string path, string assemblyName)
         {
-            var template = File.ReadAllText(path);
-            IParser parser;
-            switch (Mode)
+            using (var file = File.OpenRead(path))
             {
-                case ParserMode.Antlr:
-                    var antlrDirectives = BlockDirectives
-                        .Select(x => new AntlrBlockDirectiveBuilder(x))
-                        .ToList<CustomDirectiveBuilder>();
-                    antlrDirectives.Add(new ForeachDirectiveBuilder());
-                    parser = new AntlrVelocityParser(antlrDirectives);
-                    break;
-                case ParserMode.NVelocity:
-                    var nvelocityDirectives = BlockDirectives.ToDictionary<string, string, DirectiveExpressionBuilder>(x => x, x => new NVelocityDirectiveExpressionBuilder(x));
-                    parser = new NVelocityParser(nvelocityDirectives, null);
-                    break;
-                default:
-                    throw new InvalidOperationException();
-            }
-            var expressionTree = parser.Parse(template, assemblyName);
-
-            if (Compile)
-            {
-                AssemblyBuilder assemblyBuilder = null;
-                VelocityCompiler compiler;
-
-                if (SaveDlls || SaveIl)
+                IParser parser;
+                switch (Mode)
                 {
-                    var diskCompiler = new DiskCompiler(new AssemblyName(assemblyName), OutputDir);
-                    assemblyBuilder = diskCompiler.AssemblyBuilder;
-                    compiler = diskCompiler;
+                    case ParserMode.Antlr:
+                        var antlrDirectives = BlockDirectives
+                            .Select(x => new AntlrBlockDirectiveBuilder(x))
+                            .ToList<CustomDirectiveBuilder>();
+                        antlrDirectives.Add(new ForeachDirectiveBuilder());
+                        parser = new AntlrVelocityParser(antlrDirectives);
+                        break;
+                    case ParserMode.NVelocity:
+                        var nvelocityDirectives = BlockDirectives.ToDictionary<string, string, DirectiveExpressionBuilder>(x => x, x => new NVelocityDirectiveExpressionBuilder(x));
+                        parser = new NVelocityParser(nvelocityDirectives, null);
+                        break;
+                    default:
+                        throw new InvalidOperationException();
                 }
-                else
+                var expressionTree = parser.Parse(file, assemblyName);
+                if (Compile)
                 {
-                    compiler = new VelocityCompiler(null);
-                }
+                    AssemblyBuilder assemblyBuilder = null;
+                    VelocityCompiler compiler;
 
-                var result = compiler.CompileWithSymbols(expressionTree, assemblyName, true, path);
-
-                if (ExecuteTemplate)
-                {
-                    var context = new VelocityContext();
-                    using (var writer = new StringWriter())
+                    if (SaveDlls || SaveIl)
                     {
-                        var output = new VelocityOutput(writer);
-                        result(context, output);
+                        var diskCompiler = new DiskCompiler(new AssemblyName(assemblyName), OutputDir);
+                        assemblyBuilder = diskCompiler.AssemblyBuilder;
+                        compiler = diskCompiler;
                     }
-                }
-
-                if (SaveDlls || SaveIl)
-                {
-                    var dllName = assemblyName + ".dll";
-                    assemblyBuilder.Save(dllName);
-
-                    if (SaveIl)
+                    else
                     {
-                        var assemblyPath = Path.Combine(OutputDir, dllName);
-                        var ilPath = assemblyPath.Replace(".dll", ".il");
-                        var startInfo = new ProcessStartInfo(IldasmPath)
+                        compiler = new VelocityCompiler(null);
+                    }
+
+                    var result = compiler.CompileWithSymbols(expressionTree, assemblyName, true, path);
+
+                    if (ExecuteTemplate)
+                    {
+                        var context = new VelocityContext();
+                        using (var writer = new StringWriter())
                         {
-                            Arguments = String.Format("\"{0}\" /item:{1} /linenum /source /out:\"{2}\"", assemblyPath, assemblyName, ilPath),
-                            CreateNoWindow = true,
-                            UseShellExecute = false,
-                            WindowStyle = ProcessWindowStyle.Hidden
-                        };
-                        Process.Start(startInfo);
+                            var output = new VelocityOutput(writer);
+                            result(context, output);
+                        }
+                    }
+
+                    if (SaveDlls || SaveIl)
+                    {
+                        var dllName = assemblyName + ".dll";
+                        assemblyBuilder.Save(dllName);
+
+                        if (SaveIl)
+                        {
+                            var assemblyPath = Path.Combine(OutputDir, dllName);
+                            var ilPath = assemblyPath.Replace(".dll", ".il");
+                            var startInfo = new ProcessStartInfo(IldasmPath)
+                            {
+                                Arguments = String.Format("\"{0}\" /item:{1} /linenum /source /out:\"{2}\"", assemblyPath, assemblyName, ilPath),
+                                CreateNoWindow = true,
+                                UseShellExecute = false,
+                                WindowStyle = ProcessWindowStyle.Hidden
+                            };
+                            Process.Start(startInfo);
+                        }
                     }
                 }
             }
