@@ -454,7 +454,7 @@ namespace IronVelocity.Compilation
 
                 //If we fail to parse, the ast returned will be null, so just return our normal string
                 if (ast == null)
-                    return new InterpolatedStringExpression(Expression.Constant(value));
+                    return new InterpolatedStringExpression(new[] { Expression.Constant(value) });
 
                 //Need to create a nested converter - we need to redirect output 
                 //TODO: Don't like this behavior, refactor.  Perhaps remove OutputParameter, and replace via an Expression Visitor?

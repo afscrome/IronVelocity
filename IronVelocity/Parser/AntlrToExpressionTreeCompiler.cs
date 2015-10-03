@@ -14,10 +14,12 @@ namespace IronVelocity.Parser
 {
     public class AntlrToExpressionTreeCompiler : IVelocityParserVisitor<Expression>
     {
+        private readonly AntlrVelocityParser _parser;
         private readonly IReadOnlyCollection<CustomDirectiveBuilder> _customDirectives;
 
-        public AntlrToExpressionTreeCompiler(IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
+        public AntlrToExpressionTreeCompiler(AntlrVelocityParser parser, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
         {
+            _parser = parser;
             _customDirectives = customDirectives ?? new CustomDirectiveBuilder[0];
         }
 
@@ -139,11 +141,17 @@ namespace IronVelocity.Parser
 
         public Expression VisitInterpolated_string([NotNull] VelocityParser.Interpolated_stringContext context)
         {
-            //HACK: This really should be handled at the parser level, not through a substring operation
             var interval = new Interval(context.start.StartIndex + 1, context.Stop.StopIndex - 1);
             var unquotedText = context.start.InputStream.GetText(interval);
 
-            return Expression.Constant(unquotedText);
+            var charStream = new AntlrInputStream(unquotedText);
+            var stringTemplate = _parser.ParseTemplate(charStream, "Interpolated String", x => x.template());
+
+            //TODO: This needs tidying up
+            var parts = VisitMany(stringTemplate.block().GetRuleContexts<ParserRuleContext>());
+            var block = (BlockExpression)new RenderedBlock(parts).Reduce();
+
+            return new InterpolatedStringExpression(block.Expressions);
         }
 
         public Expression VisitList([NotNull] VelocityParser.ListContext context)

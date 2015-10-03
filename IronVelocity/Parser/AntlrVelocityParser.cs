@@ -108,7 +108,7 @@ namespace IronVelocity.Parser
 
         internal Expression<VelocityTemplateMethod> CompileToTemplateMethod(RuleContext parsed, string name)
         {
-            var visitor = new AntlrToExpressionTreeCompiler(_customDirectives);
+            var visitor = new AntlrToExpressionTreeCompiler(this, _customDirectives);
 
             TemplateGenerationEventSource.Log.ConvertToExpressionTreeStart(name);
             var body = visitor.Visit(parsed);

@@ -19,15 +19,15 @@ namespace IronVelocity.Compilation.AST
         public override Type Type { get { return typeof(string); } }
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.InterpolatedString; } }
 
-        public InterpolatedStringExpression(params Expression[] parts)
+        public InterpolatedStringExpression(IReadOnlyList<Expression> parts)
         {
-            Parts = parts.ToArray();
+            Parts = parts;
         }
 
         public override Expression Reduce()
         {
             if (Parts.Count == 0)
-                return Expression.Constant("");
+                return Expression.Constant(string.Empty);
             if (Parts.Count == 1)
             {
                 var element = Parts[0];
