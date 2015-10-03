@@ -153,8 +153,6 @@
     <Compile Include="RuntimeHelpers\ModuloTests.cs" />
     <Compile Include="RuntimeHelpers\DivisionTests.cs" />
     <Compile Include="RuntimeHelpers\IntegerRangeTests.cs" />
-    <Compile Include="OutputTests\Method.cs" />
-    <Compile Include="OutputTests\Identifer.cs" />
     <Compile Include="TemplateExecution\BooleanLogic.cs" />
     <Compile Include="TemplateExecution\Directive.cs" />
     <Compile Include="TemplateExecution\BasicForeachTests.cs" />
@@ -175,6 +173,7 @@
     <Compile Include="TemplateExecution\TemplatedForeachTests.cs" />
     <Compile Include="TemplateExecution\TemplateExecutionBase.cs" />
     <Compile Include="TemplateExecution\OutputTests.cs" />
+    <Compile Include="TemplateExecution\TemplateTests.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>

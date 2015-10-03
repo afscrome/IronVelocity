@@ -10,7 +10,7 @@ namespace IronVelocity.Tests.TemplateExecution
     public class ReferenceTests : TemplateExeuctionBase
     {
         [Test]
-        public void When_RenderingPropertyInvocation_ShouldOutputPropertyValue()
+        public void ShouldRenderPropertyInvocation()
         {
             var context = new Dictionary<string, object>
             {
@@ -26,7 +26,7 @@ namespace IronVelocity.Tests.TemplateExecution
 
         [TestCase("$data.Count")]
         [TestCase("$data.count")]
-        public void When_RenderingPropertyInvocation_ShouldBeCaseInsensitiveForFirstCharacter(string input)
+        public void ShouldRenderPropertyInvocation_WhenFirstCharacterCaseIsDifferent(string input)
         {
             var context = new Dictionary<string, object>
             {

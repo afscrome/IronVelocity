@@ -7,27 +7,6 @@ namespace IronVelocity.Tests.OutputTests
 {
     public class Strings
     {
-        [Test]
-        public void JQueryIdSelector()
-        {
-            var input = "jQuery('#$x')";
-            var expected = "jQuery('#$x')";
-
-            Utility.TestExpectedMarkupGenerated(input, expected);
-        }
-
-        [Test]
-        public void JQueryIdSelector2()
-        {
-            var context = new Dictionary<string, object>(){
-                {"x", "myId"}
-            };
-
-            var input = "jQuery('#$x')";
-            var expected = "jQuery('#myId')";
-
-            Utility.TestExpectedMarkupGenerated(input, expected, context);
-        }
 
         [Test]
         public void InterpolatedStringWithIfDirective()
