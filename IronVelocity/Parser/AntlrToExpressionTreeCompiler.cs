@@ -132,18 +132,18 @@ namespace IronVelocity.Parser
 
         public Expression VisitString([NotNull] VelocityParser.StringContext context)
         {
-            //HACK: This really should be handled at the parser level, not through a substring operation
-            var quotedText = context.GetText();
-            var unquotedString = quotedText.Substring(1, quotedText.Length - 2);
-            return Expression.Constant(unquotedString);
+            var interval = new Interval(context.start.StartIndex + 1, context.Stop.StopIndex - 1);
+            var unquotedText = context.start.InputStream.GetText(interval);
+            return Expression.Constant(unquotedText);
         }
 
         public Expression VisitInterpolated_string([NotNull] VelocityParser.Interpolated_stringContext context)
         {
             //HACK: This really should be handled at the parser level, not through a substring operation
-            var quotedText = context.GetText();
-            var unquotedString = quotedText.Substring(1, quotedText.Length - 2);
-            return Expression.Constant(unquotedString);
+            var interval = new Interval(context.start.StartIndex + 1, context.Stop.StopIndex - 1);
+            var unquotedText = context.start.InputStream.GetText(interval);
+
+            return Expression.Constant(unquotedText);
         }
 
         public Expression VisitList([NotNull] VelocityParser.ListContext context)
