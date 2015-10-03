@@ -129,11 +129,9 @@
     <Compile Include="Parser\SetDirective.cs" />
     <Compile Include="Parser\StringTests.cs" />
     <Compile Include="Parser\TextTests.cs" />
-    <Compile Include="TemplateExecution\RegressionTests.cs" />
     <Compile Include="StaticTyping\DictionaryTests.cs" />
-    <Compile Include="StaticTyping\If.cs" />
-    <Compile Include="StaticTyping\SetTests.cs" />
     <Compile Include="StaticTyping\ObjectArrayTests.cs" />
+    <Compile Include="TemplateExecution\RegressionTests.cs" />
     <Compile Include="Binders\ReflectionHelper\ArgumentCompatabilityTests.cs" />
     <Compile Include="Binders\ReflectionHelper\BetterFunctionMemberTests.cs" />
     <Compile Include="Binders\ReflectionHelper\ImplicitConversionSupportTests.cs" />

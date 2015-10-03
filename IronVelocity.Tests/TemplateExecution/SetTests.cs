@@ -151,10 +151,26 @@ namespace IronVelocity.Tests.TemplateExecution
             Assert.That(result.Context.Keys, Contains.Item("output"));
             Assert.That(result.Context["output"], Is.EqualTo("7.6"));
         }
+        
+        [Test]
+        public void ShouldIgnoreSetToMethod()
+        {
+            var context = new Dictionary<string, object>
+            {
+                ["input"] = new PropertyTest()
+            };
+            var input = "#set($input.Method() = 123)";
+            var result = ExecuteTemplate(input, context);
+
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(result.Context.Keys, Has.Count.EqualTo(1));
+            Assert.That(result.Context.Keys, Contains.Item("input"));
+        }
 
         private class PropertyTest
         {
             public object Property { get; set; } = new object();
+            public object Method() { return null; }
         }
 
     }

@@ -3,9 +3,11 @@ using IronVelocity.Directives;
 using IronVelocity.Parser;
 using IronVelocity.Runtime;
 using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Linq;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
@@ -26,6 +28,23 @@ namespace IronVelocity.Tests.TemplateExecution
             }
         }
 
+        private IDictionary<string, object> ConvertToDictionary(object obj)
+        {
+            if (obj == null)
+                return null;
+
+            var dictionary = obj as IDictionary<string, object>;
+            if (dictionary != null)
+                return dictionary;
+
+            var type = obj.GetType();
+            if (type.Namespace != null)
+                throw new ArgumentOutOfRangeException(nameof(obj), $"Type {type.FullName} is not an anonymous type");
+
+            return type
+                .GetProperties()
+                .ToDictionary(x => x.Name, x => x.GetValue(obj, null));
+        }
 
         public object EvaluateExpression(string input, IDictionary<string, object> locals = null)
         {
@@ -35,11 +54,15 @@ namespace IronVelocity.Tests.TemplateExecution
             return result.Context["result"];
         }
 
-        public ExecutionResult ExecuteTemplate(string input, IDictionary<string,object> locals = null, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives = null)
-        {
-            var template = CompileTemplate(input, Utility.GetName(), null, customDirectives);
 
-            var context = new VelocityContext(locals);
+        public ExecutionResult ExecuteTemplate(string input, object locals = null, object globals = null, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives = null)
+        {
+            var localsDictionary = ConvertToDictionary(locals);
+            var globalsDictionary = ConvertToDictionary(globals);
+            
+            var template = CompileTemplate(input, Utility.GetName(), globalsDictionary, customDirectives);
+
+            var context = new VelocityContext(localsDictionary);
 
             var outputBuilder = new StringBuilder();
             using (var outputWriter = new StringWriter(outputBuilder))

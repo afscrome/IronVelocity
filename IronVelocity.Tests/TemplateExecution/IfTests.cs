@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
@@ -122,6 +123,61 @@ namespace IronVelocity.Tests.TemplateExecution
 
             var result = ExecuteTemplate(input);
             Assert.That(result.Output, Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ShouldRenderBodyOfIfStatementWithTrueVariable()
+        {
+            var input = "#if($Value)Has Content#end";
+            var context = new { Value = true };
+
+            var execution = ExecuteTemplate(input, locals: context);
+
+            Assert.That(execution.Output, Is.EqualTo("Has Content"));
+        }
+
+        [Test]
+        public void ShouldRenderBodyOfIfStatementWithValueTypeVariable()
+        {
+            var input = "#if($Value)Has Content#end";
+            var context = new { Value = Guid.NewGuid() };
+
+            var execution = ExecuteTemplate(input, locals: context);
+
+            Assert.That(execution.Output, Is.EqualTo("Has Content"));
+        }
+
+        [Test]
+        public void ShouldRenderBodyOfIfStatementWithNotNullReferenceTypeVariable()
+        {
+            var input = "#if($Value)Has Content#end";
+            var context = new { Value = new object() };
+
+            var execution = ExecuteTemplate(input, locals: context);
+
+            Assert.That(execution.Output, Is.EqualTo("Has Content"));
+        }
+
+        [Test]
+        public void ShouldNotRenderBodyOfIfStatementWithFalseVariable()
+        {
+            var input = "#if($Value)Has Content#end";
+            var context = new { Value = false };
+
+            var execution = ExecuteTemplate(input, locals: context);
+
+            Assert.That(execution.Output, Is.Empty);
+        }
+
+        [Test]
+        public void ShouldNotRenderBodyOfIfStatementWithNullReferenceTypeVariable()
+        {
+            var input = "#if($Value)Has Content#end";
+            var context = new { Value = (object)null };
+
+            var execution = ExecuteTemplate(input, locals: context);
+
+            Assert.That(execution.Output, Is.Empty);
         }
     }
 
