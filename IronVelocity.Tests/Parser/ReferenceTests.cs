@@ -8,7 +8,7 @@ namespace IronVelocity.Tests.Parser
     [TestFixture(VelocityLexer.HASH_SEEN)]
     [TestFixture(VelocityLexer.DOLLAR_SEEN)]
     [TestFixture(VelocityLexer.REFERENCE)]
-    [TestFixture(VelocityLexer.REFERENCE_POSSIBLE_METHOD)]
+    [TestFixture(VelocityLexer.REFERENCE_MEMBER_ACCESS)]
     [TestFixture(VelocityLexer.ARGUMENTS)]
     public class ReferenceTests : ParserTestBase
     {

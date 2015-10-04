@@ -33,7 +33,7 @@ method_invocation: IDENTIFIER LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS;
 
 argument_list : (expression (COMMA expression)*)? ;
 
-directive_arguments: (LEFT_PARENTHESIS directive_argument* RIGHT_PARENTHESIS)? ;
+directive_arguments: (WHITESPACE? LEFT_PARENTHESIS directive_argument* RIGHT_PARENTHESIS)? ;
 directive_argument : expression | directive_word;
 directive_word : IDENTIFIER;
 primary_expression : reference 
@@ -57,9 +57,9 @@ list : LEFT_SQUARE argument_list RIGHT_SQUARE ;
 range : LEFT_SQUARE expression  DOTDOT expression RIGHT_SQUARE ;
 parenthesised_expression : LEFT_PARENTHESIS expression RIGHT_PARENTHESIS;
 
-set_directive: HASH SET LEFT_PARENTHESIS assignment RIGHT_PARENTHESIS (WHITESPACE? NEWLINE)?;
-if_block : HASH IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS (WHITESPACE? NEWLINE)? block if_elseif_block* if_else_block?end ;
-if_elseif_block : HASH ELSEIF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS (WHITESPACE? NEWLINE)? block ;
+set_directive: HASH SET WHITESPACE? LEFT_PARENTHESIS assignment RIGHT_PARENTHESIS (WHITESPACE? NEWLINE)?;
+if_block : HASH IF WHITESPACE? LEFT_PARENTHESIS expression RIGHT_PARENTHESIS (WHITESPACE? NEWLINE)? block if_elseif_block* if_else_block?end ;
+if_elseif_block : HASH ELSEIF WHITESPACE? LEFT_PARENTHESIS expression RIGHT_PARENTHESIS (WHITESPACE? NEWLINE)? block ;
 if_else_block : HASH ELSE (WHITESPACE? NEWLINE)? block ;
 end: HASH END (WHITESPACE? NEWLINE)? ;
 

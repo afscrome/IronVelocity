@@ -9,9 +9,11 @@ fragment ALPHA_CHAR : 'a'..'z' | 'A'..'Z';
 fragment NUMERIC_CHAR : '0'..'9' ;
 fragment DIRECTIVE_CHAR : ALPHA_CHAR | NUMERIC_CHAR | '_' ;
 fragment IDENTIFIER_CHAR : DIRECTIVE_CHAR | '-' ;
+fragment WHITESPACE_CHAR : ' ' | '\t' ;
 
 fragment IDENTIFIER_TEXT :  ALPHA_CHAR IDENTIFIER_CHAR* ;
 fragment DIRECTIVE_TEXT : ALPHA_CHAR DIRECTIVE_CHAR* ;
+fragment WHITESPACE_TEXT : WHITESPACE_CHAR+ ;
 
 //===================================
 // Default mode used for parsing text
@@ -19,7 +21,7 @@ fragment DIRECTIVE_TEXT : ALPHA_CHAR DIRECTIVE_CHAR* ;
 TEXT : ~('$'| '#' | ' ' | '\t' | '\r' | '\n' )+ ;
 DOLLAR : '$' ->  mode(DOLLAR_SEEN) ;
 HASH : '#' -> mode(HASH_SEEN) ;
-WHITESPACE:  (' ' | '\t')+ ;
+WHITESPACE:  WHITESPACE_TEXT ;
 NEWLINE : '\r' | '\n' | '\r\n' ;
 
 
@@ -42,7 +44,8 @@ TEXT_FALLBACK2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 mode DIRECTIVE_ARGUMENTS ;
 
 //TODO: Including spaces in LEFT_PARENTHESIS is a bit of a hack
-LEFT_PARENTHESIS : ' '* '(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
+WHITESPACE2A:  WHITESPACE_TEXT -> type(WHITESPACE);
+LEFT_PARENTHESIS : '(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
 TEXT_FALLBACK2A : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
@@ -61,8 +64,6 @@ BLOCK_COMMENT_BODY :  (~('#' | '*') | '#' ~'*' | '*' ~'#')+ ;
 //===================================
 // The mode is for when a dollar has been seen to parse a possible reference
 //
-// This mode should not recognise '.', otherwise you end up with funky results for things like
-// "$.test"
 mode DOLLAR_SEEN ;
 
 IDENTIFIER : IDENTIFIER_TEXT -> mode(REFERENCE) ;
@@ -74,12 +75,12 @@ TEXT_FALLBACK4 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
 //===================================
-// The mode is for when a dollar has been seen in a location that allows text so
-// the parser can distinguish between a textual '$' and a tr
+// The mode is entered once we haev a complete reference. May be followed by either
+// text, or further member access.
 mode REFERENCE ;
 
 DOT : '.' ;
-IDENTIFIER5: IDENTIFIER_TEXT -> type(IDENTIFIER) , mode(REFERENCE_POSSIBLE_METHOD) ;
+IDENTIFIER5: IDENTIFIER_TEXT -> type(IDENTIFIER) , mode(REFERENCE_MEMBER_ACCESS) ;
 RIGHT_CURLEY : '}' ->  mode(DEFAULT_MODE);
 
 DOTDOT_TEXT5 : '..' -> type(TEXT), mode(DEFAULT_MODE) ;
@@ -87,23 +88,14 @@ TEXT_FALLBACK5 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
 //===================================
-// This is identical to the DOLLAR_SEEN_VARIABLE mode, with the addition of a rule
-// for '(' which transitions into the ARGUMENTS lexer state.
-// This is because the left parenthesis in "$test(" is text (and shouldn't transition
-// to the ARGUMENTS state), whereas in "$test.method(" it should transition.
-mode REFERENCE_POSSIBLE_METHOD ;
+// The mode is entered once we have a member access.  If followed by '(' the member access
+// becomes a method invocation, and moves to the ARGUMENTS state to tokenise arguments.
+// Otherwise it is a property invocation and returns to the REFERENCE state.
+mode REFERENCE_MEMBER_ACCESS ;
 
-DOT6 : '.' -> type(DOT), mode(REFERENCE);
 LEFT_PARENTHESIS6 : '(' -> type(LEFT_PARENTHESIS), mode(REFERENCE), pushMode(ARGUMENTS) ;
-RIGHT_CURLEY6 : '}' -> type(RIGHT_CURLEY),  mode(DEFAULT_MODE);
+TEXT_FALLBACK6 : -> type(TRANSITION), channel(HIDDEN), mode(REFERENCE) ;
 
-DOTDOT_TEXT6 : '..' -> type(TEXT), mode(DEFAULT_MODE) ;
-TEXT_FALLBACK6 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
-
-
-// Three states may seem excessive for parsing references, however:
-// DOLALR_SEEN and REFERENCE are seperate as otherwise the parser has problems parsing "$."
-// REFERENCE and REFERENCE_MODIFIER are seperate otherwise the parser has problems parsing $test()
 
 
 //===================================
@@ -111,7 +103,7 @@ TEXT_FALLBACK6 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 // or a directive #directive(ARGUMENTS)
 mode ARGUMENTS ;
 
-WHITESPACE7 : (' ' | '\t')+ -> type(WHITESPACE), channel(HIDDEN);
+WHITESPACE7 : WHITESPACE_TEXT -> type(WHITESPACE), channel(HIDDEN);
 COMMA : ',' ;
 LEFT_PARENTHESIS7 : '(' -> type(LEFT_PARENTHESIS), pushMode(ARGUMENTS);
 RIGHT_PARENTHESIS : ')' -> popMode ;

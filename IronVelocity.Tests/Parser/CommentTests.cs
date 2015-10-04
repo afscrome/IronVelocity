@@ -11,7 +11,7 @@ namespace IronVelocity.Tests.Parser
     [TestFixture(VelocityLexer.DefaultMode)]
     [TestFixture(VelocityLexer.DOLLAR_SEEN)]
     [TestFixture(VelocityLexer.REFERENCE)]
-    [TestFixture(VelocityLexer.REFERENCE_POSSIBLE_METHOD)]
+    [TestFixture(VelocityLexer.REFERENCE_MEMBER_ACCESS)]
 
     public class CommentTests : ParserTestBase
     {
