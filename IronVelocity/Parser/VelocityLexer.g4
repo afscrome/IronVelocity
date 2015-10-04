@@ -18,12 +18,14 @@ fragment WHITESPACE_TEXT : WHITESPACE_CHAR+ ;
 //===================================
 // Default mode used for parsing text
 // Moves to the HASH_SEEN or DOLLAR_SEEN states upon seeing '$' or '#' respectively
-TEXT : ~('$'| '#' | ' ' | '\t' | '\r' | '\n' )+ ;
+TEXT : ~('$'| '#' | ' ' | '\t' | '\r' | '\n' | '\\' )+ ;
 DOLLAR : '$' ->  mode(DOLLAR_SEEN) ;
 HASH : '#' -> mode(HASH_SEEN) ;
 WHITESPACE:  WHITESPACE_TEXT ;
 NEWLINE : '\r' | '\n' | '\r\n' ;
-
+ESCAPED_DOLLAR: '\\'+ '$' ;
+ESCAPED_HASH: '\\'+ '#' ;
+LONE_ESCAPE : '\\' ;
 
 //===================================
 // The mode is for when a hash has been seen in a location that allows text so

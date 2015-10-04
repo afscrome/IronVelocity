@@ -9,6 +9,7 @@ using IronVelocity.Compilation;
 using IronVelocity.Binders;
 using System.Linq;
 using IronVelocity.Directives;
+using System.Text;
 
 namespace IronVelocity.Parser
 {
@@ -50,9 +51,34 @@ namespace IronVelocity.Parser
             return Constants.EmptyExpression;
         }
 
+        private readonly StringBuilder _textBuffer = new StringBuilder();
+
         public Expression VisitText([NotNull] VelocityParser.TextContext context)
         {
-            return Expression.Constant(context.GetText());
+            _textBuffer.Clear();
+
+            for (int i = 0; i < context.ChildCount; i++)
+            {
+                var token = ((ITerminalNode)context.GetChild(i)).Symbol;
+
+                switch (token.Type)
+                {
+                    case VelocityLexer.WHITESPACE:
+                    case VelocityLexer.NEWLINE:
+                        goto default;
+                    case VelocityLexer.ESCAPED_DOLLAR:
+                        _textBuffer.Append('$');
+                        break;
+                    case VelocityLexer.ESCAPED_HASH:
+                        _textBuffer.Append('#');
+                        break;
+                    default:
+                        _textBuffer.Append(token.Text);
+                        break;
+                }
+            }
+
+            return Expression.Constant(_textBuffer.ToString());
         }
 
         public Expression VisitReference([NotNull] VelocityParser.ReferenceContext context)

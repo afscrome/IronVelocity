@@ -132,6 +132,7 @@
     <Compile Include="StaticTyping\DictionaryTests.cs" />
     <Compile Include="StaticTyping\ObjectArrayTests.cs" />
     <Compile Include="TemplateExecution\DictionaryStringsTests.cs" />
+    <Compile Include="TemplateExecution\Escape.cs" />
     <Compile Include="TemplateExecution\InterpolatedStringTests.cs" />
     <Compile Include="TemplateExecution\RegressionTests.cs" />
     <Compile Include="Binders\ReflectionHelper\ArgumentCompatabilityTests.cs" />

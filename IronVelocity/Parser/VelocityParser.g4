@@ -16,7 +16,7 @@ block: (text | reference | comment | set_directive | if_block | custom_directive
 // lexical state was entered, but did not move into the REFERENCE state
 // RIGHT_CURLEY required to cope with ${formal}}
 // DOT required to cope with "$name."
-text : (TEXT | HASH | DOLLAR (EXCLAMATION | LEFT_CURLEY)* | RIGHT_CURLEY | DOT | WHITESPACE | NEWLINE )+ ;
+text : (TEXT | HASH | DOLLAR (EXCLAMATION | LEFT_CURLEY)* | RIGHT_CURLEY | DOT | WHITESPACE | NEWLINE | ESCAPED_DOLLAR | ESCAPED_HASH | LONE_ESCAPE )+ ;
 
 
 comment : HASH COMMENT (NEWLINE | EOF) | HASH block_comment;
