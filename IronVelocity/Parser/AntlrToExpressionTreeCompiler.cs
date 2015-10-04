@@ -376,7 +376,7 @@ namespace IronVelocity.Parser
 
         public Expression VisitCustom_directive([NotNull] VelocityParser.Custom_directiveContext context)
         {
-            var name = context.IDENTIFIER().GetText();
+            var name = context.DIRECTIVE_NAME().GetText();
             var handler = _customDirectives.SingleOrDefault(x => x.Name == name);
 
             if (handler == null)

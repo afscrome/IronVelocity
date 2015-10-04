@@ -64,8 +64,8 @@ if_else_block : HASH ELSE (WHITESPACE? NEWLINE)? block ;
 end: HASH END (WHITESPACE? NEWLINE)? ;
 
 custom_directive :
-	{ !IsBlockDirective()}?  HASH IDENTIFIER directive_arguments (WHITESPACE? NEWLINE)?
-	 |  {IsBlockDirective()}? HASH IDENTIFIER directive_arguments (WHITESPACE? NEWLINE)? block end ;
+	{ !IsBlockDirective()}?  HASH DIRECTIVE_NAME directive_arguments (WHITESPACE? NEWLINE)?
+	 |  {IsBlockDirective()}? HASH DIRECTIVE_NAME directive_arguments (WHITESPACE? NEWLINE)? block end ;
 
 assignment: reference ASSIGN expression ;
 

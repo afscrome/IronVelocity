@@ -5,7 +5,13 @@ tokens {
 	TRANSITION
 }
 
-fragment IDENTIFIER_TEXT : ('a'..'z' | 'A'..'Z') ('a'..'z' | 'A'..'Z' | '0'..'9' | '-' | '_'  )* ;
+fragment ALPHA_CHAR : 'a'..'z' | 'A'..'Z';
+fragment NUMERIC_CHAR : '0'..'9' ;
+fragment DIRECTIVE_CHAR : ALPHA_CHAR | NUMERIC_CHAR | '_' ;
+fragment IDENTIFIER_CHAR : DIRECTIVE_CHAR | '-' ;
+
+fragment IDENTIFIER_TEXT :  ALPHA_CHAR IDENTIFIER_CHAR* ;
+fragment DIRECTIVE_TEXT : ALPHA_CHAR DIRECTIVE_CHAR* ;
 
 //===================================
 // Default mode used for parsing text
@@ -30,7 +36,7 @@ IF : 'if' -> mode(DIRECTIVE_ARGUMENTS) ;
 ELSEIF : 'elseif' -> mode(DIRECTIVE_ARGUMENTS);
 ELSE : 'else' -> mode(DEFAULT_MODE) ;
 END : 'end' -> mode(DEFAULT_MODE) ;
-IDENTIFIER : IDENTIFIER_TEXT -> mode(DIRECTIVE_ARGUMENTS);
+DIRECTIVE_NAME : DIRECTIVE_TEXT -> mode(DIRECTIVE_ARGUMENTS);
 TEXT_FALLBACK2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 mode DIRECTIVE_ARGUMENTS ;
@@ -59,7 +65,7 @@ BLOCK_COMMENT_BODY :  (~('#' | '*') | '#' ~'*' | '*' ~'#')+ ;
 // "$.test"
 mode DOLLAR_SEEN ;
 
-IDENTIFIER4 : IDENTIFIER_TEXT -> type(IDENTIFIER), mode(REFERENCE) ;
+IDENTIFIER : IDENTIFIER_TEXT -> mode(REFERENCE) ;
 EXCLAMATION : '!' ;
 LEFT_CURLEY : '{';
 
@@ -111,7 +117,7 @@ LEFT_PARENTHESIS7 : '(' -> type(LEFT_PARENTHESIS), pushMode(ARGUMENTS);
 RIGHT_PARENTHESIS : ')' -> popMode ;
 TRUE : 'true' ;
 FALSE : 'false' ;
-NUMBER : ('0'..'9')+ ;
+NUMBER : NUMERIC_CHAR+ ;
 DOT7 : '.' -> type(DOT) ;
 STRING : '\'' ~('\'' | '\r' | '\n' )* '\'' ;
 INTERPOLATED_STRING : '"' ~('"' | '\r' | '\n' )* '"' ;

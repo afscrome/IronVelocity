@@ -126,6 +126,15 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
+        public void ShouldRenderElseIfWhenElseStartsWithDashWithoutLeadingWhitespcE()
+        {
+            var input = "#if(false)1#else-1#end";
+
+            var execution = ExecuteTemplate(input);
+            Assert.That(execution.Output, Is.EqualTo("-1"));
+        }
+
+        [Test]
         public void ShouldRenderBodyOfIfStatementWithTrueVariable()
         {
             var input = "#if($Value)Has Content#end";
