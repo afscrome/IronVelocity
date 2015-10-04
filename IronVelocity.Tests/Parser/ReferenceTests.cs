@@ -27,6 +27,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$MiXeDCaSe", "MiXeDCaSe")]
         [TestCase("$WithNumbers123", "WithNumbers123")]
         [TestCase("$abcdefghijklmnopqrstuvwxyz_-ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890", "abcdefghijklmnopqrstuvwxyz_-ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890")]
+        [TestCase("$_StartingWithUnderscore", "$_StartingWithUnderscore")]
         //TODO: Are ${x-} and ${y_} valid variables (i.e. ending in - or _ )
         public void ParseReferenceWithVariable(string input, string variableName)
         {
