@@ -7,7 +7,7 @@ options {
 template: block
 	(
 		EOF
-		| (HASH end {NotifyErrorListeners("Unexpected #end"); } template)
+		| (end {NotifyErrorListeners("Unexpected #end"); } template)
 	) ;
 
 block: (text | reference | comment | set_directive | if_block | custom_directive )* ;
