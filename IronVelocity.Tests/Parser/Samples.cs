@@ -26,6 +26,7 @@ namespace IronVelocity.Tests.Parser
             "$!!",
             "$!$",
             "$.",
+            "$.(",
             "$.test",
             "$(",
             // formal versions of the above
@@ -41,6 +42,7 @@ namespace IronVelocity.Tests.Parser
         public static IEnumerable<string> PotentiallyAmbigiousReferenceDelimiters { get; } = new[]
         {
             ".",
+            ".(",
             "..",
             "..text",
             "$",
@@ -54,7 +56,7 @@ namespace IronVelocity.Tests.Parser
 
         public static IEnumerable<string> Comments { get; } = new[]
         {
-            //Single line test are causing problems duen to the newline at the end becoming text.
+            //Single line test are causing problems due to the newline at the end becoming text.
             /*
             "##Single\r",
             "##Line\n",
