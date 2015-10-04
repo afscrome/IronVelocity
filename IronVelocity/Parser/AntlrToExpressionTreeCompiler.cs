@@ -149,31 +149,25 @@ namespace IronVelocity.Parser
             var stringContentInterval = new Interval(context.Start.StartIndex + 1, context.Stop.StopIndex - 1);
             var unquotedText = originalInputStream.GetText(stringContentInterval);
 
-            if (context.Stop.StopIndex - context.Start.StartIndex >= 3)
+            if (unquotedText.StartsWith("%{") && unquotedText.EndsWith("}"))
             {
-                var dictionaryStringStartInterval = Interval.Of(context.Start.StartIndex + 1, context.Start.StartIndex + 2);
-                if (originalInputStream.GetText(dictionaryStringStartInterval) == "%{")
-                {
-                    var dictionaryStringEndInterval = Interval.Of(context.Stop.StopIndex - 1, context.Stop.StopIndex - 1);
-                    if (originalInputStream.GetText(dictionaryStringEndInterval) == "}")
-                    {
-                        return new DictionaryStringExpression(unquotedText);
-                    }
-
-                }
+                return new DictionaryStringExpression(unquotedText, InterpolateString);
             }
 
+            return InterpolateString(unquotedText);
+        }
 
-
-
-            var interpolatedCharStream = new AntlrInputStream(unquotedText);
+        private InterpolatedStringExpression InterpolateString(string content)
+        {
+            var interpolatedCharStream = new AntlrInputStream(content);
             var stringTemplate = _parser.ParseTemplate(interpolatedCharStream, "Interpolated String", x => x.template());
 
             //TODO: This needs tidying up
             var parts = VisitMany(stringTemplate.block().GetRuleContexts<ParserRuleContext>());
-            var block = (BlockExpression)new RenderedBlock(parts).Reduce();
+            //var block = (BlockExpression)new RenderedBlock(parts).Reduce();
+            //return new InterpolatedStringExpression(block.Expressions);
 
-            return new InterpolatedStringExpression(block.Expressions);
+            return new InterpolatedStringExpression(parts);
         }
 
         public Expression VisitList([NotNull] VelocityParser.ListContext context)

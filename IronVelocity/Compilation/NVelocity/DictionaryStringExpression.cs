@@ -15,11 +15,12 @@ namespace IronVelocity.Compilation.AST
         public override Type Type { get { return typeof(RuntimeDictionary); } }
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.DictionaryString; } }
 
-        private readonly NVelocityNodeToExpressionConverter _converter;
+        private readonly Func<string, InterpolatedStringExpression> _interpolateStringFunc;
 
-        public DictionaryStringExpression(string value)
+        public DictionaryStringExpression(string value, Func<string, InterpolatedStringExpression> interpolateStringFunc)
         {
             Value = value;
+            _interpolateStringFunc = interpolateStringFunc;
         }
 
         public override Expression Reduce()
@@ -217,9 +218,8 @@ namespace IronVelocity.Compilation.AST
             var content = value.ToString().Trim();
             if (content.Contains('$'))
             {
-                //var interpolated = _converter.InterpolatedString(content) as InterpolatedStringExpression;
-                throw new NotImplementedException("TODO: Fix");
-                /*
+                var interpolated = _interpolateStringFunc(content);
+
                 if (interpolated != null && interpolated.Parts.Count == 1)
                     expr = interpolated.Parts.First();
                 else
@@ -228,7 +228,7 @@ namespace IronVelocity.Compilation.AST
                     //E.g. can be produced by:
                     //"%{Query=username:$loweredSearchText OR userdisplayname:$loweredSearchText,Filters='type::user',PageSize=20}"
                     expr = interpolated;
-                }*/
+                }
             }
             else
             {

@@ -33,9 +33,18 @@ namespace IronVelocity.Compilation.AST
                 var element = Parts[0];
                 if (element.Type != typeof(void))
                 {
-                    return element.Type == typeof(string)
-                        ? element
-                        : Expression.Call(element, MethodHelpers.ToStringMethodInfo);
+                    if (element.Type == typeof(string))
+                        return element;
+
+                    var toStringExpr = Expression.Call(element, MethodHelpers.ToStringMethodInfo);
+
+                    if (element.Type.IsValueType)
+                        return toStringExpr;
+
+                    return Expression.Condition(
+                        Expression.Equal(element, Expression.Default(element.Type))
+                        , Expression.Constant(String.Empty)
+                        , toStringExpr);
                 }
             }
             //If we don't have any void expressions (i.e. Macros), use String.Concat as it produces less IL and so JIT compiles faster

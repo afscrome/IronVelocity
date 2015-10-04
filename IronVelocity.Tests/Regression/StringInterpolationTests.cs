@@ -11,13 +11,6 @@ namespace IronVelocity.Tests.Regression
 	[TestFixture]
 	public class StringInterpolationTestCase
 	{
-		[Test]
-		public void SingleParamDict()
-		{
-			Assert.AreEqual("1:key1=<value1>", Eval("%{      key1     =  'value1' }"));
-			Assert.AreEqual("1:key1=<value1>", Eval("%{      key1='value1' }"));
-			Assert.AreEqual("1:key1=<value1>", Eval("%{key1='value1'}"));
-		}
 
 		[Test]
 		public void MultiParamDict()
@@ -68,12 +61,6 @@ namespace IronVelocity.Tests.Regression
 			Assert.AreEqual("1:action=<'abc'>", Eval(@"%{action='\'abc\''}"));
 		}
 
-		[Test]
-		public void ZeroParamDictInterpolation()
-		{
-			Assert.AreEqual("0", Eval("%{       }"));
-			Assert.AreEqual("0", Eval("%{}"));
-		}
 
 		[Test]
 		public void InnerStringBug()
