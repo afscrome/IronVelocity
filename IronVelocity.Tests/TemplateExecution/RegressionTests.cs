@@ -5,7 +5,6 @@ using System.IO;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
-    [Explicit]
     public class RegressionTests : TemplateExeuctionBase
     {
         private static readonly string _base = "..\\..\\Regression\\templates\\";
@@ -49,7 +48,7 @@ namespace IronVelocity.Tests.TemplateExecution
             {
                 if (result.OutputWithNormalisedLineEndings.Replace(" ", "").Replace("\t", "") == expected.Replace(" ", "").Replace("\t", ""))
                 {
-                    Assert.Fail("Differ only by whitespace");
+                    Assert.Inconclusive("Differ only by whitespace");
                 }
                 var failurePath = Path.Combine(_failureResultsDir, name);
                 File.WriteAllText(failurePath + ".expected", expected);
@@ -78,6 +77,12 @@ namespace IronVelocity.Tests.TemplateExecution
                 },
                 ["hashmap"] = new Dictionary<string,object>(),
                 ["name"] = "jason",
+                ["vector"] = new List<string> { "string1", "string2" },
+                ["boolobj"] = new
+                {
+                    isBoolean = true,
+                    isNotBoolean = "hello"
+                }
             };
 
             return context;
@@ -94,18 +99,35 @@ namespace IronVelocity.Tests.TemplateExecution
                     var testCase = new TestCaseData(name)
                         .SetName("Regression Test ANTLR: " + name + ".vm");
 
-                    if (name.StartsWith("velocimacro") || name.StartsWith("vm_test"))
+                    switch (name)
                     {
-                        testCase.Ignore("Global Velocimacros not supported");
+                        case "velocimacro":
+                        case "velocimacro2":
+                        case "vm_test1":
+                        case "vm_test2":
+                            testCase.Ignore("Global Velocimacros not supported");
+                            break;
+                        case "escape2":
+                        case "include":
+                            testCase.Ignore("Include not supported");
+                            break;
+                        case "parse":
+                            testCase.Ignore("Parse not supported as it's to expensive to compile. Can revisit if we ever support interpreting templates, as well as compiling & executing");
+                            break;
+                        case "escape":
+                        case "reference":
+                        case "test":
+                            testCase.Ignore("Escaping in IronVelocity doesnt' match velocity");
+                            break;
+                        case "array":
+                        case "interpolation":
+                        case "literal":
+                            testCase.Ignore("Macros not supported");
+                            break;
+                        default:
+                            break;
                     }
-                    else if (name == "escape2" || name == "include")
-                    {
-                        testCase.Ignore("Include not supported");
-                    }
-                    else if (name == "parse")
-                    {
-                        testCase.Ignore("Parse not supported");
-                    }
+
 
                     yield return testCase;
                 }
@@ -119,11 +141,16 @@ namespace IronVelocity.Tests.TemplateExecution
 
             public string Chop(string input, int count) => input.Substring(0, input.Length - count);
             public ArrayList Customers => new ArrayList { "ArrayList element 1", "ArrayList element 2", "ArrayList element 3", "ArrayList element 4" };
-            public string Title => "lunatic";
+            public ArrayList GetCustomers() => Customers;
+            public string Title { get; set; } = "lunatic";
+            public string Name { get; } = "jason";
+            public string[] Array => new[] { "first element", "second element" };
+            public List<string> Vector => new List<string> { "vector element 1", "vector element 2" };
 
             //Yes, I have no idea why some concat operations use space seperators, but others don't
-            public string concat(IEnumerable<object> args) => string.Join(" ", args);
-            public string concat(string first, string second) => first + second;
+            public string Concat(IEnumerable<object> args) => string.Join(" ", args);
+            public string Concat(string first, string second) => first + second;
+            public string GetTitleMethod() => Title;
 
             public Hashtable Hashtable => new Hashtable
             {

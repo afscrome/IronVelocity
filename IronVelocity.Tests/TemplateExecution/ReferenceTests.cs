@@ -89,5 +89,15 @@ namespace IronVelocity.Tests.TemplateExecution
             var result = ExecuteTemplate(input);
             Assert.That(result.Output, Is.Empty);
         }
+
+        [TestCase("$foo.Stuff()")]
+        [TestCase("$foo.Other")]
+        public void ShouldRenderOriginalSourceForUnsilencedPartiallyNullReference(string input)
+        {
+            var context = new { foo = 123 };
+            var result = ExecuteTemplate(input, context);
+            Assert.That(result.Output, Is.EqualTo(input));
+        }
+
     }
 }

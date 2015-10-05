@@ -163,7 +163,6 @@
     <Compile Include="Regression\Provider\BoolObj.cs" />
     <Compile Include="Regression\Provider\Child.cs" />
     <Compile Include="Regression\Provider\Person.cs" />
-    <Compile Include="Regression\RegressionTests.cs" />
     <Compile Include="Regression\Provider\TestProvider.cs" />
     <Compile Include="SymbolInformationTests.cs" />
     <Compile Include="TemplateExecution\CommentTests.cs" />
