@@ -146,7 +146,6 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="MethodInfoReflectionTests.cs" />
     <Compile Include="Regression\ForeachBreakTest.cs" />
-    <Compile Include="Regression\ObjectComparisonTestCase.cs" />
     <Compile Include="Regression\Provider\Something.cs" />
     <Compile Include="Regression\StringInterpolationTests.cs" />
     <Compile Include="Regression\VelocityTest.cs" />
