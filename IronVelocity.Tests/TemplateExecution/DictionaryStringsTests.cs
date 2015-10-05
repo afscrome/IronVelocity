@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
@@ -9,15 +10,10 @@ namespace IronVelocity.Tests.TemplateExecution
     {
         [TestCase("%{}")]
         [TestCase("%{    }")]
-        public void ShouldProcessEmptyDictionary(string stringContent)
+        public void ShouldProcessEmptyDictionary(string input)
         {
-            var input = $"#set($result = \"{stringContent}\")";
+            var result = EvaluateDictionary(input);
 
-            var execution = ExecuteTemplate(input);
-
-            Assert.That(execution.Context.Keys, Contains.Item("result"));
-            var result = execution.Context["result"];
-            Assert.That(result, Is.InstanceOf<IDictionary>());
             Assert.That(result, Is.Empty);
         }
 
@@ -30,19 +26,13 @@ namespace IronVelocity.Tests.TemplateExecution
         [TestCase("%{key='value'  }")]
         [TestCase("%{key=  'value'  }")]
         [TestCase("%{  key  =  'value'  }")]
-        public void ShouldProcessDictionaryWithWhitespaceAroundKeysOrValuesWithConstantValues(string dictString)
+        public void ShouldProcessDictionaryWithWhitespaceAroundKeysOrValuesWithConstantValues(string input)
         {
-            var script = "#set($dict = \"" + dictString + "\")";
+            var result = EvaluateDictionary(input);
 
-            var execution = ExecuteTemplate(script);
-
-            Assert.That(execution.Context.Keys, Contains.Item("dict"));
-            Assert.That(execution.Context["dict"], Is.InstanceOf<IDictionary>());
-
-            var dict = (IDictionary)execution.Context["dict"];
-            Assert.That(dict.Keys, Contains.Item("key"));
-            Assert.That(dict["key"], Is.EqualTo("value"));
-
+            Assert.That(result, Has.Count.EqualTo(1));
+            Assert.That(result.Keys, Contains.Item("key"));
+            Assert.That(result["key"], Is.EqualTo("value"));
         }
 
         [TestCase("'hello world'", "hello world")]
@@ -54,22 +44,97 @@ namespace IronVelocity.Tests.TemplateExecution
         [TestCase("$x", "beautiful")]
         public void ShouldProcessDictionaryValue(string input, object expected)
         {
-            var script = "#set($dict = \"%{ key = " + input + "}\")";
+            var dictionary = "%{ key = " + input + "}";
             var env = new
             {
                 i = 72,
                 x = "beautiful",
             };
 
-            var execution = ExecuteTemplate(script, locals: env);
+            var result = EvaluateDictionary(dictionary, env);
+
+            Assert.That(result, Has.Count.EqualTo(1));
+            Assert.That(result.Keys, Contains.Item("key"));
+            Assert.That(result["key"], Is.EqualTo(expected));
+        }
+
+        [Test]
+        public void ShouldProcessDictionaryWithSinglePrimitive()
+        {
+            var primitive = 623;
+            var input = "%{primitive = $primitive}";
+            var context = new { primitive = primitive };
+
+            var result = EvaluateDictionary(input, context);
+
+            Assert.That(result, Has.Count.EqualTo(1));
+            Assert.That(result["primitive"], Is.EqualTo(primitive));
+        }
+
+        [Test]
+        public void ShouldProcessDictionaryWithSingleValueType()
+        {
+            var value = new Guid("56357676-88b0-401f-b75b-5ab124268801");
+            var input = "%{value = $value}";
+            var context = new { value = value };
+
+            var result = EvaluateDictionary(input, context);
+
+            Assert.That(result, Has.Count.EqualTo(1));
+            Assert.That(result["value"], Is.EqualTo(value));
+        }
+
+        [Test]
+        public void ShouldProcessDictionaryWithSingleReferenceType()
+        {
+            var reference = new StringBuilder();
+            var input = "%{reference = $reference}";
+            var context = new { reference = reference };
+
+            var result = EvaluateDictionary(input, context);
+
+            Assert.AreEqual(1, result.Count);
+            Assert.That(result["reference"], Is.EqualTo(reference));
+        }
+
+        [Test]
+        public void ShouldProcessDictionaryWithMixedItems()
+        {
+            var reference = new StringBuilder();
+            var primitive = 623;
+            var value = new Guid("56357676-88b0-401f-b75b-5ab124268801");
+
+            var input = "%{reference = $reference, primitive = $primitive, value = $value}";
+
+            var context = new
+            {
+                reference = reference,
+                primitive = primitive,
+                value = value
+            };
+
+
+
+            var result = EvaluateDictionary(input, context);
+
+            Assert.That(result, Has.Count.EqualTo(3));
+            Assert.That(result["reference"], Is.EqualTo(reference));
+            Assert.That(result["primitive"], Is.EqualTo(primitive));
+            Assert.That(result["value"], Is.EqualTo(value));
+        }
+
+        private IDictionary EvaluateDictionary(string input, object context = null)
+        {
+            input = $"#set($dict = \"{input}\")";
+
+            var execution = ExecuteTemplate(input, locals: context);
 
             Assert.That(execution.Context.Keys, Contains.Item("dict"));
             var result = execution.Context["dict"];
             Assert.That(result, Is.InstanceOf<IDictionary>());
 
-            var dict = result as IDictionary;
-            Assert.That(dict.Keys, Contains.Item("key"));
-            Assert.That(dict["key"], Is.EqualTo(expected));
+            return (IDictionary)result;
         }
+
     }
 }

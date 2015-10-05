@@ -129,8 +129,7 @@
     <Compile Include="Parser\SetDirective.cs" />
     <Compile Include="Parser\StringTests.cs" />
     <Compile Include="Parser\TextTests.cs" />
-    <Compile Include="StaticTyping\DictionaryTests.cs" />
-    <Compile Include="StaticTyping\ObjectArrayTests.cs" />
+    <Compile Include="TemplateExecution\ObjectArrayTests.cs" />
     <Compile Include="TemplateExecution\DictionaryStringsTests.cs" />
     <Compile Include="TemplateExecution\Escape.cs" />
     <Compile Include="TemplateExecution\InterpolatedStringTests.cs" />
@@ -291,6 +290,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

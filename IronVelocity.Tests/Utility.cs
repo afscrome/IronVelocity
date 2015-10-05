@@ -65,7 +65,7 @@ namespace IronVelocity.Tests
 
         }
 
-        public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, IDictionary<string, object> globals, string fileName = "")
+        private static String GetNormalisedOutput(string input, IDictionary<string, object> environment, IDictionary<string, object> globals, string fileName = "")
         {
             var action = CompileTemplate(input, fileName, globals);
 
