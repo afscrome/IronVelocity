@@ -147,7 +147,6 @@
     <Compile Include="MethodInfoReflectionTests.cs" />
     <Compile Include="Regression\ForeachBreakTest.cs" />
     <Compile Include="Regression\Provider\Something.cs" />
-    <Compile Include="Regression\StringInterpolationTests.cs" />
     <Compile Include="Regression\VelocityTest.cs" />
     <Compile Include="RuntimeHelpers\ModuloTests.cs" />
     <Compile Include="RuntimeHelpers\DivisionTests.cs" />
