@@ -146,7 +146,6 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="MethodInfoReflectionTests.cs" />
     <Compile Include="Regression\ForeachBreakTest.cs" />
-    <Compile Include="Regression\Provider\Something.cs" />
     <Compile Include="Regression\VelocityTest.cs" />
     <Compile Include="RuntimeHelpers\ModuloTests.cs" />
     <Compile Include="RuntimeHelpers\DivisionTests.cs" />
@@ -156,10 +155,6 @@
     <Compile Include="TemplateExecution\BasicForeachTests.cs" />
     <Compile Include="TemplateExecution\IfTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Regression\Provider\BoolObj.cs" />
-    <Compile Include="Regression\Provider\Child.cs" />
-    <Compile Include="Regression\Provider\Person.cs" />
-    <Compile Include="Regression\Provider\TestProvider.cs" />
     <Compile Include="SymbolInformationTests.cs" />
     <Compile Include="TemplateExecution\CommentTests.cs" />
     <Compile Include="TemplateExecution\MathsTests.cs" />
