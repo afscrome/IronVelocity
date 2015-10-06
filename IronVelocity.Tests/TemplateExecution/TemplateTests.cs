@@ -35,5 +35,20 @@ namespace IronVelocity.Tests.TemplateExecution
             Assert.That(execution.Output, Is.EqualTo("3$x.Length6"));
         }
 
+        [Test]
+        public void ShouldRenderMixedTextAndReferences()
+        {
+            var input = "Welcome back $surname, $forename";
+            var context = new
+            {
+                Forename = "John",
+                Surname = "Smith"
+            };
+
+            var execution = ExecuteTemplate(input, context);
+
+            Assert.That(execution.Output, Is.EqualTo("Welcome back Smith, John"));
+        }
+
     }
 }
