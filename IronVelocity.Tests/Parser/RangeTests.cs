@@ -12,7 +12,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("[$reference..3]", typeof(VelocityParser.ReferenceContext), typeof(VelocityParser.IntegerContext))]
         [TestCase("[-53..$var]", typeof(VelocityParser.IntegerContext), typeof(VelocityParser.ReferenceContext))]
         [TestCase("[$ref..$otherRef]", typeof(VelocityParser.ReferenceContext), typeof(VelocityParser.ReferenceContext))]
-        [TestCase("[true..[]]", typeof(VelocityParser.BooleanContext), typeof(VelocityParser.ListContext), IgnoreReason = "This currently passes, but should it?" )]
+        [TestCase("[true..[]]", typeof(VelocityParser.BooleanContext), typeof(VelocityParser.ListContext))]
         public void ParseRangeExpression(string input, Type leftArgType, Type rightArgType)
         {
             var result = Parse(input, x => x.range(), VelocityLexer.ARGUMENTS);

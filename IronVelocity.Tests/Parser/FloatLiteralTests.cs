@@ -11,8 +11,6 @@ namespace IronVelocity.Tests.Parser
         [TestCase("-0.18")]
         [TestCase("12345.67890")]
         [TestCase("-87654.32109")]
-        [TestCase(".72", Ignore = true, IgnoreReason = "TODO: Not allowed in NVelocity, should it be allowed?")]
-        [TestCase("-.1", Ignore = true, IgnoreReason = "TODO: Not allowed in NVelocity, should it be allowed?")]
         //TODO: Looks like velocity 1.7 allows specifying floats int he form 1.4E12
         public void ParseFloatLiteral(string input)
         {

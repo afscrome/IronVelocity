@@ -16,9 +16,9 @@ namespace IronVelocity.Tests.Parser
         // But the following are errors "$foo.(123", "$foo.(123"
         [TestCase("$foo.bar( ")]
         [TestCase("$test.bar(,)")]
-        [TestCase("$foo.bar(", Ignore = true, IgnoreReason = "Determine whether this should or shouldn't be a parse error")]
-        [TestCase("$foo.bar(.", Ignore = true, IgnoreReason = "Determine whether this should or shouldn't be a parse error")]
-        [TestCase("$foo.bar(hello", Ignore = true, IgnoreReason = "Determine whether this should or shouldn't be a parse error")]
+        [TestCase("$foo.bar(")]
+        [TestCase("$foo.bar(.")]
+        [TestCase("$foo.bar(hello")]
         //Incomplete block comments
         [TestCase("#*")]
         [TestCase("#* #* *#")]
