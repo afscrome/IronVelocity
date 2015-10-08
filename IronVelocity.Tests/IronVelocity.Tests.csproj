@@ -145,8 +145,6 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="MethodInfoReflectionTests.cs" />
     <Compile Include="Regression\VelocityTest.cs" />
-    <Compile Include="RuntimeHelpers\ModuloTests.cs" />
-    <Compile Include="RuntimeHelpers\DivisionTests.cs" />
     <Compile Include="RuntimeHelpers\IntegerRangeTests.cs" />
     <Compile Include="TemplateExecution\BooleanLogic.cs" />
     <Compile Include="TemplateExecution\Directive.cs" />
