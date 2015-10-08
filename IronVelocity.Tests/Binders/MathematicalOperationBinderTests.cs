@@ -12,7 +12,7 @@ using System.Numerics;
 namespace IronVelocity.Tests.Binders
 {
     [TestFixture]
-    public class MathematicalOperationBinderTests
+    public class MathematicalOperationBinderTests : BinderTestBase
     {
         [TestCase(3, 5, 8, typeof(int), TestName = "Addition Positive Integer")]
         [TestCase(-3, -5, -8, typeof(int), TestName = "Addition Negative Integer")]
@@ -130,7 +130,7 @@ namespace IronVelocity.Tests.Binders
         {
             var binder = new VelocityMathematicalOperationBinder(expressionType);
 
-            var result = Utility.BinderTests(binder, left, right);
+            var result = InvokeBinder(binder, left, right);
 
             if (expectedType != null)
                 Assert.IsInstanceOf(expectedType, result);

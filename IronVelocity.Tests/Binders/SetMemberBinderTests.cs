@@ -7,7 +7,7 @@ using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.Binders
 {
-    public class SetMemberBinderTests
+    public class SetMemberBinderTests : BinderTestBase
     {
 
         [Test]
@@ -56,7 +56,7 @@ namespace IronVelocity.Tests.Binders
         {
             var binder = new VelocitySetMemberBinder(memberName);
 
-            Utility.BinderTests(binder, input, value);
+            InvokeBinder(binder, input, value);
         }
 
 

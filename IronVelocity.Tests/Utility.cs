@@ -104,19 +104,5 @@ namespace IronVelocity.Tests
                 .Replace("\n", Environment.NewLine);
         }
 
-        public static object BinderTests(CallSiteBinder binder, params object[] args)
-        {
-            return BinderTests<object>(binder, args);
-        }
-
-        public static T BinderTests<T>(CallSiteBinder binder, params object[] args)
-        {
-            var expression = Expression.Dynamic(binder, typeof(T), args.Select(Expression.Constant));
-
-            var action = Expression.Lambda<Func<T>>(expression)
-                .Compile();
-
-            return action();
-        }
     }
 }

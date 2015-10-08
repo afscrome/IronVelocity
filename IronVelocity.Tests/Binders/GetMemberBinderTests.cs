@@ -6,9 +6,8 @@ using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.Binders
 {
-    public class GetMemberBinderTests
+    public class GetMemberBinderTests : BinderTestBase
     {
-
 
         #region Properties
 
@@ -287,7 +286,7 @@ namespace IronVelocity.Tests.Binders
         private object test(object input, string memberName)
         {
             var binder = new VelocityGetMemberBinder(memberName);
-            return Utility.BinderTests(binder, input);
+            return InvokeBinder(binder, input);
         }
 
         public class BasicClass : IExplicit, IConflict

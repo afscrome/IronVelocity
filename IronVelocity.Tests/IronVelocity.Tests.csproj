@@ -90,6 +90,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Binders\BinderTestBase.cs" />
     <Compile Include="Binders\MathematicalOperationBinderTests.cs" />
     <Compile Include="Binders\ReflectionHelper\IsNullableTypeTests.cs" />
     <Compile Include="Binders\ComparisonBinderTests.cs">

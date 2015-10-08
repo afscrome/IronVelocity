@@ -8,7 +8,7 @@ using IronVelocity.Tests;
 namespace IronVelocity.Tests.Binders
 {
     [TestFixture]
-    public class ComparisonBinderTests
+    public class ComparisonBinderTests : BinderTestBase
     {
         [TestCaseSource("TestCases")]
         public void Test(object left, object right, ComparisonOperation operation, bool expected)
@@ -99,7 +99,7 @@ namespace IronVelocity.Tests.Binders
         {
             var binder = new VelocityComparisonOperationBinder(operation);
 
-            var result = Utility.BinderTests<bool>(binder, left, right);
+            var result = InvokeBinder<bool>(binder, left, right);
 
             Assert.AreEqual(expected, result);
         }
