@@ -8,9 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using IronVelocity.Tests;
 
-namespace IronVelocity.Tests.Binders.Reuse
+namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {
-    public abstract class BinderReuseTestBase
+    public abstract class BinderReuseTestBase : TemplateExeuctionBase
     {
         private BinderHelper _oldHelper;
         public int CallSiteBindCount { get { return DuplicateBinderHelper.CallSiteBindCount; } }

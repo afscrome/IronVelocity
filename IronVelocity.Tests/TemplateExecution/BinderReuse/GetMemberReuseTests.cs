@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IronVelocity.Tests;
 
-namespace IronVelocity.Tests.Binders.Reuse
+namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {
     [TestFixture]
     public class GetMemberReuseTests : BinderReuseTestBase
@@ -23,10 +23,11 @@ namespace IronVelocity.Tests.Binders.Reuse
                 var input = "$x.Length $x.Length";
                 var expectedOutput = "13 13";
 
-                Utility.TestExpectedMarkupGenerated(input, expectedOutput, context, isGlobalEnvironment: false);
+                var execution = ExecuteTemplate(input, context);
+                Assert.That(execution.Output, Is.EqualTo(expectedOutput));
             }
 
-            Assert.AreEqual(1, CallSiteBindCount);
+            Assert.That(CallSiteBindCount, Is.EqualTo(1));
         }
     }
 }

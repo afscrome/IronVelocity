@@ -95,10 +95,10 @@
     <Compile Include="Binders\ComparisonBinderTests.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Binders\Reuse\BinderReuseTestBase.cs" />
-    <Compile Include="Binders\Reuse\GetMemberReuseTests.cs" />
-    <Compile Include="Binders\Reuse\InvokeMemberReuseTests.cs" />
-    <Compile Include="Binders\Reuse\SetMemberReuseTests.cs" />
+    <Compile Include="TemplateExecution\BinderReuse\BinderReuseTestBase.cs" />
+    <Compile Include="TemplateExecution\BinderReuse\GetMemberReuseTests.cs" />
+    <Compile Include="TemplateExecution\BinderReuse\InvokeMemberReuseTests.cs" />
+    <Compile Include="TemplateExecution\BinderReuse\SetMemberReuseTests.cs" />
     <Compile Include="Parser\DirectiveArgumentListTests.cs" />
     <Compile Include="Parser\CustomDirectives.cs" />
     <Compile Include="Parser\IfTests.cs" />

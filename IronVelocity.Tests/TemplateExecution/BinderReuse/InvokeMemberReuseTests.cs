@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using IronVelocity.Tests;
 
-namespace IronVelocity.Tests.Binders.Reuse
+namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {
     [TestFixture]
     public class InvokeMemberReuseTests : BinderReuseTestBase
@@ -16,16 +16,15 @@ namespace IronVelocity.Tests.Binders.Reuse
         {
             for (int i = 0; i < 5; i++)
             {
-                var context = new Dictionary<string, object>{
-                    {"x", 123}
-                };
+                var context = new { x = 123 };
 
                 var input = "$x.ToString() $x.ToString()";
                 var expectedOutput = "123 123";
 
-                Utility.TestExpectedMarkupGenerated(input, expectedOutput, context, isGlobalEnvironment: false);
-                Assert.AreEqual(1, CallSiteBindCount, 1);
+                var execution = ExecuteTemplate(input, context);
+                Assert.That(execution.Output, Is.EqualTo(expectedOutput));
             }
+            Assert.That(CallSiteBindCount, Is.EqualTo(1));
         }
 
         [Test]
@@ -40,9 +39,10 @@ namespace IronVelocity.Tests.Binders.Reuse
                 var input = "$x.Double(123) $x.Double('hello')";
                 var expectedOutput = "246 hellohello";
 
-                Utility.TestExpectedMarkupGenerated(input, expectedOutput, context, isGlobalEnvironment: false);
-                Assert.AreEqual(2, CallSiteBindCount);
+                var execution = ExecuteTemplate(input, context);
+                Assert.That(execution.Output, Is.EqualTo(expectedOutput));
             }
+            Assert.That(CallSiteBindCount, Is.EqualTo(2));
         }
 
         [Test]
@@ -59,9 +59,10 @@ namespace IronVelocity.Tests.Binders.Reuse
                 var input = "$x.Double($a) $x.Double($b)";
                 var expectedOutput = "hellohello 246";
 
-                Utility.TestExpectedMarkupGenerated(input, expectedOutput, context, isGlobalEnvironment: false);
-                Assert.AreEqual(2, CallSiteBindCount);
+                var execution = ExecuteTemplate(input, context);
+                Assert.That(execution.Output, Is.EqualTo(expectedOutput));
             }
+            Assert.That(CallSiteBindCount, Is.EqualTo(2));
         }
 
         [Test]
@@ -77,9 +78,10 @@ namespace IronVelocity.Tests.Binders.Reuse
                 var input = "$x.Double($y) $x.Double(123)";
                 var expectedOutput = "2.6 246";
 
-                Utility.TestExpectedMarkupGenerated(input, expectedOutput, context, isGlobalEnvironment: false);
-                Assert.AreEqual(2, CallSiteBindCount);
+                var execution = ExecuteTemplate(input, context);
+                Assert.That(execution.Output, Is.EqualTo(expectedOutput));
             }
+            Assert.That(CallSiteBindCount, Is.EqualTo(2));
         }
 
         [Test]
@@ -95,10 +97,10 @@ namespace IronVelocity.Tests.Binders.Reuse
                 var input = "$x.Double(123) $x.Double($y)";
                 var expectedOutput = "246 2.6";
 
-                Utility.TestExpectedMarkupGenerated(input, expectedOutput, context, isGlobalEnvironment: false);
-                Assert.AreEqual(2, CallSiteBindCount);
+                var execution = ExecuteTemplate(input, context);
+                Assert.That(execution.Output, Is.EqualTo(expectedOutput));
             }
-
+            Assert.That(CallSiteBindCount, Is.EqualTo(2));
         }
 
 
