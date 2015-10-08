@@ -23,7 +23,6 @@ namespace IronVelocity.Compilation
         {
             {"foreach", new ForeachDirectiveExpressionBuilder()},
             {"literal", new LiteralDirectiveExpressionBuilder()},
-            {"macro", new MacroDefinitionExpressionBuilder()}
         };
 
         public NVelocityParser(IDictionary<string, DirectiveExpressionBuilder> directiveHandlers, IDictionary<string,object> globals)

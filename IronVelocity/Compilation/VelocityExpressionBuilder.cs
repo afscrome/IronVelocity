@@ -25,10 +25,5 @@ namespace IronVelocity.Compilation.AST
             CustomDirectives = new Stack<CustomDirectiveExpression>();
         }
 
-        public void RegisterMacro(string name, LambdaExpression macro)
-        {
-            _directiveHandlers.Add(name, new MacroExecutionExpressionBuilder(name, macro));
-        }
-
     }
 }

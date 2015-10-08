@@ -79,12 +79,6 @@
     <Compile Include="Compilation\NVelocity\Directives\LiteralDirectiveExpressionBuilder.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Compilation\NVelocity\Directives\MacroDefinitionExpressionBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\Directives\MacroExecutionExpressionBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="Compilation\NVelocity\NVelocityNodeToExpressionConverter.cs">
       <SubType>Code</SubType>
     </Compile>
