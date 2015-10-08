@@ -281,6 +281,15 @@ namespace IronVelocity.Tests.Binders
             var result = test(input, "Field");
             Assert.Null(result);
         }
+        
+        [Test]
+        public void ShouldReturnEnumValueWhenMemberOnEnumType()
+        {
+            var input = typeof(UriFormat);
+            var result = test(input, "Unescaped");
+
+            Assert.That(result, Is.EqualTo(UriFormat.Unescaped));
+        }
 
 
         private object test(object input, string memberName)
