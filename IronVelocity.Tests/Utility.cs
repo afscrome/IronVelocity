@@ -51,19 +51,6 @@ namespace IronVelocity.Tests
 
             return ctx;
         }
-        public static String GetNormalisedOutput(string input, IDictionary<string, object> environment, string fileName = "")
-        {
-            IDictionary<string,object> globals = null;
-            if (DefaultToGlobals)
-            {
-                globals = environment
-                    .Where(x => x.Value != null)
-                    .ToDictionary(x => x.Key, x => x.Value);
-            }
-
-            return GetNormalisedOutput(input, environment, globals, fileName);
-
-        }
 
         private static String GetNormalisedOutput(string input, IDictionary<string, object> environment, IDictionary<string, object> globals, string fileName = "")
         {
