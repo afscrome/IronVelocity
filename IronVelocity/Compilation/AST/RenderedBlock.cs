@@ -42,13 +42,9 @@ namespace IronVelocity.Compilation.AST
 
             var reference = expression as ReferenceExpression;
             if (reference != null)
-                return new RenderableVelocityReference(reference);
-
-            var reference2 = expression as ReferenceExpression2;
-            if (reference2 != null)
             {
-                if (!reference2.IsSilent)
-                    return new RenderableExpression(reference2, reference2.Raw);
+                if (!reference.IsSilent)
+                    return new RenderableExpression(reference, reference.Raw);
             }
 
             var method = expression.Type == typeof(string)

@@ -1,6 +1,5 @@
 ﻿using IronVelocity.Compilation;
 using IronVelocity.Compilation.AST;
-using IronVelocity.Compilation.Directives;
 using IronVelocity.Directives;
 using IronVelocity.Parser;
 using IronVelocity.Runtime;
@@ -30,9 +29,8 @@ namespace IronVelocity.PerfPlayground
         public bool SaveIl { get; set; } = false;
         public bool ExecuteTemplate { get; set; } = false;
         public string OutputDir { get; set; } = "CompiledTemplates";
-        public ICollection<string> TemplateDirectories { get; } = new List<string> ();
+        public ICollection<string> TemplateDirectories { get; } = new List<string>();
         public string TestNamePrefix { get; set; } = "Compilation";
-        public ParserMode Mode { get; set; }
         public ICollection<string> BlockDirectives { get; } = new List<string>();
 
         [TestFixtureSetUp]
@@ -55,23 +53,12 @@ namespace IronVelocity.PerfPlayground
         {
             using (var file = File.OpenRead(path))
             {
-                IParser parser;
-                switch (Mode)
-                {
-                    case ParserMode.Antlr:
-                        var antlrDirectives = BlockDirectives
-                            .Select(x => new AntlrBlockDirectiveBuilder(x))
-                            .ToList<CustomDirectiveBuilder>();
-                        antlrDirectives.Add(new ForeachDirectiveBuilder());
-                        parser = new AntlrVelocityParser(antlrDirectives);
-                        break;
-                    case ParserMode.NVelocity:
-                        var nvelocityDirectives = BlockDirectives.ToDictionary<string, string, DirectiveExpressionBuilder>(x => x, x => new NVelocityDirectiveExpressionBuilder(x));
-                        parser = new NVelocityParser(nvelocityDirectives, null);
-                        break;
-                    default:
-                        throw new InvalidOperationException();
-                }
+                var antlrDirectives = BlockDirectives
+                    .Select(x => new AntlrBlockDirectiveBuilder(x))
+                    .ToList<CustomDirectiveBuilder>();
+                antlrDirectives.Add(new ForeachDirectiveBuilder());
+                var parser = new AntlrVelocityParser(antlrDirectives);
+
                 var expressionTree = parser.Parse(file, assemblyName);
                 if (Compile)
                 {
@@ -183,40 +170,6 @@ namespace IronVelocity.PerfPlayground
             public override Expression Build(IReadOnlyList<Expression> arguments, Expression body)
                 => body;
         }
-
-        private class NVelocityDirectiveExpressionBuilder : DirectiveExpressionBuilder
-        {
-            public NVelocityDirectiveExpressionBuilder(string name)
-            {
-                Name = name;
-            }
-
-            public override string Name { get; }
-
-            public override Type NVelocityDirectiveType => typeof(NVelocityDirective);
-
-            public override Expression Build(ASTDirective node, NVelocityNodeToExpressionConverter converter)
-            {
-                return new RenderedBlock(converter.GetBlockExpressions(node.GetChild(node.ChildrenCount - 1)));
-            }
-
-            private class NVelocityDirective : NVelocity.Runtime.Directive.Directive
-            {
-                public override string Name { get; set; } = "registerEndOfPageHtml";
-
-                public override DirectiveType Type => DirectiveType.BLOCK;
-
-                public override bool Render(IInternalContextAdapter context, TextWriter writer, INode node)
-                {
-                    throw new NotImplementedException();
-                }
-            }
-        }
     }
 
-    public enum ParserMode
-    {
-        Antlr,
-        NVelocity
-    }
 }

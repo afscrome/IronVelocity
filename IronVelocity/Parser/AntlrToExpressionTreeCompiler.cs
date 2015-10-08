@@ -83,7 +83,7 @@ namespace IronVelocity.Parser
 
         public Expression VisitReference([NotNull] VelocityParser.ReferenceContext context)
         {
-            return new ReferenceExpression2(
+            return new ReferenceExpression(
                 value: Visit(context.reference_body()),
                 raw: context.GetFullText(),
                 isSilent: context.EXCLAMATION() != null,

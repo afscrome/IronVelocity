@@ -59,32 +59,12 @@
     <Compile Include="Binders\ReflectionHelper.cs" />
     <Compile Include="Compilation\AST\DirectiveWord.cs" />
     <Compile Include="Compilation\AST\MathematicalExpression.cs" />
-    <Compile Include="Compilation\AST\ReferenceExpression2.cs" />
+    <Compile Include="Compilation\AST\ReferenceExpression.cs" />
     <Compile Include="Compilation\AST\RenderableExpression.cs" />
     <Compile Include="Compilation\AST\SourceInfo.cs" />
     <Compile Include="Compilation\AST\TemporaryVariableScope.cs" />
     <Compile Include="Compilation\AST\VelocityExpressionType.cs" />
-    <Compile Include="Compilation\NVelocity\ASTReferenceMetaData.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\DictionaryStringExpression.cs" />
-    <Compile Include="Compilation\NVelocity\Directives\DirectiveExpressionBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\Directives\ForeachDirective.cs" />
-    <Compile Include="Compilation\NVelocity\Directives\ForeachDirectiveExpressionBuilder.cs" />
-    <Compile Include="Compilation\NVelocity\Directives\LiteralDirective.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\Directives\LiteralDirectiveExpressionBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\NVelocityNodeToExpressionConverter.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\NVelocityParser.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Compilation\AST\DictionaryStringExpression.cs" />
     <Compile Include="Compilation\TemporaryLocalReuse.cs" />
     <Compile Include="Compilation\VelocityExpressionVisitor.cs" />
     <Compile Include="Directives\ForeachDirective.cs" />
@@ -105,17 +85,14 @@
     <Compile Include="Compilation\AST\ObjectArrayExpression.cs" />
     <Compile Include="Compilation\AST\VelocityBinaryExpression.cs" />
     <Compile Include="Compilation\AST\CustomDirectiveExpression.cs" />
-    <Compile Include="Compilation\AST\RenderableVelocityReference.cs" />
     <Compile Include="Compilation\AST\SetDirective.cs" />
     <Compile Include="Compilation\AST\Directive.cs" />
-    <Compile Include="Compilation\AST\ReferenceExpression.cs" />
     <Compile Include="Compilation\AST\SetMemberExpression.cs" />
     <Compile Include="Compilation\AST\IntegerRangeExpression.cs" />
     <Compile Include="Compilation\AST\InterpolatedStringExpression.cs" />
     <Compile Include="Compilation\AST\MethodInvocationExpression.cs" />
     <Compile Include="Compilation\AST\PropertyAccessExpression.cs" />
     <Compile Include="Compilation\AST\UnrecognisedDirective.cs" />
-    <Compile Include="Compilation\VelocityExpressionBuilder.cs" />
     <Compile Include="Compilation\AST\RenderedBlock.cs" />
     <Compile Include="Compilation\AST\VariableExpression.cs" />
     <Compile Include="Compilation\AST\VelocityExpression.cs" />

@@ -1,40 +1,31 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
     public class ReferenceExpression : VelocityExpression
     {
-        public ASTReferenceMetadata Metadata { get; private set; }
-        public Expression Value { get; private set; }
+        public string Raw { get; }
+        public Expression Value { get; }
+        public bool IsSilent { get; }
+        public bool IsFormal { get; }
 
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.Reference; } }
-        public override Type Type
+        public ReferenceExpression(Expression value, string raw, bool isSilent, bool isFormal)
         {
-            get
-            {
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
 
-                return Metadata.RefType == ASTReferenceMetadata.ReferenceType.Runt
-                    ? typeof(string)
-                    : Value.Type;
-            }
-        }
+            if (string.IsNullOrWhiteSpace(raw))
+                throw new ArgumentOutOfRangeException(nameof(raw));
 
-        public ReferenceExpression(ASTReferenceMetadata metadata, Expression value)
-        {
-            Metadata = metadata;
             Value = value;
+            Raw = raw;
+            IsSilent = isSilent;
+            IsFormal = IsFormal;
         }
 
-        public override Expression Reduce()
-        {
-            if (Metadata.RefType == ASTReferenceMetadata.ReferenceType.Runt)
-                return Expression.Constant(Metadata.RootString);
-
-            return Value;
-        }
-
+        public override Type Type => Value.Type;
+        public override Expression Reduce() => Value;
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.Reference;
     }
 }

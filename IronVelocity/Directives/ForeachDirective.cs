@@ -20,7 +20,7 @@ namespace IronVelocity.Directives
         public Expression Body { get; }
 
         public ForeachDirective(Expression item, Expression enumerable, Expression body)
-            : base(new VelocityExpressionBuilder(null))
+            : base()
         {
             if (item is GlobalVariableExpression)
                 throw new NotSupportedException("Cannot use global variable as Foreach current item.");

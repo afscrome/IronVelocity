@@ -16,7 +16,6 @@ namespace IronVelocity.PerfPlayground
                 ExecuteTemplate = false,
                 Compile = false,
                 SaveDlls = false,
-                Mode = ParserMode.Antlr,
             };
             generator.TemplateDirectories.Add("../../templates/");
             generator.BlockDirectives.Add("registerEndOfPageHtml");

@@ -49,12 +49,8 @@ namespace IronVelocity.Compilation
                     return VisitObjectArray((ObjectArrayExpression)node);
                 case VelocityExpressionType.PropertyAccess:
                     return VisitPropertyAccess((PropertyAccessExpression)node);
-                case VelocityExpressionType.Reference2:
-                    return VisitReference2((ReferenceExpression2)node);
                 case VelocityExpressionType.Reference:
                     return VisitReference((ReferenceExpression)node);
-                case VelocityExpressionType.RenderableReference:
-                    return VisitRenderableReference((RenderableVelocityReference)node);
                 case VelocityExpressionType.RenderableExpression:
                     return VisitRenderableExpression((RenderableExpression)node);
                 case VelocityExpressionType.RenderedBlock:
@@ -70,7 +66,7 @@ namespace IronVelocity.Compilation
                 case VelocityExpressionType.TemporaryVariableScope:
                     return VisitTemporaryVariableScope((TemporaryVariableScopeExpression)node);
                 default:
-                    throw new NotSupportedException();
+                    throw new InvalidOperationException($"Unexpected VelocityExpressionType: {node.VelocityExpressionType}");
             }
         }
 
@@ -150,16 +146,6 @@ namespace IronVelocity.Compilation
         }
 
         protected virtual Expression VisitReference(ReferenceExpression node)
-        {
-            return base.VisitExtension(node);
-        }
-
-        protected virtual Expression VisitReference2(ReferenceExpression2 node)
-        {
-            return base.VisitExtension(node);
-        }
-
-        protected virtual Expression VisitRenderableReference(RenderableVelocityReference node)
         {
             return base.VisitExtension(node);
         }
