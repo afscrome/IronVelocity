@@ -7,7 +7,7 @@ namespace IronVelocity.Tests.TemplateExecution
 {
     public class RegressionTests : TemplateExeuctionBase
     {
-        private static readonly string _base = "..\\..\\Regression\\templates\\";
+        private static readonly string _base = "..\\..\\TemplateExecution\\Regression\\";
         private static readonly string _failureResultsDir = "Failures";
 
         [TestFixtureSetUp]
