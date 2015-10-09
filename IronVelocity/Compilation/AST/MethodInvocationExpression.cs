@@ -1,8 +1,6 @@
 ﻿using IronVelocity.Binders;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST

@@ -1,12 +1,6 @@
 ﻿using IronVelocity.Binders;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {

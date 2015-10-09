@@ -1,5 +1,4 @@
 ﻿using IronVelocity.Binders;
-using System;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST

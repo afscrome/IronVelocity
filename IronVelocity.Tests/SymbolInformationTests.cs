@@ -1,13 +1,10 @@
-﻿using IronVelocity.Compilation;
-using IronVelocity.Compilation.AST;
+﻿using IronVelocity.Compilation.AST;
 using IronVelocity.Parser;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Tests
 {

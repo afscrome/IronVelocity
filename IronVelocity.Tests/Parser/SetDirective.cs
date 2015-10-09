@@ -1,12 +1,7 @@
 ﻿using IronVelocity.Parser;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace IronVelocity.Tests.Parser 
+namespace IronVelocity.Tests.Parser
 {
     public class SetDirective : ParserTestBase
     {
