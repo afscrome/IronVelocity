@@ -1,10 +1,6 @@
 ﻿using IronVelocity.Compilation.AST;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Compilation
 {
@@ -35,6 +31,8 @@ namespace IronVelocity.Compilation
                     return VisitDictionaryString((DictionaryStringExpression)node);
                 case VelocityExpressionType.Directive:
                     return VisitDirective((Directive)node);
+                case VelocityExpressionType.DirectiveWord:
+                    return VisitDirectiveWord((DirectiveWord)node);
                 case VelocityExpressionType.Foreach:
                     return VisitForeach((ForeachExpression)node);
                 case VelocityExpressionType.GlobalVariable:
@@ -53,8 +51,6 @@ namespace IronVelocity.Compilation
                     return VisitPropertyAccess((PropertyAccessExpression)node);
                 case VelocityExpressionType.Reference:
                     return VisitReference((ReferenceExpression)node);
-                case VelocityExpressionType.RenderableReference:
-                    return VisitRenderableReference((RenderableVelocityReference)node);
                 case VelocityExpressionType.RenderableExpression:
                     return VisitRenderableExpression((RenderableExpression)node);
                 case VelocityExpressionType.RenderedBlock:
@@ -70,7 +66,7 @@ namespace IronVelocity.Compilation
                 case VelocityExpressionType.TemporaryVariableScope:
                     return VisitTemporaryVariableScope((TemporaryVariableScopeExpression)node);
                 default:
-                    throw new NotSupportedException();
+                    throw new InvalidOperationException($"Unexpected VelocityExpressionType: {node.VelocityExpressionType}");
             }
         }
 
@@ -100,6 +96,11 @@ namespace IronVelocity.Compilation
         }
 
         protected virtual Expression VisitDirective(Directive node)
+        {
+            return base.VisitExtension(node);
+        }
+
+        protected virtual Expression VisitDirectiveWord(DirectiveWord node)
         {
             return base.VisitExtension(node);
         }
@@ -145,11 +146,6 @@ namespace IronVelocity.Compilation
         }
 
         protected virtual Expression VisitReference(ReferenceExpression node)
-        {
-            return base.VisitExtension(node);
-        }
-
-        protected virtual Expression VisitRenderableReference(RenderableVelocityReference node)
         {
             return base.VisitExtension(node);
         }

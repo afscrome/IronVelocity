@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace IronVelocity
 {
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Naming", "CA1710:IdentifiersShouldHaveCorrectSuffix", Justification="Implementing IDictionary for compatibility with NVelocity")]
-    public class VelocityContext : IDictionary<string, object>
+    public class VelocityContext : IDictionary<string, object>, IReadOnlyDictionary<string, object>
     {
         private readonly IDictionary<string, object> _variables = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
@@ -45,6 +45,8 @@ namespace IronVelocity
         public ICollection<string> Keys { get { return _variables.Keys; } }
         public ICollection<object> Values { get { return _variables.Values; } }
 
+        IEnumerable<string> IReadOnlyDictionary<string, object>.Keys => Keys;
+        IEnumerable<object> IReadOnlyDictionary<string, object>.Values => Values;
 
         public void Add(string key, object value)
         {

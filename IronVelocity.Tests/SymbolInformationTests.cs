@@ -1,5 +1,6 @@
 ﻿using IronVelocity.Compilation;
 using IronVelocity.Compilation.AST;
+using IronVelocity.Parser;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ namespace IronVelocity.Tests
     [TestFixture]
     public class SymbolInformationTests
     {
-        private IParser _parser = new NVelocityParser(null, null);
+        private IParser _parser = new AntlrVelocityParser();
 
         [TestCase("4 + 47", TestName="ParsingAddExpression_DetectsCorrectLineInfo")]
         [TestCase("73 - 21", TestName="ParsingSubtractExpression_DetectsCorrectLineInfo")]

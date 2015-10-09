@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace IronVelocity.Compilation.AST
 {
-    [DebuggerDisplay("{StartLine},{EndLine} : {StartColumn},{EndColumn}")]
+    [DebuggerDisplay("{StartLine}:{StartColumn} - {EndLine}:{EndColumn}")]
     public class SourceInfo
     {
         public SourceInfo(int startLine, int startColumn, int endLine, int endColumn)
@@ -63,7 +63,7 @@ namespace IronVelocity.Compilation.AST
 
         public override string ToString()
         {
-            return String.Format("{0},{1} : {2},{3}", StartLine, EndLine, StartColumn, EndColumn);
+            return String.Format("{0}:{1} - {2}:{3}", StartLine, StartColumn, EndLine, EndColumn);
         }
 
     }

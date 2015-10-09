@@ -1,0 +1,27 @@
+version: 0.0.3
+skip_tags: true
+configuration: Release
+init:
+- ps: >-
+    if ($env:APPVEYOR_REPO_BRANCH -ne 'master' -or $env:APPVEYOR_PULL_REQUEST_NUMBER) {
+       Update-AppveyorBuild -Version "${env:APPVEYOR_BUILD_VERSION}-alpha${env:APPVEYOR_BUILD_NUMBER}"
+    }
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+nuget:
+  disable_publish_on_pr: true
+before_build:
+- nuget restore
+build:
+  publish_nuget: true
+  publish_nuget_symbols: true
+  parallel: true
+  verbosity: minimal
+test:
+  assemblies: IronVelocity.Tests.dll
+#TODO: Deploy to NuGet feed http://www.appveyor.com/docs/deployment/nuget
+#TOOD: Deploy to Github Releases http://www.appveyor.com/docs/deployment/github 

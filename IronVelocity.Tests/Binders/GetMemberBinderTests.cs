@@ -6,9 +6,8 @@ using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.Binders
 {
-    public class GetMemberBinderTests
+    public class GetMemberBinderTests : BinderTestBase
     {
-
 
         #region Properties
 
@@ -282,12 +281,21 @@ namespace IronVelocity.Tests.Binders
             var result = test(input, "Field");
             Assert.Null(result);
         }
+        
+        [Test]
+        public void ShouldReturnEnumValueWhenMemberOnEnumType()
+        {
+            var input = typeof(UriFormat);
+            var result = test(input, "Unescaped");
+
+            Assert.That(result, Is.EqualTo(UriFormat.Unescaped));
+        }
 
 
         private object test(object input, string memberName)
         {
             var binder = new VelocityGetMemberBinder(memberName);
-            return Utility.BinderTests(binder, input);
+            return InvokeBinder(binder, input);
         }
 
         public class BasicClass : IExplicit, IConflict

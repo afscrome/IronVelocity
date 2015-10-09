@@ -23,13 +23,13 @@ namespace IronVelocity.Compilation.AST
         ObjectArray,
         PropertyAccess,
         Reference,
-        RenderableReference,
         RenderableExpression,
         RenderedBlock,
         SetDirective,
         SetMember,
         TemplatedForeach,
         TemporaryVariableScope,
-        Variable
+        Variable,
+        DirectiveWord
     }
 }

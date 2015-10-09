@@ -28,14 +28,14 @@ namespace IronVelocity.Compilation.AST
 
             return new SetDirective(left, right, SourceInfo);
         }
-        
+
 
         public override Expression Reduce()
         {
             var left = Left;
             var right = Right;
 
-            if (left is ReferenceExpression)
+            if (left is ReferenceExpression || left is ReferenceExpression)
                 left = left.Reduce();
 
             if (left is GlobalVariableExpression)
@@ -44,10 +44,16 @@ namespace IronVelocity.Compilation.AST
             var getMember = left as PropertyAccessExpression;
             if (getMember != null)
             {
-                    return new SetMemberExpression(getMember.Name, getMember.Target, right);
+                return new SetMemberExpression(getMember.Name, getMember.Target, right);
             }
 
             bool rightIsNullableType = ReflectionHelper.IsNullableType(right.Type);
+
+            bool isVariableExpression = left is VariableExpression;
+            if (isVariableExpression)
+                left = left.Reduce();
+            else if (left is MethodInvocationExpression)
+                return Constants.EmptyExpression;
 
             if (!left.Type.IsAssignableFrom(right.Type))
             {
@@ -68,19 +74,6 @@ namespace IronVelocity.Compilation.AST
             }
 
 
-            bool isVariableExpression = left is VariableExpression;
-            if (isVariableExpression)
-                left = left.Reduce();
-
-
-            /* One of the nuances of velocity is that if the right evaluates to null,
-                * Thus we can't simply return an assignment expression.
-                * The resulting expression looks as follows:P
-                *     .set $tempResult = right;
-                *     .if ($tempResult != null){
-                *         Assign(left, right)
-                *     }
-                */
 
             //However, if the expression is guaranteed to be a value type (i.e. not nullable), why bother?
             //Similarly if it's a variable expression, the null handling is handled in side the setter
@@ -93,10 +86,10 @@ namespace IronVelocity.Compilation.AST
 
             return new TemporaryVariableScopeExpression(tempResult,
                 Expression.IfThen(
-                //Store the result of the right hand side in to a temporary variable
-                //If the temporary variable is not equal to null
+                    //Store the result of the right hand side in to a temporary variable
+                    //If the temporary variable is not equal to null
                     Expression.NotEqual(Expression.Assign(tempResult, right), Expression.Constant(null, right.Type)),
-                //Make the assignment
+                    //Make the assignment
                     Expression.Assign(left, tempResult)
                 )
             );

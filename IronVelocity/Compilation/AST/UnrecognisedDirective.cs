@@ -19,6 +19,19 @@ namespace IronVelocity.Compilation.AST
             Name = node.DirectiveName;
         }
 
+        public UnrecognisedDirective(string name, string literal)
+        {
+            if (string.IsNullOrWhiteSpace(name))
+                throw new ArgumentOutOfRangeException(nameof(name));
+
+            if (string.IsNullOrWhiteSpace(literal))
+                throw new ArgumentOutOfRangeException(nameof(literal));
+
+            _literal = literal;
+            Name = name;
+        }
+
+
         public override Expression Reduce()
         {
             return Expression.Constant(_literal);

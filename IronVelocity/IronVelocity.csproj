@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\packages\Antlr4.4.5-alpha002\build\Antlr4.props" Condition="Exists('..\packages\Antlr4.4.5-alpha002\build\Antlr4.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -13,7 +14,8 @@
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp>61c9f9e0</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -39,6 +41,10 @@
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Antlr4.Runtime, Version=4.5.0.0, Culture=neutral, PublicKeyToken=e9931a4108ef2354, processorArchitecture=MSIL">
+      <HintPath>..\packages\Antlr4.Runtime.4.5-alpha002\lib\net45\Antlr4.Runtime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="NVelocity">
       <HintPath>..\packages\Castle.NVelocity.1.1.1\lib\net40\NVelocity.dll</HintPath>
     </Reference>
@@ -51,44 +57,19 @@
     <Compile Include="Binders\BinaryOperationHelper.cs" />
     <Compile Include="Binders\BinderHelper.cs" />
     <Compile Include="Binders\ReflectionHelper.cs" />
+    <Compile Include="Compilation\AST\DirectiveWord.cs" />
     <Compile Include="Compilation\AST\MathematicalExpression.cs" />
+    <Compile Include="Compilation\AST\ReferenceExpression.cs" />
     <Compile Include="Compilation\AST\RenderableExpression.cs" />
     <Compile Include="Compilation\AST\SourceInfo.cs" />
     <Compile Include="Compilation\AST\TemporaryVariableScope.cs" />
     <Compile Include="Compilation\AST\VelocityExpressionType.cs" />
-    <Compile Include="Compilation\NVelocity\ASTReferenceMetaData.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\DictionaryStringExpression.cs" />
-    <Compile Include="Compilation\NVelocity\Directives\DirectiveExpressionBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\Directives\ForeachDirective.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\Directives\ForeachDirectiveExpressionBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\Directives\LiteralDirective.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\Directives\LiteralDirectiveExpressionBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\Directives\MacroDefinitionExpressionBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\Directives\MacroExecutionExpressionBuilder.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\NVelocityNodeToExpressionConverter.cs">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="Compilation\NVelocity\NVelocityParser.cs">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="Compilation\AST\DictionaryStringExpression.cs" />
     <Compile Include="Compilation\TemporaryLocalReuse.cs" />
     <Compile Include="Compilation\VelocityExpressionVisitor.cs" />
+    <Compile Include="Directives\ForeachDirective.cs" />
+    <Compile Include="Directives\ForeachDirectiveBuilder.cs" />
+    <Compile Include="Directives\ForeachSection.cs" />
     <Compile Include="EventSources\BindingEventSource.cs" />
     <Compile Include="Binders\VelocityComparisonOperationBinder.cs" />
     <Compile Include="Binders\VelocityBinaryMathematicalOperationBinder.cs" />
@@ -104,17 +85,14 @@
     <Compile Include="Compilation\AST\ObjectArrayExpression.cs" />
     <Compile Include="Compilation\AST\VelocityBinaryExpression.cs" />
     <Compile Include="Compilation\AST\CustomDirectiveExpression.cs" />
-    <Compile Include="Compilation\AST\RenderableVelocityReference.cs" />
     <Compile Include="Compilation\AST\SetDirective.cs" />
     <Compile Include="Compilation\AST\Directive.cs" />
-    <Compile Include="Compilation\AST\ReferenceExpression.cs" />
     <Compile Include="Compilation\AST\SetMemberExpression.cs" />
     <Compile Include="Compilation\AST\IntegerRangeExpression.cs" />
     <Compile Include="Compilation\AST\InterpolatedStringExpression.cs" />
     <Compile Include="Compilation\AST\MethodInvocationExpression.cs" />
     <Compile Include="Compilation\AST\PropertyAccessExpression.cs" />
     <Compile Include="Compilation\AST\UnrecognisedDirective.cs" />
-    <Compile Include="Compilation\VelocityExpressionBuilder.cs" />
     <Compile Include="Compilation\AST\RenderedBlock.cs" />
     <Compile Include="Compilation\AST\VariableExpression.cs" />
     <Compile Include="Compilation\AST\VelocityExpression.cs" />
@@ -127,6 +105,12 @@
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="EventSources\TemplateGenerationEventSource.cs" />
     <Compile Include="IParser.cs" />
+    <Compile Include="Parser\AntlrToExpressionTreeCompiler.cs" />
+    <Compile Include="Parser\AntlrVelocityParser.cs" />
+    <Compile Include="Directives\CustomDirectiveBuilder.cs" />
+    <Compile Include="Parser\ErrorListener.cs" />
+    <Compile Include="Parser\ParserRuleContextExtensions.cs" />
+    <Compile Include="Parser\VelocityParser.cs" />
     <Compile Include="Reflection\ArgumentConverter.cs" />
     <Compile Include="Reflection\IArgumentConverter.cs" />
     <Compile Include="Reflection\IExpressionConverter.cs" />
@@ -155,6 +139,14 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+    <Antlr4 Include="Parser\VelocityLexer.g4">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>IronVelocity.Parser</CustomToolNamespace>
+    </Antlr4>
+    <Antlr4 Include="Parser\VelocityParser.g4">
+      <Generator>MSBuild:Compile</Generator>
+      <CustomToolNamespace>IronVelocity.Parser</CustomToolNamespace>
+    </Antlr4>
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="Properties\CodeAnalysisDictionary.xml" />
@@ -166,6 +158,14 @@
     </PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\packages\Microsoft.Diagnostics.Tracing.EventRegister.1.0.26\build\Microsoft.Diagnostics.Tracing.EventRegister.targets" Condition="Exists('..\packages\Microsoft.Diagnostics.Tracing.EventRegister.1.0.26\build\Microsoft.Diagnostics.Tracing.EventRegister.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Antlr4.4.5-alpha002\build\Antlr4.props')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Antlr4.4.5-alpha002\build\Antlr4.props'))" />
+    <Error Condition="!Exists('..\packages\Antlr4.4.5-alpha002\build\Antlr4.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Antlr4.4.5-alpha002\build\Antlr4.targets'))" />
+  </Target>
+  <Import Project="..\packages\Antlr4.4.5-alpha002\build\Antlr4.targets" Condition="Exists('..\packages\Antlr4.4.5-alpha002\build\Antlr4.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

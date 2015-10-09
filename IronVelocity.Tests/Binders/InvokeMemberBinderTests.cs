@@ -7,7 +7,7 @@ using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.Binders
 {
-    public class InvokeMemberBinderTests
+    public class InvokeMemberBinderTests : BinderTestBase
     {
         // Overloading rules http://csharpindepth.com/Articles/General/Overloading.aspx
         // http://msdn.microsoft.com/en-us/library/aa691336(v=vs.71).aspx
@@ -184,7 +184,7 @@ namespace IronVelocity.Tests.Binders
 
             var args = new[] { input }.Concat(paramaters).ToArray();
 
-            return Utility.BinderTests(binder, args);
+            return InvokeBinder(binder, args);
         }
 
         public class AmbigiousMethods
