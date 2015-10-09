@@ -13,9 +13,7 @@ namespace IronVelocity.Compilation
 
         private int index = 0;
         public IReadOnlyCollection<ParameterExpression> TemporaryVariables
-        {
-            get { return _avaialbleTemps.SelectMany(x => x.Value).ToList(); }
-        }
+            => _avaialbleTemps.SelectMany(x => x.Value).ToList();
 
         protected override Expression VisitTemporaryVariableScope(TemporaryVariableScopeExpression node)
         {

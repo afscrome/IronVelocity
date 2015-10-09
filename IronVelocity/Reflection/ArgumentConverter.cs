@@ -23,10 +23,7 @@ namespace IronVelocity.Reflection
                     { typeof(float), new[]{typeof(double)}},
                 };
 
-        public bool CanBeConverted(Type from, Type to)
-        {
-            return GetConverter(from, to) != null;
-        }
+        public bool CanBeConverted(Type from, Type to) => GetConverter(from, to) != null;
 
         private static readonly IExpressionConverter _implicitConverter = new ImplicitExpressionConverter();
         public IExpressionConverter GetConverter(Type from, Type to)

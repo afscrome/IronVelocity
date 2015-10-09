@@ -9,8 +9,8 @@ namespace IronVelocity.Compilation.AST
     {
         public IReadOnlyList<Expression> Values { get; }
 
-        public override Type Type { get { return typeof(IList<object>); } }
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.ObjectArray; } }
+        public override Type Type => typeof(IList<object>);
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.ObjectArray;
 
         public ObjectArrayExpression(SourceInfo sourceInfo, IReadOnlyList<Expression> args)
         {

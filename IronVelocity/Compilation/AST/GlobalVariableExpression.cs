@@ -7,8 +7,8 @@ namespace IronVelocity.Compilation.AST
     {
         public string Name { get; }
         public object Value { get; }
-        public override Type Type { get { return Value.GetType(); } }
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.GlobalVariable; } }
+        public override Type Type => Value.GetType();
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.GlobalVariable;
 
         public GlobalVariableExpression(string name, object value)
         {
@@ -19,10 +19,6 @@ namespace IronVelocity.Compilation.AST
             Value = value;
         }
 
-        public override Expression Reduce()
-        {
-            return Expression.Constant(Value);
-        }
-
+        public override Expression Reduce() => Expression.Constant(Value);
     }
 }

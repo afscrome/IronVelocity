@@ -9,8 +9,6 @@ namespace IronVelocity.Directives
         public override string Name => "foreach";
 
         public override Expression Build(IReadOnlyList<Expression> arguments, Expression body)
-        {
-            return new ForeachDirective(arguments[0], arguments[2], body);
-        }
+            => new ForeachDirective(arguments[0], arguments[2], body);
     }
 }

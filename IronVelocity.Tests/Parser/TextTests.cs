@@ -16,8 +16,6 @@ namespace IronVelocity.Tests.Parser
 
 
         public IEnumerable<TestCaseData> TextThatLooksLikeReferenceData()
-        {
-            return Samples.ReferenceLikeText.Select(x => new TestCaseData(x).SetName("ParseTextThatLooksLikeReference - " + x));
-        }
+            => Samples.ReferenceLikeText.Select(x => new TestCaseData(x).SetName("ParseTextThatLooksLikeReference - " + x));
     }
 }

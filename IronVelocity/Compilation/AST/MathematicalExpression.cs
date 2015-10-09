@@ -9,7 +9,7 @@ namespace IronVelocity.Compilation.AST
         public MathematicalOperation Operation { get; }
         public ExpressionType ExpressionType { get; }
 
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.Mathematical; } }
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.Mathematical;
 
         public MathematicalExpression(Expression left, Expression right, SourceInfo sourceInfo, MathematicalOperation op)
             : base(left, right, sourceInfo)
@@ -17,7 +17,6 @@ namespace IronVelocity.Compilation.AST
             Operation = op;
             ExpressionType = MathematicalOperationToExpressionType(op);
         }
-
 
         public override Expression Reduce()
         {

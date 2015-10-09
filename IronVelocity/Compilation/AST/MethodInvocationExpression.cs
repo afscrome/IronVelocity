@@ -11,7 +11,7 @@ namespace IronVelocity.Compilation.AST
         public string Name { get; }
         public IReadOnlyList<Expression> Arguments { get; }
 
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.MethodInvocation; } }
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.MethodInvocation;
 
         public MethodInvocationExpression(Expression target, string name, IReadOnlyList<Expression> arguments, SourceInfo sourceInfo)
         {
@@ -54,6 +54,5 @@ namespace IronVelocity.Compilation.AST
             else
                 return new MethodInvocationExpression(target, Name, arguments, SourceInfo);
         }
-
     }
 }

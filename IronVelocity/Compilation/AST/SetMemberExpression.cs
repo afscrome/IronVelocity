@@ -9,8 +9,8 @@ namespace IronVelocity.Compilation.AST
         public Expression Target { get; }
         public Expression Value { get; }
         public string Name { get; }
-        public override Type Type { get { return typeof(void); } }
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.SetMember; } }
+        public override Type Type => typeof(void);
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.SetMember;
 
         public SetMemberExpression(string name, Expression target, Expression value)
         {

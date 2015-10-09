@@ -39,10 +39,7 @@ namespace IronVelocity.Compilation.AST
 
         }
 
-        public static bool operator !=(SourceInfo left, SourceInfo right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(SourceInfo left, SourceInfo right) => !(left == right);
 
         public override int GetHashCode()
         {
@@ -57,10 +54,7 @@ namespace IronVelocity.Compilation.AST
             }
         }
 
-        public override string ToString()
-        {
-            return String.Format("{0}:{1} - {2}:{3}", StartLine, StartColumn, EndLine, EndColumn);
-        }
+        public override string ToString() => String.Format("{0}:{1} - {2}:{3}", StartLine, StartColumn, EndLine, EndColumn);
 
     }
 }

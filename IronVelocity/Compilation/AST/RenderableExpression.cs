@@ -8,7 +8,8 @@ namespace IronVelocity.Compilation.AST
         public Expression Value { get; }
         public string NullOutput { get; }
 
-        public override Type Type { get { return typeof(void); } }
+        public override Type Type => typeof(void);
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.RenderableExpression;
 
         public RenderableExpression(Expression value, string nullOutput)
         {
@@ -19,7 +20,6 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-                
             if (Value.Type.IsValueType)
             {
                 var type = Value.Type;
@@ -37,9 +37,5 @@ namespace IronVelocity.Compilation.AST
             }
         }
 
-        public override VelocityExpressionType VelocityExpressionType
-        {
-            get { return VelocityExpressionType.RenderableExpression; }
-        }
     }
 }

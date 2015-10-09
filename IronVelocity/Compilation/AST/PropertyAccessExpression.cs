@@ -8,7 +8,7 @@ namespace IronVelocity.Compilation.AST
         public Expression Target { get; }
         public string Name { get; }
 
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.PropertyAccess; } }
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.PropertyAccess;
 
         public PropertyAccessExpression(Expression target, string name, SourceInfo sourceInfo)
         {

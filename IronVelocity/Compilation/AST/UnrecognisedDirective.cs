@@ -7,7 +7,7 @@ namespace IronVelocity.Compilation.AST
     public class UnrecognisedDirective : Directive
     {
         private readonly string _literal;
-        public override Type Type { get { return typeof(string); } }
+        public override Type Type => typeof(string);
 
         public string Name { get; }
         public UnrecognisedDirective(ASTDirective node)
@@ -33,9 +33,7 @@ namespace IronVelocity.Compilation.AST
 
 
         public override Expression Reduce()
-        {
-            return Expression.Constant(_literal);
-        }
+            => Expression.Constant(_literal);
 
 
     }

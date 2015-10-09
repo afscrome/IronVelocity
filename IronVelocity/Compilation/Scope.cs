@@ -27,9 +27,7 @@ namespace IronVelocity.Compilation
         }
 
         public Expression GetVariable(string name)
-        {
-            return Expression.MakeIndex(_context, _indexerProperty, new[] { Expression.Constant(name) });
-        }
+            => Expression.MakeIndex(_context, _indexerProperty, new[] { Expression.Constant(name) });
 
     }
 

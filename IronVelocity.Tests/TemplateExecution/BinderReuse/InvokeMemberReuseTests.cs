@@ -101,15 +101,9 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 
         public class InvokeMemberHelper
         {
-            public double Double(double value)
-            {
-                return value * 2;
-            }
+            public double Double(double value) => value * 2;
 
-            public string Double(string value)
-            {
-                return value.ToString() + value.ToString();
-            }
+            public string Double(string value) => value.ToString() + value.ToString();
         }
     }
 }

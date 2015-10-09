@@ -141,29 +141,19 @@ namespace IronVelocity.Tests.Binders
             }
 
             public static OverloadedMaths operator +(OverloadedMaths left, OverloadedMaths right)
-            {
-                return new OverloadedMaths(left.Value + right.Value);
-            }
+                => new OverloadedMaths(left.Value + right.Value);
 
             public static OverloadedMaths operator -(OverloadedMaths left, OverloadedMaths right)
-            {
-                return new OverloadedMaths(left.Value - right.Value);
-            }
+                => new OverloadedMaths(left.Value - right.Value);
 
             public static OverloadedMaths operator *(OverloadedMaths left, OverloadedMaths right)
-            {
-                return new OverloadedMaths(left.Value * right.Value);
-            }
+                => new OverloadedMaths(left.Value * right.Value);
 
             public static OverloadedMaths operator /(OverloadedMaths left, OverloadedMaths right)
-            {
-                return new OverloadedMaths(left.Value / right.Value);
-            }
+                => new OverloadedMaths(left.Value / right.Value);
 
             public static OverloadedMaths operator %(OverloadedMaths left, OverloadedMaths right)
-            {
-                return new OverloadedMaths(left.Value % right.Value);
-            }
+                => new OverloadedMaths(left.Value % right.Value);
         }
     }
 }

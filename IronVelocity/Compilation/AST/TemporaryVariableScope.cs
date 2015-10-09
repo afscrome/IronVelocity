@@ -7,8 +7,8 @@ namespace IronVelocity.Compilation.AST
     {
         public new ParameterExpression Variable { get; }
         public Expression Body { get; }
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.TemporaryVariableScope; } }
-        public override Type Type { get { return Body.Type; } }
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.TemporaryVariableScope;
+        public override Type Type => Body.Type;
 
         public TemporaryVariableScopeExpression(ParameterExpression variable, Expression body)
         {
@@ -24,10 +24,7 @@ namespace IronVelocity.Compilation.AST
             var y = Expression.Parameter(typeof(Type), "test");
         }
 
-        public override Expression Reduce()
-        {
-            return Body;
-        }
+        public override Expression Reduce() => Body;
 
         public TemporaryVariableScopeExpression Update(ParameterExpression variable, Expression body)
         {

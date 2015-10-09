@@ -14,11 +14,9 @@ namespace IronVelocity.Binders
         {
         }
 
+        //Don't support static invocation
         public override DynamicMetaObject FallbackInvoke(DynamicMetaObject target, DynamicMetaObject[] args, DynamicMetaObject errorSuggestion)
-        {
-            //Don't support static invocation
-            return errorSuggestion;
-        }
+            => errorSuggestion;
 
 
         public override DynamicMetaObject FallbackInvokeMember(DynamicMetaObject target, DynamicMetaObject[] args, DynamicMetaObject errorSuggestion)

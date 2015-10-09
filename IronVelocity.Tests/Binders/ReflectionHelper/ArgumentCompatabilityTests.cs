@@ -121,9 +121,7 @@ namespace IronVelocity.Tests.Binders
 
 
         private ParameterInfo GetParameterInfo(string key)
-        {
-            return typeof(TestArguments).GetMethod(key).GetParameters()[0];
-        }
+            => typeof(TestArguments).GetMethod(key).GetParameters()[0];
 
         /// <summary>
         /// Fake class used by GetParameterInfo to build a ParamaterInfo object

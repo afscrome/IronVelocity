@@ -6,8 +6,8 @@ namespace IronVelocity.Compilation.AST
 {
     public class IntegerRangeExpression : VelocityBinaryExpression
     {
-        public override Type Type { get { return typeof(IList<int>); } }
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.IntegerRange; } }
+        public override Type Type => typeof(IList<int>);
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.IntegerRange;
 
         public IntegerRangeExpression(Expression left, Expression right, SourceInfo sourceInfo)
             : base(left, right, sourceInfo)
@@ -30,7 +30,5 @@ namespace IronVelocity.Compilation.AST
             else
                 return new IntegerRangeExpression(left, right, SourceInfo);
         }
-
-
     }
 }

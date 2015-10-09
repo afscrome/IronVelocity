@@ -17,8 +17,8 @@ namespace IronVelocity.Compilation.AST
         public LabelTarget BreakLabel { get; }
         public LabelTarget ContinueLabel { get; }
 
-        public override Type Type { get { return typeof(void); } }
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.Foreach; } }
+        public override Type Type => typeof(void);
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.Foreach;
 
 
         public ForeachExpression(Expression enumerable, Expression body, Expression currentItem, LabelTarget breakLabel, LabelTarget continueLabel)
@@ -71,6 +71,4 @@ namespace IronVelocity.Compilation.AST
                 );
         }
     }
-
-
 }

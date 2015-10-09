@@ -58,9 +58,6 @@ namespace IronVelocity.Runtime
 
 
         [Obsolete("TODO: REmove")]
-        public override string ToString()
-        {
-            return _writer.ToString();
-        }
+        public override string ToString() => _writer.ToString();
     }
 }

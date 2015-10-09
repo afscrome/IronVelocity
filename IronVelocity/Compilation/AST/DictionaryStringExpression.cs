@@ -12,8 +12,8 @@ namespace IronVelocity.Compilation.AST
     public class DictionaryStringExpression : VelocityExpression
     {
         public string Value { get; set; }
-        public override Type Type { get { return typeof(RuntimeDictionary); } }
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.DictionaryString; } }
+        public override Type Type => typeof(RuntimeDictionary);
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.DictionaryString;
 
         private readonly Func<string, InterpolatedStringExpression> _interpolateStringFunc;
 
