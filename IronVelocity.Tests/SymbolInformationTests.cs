@@ -20,7 +20,7 @@ namespace IronVelocity.Tests
         [TestCase("25 % 3", TestName = "ParsingModuloExpression_DetectsCorrectLineInfo")]
         public void MathematicalExpression(string expression)
         {
-            var input = String.Format("#set($x = {0})", expression);
+            var input = $"#set($x = {expression})";
             var expectedSymbol = new SourceInfo(1, 11, 1, 11 + expression.Length - 1);
 
             var expressionTree = _parser.Parse(input, "test");
@@ -38,7 +38,7 @@ namespace IronVelocity.Tests
         [TestCase("$card != 123", TestName = "ParsingInequalityExpression_DetectsCorrectLineInfo")]
         public void ComparisonExpression(string expression)
         {
-            var input = String.Format("#if({0})Boo#end", expression);
+            var input = $"#if({expression})Boo#end";
             var expectedSymbol = new SourceInfo(1, 5, 1, 5 + expression.Length - 1);
 
             var expressionTree = _parser.Parse(input, "test");

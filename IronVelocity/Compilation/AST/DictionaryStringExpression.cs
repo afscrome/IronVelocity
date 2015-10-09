@@ -247,10 +247,7 @@ namespace IronVelocity.Compilation.AST
                         }
                         catch (Exception)
                         {
-                            throw new ArgumentException(
-                                string.Format(CultureInfo.InvariantCulture,
-                                    "Could not convert dictionary value for entry {0} with value {1} to Single. If the value is supposed to be a string, it must be enclosed with '' (single quotes)",
-                                    keyBuilder, content));
+                            throw new ArgumentException($"Could not convert dictionary value for entry {keyBuilder} with value {content} to Single. If the value is supposed to be a string, it must be enclosed with '' (single quotes)");
                         }
                     }
                     else
@@ -261,10 +258,7 @@ namespace IronVelocity.Compilation.AST
                         }
                         catch (Exception)
                         {
-                            throw new ArgumentException(
-                                string.Format(CultureInfo.InvariantCulture,
-                                    "Could not convert dictionary value for entry {0} with value {1} to Int32. If the value is supposed to be a string, it must be enclosed with '' (single quotes)",
-                                    keyBuilder, content));
+                            throw new ArgumentException($"Could not convert dictionary value for entry {keyBuilder} with value {content} to Int32. If the value is supposed to be a string, it must be enclosed with '' (single quotes)");
                         }
                     }
                 }

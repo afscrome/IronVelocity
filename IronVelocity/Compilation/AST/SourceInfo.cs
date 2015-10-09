@@ -54,7 +54,7 @@ namespace IronVelocity.Compilation.AST
             }
         }
 
-        public override string ToString() => String.Format("{0}:{1} - {2}:{3}", StartLine, StartColumn, EndLine, EndColumn);
+        public override string ToString() => $"{StartLine}:{StartColumn} - {EndLine}:{EndColumn}";
 
     }
 }

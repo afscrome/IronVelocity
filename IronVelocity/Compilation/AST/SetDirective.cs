@@ -65,7 +65,7 @@ namespace IronVelocity.Compilation.AST
                 }
                 else
                 {
-                    throw new InvalidOperationException(String.Format("Cannot assign from type '{0}' to '{1}'", left.Type, right.Type));
+                    throw new InvalidOperationException($"Cannot assign from type '{left.Type}' to '{right.Type}'");
                 }
             }
             else
