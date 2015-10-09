@@ -431,8 +431,12 @@ namespace IronVelocity.Parser
 
         private SourceInfo GetSourceInfo(ParserRuleContext context)
         {
-            //TODO: the stop info is incorrect here
-            return new SourceInfo(context.start.Line, context.start.Column, context.stop.Line, context.stop.Column);
+            //N.B. the following assumes that the rule does not span multiple lines.
+            return new SourceInfo(context.start.Line,
+                context.Start.Column + 1,
+                context.Stop.Line,
+                context.Stop.Column + context.Stop.Text.Length 
+                );
         }
 
         public Expression VisitTerminal(ITerminalNode node)
