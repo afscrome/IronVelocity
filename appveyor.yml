@@ -1,11 +1,11 @@
-version: 0.0.3
+version: 0.0.3-alpha{build}
 skip_tags: true
 configuration: Release
 init:
 - ps: >-
-    if ($env:APPVEYOR_REPO_BRANCH -ne 'master' -or $env:APPVEYOR_PULL_REQUEST_NUMBER) {
-       Update-AppveyorBuild -Version "${env:APPVEYOR_BUILD_VERSION}-alpha${env:APPVEYOR_BUILD_NUMBER}"
-    }
+    if ($env:APPVEYOR_REPO_BRANCH -eq 'master')  {
+       Update-AppveyorBuild -Version $($env:APPVEYOR_BUILD_VERSION -replace 'alpha', 'beta')
+    }	
 assembly_info:
   patch: true
   file: '**\AssemblyInfo.*'
