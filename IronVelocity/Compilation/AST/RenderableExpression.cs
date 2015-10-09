@@ -5,8 +5,8 @@ namespace IronVelocity.Compilation.AST
 {
     public class RenderableExpression : VelocityExpression
     {
-        public Expression Value { get; private set; }
-        public string NullOutput { get; private set; }
+        public Expression Value { get; }
+        public string NullOutput { get; }
 
         public override Type Type { get { return typeof(void); } }
 

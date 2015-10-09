@@ -15,7 +15,7 @@ namespace IronVelocity.Compilation
         private const string _methodName = "Execute";
         private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(VelocityOutput) };
         private static readonly ConstructorInfo _debugAttributeConstructorInfo = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
-        protected IReadOnlyDictionary<string, Type> Globals { get; private set; }
+        protected IReadOnlyDictionary<string, Type> Globals { get; }
 
         private readonly AssemblyName _assemblyName;
 

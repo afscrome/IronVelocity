@@ -7,9 +7,9 @@ namespace IronVelocity.Compilation.AST
 {
     public class MethodInvocationExpression : VelocityExpression
     {
-        public Expression Target { get; private set; }
-        public string Name { get; private set; }
-        public IReadOnlyList<Expression> Arguments { get; private set; }
+        public Expression Target { get; }
+        public string Name { get; }
+        public IReadOnlyList<Expression> Arguments { get; }
 
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.MethodInvocation; } }
 

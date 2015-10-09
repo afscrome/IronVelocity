@@ -11,11 +11,11 @@ namespace IronVelocity.Compilation.AST
         private static readonly MethodInfo _enumeratorMethodInfo = typeof(IEnumerable).GetMethod("GetEnumerator", new Type[] { });
         private static readonly PropertyInfo _currentPropertyInfo = typeof(IEnumerator).GetProperty("Current");
 
-        public Expression Enumerable { get; private set; }
-        public Expression Body { get; private set; }
-        public Expression CurrentItem { get; private set; }
-        public LabelTarget BreakLabel { get; private set; }
-        public LabelTarget ContinueLabel { get; private set; }
+        public Expression Enumerable { get; }
+        public Expression Body { get; }
+        public Expression CurrentItem { get; }
+        public LabelTarget BreakLabel { get; }
+        public LabelTarget ContinueLabel { get; }
 
         public override Type Type { get { return typeof(void); } }
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.Foreach; } }

@@ -5,7 +5,7 @@ namespace IronVelocity.Compilation.AST
 {
     public class CoerceToBooleanExpression : VelocityExpression
     {
-        public Expression Value { get; private set; }
+        public Expression Value { get; }
         public override Type Type { get { return typeof(bool); } }
         public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.CoerceToBoolean; } }
 

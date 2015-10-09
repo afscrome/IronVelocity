@@ -8,7 +8,7 @@ namespace IronVelocity.Binders
     public class VelocityComparisonOperationBinder : DynamicMetaObjectBinder 
     {
         public override Type ReturnType { get { return typeof(bool); } }
-        public ComparisonOperation Operation { get; private set; }
+        public ComparisonOperation Operation { get; }
 
         public VelocityComparisonOperationBinder(ComparisonOperation type)
         {

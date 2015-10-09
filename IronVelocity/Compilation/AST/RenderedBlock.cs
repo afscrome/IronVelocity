@@ -19,7 +19,7 @@ namespace IronVelocity.Compilation.AST
         }
 
 
-        public IReadOnlyCollection<Expression> Children { get; private set; }
+        public IReadOnlyCollection<Expression> Children { get; }
 
         public override Expression Reduce()
         {

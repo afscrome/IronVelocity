@@ -134,7 +134,7 @@ namespace IronVelocity.Tests.Binders
 
         public class OverloadedMaths
         {
-            public int Value { get; private set; }
+            public int Value { get; }
             public OverloadedMaths(int value)
             {
                 Value = value;

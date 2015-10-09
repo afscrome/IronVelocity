@@ -130,7 +130,7 @@ namespace IronVelocity.PerfPlayground
         /// </summary>
         private class DiskCompiler : VelocityCompiler
         {
-            public AssemblyBuilder AssemblyBuilder { get; private set; }
+            public AssemblyBuilder AssemblyBuilder { get; }
             private readonly AssemblyName _assemblyName;
             public DiskCompiler(AssemblyName name, string outputDir)
                 : base(null)

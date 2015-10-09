@@ -5,8 +5,8 @@ namespace IronVelocity.Compilation.AST
 {
     public abstract class VelocityBinaryExpression : VelocityExpression
     {
-        public Expression Left { get; private set; }
-        public Expression Right { get; private set; }
+        public Expression Left { get; }
+        public Expression Right { get; }
 
         protected VelocityBinaryExpression(Expression left, Expression right, SourceInfo sourceInfo)
         {
