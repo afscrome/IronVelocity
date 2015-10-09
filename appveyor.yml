@@ -3,7 +3,7 @@ skip_tags: true
 configuration: Release
 init:
 - ps: >-
-    if ($env:APPVEYOR_REPO_BRANCH -eq 'master')  {
+    if ($env:APPVEYOR_REPO_BRANCH -eq 'master' -and !$env:APPVEYOR_PULL_REQUEST_NUMBER)  {
        Update-AppveyorBuild -Version $($env:APPVEYOR_BUILD_VERSION -replace 'alpha', 'beta')
     }	
 assembly_info:
