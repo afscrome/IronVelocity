@@ -1,12 +1,11 @@
 #IronVelocity
 
-[![Build status](https://ci.appveyor.com/api/projects/status/s0w012uxqhn2wd6p?svg=true)](https://ci.appveyor.com/project/afscrome/ironvelocity)
+[![Build status](https://ci.appveyor.com/api/projects/status/4w106h0epo497h6d/branch/master?svg=true)](https://ci.appveyor.com/project/afscrome/ironvelocity/branch/master)
 
 IronVelocity is an implementation of the Velocity Templating Language (VTL) for .Net.
 
 You can find out more details on Velocity (including the syntax) at https://velocity.apache.org/engine/releases/velocity-1.5/user-guide.html
 
-[![Build status](https://ci.appveyor.com/api/projects/status/s0w012uxqhn2wd6p?svg=true)](https://ci.appveyor.com/project/afscrome/ironvelocity)
 
 ##Isn't that like Razor?
 
