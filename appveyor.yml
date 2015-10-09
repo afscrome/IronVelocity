@@ -1,4 +1,4 @@
-version: 0.0.3-alpha{build}
+version: 0.0.1-alpha{build}
 skip_tags: true
 configuration: Release
 init:
