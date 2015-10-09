@@ -55,7 +55,7 @@ namespace IronVelocity.Compilation.AST
                 case MathematicalOperation.Modulo:
                     return ExpressionType.Modulo;
                 default:
-                    throw new ArgumentOutOfRangeException("op");
+                    throw new ArgumentOutOfRangeException(nameof(op));
             }
         }
 

@@ -24,16 +24,16 @@ namespace IronVelocity.Compilation.AST
         public ForeachExpression(Expression enumerable, Expression body, Expression currentItem, LabelTarget breakLabel, LabelTarget continueLabel)
         {
             if (enumerable == null)
-                throw new ArgumentNullException("enumerable");
+                throw new ArgumentNullException(nameof(enumerable));
 
             if (!typeof(IEnumerable).IsAssignableFrom(enumerable.Type))
-                throw new ArgumentOutOfRangeException("enumerable");
+                throw new ArgumentOutOfRangeException(nameof(enumerable));
 
             if (body == null)
-                throw new ArgumentNullException("body");
+                throw new ArgumentNullException(nameof(body));
 
             if (currentItem == null)
-                throw new ArgumentNullException("currentItem");
+                throw new ArgumentNullException(nameof(currentItem));
 
 
             Enumerable = enumerable;

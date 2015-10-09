@@ -20,7 +20,7 @@ namespace IronVelocity.Compilation.AST
         public DictionaryExpression(IReadOnlyDictionary<string, Expression> values)
         {
             if (values == null)
-                throw new ArgumentNullException("values");
+                throw new ArgumentNullException(nameof(values));
 
             Values = values;
         }

@@ -13,7 +13,7 @@ namespace IronVelocity.Compilation.AST
         public UnrecognisedDirective(ASTDirective node)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             _literal = node.Literal;
             Name = node.DirectiveName;

@@ -12,7 +12,7 @@ namespace IronVelocity.Compilation.AST
         public CoerceToBooleanExpression(Expression expression)
         {
             if (expression == null)
-                throw new ArgumentNullException("expression");
+                throw new ArgumentNullException(nameof(expression));
 
             Value = expression;
         }

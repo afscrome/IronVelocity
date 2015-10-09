@@ -13,10 +13,10 @@ namespace IronVelocity.Compilation.AST
         public TemporaryVariableScopeExpression(ParameterExpression variable, Expression body)
         {
             if (variable == null)
-                throw new ArgumentNullException("variable");
+                throw new ArgumentNullException(nameof(variable));
 
             if (body == null)
-                throw new ArgumentNullException("body");
+                throw new ArgumentNullException(nameof(body));
 
             Variable = variable;
             Body = body;

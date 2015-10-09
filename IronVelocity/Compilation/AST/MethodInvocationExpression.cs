@@ -16,13 +16,13 @@ namespace IronVelocity.Compilation.AST
         public MethodInvocationExpression(Expression target, string name, IReadOnlyList<Expression> arguments, SourceInfo sourceInfo)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
             if (String.IsNullOrEmpty(name))
-                throw new ArgumentOutOfRangeException("name");
+                throw new ArgumentOutOfRangeException(nameof(name));
 
             if (arguments == null)
-                throw new ArgumentOutOfRangeException("arguments");
+                throw new ArgumentOutOfRangeException(nameof(arguments));
 
             Target = target;
             Name = name;

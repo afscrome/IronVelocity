@@ -15,10 +15,10 @@ namespace IronVelocity.Binders
         public override DynamicMetaObject FallbackSetMember(DynamicMetaObject target, DynamicMetaObject value, DynamicMetaObject errorSuggestion)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
             if (value == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
             //If any of the Dynamic Meta Objects don't yet have a value, defer until they have values.  Failure to do this may result in an infinite loop
             if (!target.HasValue)

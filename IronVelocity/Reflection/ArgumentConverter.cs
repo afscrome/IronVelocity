@@ -33,7 +33,7 @@ namespace IronVelocity.Reflection
         {
             //from may be null, but to may not be
             if (to == null)
-                throw new ArgumentNullException("to");
+                throw new ArgumentNullException(nameof(to));
 
             if (from == null)
                 return to.IsValueType

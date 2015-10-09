@@ -15,13 +15,13 @@ namespace IronVelocity.Compilation.AST
         public SetMemberExpression(string name, Expression target, Expression value)
         {
             if (String.IsNullOrEmpty(name))
-                throw new ArgumentOutOfRangeException("name");
+                throw new ArgumentOutOfRangeException(nameof(name));
 
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
             if (value == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
             Target = target;
             Value = value;

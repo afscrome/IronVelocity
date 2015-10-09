@@ -95,9 +95,9 @@ namespace IronVelocity.Compilation
         protected static void AddDebugAttributes(AssemblyBuilder assemblyBuilder, ModuleBuilder moduleBuilder)
         {
             if (assemblyBuilder == null)
-                throw new ArgumentNullException("assemblyBuilder");
+                throw new ArgumentNullException(nameof(assemblyBuilder));
             if (moduleBuilder == null)
-                throw new ArgumentNullException("moduleBuilder");
+                throw new ArgumentNullException(nameof(moduleBuilder));
 
             var debugAttributes =
                 DebuggableAttribute.DebuggingModes.Default |
