@@ -32,14 +32,8 @@ namespace IronVelocity
                 || type == typeof(ushort);
         }
 
-        public static bool IsInteger(Type type)
-        {
-            return IsSignedInteger(type) || IsUnsignedInteger(type);
-        }
+        public static bool IsInteger(Type type) => IsSignedInteger(type) || IsUnsignedInteger(type);
 
-        public static bool SupportsDivisionByZero(Type type)
-        {
-            return type == typeof(Single) || type == typeof(BigInteger);
-        }
+        public static bool SupportsDivisionByZero(Type type) => type == typeof(Single) || type == typeof(BigInteger);
     }
 }

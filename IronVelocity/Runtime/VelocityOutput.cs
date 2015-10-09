@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Runtime
 {
@@ -62,9 +58,6 @@ namespace IronVelocity.Runtime
 
 
         [Obsolete("TODO: REmove")]
-        public override string ToString()
-        {
-            return _writer.ToString();
-        }
+        public override string ToString() => _writer.ToString();
     }
 }

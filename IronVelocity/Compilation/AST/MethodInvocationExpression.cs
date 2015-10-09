@@ -1,30 +1,28 @@
 ﻿using IronVelocity.Binders;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
-using System.Linq;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
     public class MethodInvocationExpression : VelocityExpression
     {
-        public Expression Target { get; private set; }
-        public string Name { get; private set; }
-        public IReadOnlyList<Expression> Arguments { get; private set; }
+        public Expression Target { get; }
+        public string Name { get; }
+        public IReadOnlyList<Expression> Arguments { get; }
 
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.MethodInvocation; } }
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.MethodInvocation;
 
         public MethodInvocationExpression(Expression target, string name, IReadOnlyList<Expression> arguments, SourceInfo sourceInfo)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
-            if (String.IsNullOrEmpty(name))
-                throw new ArgumentOutOfRangeException("name");
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentOutOfRangeException(nameof(name));
 
             if (arguments == null)
-                throw new ArgumentOutOfRangeException("arguments");
+                throw new ArgumentOutOfRangeException(nameof(arguments));
 
             Target = target;
             Name = name;
@@ -56,6 +54,5 @@ namespace IronVelocity.Compilation.AST
             else
                 return new MethodInvocationExpression(target, Name, arguments, SourceInfo);
         }
-
     }
 }

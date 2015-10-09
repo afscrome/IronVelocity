@@ -3,7 +3,6 @@ using NUnit.Framework;
 using System;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.Binders
 {
@@ -190,13 +189,13 @@ namespace IronVelocity.Tests.Binders
         public class PrivateMembers
         {
             private int _privateField = 5678;
-            private int _privateProperty { get { return _privateField; } }
+            private int _privateProperty => _privateField;
         }
 
         public struct StaticMembers
         {
             public static Guid StaticField = Guid.NewGuid();
-            public static Guid StaticProperty { get { return StaticField; } }
+            public static Guid StaticProperty => StaticField;
         }
 
         public class AmbigiousNames

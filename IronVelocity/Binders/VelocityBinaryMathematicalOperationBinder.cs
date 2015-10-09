@@ -2,7 +2,6 @@
 using System;
 using System.Dynamic;
 using System.Linq.Expressions;
-using System.Numerics;
 
 namespace IronVelocity.Binders
 {
@@ -18,10 +17,10 @@ namespace IronVelocity.Binders
         public override DynamicMetaObject FallbackBinaryOperation(DynamicMetaObject target, DynamicMetaObject arg, DynamicMetaObject errorSuggestion)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
             if (arg == null)
-                throw new ArgumentNullException("arg");
+                throw new ArgumentNullException(nameof(arg));
 
             if (!target.HasValue)
                 throw new InvalidOperationException();

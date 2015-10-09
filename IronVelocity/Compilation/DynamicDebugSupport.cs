@@ -1,9 +1,6 @@
-﻿using IronVelocity.Binders;
-using IronVelocity.Compilation.AST;
+﻿using IronVelocity.Compilation.AST;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
-using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -29,7 +26,7 @@ namespace IronVelocity.Compilation
         public DynamicToExplicitCallSiteConvertor(TypeBuilder typeBuilder, string fileName)
         {
             _builder = typeBuilder;
-            if (!String.IsNullOrEmpty(fileName))
+            if (!string.IsNullOrEmpty(fileName))
             {
                 _symbolDocument = Expression.SymbolDocument(fileName);
             }
@@ -39,7 +36,7 @@ namespace IronVelocity.Compilation
         public void InitaliseConstants(Type type)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
 
             var fields = type.GetFields(BindingFlags.NonPublic | BindingFlags.Static)
                 .ToDictionary(x => x.Name);
@@ -75,7 +72,7 @@ namespace IronVelocity.Compilation
         protected override Expression VisitConstant(ConstantExpression node)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             if (node.Value == null || CanEmitAsConstant(node.Value))
                 return base.VisitConstant(node);
@@ -101,7 +98,7 @@ namespace IronVelocity.Compilation
         protected override Expression VisitDynamic(DynamicExpression node)
         {
             if (node == null)
-                throw new ArgumentNullException("node");
+                throw new ArgumentNullException(nameof(node));
 
             // Store the callsite as a constant
             var siteConstant = Expression.Constant(CallSite.Create(node.DelegateType, node.Binder));

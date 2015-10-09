@@ -11,29 +11,29 @@ namespace IronVelocity.Compilation.AST
         private static readonly MethodInfo _enumeratorMethodInfo = typeof(IEnumerable).GetMethod("GetEnumerator", new Type[] { });
         private static readonly PropertyInfo _currentPropertyInfo = typeof(IEnumerator).GetProperty("Current");
 
-        public Expression Enumerable { get; private set; }
-        public Expression Body { get; private set; }
-        public Expression CurrentItem { get; private set; }
-        public LabelTarget BreakLabel { get; private set; }
-        public LabelTarget ContinueLabel { get; private set; }
+        public Expression Enumerable { get; }
+        public Expression Body { get; }
+        public Expression CurrentItem { get; }
+        public LabelTarget BreakLabel { get; }
+        public LabelTarget ContinueLabel { get; }
 
-        public override Type Type { get { return typeof(void); } }
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.Foreach; } }
+        public override Type Type => typeof(void);
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.Foreach;
 
 
         public ForeachExpression(Expression enumerable, Expression body, Expression currentItem, LabelTarget breakLabel, LabelTarget continueLabel)
         {
             if (enumerable == null)
-                throw new ArgumentNullException("enumerable");
+                throw new ArgumentNullException(nameof(enumerable));
 
             if (!typeof(IEnumerable).IsAssignableFrom(enumerable.Type))
-                throw new ArgumentOutOfRangeException("enumerable");
+                throw new ArgumentOutOfRangeException(nameof(enumerable));
 
             if (body == null)
-                throw new ArgumentNullException("body");
+                throw new ArgumentNullException(nameof(body));
 
             if (currentItem == null)
-                throw new ArgumentNullException("currentItem");
+                throw new ArgumentNullException(nameof(currentItem));
 
 
             Enumerable = enumerable;
@@ -71,6 +71,4 @@ namespace IronVelocity.Compilation.AST
                 );
         }
     }
-
-
 }

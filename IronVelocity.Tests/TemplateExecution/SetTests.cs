@@ -170,7 +170,7 @@ namespace IronVelocity.Tests.TemplateExecution
         private class PropertyTest
         {
             public object Property { get; set; } = new object();
-            public object Method() { return null; }
+            public object Method() => null;
         }
 
     }

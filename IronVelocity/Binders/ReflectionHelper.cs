@@ -15,33 +15,20 @@ namespace IronVelocity.Binders
         private static IMethodResolver _methodInvocationResolver = new MethodResolver(_conversionHelper);
         private static IMemberResolver _memberResolver = new MemberResolver();
 
-
-
-
         public static Expression MemberExpression(string name, DynamicMetaObject target)
-        {
-            return _memberResolver.MemberExpression(name, target);
-        }
-
+            => _memberResolver.MemberExpression(name, target);
 
         public static Expression MemberExpression(string name, Type type, Expression expression)
-        {
-            return _memberResolver.MemberExpression(name, type, expression);
-        }
-
+            => _memberResolver.MemberExpression(name, type, expression);
 
         public static MethodInfo ResolveMethod(Type type, string name, params Type[] argTypes)
-        {
-            return _methodInvocationResolver.ResolveMethod(type.GetTypeInfo(), name, argTypes);
-        }
-
-
+            => _methodInvocationResolver.ResolveMethod(type.GetTypeInfo(), name, argTypes);
 
 
         public static bool IsConstantType(Expression expression)
         {
             if (expression == null)
-                throw new ArgumentNullException("expression");
+                throw new ArgumentNullException(nameof(expression));
 
             if (expression is DynamicExpression || typeof(IDynamicMetaObjectProvider).IsAssignableFrom(expression.Type))
                 return false;
@@ -65,20 +52,16 @@ namespace IronVelocity.Binders
         }
 
         public static bool CanBeImplicitlyConverted(Type from, Type to)
-        {
-            return _conversionHelper.CanBeConverted(from, to);
-        }
-
+            => _conversionHelper.CanBeConverted(from, to);
 
         public static Expression ConvertMethodParameters(MethodInfo method, Expression target, DynamicMetaObject[] args)//, Type[] argTypeArray)
-        {
-            return _methodInvocationResolver.ConvertMethodParameters(method, target, args);
-        }
+            => _methodInvocationResolver.ConvertMethodParameters(method, target, args);
+
 
         public static bool IsNullableType(Type type)
         {
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
 
             return !(type.IsValueType && Nullable.GetUnderlyingType(type) == null);
         }

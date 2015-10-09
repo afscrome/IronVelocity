@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Directives
 {
@@ -13,8 +9,6 @@ namespace IronVelocity.Directives
         public override string Name => "foreach";
 
         public override Expression Build(IReadOnlyList<Expression> arguments, Expression body)
-        {
-            return new ForeachDirective(arguments[0], arguments[2], body);
-        }
+            => new ForeachDirective(arguments[0], arguments[2], body);
     }
 }

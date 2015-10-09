@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Binders
 {
@@ -39,50 +35,32 @@ namespace IronVelocity.Binders
         }
 
         public GetMemberBinder GetGetMemberBinder(string memberName)
-        {
-            return _getMemberBinders.GetOrAdd(memberName, CreateGetMemberBinder);
-        }
+            => _getMemberBinders.GetOrAdd(memberName, CreateGetMemberBinder);
 
         public SetMemberBinder GetSetMemberBinder(string memberName)
-        {
-            return _setMemberBinders.GetOrAdd(memberName, CreateSetMemberBinder);
-        }
+            => _setMemberBinders.GetOrAdd(memberName, CreateSetMemberBinder);
 
         public VelocityComparisonOperationBinder GetComparisonOperationBinder(ComparisonOperation operation)
-        {
-            return _comparisonBinders.GetOrAdd(operation, CreateComparisonOperationBinder);
-        }
+            => _comparisonBinders.GetOrAdd(operation, CreateComparisonOperationBinder);
 
         public VelocityMathematicalOperationBinder GetMathematicalOperationBinder(ExpressionType type)
-        {
-            return _mathsBinders.GetOrAdd(type, CreateMathematicalOperationBinder);
-        }
+            => _mathsBinders.GetOrAdd(type, CreateMathematicalOperationBinder);
 
 
         protected virtual InvokeMemberBinder CreateInvokeMemberBinder(string name, int argumentCount)
-        {
-            return new VelocityInvokeMemberBinder(name, new CallInfo(argumentCount));
-        }
+            => new VelocityInvokeMemberBinder(name, new CallInfo(argumentCount));
 
         protected virtual GetMemberBinder CreateGetMemberBinder(string memberName)
-        {
-            return new VelocityGetMemberBinder(memberName);
-        }
+            => new VelocityGetMemberBinder(memberName);
 
         protected virtual SetMemberBinder CreateSetMemberBinder(string memberName)
-        {
-            return new VelocitySetMemberBinder(memberName);
-        }
+            => new VelocitySetMemberBinder(memberName);
 
         protected virtual VelocityMathematicalOperationBinder CreateMathematicalOperationBinder(ExpressionType type)
-        {
-            return new VelocityMathematicalOperationBinder(type);
-        }
+            => new VelocityMathematicalOperationBinder(type);
 
         protected virtual VelocityComparisonOperationBinder CreateComparisonOperationBinder(ComparisonOperation operation)
-        {
-            return new VelocityComparisonOperationBinder(operation);
-        }
+            => new VelocityComparisonOperationBinder(operation);
 
     }
 

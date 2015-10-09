@@ -1,10 +1,7 @@
-﻿using IronVelocity.Compilation;
-using IronVelocity.Runtime;
+﻿using IronVelocity.Runtime;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
-using System.Text;
 
 namespace IronVelocity
 {
@@ -34,7 +31,7 @@ namespace IronVelocity
         public static readonly Expression EmptyExpression = Expression.Default(typeof(void));
 
         [SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "Expressions are immutable")]
-        public static readonly Expression VoidReturnValue = Expression.Constant(String.Empty);
+        public static readonly Expression VoidReturnValue = Expression.Constant(string.Empty);
     }
 
 }

@@ -1,8 +1,6 @@
 ﻿using IronVelocity.Binders;
 using NUnit.Framework;
 using System;
-using System.Linq.Expressions;
-using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.Binders
 {
@@ -301,12 +299,12 @@ namespace IronVelocity.Tests.Binders
         public class BasicClass : IExplicit, IConflict
         {
             public string Field = "Success!";
-            public string Property { get { return Field; } }
+            public string Property => Field;
 
 
-            string IExplicit.Hidden { get { return "Super Secret"; }}
-            string IExplicit.HiddenConflict { get { return "Conflict"; } }
-            string IConflict.HiddenConflict { get { return "Conflict"; } }
+            string IExplicit.Hidden => "Super Secret";
+            string IExplicit.HiddenConflict => "Conflict";
+            string IConflict.HiddenConflict => "Conflict";
         }
 
 
@@ -318,8 +316,7 @@ namespace IronVelocity.Tests.Binders
             }
 
             public string Field;
-            public string Property { get { return Field; } }
-
+            public string Property => Field;
         }
 
         public struct ConstantMembers
@@ -331,13 +328,13 @@ namespace IronVelocity.Tests.Binders
         public class PrivateMembers
         {
             private int _privateField = 5678;
-            private int _privateProperty { get { return _privateField; } }
+            private int _privateProperty => _privateField;
         }
 
         public struct StaticMembers
         {
             public static Guid StaticField = Guid.NewGuid();
-            public static Guid StaticProperty { get { return StaticField; } }
+            public static Guid StaticProperty => StaticField;
         }
 
         public class AmbigiousNames
@@ -362,20 +359,9 @@ namespace IronVelocity.Tests.Binders
 
         public class MethodsWith0Parameters
         {
-            public string DoSomething()
-            {
-                return "Hello World";
-            }
-
-            public static string Static()
-            {
-                return "Fail";
-            }
-
-            private string Secret()
-            {
-                return "Fail";
-            }
+            public string DoSomething() => "Hello World";
+            public static string Static() => "Fail";
+            private string Secret() => "Fail";
         }
 
     }

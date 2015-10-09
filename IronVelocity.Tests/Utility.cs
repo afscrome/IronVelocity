@@ -1,15 +1,4 @@
-﻿using IronVelocity;
-using IronVelocity.Compilation;
-using IronVelocity.Runtime;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace IronVelocity.Tests
 {

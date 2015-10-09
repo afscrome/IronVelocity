@@ -3,7 +3,6 @@ using NUnit.Framework;
 using System;
 using System.Dynamic;
 using System.Linq;
-using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.Binders
 {
@@ -189,18 +188,9 @@ namespace IronVelocity.Tests.Binders
 
         public class AmbigiousMethods
         {
-            public int Ambigious(string param1, object param2)
-            {
-                return -1;
-            }
-            public string Ambigious(object param1, string param2)
-            {
-                return "fail";
-            }
-            public float Ambigious(object param1, object param2)
-            {
-                return 0.5f;
-            }
+            public int Ambigious(string param1, object param2) => -1;
+            public string Ambigious(object param1, string param2) => "fail";
+            public float Ambigious(object param1, object param2) => 0.5f;
         }
 
         #region Overload Suitability
@@ -243,37 +233,23 @@ namespace IronVelocity.Tests.Binders
 
         public class OverloadSuitability
         {
-            public int Overload(object param) { return -1; }
-            public string Overload(Parent param) { return "Failure"; }
-            public bool Overload(Child param) { return true; }
-            public Guid Overload(Son param) { return Guid.Empty; }
+            public int Overload(object param) => -1;
+            public string Overload(Parent param) => "Failure";
+            public bool Overload(Child param) => true;
+            public Guid Overload(Son param) => Guid.Empty;
         }
 
         #endregion
 
-
-
         public class MethodTests
         {
-            public string StringResult() { return "hello world"; }
-
-            private string TopSecret() { return "The password is ********"; }
-
-            internal string Internal() { return "Access code: *****"; }
-
-            public object OneParameter(object param)
-            {
-                return "One Param Success";
-            }
-
-            public int ParamArray(params object[] values)
-            {
-                return values.Length;
-            }
-
-            public string Property { get { return "A property"; } }
+            public string StringResult() => "hello world";
+            private string TopSecret() => "The password is ********";
+            internal string Internal() => "Access code: *****";
+            public object OneParameter(object param) => "One Param Success";
+            public int ParamArray(params object[] values) => values.Length;
+            public string Property => "A property";
             public string Field = "Marshal";
-
         }
 
 

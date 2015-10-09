@@ -1,9 +1,5 @@
 ﻿using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
@@ -15,7 +11,7 @@ namespace IronVelocity.Tests.TemplateExecution
         [TestCase(false, false, false)]
         public void BasicOr(bool left, bool right, bool expectedResult)
         {
-            var input = string.Format($"#set($result = {left.ToString().ToLower()} || {right.ToString().ToLower()})");
+            var input = $"#set($result = {left.ToString().ToLower()} || {right.ToString().ToLower()})";
 
             var result = ExecuteTemplate(input);
 
@@ -28,7 +24,7 @@ namespace IronVelocity.Tests.TemplateExecution
         [TestCase(false, false, false)]
         public void BasicAnd(bool left, bool right, bool expectedResult)
         {
-            var input = string.Format($"#set($result = {left.ToString().ToLower()} && {right.ToString().ToLower()})");
+            var input = $"#set($result = {left.ToString().ToLower()} && {right.ToString().ToLower()})";
 
             var result = ExecuteTemplate(input);
 

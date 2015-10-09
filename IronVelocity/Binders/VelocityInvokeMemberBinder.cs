@@ -1,8 +1,6 @@
 ﻿using IronVelocity.Compilation;
 using System;
-using System.Diagnostics;
 using System.Dynamic;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -11,24 +9,22 @@ namespace IronVelocity.Binders
 {
     public class VelocityInvokeMemberBinder : InvokeMemberBinder
     {
-        public VelocityInvokeMemberBinder(String name, CallInfo callInfo)
+        public VelocityInvokeMemberBinder(string name, CallInfo callInfo)
             : base(name, true, callInfo)
         {
         }
 
+        //Don't support static invocation
         public override DynamicMetaObject FallbackInvoke(DynamicMetaObject target, DynamicMetaObject[] args, DynamicMetaObject errorSuggestion)
-        {
-            //Don't support static invocation
-            return errorSuggestion;
-        }
+            => errorSuggestion;
 
 
         public override DynamicMetaObject FallbackInvokeMember(DynamicMetaObject target, DynamicMetaObject[] args, DynamicMetaObject errorSuggestion)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
             if (args == null)
-                throw new ArgumentNullException("args");
+                throw new ArgumentNullException(nameof(args));
 
             //TODO: Support dictionary --> arguments
             //TODO: Support optional params?  BindingFlags.OptionalParamBinding
@@ -81,7 +77,7 @@ namespace IronVelocity.Binders
                     var log = BindingEventSource.Log;
                     if (log.IsEnabled())
                     {
-                        var argTypeString = String.Join(",", argTypeArray.Select(x => x.FullName).ToArray());
+                        var argTypeString = string.Join(",", argTypeArray.Select(x => x.FullName).ToArray());
                         if (isAmbigious)
                             log.InvokeMemberResolutionAmbiguous(Name, target.LimitType.FullName, argTypeString);
                         else

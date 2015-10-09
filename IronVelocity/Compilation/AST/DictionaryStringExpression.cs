@@ -12,8 +12,8 @@ namespace IronVelocity.Compilation.AST
     public class DictionaryStringExpression : VelocityExpression
     {
         public string Value { get; set; }
-        public override Type Type { get { return typeof(RuntimeDictionary); } }
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.DictionaryString; } }
+        public override Type Type => typeof(RuntimeDictionary);
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.DictionaryString;
 
         private readonly Func<string, InterpolatedStringExpression> _interpolateStringFunc;
 
@@ -167,7 +167,7 @@ namespace IronVelocity.Compilation.AST
 
                 if (i == contents.Length - 1)
                 {
-                    if (String.IsNullOrWhiteSpace(sbKeyBuilder.ToString()))
+                    if (string.IsNullOrWhiteSpace(sbKeyBuilder.ToString()))
                     {
                         break;
                     }
@@ -247,10 +247,7 @@ namespace IronVelocity.Compilation.AST
                         }
                         catch (Exception)
                         {
-                            throw new ArgumentException(
-                                string.Format(CultureInfo.InvariantCulture,
-                                    "Could not convert dictionary value for entry {0} with value {1} to Single. If the value is supposed to be a string, it must be enclosed with '' (single quotes)",
-                                    keyBuilder, content));
+                            throw new ArgumentException($"Could not convert dictionary value for entry {keyBuilder} with value {content} to Single. If the value is supposed to be a string, it must be enclosed with '' (single quotes)");
                         }
                     }
                     else
@@ -261,10 +258,7 @@ namespace IronVelocity.Compilation.AST
                         }
                         catch (Exception)
                         {
-                            throw new ArgumentException(
-                                string.Format(CultureInfo.InvariantCulture,
-                                    "Could not convert dictionary value for entry {0} with value {1} to Int32. If the value is supposed to be a string, it must be enclosed with '' (single quotes)",
-                                    keyBuilder, content));
+                            throw new ArgumentException($"Could not convert dictionary value for entry {keyBuilder} with value {content} to Int32. If the value is supposed to be a string, it must be enclosed with '' (single quotes)");
                         }
                     }
                 }

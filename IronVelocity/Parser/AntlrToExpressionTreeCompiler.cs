@@ -24,15 +24,9 @@ namespace IronVelocity.Parser
             _customDirectives = customDirectives ?? new CustomDirectiveBuilder[0];
         }
 
-        public Expression Visit(IParseTree tree)
-        {
-            return tree.Accept(this);
-        }
+        public Expression Visit(IParseTree tree) => tree.Accept(this);
 
-        public Expression VisitTemplate([NotNull] VelocityParser.TemplateContext context)
-        {
-            return Visit(context.block());
-        }
+        public Expression VisitTemplate([NotNull] VelocityParser.TemplateContext context) => Visit(context.block());
 
         public Expression VisitBlock([NotNull] VelocityParser.BlockContext context)
         {
@@ -41,15 +35,9 @@ namespace IronVelocity.Parser
                 );
         }
 
-        public Expression VisitBlock_comment([NotNull] VelocityParser.Block_commentContext context)
-        {
-            return Constants.EmptyExpression;
-        }
+        public Expression VisitBlock_comment([NotNull] VelocityParser.Block_commentContext context) => Constants.EmptyExpression;
 
-        public Expression VisitComment([NotNull] VelocityParser.CommentContext context)
-        {
-            return Constants.EmptyExpression;
-        }
+        public Expression VisitComment([NotNull] VelocityParser.CommentContext context) => Constants.EmptyExpression;
 
         private readonly StringBuilder _textBuffer = new StringBuilder();
 
@@ -121,16 +109,9 @@ namespace IronVelocity.Parser
             return result;
         }
 
-        public Expression VisitVariable([NotNull] VelocityParser.VariableContext context)
-        {
-            return new VariableExpression(context.IDENTIFIER().GetText());
-        }
+        public Expression VisitVariable([NotNull] VelocityParser.VariableContext context) => new VariableExpression(context.IDENTIFIER().GetText());
 
-
-        public Expression VisitPrimary_expression([NotNull] VelocityParser.Primary_expressionContext context)
-        {
-            return Visit(context.GetRuleContext<ParserRuleContext>(0));
-        }
+        public Expression VisitPrimary_expression([NotNull] VelocityParser.Primary_expressionContext context) => Visit(context.GetRuleContext<ParserRuleContext>(0));
 
         public Expression VisitInteger([NotNull] VelocityParser.IntegerContext context)
         {
@@ -233,9 +214,7 @@ namespace IronVelocity.Parser
         }
 
         public Expression VisitSet_directive([NotNull] VelocityParser.Set_directiveContext context)
-        {
-            return VisitAssignment(context.assignment());
-        }
+            => VisitAssignment(context.assignment());
 
         public Expression VisitAssignment([NotNull] VelocityParser.AssignmentContext context)
         {

@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Compilation
 {
@@ -15,9 +13,7 @@ namespace IronVelocity.Compilation
 
         private int index = 0;
         public IReadOnlyCollection<ParameterExpression> TemporaryVariables
-        {
-            get { return _avaialbleTemps.SelectMany(x => x.Value).ToList(); }
-        }
+            => _avaialbleTemps.SelectMany(x => x.Value).ToList();
 
         protected override Expression VisitTemporaryVariableScope(TemporaryVariableScopeExpression node)
         {

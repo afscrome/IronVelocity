@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Compilation.AST
 {
@@ -18,10 +14,10 @@ namespace IronVelocity.Compilation.AST
             EndColumn = endColumn;
         }
 
-        public int StartLine { get; private set; }
-        public int StartColumn { get; private set; }
-        public int EndLine { get; private set; }
-        public int EndColumn { get; private set; }
+        public int StartLine { get; }
+        public int StartColumn { get; }
+        public int EndLine { get; }
+        public int EndColumn { get; }
 
         public override bool Equals(object obj)
         {
@@ -43,10 +39,7 @@ namespace IronVelocity.Compilation.AST
 
         }
 
-        public static bool operator !=(SourceInfo left, SourceInfo right)
-        {
-            return !(left == right);
-        }
+        public static bool operator !=(SourceInfo left, SourceInfo right) => !(left == right);
 
         public override int GetHashCode()
         {
@@ -61,10 +54,7 @@ namespace IronVelocity.Compilation.AST
             }
         }
 
-        public override string ToString()
-        {
-            return String.Format("{0}:{1} - {2}:{3}", StartLine, StartColumn, EndLine, EndColumn);
-        }
+        public override string ToString() => $"{StartLine}:{StartColumn} - {EndLine}:{EndColumn}";
 
     }
 }

@@ -40,68 +40,25 @@ namespace IronVelocity
             }
         }
 
-        public int Count { get { return _variables.Count; } }
-        public bool IsReadOnly { get { return _variables.IsReadOnly; } }
-        public ICollection<string> Keys { get { return _variables.Keys; } }
-        public ICollection<object> Values { get { return _variables.Values; } }
+        public int Count => _variables.Count;
+        public bool IsReadOnly => _variables.IsReadOnly;
+        public ICollection<string> Keys => _variables.Keys;
+        public ICollection<object> Values => _variables.Values;
 
         IEnumerable<string> IReadOnlyDictionary<string, object>.Keys => Keys;
         IEnumerable<object> IReadOnlyDictionary<string, object>.Values => Values;
 
-        public void Add(string key, object value)
-        {
-            _variables.Add(key, value);
-        }
-
-        public void Add(KeyValuePair<string, object> item)
-        {
-            _variables.Add(item);
-        }
-
-        public void Clear()
-        {
-            _variables.Clear();
-        }
-
-        public bool Contains(KeyValuePair<string, object> item)
-        {
-            return _variables.Contains(item);
-        }
-
-        public bool ContainsKey(string key)
-        {
-            return _variables.ContainsKey(key);
-        }
-
-        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex)
-        {
-            _variables.CopyTo(array, arrayIndex);
-        }
-
-        public IEnumerator<KeyValuePair<string, object>> GetEnumerator()
-        {
-            return _variables.GetEnumerator();
-        }
-
-        IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return _variables.GetEnumerator();
-        }
-
-        public bool Remove(string key)
-        {
-            return _variables.Remove(key);
-        }
-
-        public bool Remove(KeyValuePair<string, object> item)
-        {
-            return _variables.Remove(item);
-        }
-
-        public bool TryGetValue(string key, out object value)
-        {
-            return _variables.TryGetValue(key, out value);
-        }
+        public void Add(string key, object value) => _variables.Add(key, value);
+        public void Add(KeyValuePair<string, object> item) => _variables.Add(item);
+        public void Clear() => _variables.Clear();
+        public bool Contains(KeyValuePair<string, object> item) => _variables.Contains(item);
+        public bool ContainsKey(string key) => _variables.ContainsKey(key);
+        public void CopyTo(KeyValuePair<string, object>[] array, int arrayIndex) => _variables.CopyTo(array, arrayIndex);
+        public IEnumerator<KeyValuePair<string, object>> GetEnumerator() => _variables.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => _variables.GetEnumerator();
+        public bool Remove(string key) => _variables.Remove(key);
+        public bool Remove(KeyValuePair<string, object> item) => _variables.Remove(item);
+        public bool TryGetValue(string key, out object value) => _variables.TryGetValue(key, out value);
     }
 
 }

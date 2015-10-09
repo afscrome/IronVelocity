@@ -8,8 +8,8 @@ namespace IronVelocity.Compilation.AST
     {
         private static readonly ParameterExpression _objectTemp = Expression.Parameter(typeof(object), "setDirectiveTemp");
 
-        public override Type Type { get { return typeof(void); } }
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.SetDirective; } }
+        public override Type Type => typeof(void);
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.SetDirective;
 
 
         public SetDirective(Expression left, Expression right, SourceInfo sourceInfo)
@@ -65,7 +65,7 @@ namespace IronVelocity.Compilation.AST
                 }
                 else
                 {
-                    throw new InvalidOperationException(String.Format("Cannot assign from type '{0}' to '{1}'", left.Type, right.Type));
+                    throw new InvalidOperationException($"Cannot assign from type '{left.Type}' to '{right.Type}'");
                 }
             }
             else

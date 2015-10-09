@@ -1,19 +1,13 @@
 ﻿using IronVelocity.Binders;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
 using System.Dynamic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {
     public abstract class BinderReuseTestBase : TemplateExeuctionBase
     {
         private BinderHelper _oldHelper;
-        public int CallSiteBindCount { get { return DuplicateBinderHelper.CallSiteBindCount; } }
+        public int CallSiteBindCount => DuplicateBinderHelper.CallSiteBindCount;
 
         [SetUp]
         public void SetUp()
@@ -38,19 +32,9 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
                 CallSiteBindCount = 0;
             }
 
-            protected override GetMemberBinder CreateGetMemberBinder(string memberName)
-            {
-                return new DupDetectionGetMemberBinder(memberName);
-            }
-            protected override SetMemberBinder CreateSetMemberBinder(string memberName)
-            {
-                return new DupDetectionSetMemberBinder(memberName);
-            }
-
-            protected override InvokeMemberBinder CreateInvokeMemberBinder(string name, int argumentCount)
-            {
-                return new DupDetectionInvokeMemberBinder(name, new CallInfo(argumentCount));
-            }
+            protected override GetMemberBinder CreateGetMemberBinder(string memberName) => new DupDetectionGetMemberBinder(memberName);
+            protected override SetMemberBinder CreateSetMemberBinder(string memberName) => new DupDetectionSetMemberBinder(memberName);
+            protected override InvokeMemberBinder CreateInvokeMemberBinder(string name, int argumentCount) => new DupDetectionInvokeMemberBinder(name, new CallInfo(argumentCount));
 
             private class DupDetectionGetMemberBinder : VelocityGetMemberBinder
             {

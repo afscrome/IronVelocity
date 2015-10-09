@@ -10,7 +10,7 @@ namespace IronVelocity.Compilation
         public static Expression BoxIfNeeded(Expression expression)
         {
             if (expression == null)
-                throw new ArgumentNullException("expression");
+                throw new ArgumentNullException(nameof(expression));
 
             return expression.Type.IsValueType && expression.Type != typeof(void)
                 ? Expression.Convert(expression, typeof(object))
@@ -20,10 +20,10 @@ namespace IronVelocity.Compilation
         public static Expression ConvertIfNeeded(Expression expression, Type type)
         {
             if (expression == null)
-                throw new ArgumentNullException("expression");
+                throw new ArgumentNullException(nameof(expression));
 
             if (type == null)
-                throw new ArgumentNullException("type");
+                throw new ArgumentNullException(nameof(type));
 
             return ConvertIfNeeded(expression, expression.Type, type);
         }
@@ -31,7 +31,7 @@ namespace IronVelocity.Compilation
         public static Expression ConvertIfNeeded(DynamicMetaObject obj)
         {
             if (obj == null)
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException(nameof(obj));
 
             return ConvertIfNeeded(obj.Expression, obj.LimitType ?? typeof(object));
         }
@@ -39,7 +39,7 @@ namespace IronVelocity.Compilation
         public static Expression ConvertIfNeeded(DynamicMetaObject obj, Type to)
         {
             if (obj == null)
-                throw new ArgumentNullException("obj");
+                throw new ArgumentNullException(nameof(obj));
 
             return ConvertIfNeeded(obj.Expression, obj.LimitType, to);
         }
@@ -47,13 +47,13 @@ namespace IronVelocity.Compilation
         private static Expression ConvertIfNeeded(Expression expression, Type from, Type to)
         {
             if (expression == null)
-                throw new ArgumentNullException("expression");
+                throw new ArgumentNullException(nameof(expression));
             
             if (to == null)
-                throw new ArgumentNullException("to");
+                throw new ArgumentNullException(nameof(to));
             
             if (from == null)
-                throw new ArgumentNullException("from");
+                throw new ArgumentNullException(nameof(from));
 
             while (expression.NodeType == ExpressionType.Convert)
                 expression = ((UnaryExpression)expression).Operand;
@@ -72,7 +72,7 @@ namespace IronVelocity.Compilation
         public static Expression CoerceToBoolean(Expression expression)
         {
             if (expression == null)
-                throw new ArgumentNullException("expression");
+                throw new ArgumentNullException(nameof(expression));
 
             if (expression.Type == typeof(bool) || expression.Type == typeof(bool?))
                 return expression;
@@ -84,10 +84,10 @@ namespace IronVelocity.Compilation
         public static Expression ConvertParameterIfNeeded(DynamicMetaObject target, ParameterInfo info)
         {
             if (target == null)
-                throw new ArgumentNullException("target");
+                throw new ArgumentNullException(nameof(target));
 
             if (info == null)
-                throw new ArgumentNullException("info");
+                throw new ArgumentNullException(nameof(info));
 
             var expr = target.Expression;
             return ConvertIfNeeded(expr, target.LimitType, info.ParameterType);

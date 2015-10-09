@@ -33,10 +33,7 @@ namespace IronVelocity.Directives
         }
 
 
-        public override Expression ProcessChildDirective(string name, INode node)
-        {
-            return null;
-        }
+        public override Expression ProcessChildDirective(string name, INode node) => null;
 
         private Expression GetExpressionBlock(ICollection<Expression>[] parts, ForeachSection section)
         {

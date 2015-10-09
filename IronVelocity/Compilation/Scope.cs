@@ -18,18 +18,16 @@ namespace IronVelocity.Compilation
         public BaseScope(Expression context)
         {
             if (context == null)
-                throw new ArgumentNullException("context");
+                throw new ArgumentNullException(nameof(context));
 
             if (context.Type != typeof(VelocityContext))
-                throw new ArgumentOutOfRangeException("context");
+                throw new ArgumentOutOfRangeException(nameof(context));
 
             _context = context;
         }
 
         public Expression GetVariable(string name)
-        {
-            return Expression.MakeIndex(_context, _indexerProperty, new[] { Expression.Constant(name) });
-        }
+            => Expression.MakeIndex(_context, _indexerProperty, new[] { Expression.Constant(name) });
 
     }
 

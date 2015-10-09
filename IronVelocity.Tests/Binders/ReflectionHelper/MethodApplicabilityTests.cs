@@ -140,7 +140,7 @@ namespace IronVelocity.Tests.Binders
             public void ParamArray(params string[] args) { }
 
             public void Generic<T>() { }
-            public T GenericReturn<T>() { return default(T); }
+            public T GenericReturn<T>() => default(T);
             public void GenericArg<T>(T arg) { }
 
             public void NoMandatoryOneOptional(string s = null) { }

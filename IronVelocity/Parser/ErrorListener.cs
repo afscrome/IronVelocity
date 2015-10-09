@@ -7,7 +7,7 @@ namespace IronVelocity.Parser
     public class ErrorListener<T> : IAntlrErrorListener<T>
     {
         private List<SyntaxErrorDetail> _errors;
-        public IReadOnlyCollection<SyntaxErrorDetail> Errors { get { return _errors; } }
+        public IReadOnlyCollection<SyntaxErrorDetail> Errors => _errors;
 
         public void SyntaxError(IRecognizer recognizer, T offendingSymbol, int line, int charPositionInLine, string msg, RecognitionException e)
         {

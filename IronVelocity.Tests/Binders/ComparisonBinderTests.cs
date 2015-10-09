@@ -3,7 +3,6 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using IronVelocity.Tests;
 
 namespace IronVelocity.Tests.Binders
 {
@@ -114,30 +113,15 @@ namespace IronVelocity.Tests.Binders
 #pragma warning disable CS0660,CS0661
         public class OverloadedEquals
         {
-            public static bool operator ==(OverloadedEquals left, OverloadedEquals right)
-            {
-                return true;
-            }
-
-            public static bool operator !=(OverloadedEquals left, OverloadedEquals right)
-            {
-                return false;
-            }
+            public static bool operator ==(OverloadedEquals left, OverloadedEquals right) => true;
+            public static bool operator !=(OverloadedEquals left, OverloadedEquals right) => false;
         }
 #pragma warning restore CS0660,CS0661
 
         public class OverriddenEquals
         {
-            public override int GetHashCode()
-            {
-                return 1;
-            }
-
-            public override bool Equals(object obj)
-            {
-                return obj is OverriddenEquals;
-            }
-
+            public override int GetHashCode() => 1;
+            public override bool Equals(object obj) => obj is OverriddenEquals;
         }
 
     }

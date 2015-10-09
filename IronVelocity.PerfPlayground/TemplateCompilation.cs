@@ -1,5 +1,4 @@
 ﻿using IronVelocity.Compilation;
-using IronVelocity.Compilation.AST;
 using IronVelocity.Directives;
 using IronVelocity.Parser;
 using IronVelocity.Runtime;
@@ -96,7 +95,7 @@ namespace IronVelocity.PerfPlayground
                             var ilPath = assemblyPath.Replace(".dll", ".il");
                             var startInfo = new ProcessStartInfo(IldasmPath)
                             {
-                                Arguments = String.Format("\"{0}\" /item:{1} /linenum /source /out:\"{2}\"", assemblyPath, assemblyName, ilPath),
+                                Arguments = $"\"{assemblyPath}\" /item:{assemblyName} /linenum /source /out:\"{ilPath}\"",
                                 CreateNoWindow = true,
                                 UseShellExecute = false,
                                 WindowStyle = ProcessWindowStyle.Hidden
@@ -131,7 +130,7 @@ namespace IronVelocity.PerfPlayground
         /// </summary>
         private class DiskCompiler : VelocityCompiler
         {
-            public AssemblyBuilder AssemblyBuilder { get; private set; }
+            public AssemblyBuilder AssemblyBuilder { get; }
             private readonly AssemblyName _assemblyName;
             public DiskCompiler(AssemblyName name, string outputDir)
                 : base(null)

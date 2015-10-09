@@ -6,17 +6,16 @@ namespace IronVelocity.Compilation.AST
 {
     public class ComparisonExpression : VelocityBinaryExpression
     {
-        public ComparisonOperation Operation { get; private set; }
+        public ComparisonOperation Operation { get; }
 
-        public override Type Type { get { return typeof(bool); } }
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.Comparison; } }
+        public override Type Type => typeof(bool);
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.Comparison;
 
         public ComparisonExpression(Expression left, Expression right, SourceInfo sourceInfo, ComparisonOperation op)
             : base(left, right, sourceInfo)
         {
             Operation = op;
         }
-
 
         public override Expression Reduce()
         {
@@ -37,9 +36,5 @@ namespace IronVelocity.Compilation.AST
             else
                 return new ComparisonExpression(left, right, SourceInfo, Operation);
         }
- 
-
     }
-
-
 }

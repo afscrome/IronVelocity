@@ -1,26 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Compilation.AST
 {
     public class TemporaryVariableScopeExpression : VelocityExpression
     {
-        public new ParameterExpression Variable { get; private set; }
-        public Expression Body { get; private set; }
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.TemporaryVariableScope; } }
-        public override Type Type { get { return Body.Type; } }
+        public new ParameterExpression Variable { get; }
+        public Expression Body { get; }
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.TemporaryVariableScope;
+        public override Type Type => Body.Type;
 
         public TemporaryVariableScopeExpression(ParameterExpression variable, Expression body)
         {
             if (variable == null)
-                throw new ArgumentNullException("variable");
+                throw new ArgumentNullException(nameof(variable));
 
             if (body == null)
-                throw new ArgumentNullException("body");
+                throw new ArgumentNullException(nameof(body));
 
             Variable = variable;
             Body = body;
@@ -28,10 +24,7 @@ namespace IronVelocity.Compilation.AST
             var y = Expression.Parameter(typeof(Type), "test");
         }
 
-        public override Expression Reduce()
-        {
-            return Body;
-        }
+        public override Expression Reduce() => Body;
 
         public TemporaryVariableScopeExpression Update(ParameterExpression variable, Expression body)
         {

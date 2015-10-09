@@ -1,6 +1,5 @@
 ﻿using NUnit.Framework;
 using System.Collections;
-using System;
 using System.Collections.Generic;
 
 namespace IronVelocity.Tests.TemplateExecution

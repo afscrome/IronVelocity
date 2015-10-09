@@ -1,11 +1,8 @@
-﻿using NVelocity.Exception;
-using NVelocity.Runtime.Parser.Node;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 
 namespace IronVelocity.Compilation.AST
 {
@@ -16,8 +13,8 @@ namespace IronVelocity.Compilation.AST
 
         public IReadOnlyList<Expression> Parts { get; set; }
 
-        public override Type Type { get { return typeof(string); } }
-        public override VelocityExpressionType VelocityExpressionType { get { return VelocityExpressionType.InterpolatedString; } }
+        public override Type Type => typeof(string);
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.InterpolatedString;
 
         public InterpolatedStringExpression(IReadOnlyList<Expression> parts)
         {
@@ -43,7 +40,7 @@ namespace IronVelocity.Compilation.AST
 
                     return Expression.Condition(
                         Expression.Equal(element, Expression.Default(element.Type))
-                        , Expression.Constant(String.Empty)
+                        , Expression.Constant(string.Empty)
                         , toStringExpr);
                 }
             }
@@ -75,6 +72,5 @@ namespace IronVelocity.Compilation.AST
                 ? this
                 : new InterpolatedStringExpression(parts);
         }
-
     }
 }
