@@ -70,7 +70,7 @@ namespace IronVelocity
         }
 
         private string GetExpressionDebugView(Expression expression)
-            => (String)_debugViewMethod.Invoke(expression, new object[0]);
+            => (string)_debugViewMethod.Invoke(expression, new object[0]);
 
 
         [Event(13, Opcode = EventOpcode.Info, Level = EventLevel.Verbose, Keywords = Keywords.ExpressionTree)]

@@ -25,7 +25,7 @@ namespace IronVelocity.Compilation
             {
                 Globals = new Dictionary<string, Type>(globals, StringComparer.OrdinalIgnoreCase);
             }
-            _assemblyName = String.IsNullOrEmpty(assemblyName)
+            _assemblyName = string.IsNullOrEmpty(assemblyName)
                 ? new AssemblyName("IronVelocityTemplate")
                 : new AssemblyName(assemblyName);
         }

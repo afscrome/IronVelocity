@@ -130,7 +130,7 @@ namespace IronVelocity.Tests.Binders
         {
             public void Primitive(int arg) { }
             public void ValueType(Guid arg) { }
-            public void ReferenceType(String arg) { }
+            public void ReferenceType(string arg) { }
             public void BoxedPrimitive(Int32 arg) { }
             public void Parent(Parent arg) { }
             public void Child(Child arg) { }

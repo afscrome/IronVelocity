@@ -167,7 +167,7 @@ namespace IronVelocity.Compilation.AST
 
                 if (i == contents.Length - 1)
                 {
-                    if (String.IsNullOrWhiteSpace(sbKeyBuilder.ToString()))
+                    if (string.IsNullOrWhiteSpace(sbKeyBuilder.ToString()))
                     {
                         break;
                     }

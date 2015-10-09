@@ -14,7 +14,7 @@ namespace IronVelocity.Compilation.AST
 
         public SetMemberExpression(string name, Expression target, Expression value)
         {
-            if (String.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
                 throw new ArgumentOutOfRangeException(nameof(name));
 
             if (target == null)

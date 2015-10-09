@@ -9,7 +9,7 @@ namespace IronVelocity.Binders
 {
     public class VelocityInvokeMemberBinder : InvokeMemberBinder
     {
-        public VelocityInvokeMemberBinder(String name, CallInfo callInfo)
+        public VelocityInvokeMemberBinder(string name, CallInfo callInfo)
             : base(name, true, callInfo)
         {
         }
@@ -77,7 +77,7 @@ namespace IronVelocity.Binders
                     var log = BindingEventSource.Log;
                     if (log.IsEnabled())
                     {
-                        var argTypeString = String.Join(",", argTypeArray.Select(x => x.FullName).ToArray());
+                        var argTypeString = string.Join(",", argTypeArray.Select(x => x.FullName).ToArray());
                         if (isAmbigious)
                             log.InvokeMemberResolutionAmbiguous(Name, target.LimitType.FullName, argTypeString);
                         else

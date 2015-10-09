@@ -18,7 +18,7 @@ namespace IronVelocity.Compilation.AST
             if (target == null)
                 throw new ArgumentNullException(nameof(target));
 
-            if (String.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name))
                 throw new ArgumentOutOfRangeException(nameof(name));
 
             if (arguments == null)

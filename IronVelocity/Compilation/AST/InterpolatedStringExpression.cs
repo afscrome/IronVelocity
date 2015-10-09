@@ -40,7 +40,7 @@ namespace IronVelocity.Compilation.AST
 
                     return Expression.Condition(
                         Expression.Equal(element, Expression.Default(element.Type))
-                        , Expression.Constant(String.Empty)
+                        , Expression.Constant(string.Empty)
                         , toStringExpr);
                 }
             }

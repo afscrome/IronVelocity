@@ -12,7 +12,7 @@ namespace IronVelocity.Compilation.AST
 
         public GlobalVariableExpression(string name, object value)
         {
-            if (String.IsNullOrWhiteSpace(name))
+            if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentOutOfRangeException(nameof(name));
 
             Name = name;

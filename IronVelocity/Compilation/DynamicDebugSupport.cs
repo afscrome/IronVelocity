@@ -26,7 +26,7 @@ namespace IronVelocity.Compilation
         public DynamicToExplicitCallSiteConvertor(TypeBuilder typeBuilder, string fileName)
         {
             _builder = typeBuilder;
-            if (!String.IsNullOrEmpty(fileName))
+            if (!string.IsNullOrEmpty(fileName))
             {
                 _symbolDocument = Expression.SymbolDocument(fileName);
             }

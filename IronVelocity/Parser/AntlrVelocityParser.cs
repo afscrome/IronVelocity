@@ -120,7 +120,7 @@ namespace IronVelocity.Parser
         {
             if (errorListener.Errors?.Any() ?? false)
             {
-                var message = String.Join(", \r\n", errorListener.Errors.Select(x => $"Line: {x.Line} Position {x.Chartacter}: {x.Message}"));
+                var message = string.Join(", \r\n", errorListener.Errors.Select(x => $"Line: {x.Line} Position {x.Chartacter}: {x.Message}"));
                 throw new ParseCanceledException($"{prefix}: {message}");
             }
 
