@@ -95,7 +95,18 @@ namespace IronVelocity.Parser
                 if (property != null)
                 {
                     var name = property.IDENTIFIER().GetText();
-                    result = new PropertyAccessExpression(result, name, GetSourceInfo(innerContext));
+                    if (ReflectionHelper.IsConstantType(result))
+                    {
+                        //TODO: include debug info
+                        result = ReflectionHelper.MemberExpression(name, result.Type, result, Reflection.MemberAccessMode.Read);
+
+                        if (result == null)
+                            return Constants.NullExpression;
+                    }
+                    else
+                    {
+                        result = new PropertyAccessExpression(result, name, GetSourceInfo(innerContext));
+                    }
                 }
                 else
                 {
