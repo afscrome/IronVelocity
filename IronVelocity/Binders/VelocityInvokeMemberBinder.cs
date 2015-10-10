@@ -70,7 +70,7 @@ namespace IronVelocity.Binders
             {
                 if(args.Length == 0)
                 {
-                    result = ReflectionHelper.MemberExpression(Name, target);
+                    result = ReflectionHelper.MemberExpression(Name, target, Reflection.MemberAccessMode.Read);
                 }
                 if (result == null)
                 {

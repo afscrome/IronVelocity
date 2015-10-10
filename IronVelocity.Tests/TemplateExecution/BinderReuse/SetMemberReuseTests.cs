@@ -28,7 +28,7 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 
         public class SetMemberHelper
         {
-            public int Property { get; private set; }
+            public int Property { get; set; }
         }
     }
 }

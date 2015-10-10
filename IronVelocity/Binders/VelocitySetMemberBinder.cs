@@ -33,7 +33,7 @@ namespace IronVelocity.Binders
                 );
             }
 
-            var result = ReflectionHelper.MemberExpression(Name, target);
+            var result = ReflectionHelper.MemberExpression(Name, target, Reflection.MemberAccessMode.Write);
 
             if (result != null && result.Type.IsAssignableFrom(value.RuntimeType))
                 result = VelocityExpressions.BoxIfNeeded(

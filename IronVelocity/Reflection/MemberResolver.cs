@@ -12,7 +12,7 @@ namespace IronVelocity.Reflection
         private const BindingFlags _caseSensitiveBindingFlags = BindingFlags.Public | BindingFlags.Instance;
         private const BindingFlags _caseInsensitiveBindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase;
 
-        public MemberInfo GetMember(string name, Type type, bool caseSensitive)
+        public MemberInfo GetMember(string name, Type type, bool caseSensitive, MemberAccessMode mode)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -22,6 +22,19 @@ namespace IronVelocity.Reflection
                 : _caseInsensitiveBindingFlags;
 
             var property = type.GetProperty(name, flags);
+
+            if (property != null)
+            {
+                if ((mode == MemberAccessMode.Read && property.CanRead && property.GetMethod.IsPublic)
+                    || (mode == MemberAccessMode.Write && property.CanWrite && property.SetMethod.IsPublic))
+                {
+                    if (caseSensitive)
+                        return property;
+                }
+                else {
+                    property = null;
+                }
+            }
 
             if (caseSensitive && property != null)
                 return property;
@@ -40,7 +53,7 @@ namespace IronVelocity.Reflection
 
         }
 
-        public Expression MemberExpression(string name, DynamicMetaObject target)
+        public Expression MemberExpression(string name, DynamicMetaObject target, MemberAccessMode mode)
         {
             if (target == null)
                 throw new ArgumentNullException(nameof(target));
@@ -59,11 +72,11 @@ namespace IronVelocity.Reflection
                 }
             }
 
-            return MemberExpression(name, target.LimitType, target.Expression);
+            return MemberExpression(name, target.LimitType, target.Expression, mode);
         }
 
 
-        public Expression MemberExpression(string name, Type type, Expression expression)
+        public Expression MemberExpression(string name, Type type, Expression expression, MemberAccessMode mode)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -100,11 +113,11 @@ namespace IronVelocity.Reflection
             MemberInfo member = null;
             try
             {
-                member = GetMember(name, type, false);
+                member = GetMember(name, type, false, mode);
             }
             catch (AmbiguousMatchException)
             {
-                member = GetMember(name, type, true);
+                member = GetMember(name, type, true, mode);
             }
 
 
@@ -120,7 +133,7 @@ namespace IronVelocity.Reflection
                             new[] { Expression.Constant(name) }
                         );
                 }
-                else
+                else if (mode == MemberAccessMode.Read)
                 {
                     var method = IronVelocity.Binders.ReflectionHelper.ResolveMethod(type, name);
                     if (method != null)
@@ -131,7 +144,7 @@ namespace IronVelocity.Reflection
                 
                 if (type.IsArray && name.Equals("count", StringComparison.OrdinalIgnoreCase))
                 {
-                    return MemberExpression("Length", type, expression);
+                    return MemberExpression("Length", type, expression, mode);
                 }
             }
             else

@@ -289,6 +289,42 @@ namespace IronVelocity.Tests.Binders
             Assert.That(result, Is.EqualTo(UriFormat.Unescaped));
         }
 
+        [Test]
+        public void ShouldGetPropetyWithGetterOnly()
+        {
+            var input = new FunkyProperties();
+            var result = test(input, nameof(input.GetterOnly));
+
+            Assert.That(result, Is.EqualTo(3.142));
+        }
+
+        [Test]
+        public void ShouldGetPropetyWithPublicGetPrivateSet()
+        {
+            var input = new FunkyProperties();
+            var result = test(input, nameof(input.PublicGetPrivateSetter));
+
+            Assert.That(result, Is.EqualTo("original"));
+        }
+
+        [Test]
+        public void ShouldIgnorePropetyWithPrivateGetPublicSet()
+        {
+            var input = new FunkyProperties();
+            var result = test(input, nameof(input.PrivateGetPublicSet));
+
+            Assert.That(result, Is.Null);
+        }
+
+        [Test]
+        public void ShouldIgnorePropertyWithSetterOnly()
+        {
+            var input = new FunkyProperties();
+            var result = test(input, nameof(input.SetterOnly));
+
+            Assert.That(result, Is.Null);
+        }
+
 
         private object test(object input, string memberName)
         {
@@ -362,6 +398,16 @@ namespace IronVelocity.Tests.Binders
             public string DoSomething() => "Hello World";
             public static string Static() => "Fail";
             private string Secret() => "Fail";
+        }
+
+        public class FunkyProperties
+        {
+            private int _setterOnly = 123;
+            public string PublicGetPrivateSetter { get; private set; } = "original";
+            public char PrivateGetPublicSet { private get; set; } = 'c';
+
+            public int SetterOnly { set { _setterOnly = value; } }
+            public double GetterOnly { get; } = 3.142;
         }
 
     }

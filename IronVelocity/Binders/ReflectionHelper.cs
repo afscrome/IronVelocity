@@ -15,11 +15,11 @@ namespace IronVelocity.Binders
         private static IMethodResolver _methodInvocationResolver = new MethodResolver(_conversionHelper);
         private static IMemberResolver _memberResolver = new MemberResolver();
 
-        public static Expression MemberExpression(string name, DynamicMetaObject target)
-            => _memberResolver.MemberExpression(name, target);
+        public static Expression MemberExpression(string name, DynamicMetaObject target, MemberAccessMode mode)
+            => _memberResolver.MemberExpression(name, target, mode);
 
-        public static Expression MemberExpression(string name, Type type, Expression expression)
-            => _memberResolver.MemberExpression(name, type, expression);
+        public static Expression MemberExpression(string name, Type type, Expression expression, MemberAccessMode mode)
+            => _memberResolver.MemberExpression(name, type, expression, mode);
 
         public static MethodInfo ResolveMethod(Type type, string name, params Type[] argTypes)
             => _methodInvocationResolver.ResolveMethod(type.GetTypeInfo(), name, argTypes);
