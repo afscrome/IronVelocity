@@ -22,6 +22,9 @@ namespace IronVelocity.Directives
         public ForeachDirective(Expression item, Expression enumerable, Expression body)
             : base()
         {
+            if (item is ReferenceExpression)
+                item = item.Reduce();
+
             if (item is GlobalVariableExpression)
                 throw new NotSupportedException("Cannot use global variable as Foreach current item.");
 

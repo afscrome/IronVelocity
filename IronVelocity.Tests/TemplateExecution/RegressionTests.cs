@@ -95,7 +95,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
 
-        public static IEnumerable<TestCaseData> TestsCases
+        public IEnumerable<TestCaseData> TestsCases
         {
             get
             {
@@ -129,6 +129,10 @@ namespace IronVelocity.Tests.TemplateExecution
                         case "interpolation":
                         case "literal":
                             testCase.Ignore("Macros not supported");
+                            break;
+                        case "sample":
+                            if (StaticTypingMode == StaticTypingMode.PromoteContextToGlobals)
+                                testCase.Ignore("Does not support static typing");
                             break;
                         default:
                             break;
