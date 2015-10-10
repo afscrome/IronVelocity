@@ -44,7 +44,7 @@ namespace IronVelocity.Tests.TemplateExecution
             var expected = Utility.NormaliseLineEndings(File.ReadAllText(expectedPath));
             var context = CreateContext(name);
 
-            var result = ExecuteTemplate(input, context);
+            var result = ExecuteTemplate(input, context, fileName: inputPath);
 
             try
             {

@@ -68,7 +68,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
 
-        public ExecutionResult ExecuteTemplate(string input, object locals = null, object globals = null, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives = null)
+        public ExecutionResult ExecuteTemplate(string input, object locals = null, object globals = null, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives = null, string fileName = null)
         {
             var localsDictionary = ConvertToDictionary(locals);
             var globalsDictionary = ConvertToDictionary(globals);
@@ -76,7 +76,8 @@ namespace IronVelocity.Tests.TemplateExecution
             if (GlobalMode == GlobalMode.Force && (!globalsDictionary?.Any() ?? true))
                 globalsDictionary = localsDictionary?.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
 
-            var template = CompileTemplate(input, Utility.GetName(), globalsDictionary, customDirectives);
+            fileName = fileName ?? Utility.GetName();
+            var template = CompileTemplate(input, fileName, globalsDictionary, customDirectives);
 
             var context = new VelocityContext(localsDictionary);
 
