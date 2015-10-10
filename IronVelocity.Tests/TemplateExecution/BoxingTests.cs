@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
@@ -20,69 +21,49 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
-        public void ShouldNotBoxBeforeInvokingPropertyOnValueType()
+        public void ShouldNotBoxValueTypeVariableBeforeInvokingProperty()
         {
             // If $x is boxed each time a property is invoked, the property is invoked on the copy
             // So any state mutations won't persist for the next use of $x
             var input = "$x.CallCount, $x.CallCount, $x.CallCount";
-            var expectedOutput = "0, 1, 2";
-            var expectedCallCountValue = 3;
 
-            var context = new Dictionary<string, object>
-            {
-                ["x"] = new TestStruct(),
-            };
+            var context = new { x = new MutableStruct() };
 
-            var result = ExecuteTemplate(input, context);
+            var execution = ExecuteTemplate(input, context);
 
-            Assert.That(result.Output, Is.EqualTo(expectedOutput));
-            var x = (TestStruct)context["x"];
-            Assert.That(x.CallCount, Is.EqualTo(expectedCallCountValue));
+            Assert.That(execution.Output, Is.EqualTo("0, 1, 2"));
         }
 
 
         [Test]
-        public void ShouldNotBoxBeforeSettingPropertyOnValueType()
+        public void ShouldNotBoxValueTypeVariableBeforeSettingProperty()
         {
             // If $x is boxed each time before being set, the property is set on the copy
             // So the next use of $x will be unchanged by the #set.
 
-            var input = "#set($x.ManualInt = 5)$x.ManualInt";
-            var expectedOutput = "5";
-            var expectedManualIntValue = 5;
-            var context = new Dictionary<string, object>
-            {
-                ["x"] = new TestStruct(),
-            };
+            var input = "#set($x.ManualInt = 42)$x.ManualInt";
+            var context = new { x = new MutableStruct() };
 
-            var result = ExecuteTemplate(input, context);
+            var execution = ExecuteTemplate(input, context);
 
-            Assert.That(result.Output, Is.EqualTo(expectedOutput));
-            var x = (TestStruct)context["x"];
-            Assert.That(x.ManualInt, Is.EqualTo(expectedManualIntValue));
+            Assert.That(execution.Output, Is.EqualTo("42"));
         }
 
         [Test]
-        public void ShouldNotBoxValueTypeBeforeInvokingMethod()
+        public void ShouldNotBoxValueTypeVariableBeforeInvokingMethod()
         {
             // If $x is boxed each time a method is invoked, the method is invoked on the copy
             // So any state mutations won't persist for the next use of $x
             var input = "$x.GetCallCount(), $x.GetCallCount(), $x.GetCallCount()";
-            var expectedOutput = "0, 1, 2";
-            var expectedCallCount = 3;
-            var context = new Dictionary<string, object>
-            {
-                ["x"] = new TestStruct(),
-            };
+            var context = new { x = new MutableStruct() };
 
-            var result = ExecuteTemplate(input, context);
+            var execution = ExecuteTemplate(input, context);
 
-            Assert.That(result.Output, Is.EqualTo(expectedOutput));
-            var x = (TestStruct)context["x"];
-            Assert.That(x.GetCallCount(), Is.EqualTo(expectedCallCount));
+            Assert.That(execution.Output, Is.EqualTo("0, 1, 2"));
         }
 
-        public struct TestStruct
+
+        public struct MutableStruct
         {
             private int _callCount;
 
