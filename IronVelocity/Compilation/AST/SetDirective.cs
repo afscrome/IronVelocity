@@ -41,6 +41,9 @@ namespace IronVelocity.Compilation.AST
             if (left is GlobalVariableExpression)
                 throw new NotSupportedException("Cannot assign to a Global Variable");
 
+            if (left is MethodCallExpression)
+                return Constants.EmptyExpression; //TODO: should this error?
+
             var getMember = left as PropertyAccessExpression;
             if (getMember != null)
             {

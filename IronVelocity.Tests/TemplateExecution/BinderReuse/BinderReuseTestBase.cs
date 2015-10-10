@@ -6,7 +6,8 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {
     public class BinderReuseTestBase : TemplateExeuctionBase
     {
-        protected BinderReuseTestBase(GlobalMode mode) : base(mode) { }
+        //With globals, binders may not be used, so only test in AsProvided Mode
+        protected BinderReuseTestBase() : base(GlobalMode.AsProvided) { }
 
         private BinderHelper _oldHelper;
         public int CallSiteBindCount => DuplicateBinderHelper.CallSiteBindCount;

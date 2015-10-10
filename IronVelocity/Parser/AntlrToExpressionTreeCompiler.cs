@@ -10,6 +10,7 @@ using IronVelocity.Binders;
 using System.Linq;
 using IronVelocity.Directives;
 using System.Text;
+using System.Dynamic;
 
 namespace IronVelocity.Parser
 {
@@ -103,7 +104,19 @@ namespace IronVelocity.Parser
                     {
                         var name = method.IDENTIFIER().GetText();
                         var args = VisitMany(method.argument_list().expression());
-                        result = new MethodInvocationExpression(result, name, args, GetSourceInfo(innerContext));
+                        if (ReflectionHelper.IsConstantType(result) && args.All(ReflectionHelper.IsConstantType))
+                        {
+                            var methodInfo = ReflectionHelper.ResolveMethod(result.Type, name, args.Select(x => x.Type).ToArray());
+                            //TODO: Include debug info
+                            if (methodInfo == null)
+                                return Constants.NullExpression;
+
+                            result = ReflectionHelper.ConvertMethodParameters(methodInfo, result, args.Select(x => new DynamicMetaObject(x, BindingRestrictions.Empty)).ToArray());
+                        }
+                        else
+                        {
+                            result = new MethodInvocationExpression(result, name, args, GetSourceInfo(innerContext));
+                        }
                     }
                 }
             }
@@ -111,7 +124,7 @@ namespace IronVelocity.Parser
             return result;
         }
 
-        private readonly IDictionary<string, Expression> _variableCache = new Dictionary<string,Expression>();
+        private readonly IDictionary<string, Expression> _variableCache = new Dictionary<string, Expression>();
 
         public Expression VisitVariable([NotNull] VelocityParser.VariableContext context)
         {
