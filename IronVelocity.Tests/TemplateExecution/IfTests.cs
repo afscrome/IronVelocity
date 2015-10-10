@@ -3,9 +3,14 @@ using System;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
-    [TestFixture]
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class IfTests : TemplateExeuctionBase
     {
+        public IfTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [Test]
         public void IfTrue()
         {

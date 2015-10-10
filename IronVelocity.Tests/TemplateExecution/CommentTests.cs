@@ -2,8 +2,14 @@
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class CommentTests : TemplateExeuctionBase
     {
+        public CommentTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [TestCase("##Boo", "")]
         [TestCase("#*ya*#", "")]
         [TestCase("Hello##World", "Hello")]

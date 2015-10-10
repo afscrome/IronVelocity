@@ -5,8 +5,14 @@ using System.Collections.Generic;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class OrderOfEvaluationTests : TemplateExeuctionBase
     {
+        public OrderOfEvaluationTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [TestCase("+")]
         [TestCase("-")]
         [TestCase("*")]

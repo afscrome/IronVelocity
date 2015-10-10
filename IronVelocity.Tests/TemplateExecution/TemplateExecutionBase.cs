@@ -11,9 +11,22 @@ using System.Linq;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    public enum GlobalMode
+    {
+        Force,
+        AsProvided
+    }
+
     public abstract class TemplateExeuctionBase
     {
+        protected TemplateExeuctionBase(GlobalMode mode)
+        {
+            GlobalMode = mode;
+        }
+
         protected readonly IReadOnlyCollection<CustomDirectiveBuilder> DefaultCustomDirectives = new[] { new ForeachDirectiveBuilder() };
+
+        protected virtual GlobalMode GlobalMode { get; }
 
         public class ExecutionResult
         {
@@ -21,7 +34,7 @@ namespace IronVelocity.Tests.TemplateExecution
             public string OutputWithNormalisedLineEndings => Utility.NormaliseLineEndings(Output);
             public IReadOnlyDictionary<string, object> Context { get; set; }
 
-            public ExecutionResult(StringBuilder output, IReadOnlyDictionary<string,object> context)
+            public ExecutionResult(StringBuilder output, IReadOnlyDictionary<string, object> context)
             {
                 Output = output.ToString();
                 Context = context;
@@ -59,7 +72,10 @@ namespace IronVelocity.Tests.TemplateExecution
         {
             var localsDictionary = ConvertToDictionary(locals);
             var globalsDictionary = ConvertToDictionary(globals);
-            
+
+            if (GlobalMode == GlobalMode.Force && (!globalsDictionary?.Any() ?? true))
+                globalsDictionary = localsDictionary?.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
+
             var template = CompileTemplate(input, Utility.GetName(), globalsDictionary, customDirectives);
 
             var context = new VelocityContext(localsDictionary);

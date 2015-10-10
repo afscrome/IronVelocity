@@ -2,8 +2,14 @@
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class TemplatedForeachTests : TemplateExeuctionBase
     {
+        public TemplatedForeachTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [Test]
         public void ShouldRenderNoDataSectionWhenEnumerableHasNoItems()
         {

@@ -2,8 +2,14 @@
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class MathsTests : TemplateExeuctionBase
     {
+        public MathsTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [TestCase(1.3, 3.2, 4.5)]
         [TestCase(1, "$null", null)]
         [TestCase("$null", 2.4, null)]

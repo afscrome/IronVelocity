@@ -5,8 +5,13 @@ using IronVelocity.Directives;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
-    public class Directive : TemplateExeuctionBase
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
+    public class DirectiveTests : TemplateExeuctionBase
     {
+        public DirectiveTests(GlobalMode mode) : base(mode)
+        {
+        }
 
         [TestCase("#custom", "This directive has 0 arguments")]
         [TestCase("#custom()", "This directive has 0 arguments")]

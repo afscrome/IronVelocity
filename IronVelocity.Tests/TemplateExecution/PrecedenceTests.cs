@@ -2,8 +2,14 @@
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class PrecedenceTests : TemplateExeuctionBase
     {
+        public PrecedenceTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [TestCase("true || true && false", true, TestName = "when_ExecutingAnExpression_AndHasHigherPrecedenceThanOr")]
         [TestCase("false && false == false", false, TestName = "when_ExecutingAnExpression_EqualityHasHigherPrecedenceThanAnd")]
         [TestCase("false == true > false", true, TestName = "when_ExecutingAnExpression_RelationalHasHigherPrecedenceThanEquality")]

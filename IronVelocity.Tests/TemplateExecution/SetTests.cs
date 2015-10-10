@@ -3,8 +3,14 @@ using System.Collections.Generic;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class SetTests : TemplateExeuctionBase
     {
+        public SetTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [TestCase("#set($x=123)")]
         /*
         [TestCase("#set($x = 123)\r\n", IgnoreReason = "TODO: Implement correct Whitespace Eating")]
@@ -21,25 +27,8 @@ namespace IronVelocity.Tests.TemplateExecution
             Assert.That(result.Context["x"], Is.EqualTo(123));
         }
 
-        [TestCase("#set($x=123)")]
-        public void When_SettingAVariableThatAlreadyExists_Should_OverwriteValueInContextAndRenderNothing(string input)
-        {
-            var context = new Dictionary<string, object>
-            {
-                ["x"] = "hello world"
-            };
-
-            var result = ExecuteTemplate(input);
-
-            Assert.That(result.Output, Is.Empty);
-            Assert.That(result.Context.Keys, Has.Member("x"));
-            Assert.That(result.Context["x"], Is.EqualTo(123));
-        }
-
         [TestCase("#set($y=$undefined)")]
         [TestCase("#set($y=$null)")]
-        [TestCase("#set($alreadySet=$undefined)")]
-        [TestCase("#set($alreadySet=$null)")]
         public void When_SettingAVariableWithNullOrUndefined_Should_NeitherChangeContextNorRenderAnything(string input)
         {
             var originalAlreadySetValue = new object();
@@ -165,6 +154,48 @@ namespace IronVelocity.Tests.TemplateExecution
             Assert.That(result.Output, Is.Empty);
             Assert.That(result.Context.Keys, Has.Count.EqualTo(1));
             Assert.That(result.Context.Keys, Contains.Item("input"));
+        }
+
+        //These tests deal with setting variables that have already been set.  The rules of global variables
+        // do not allow these to be changed, so these tests can only be perfomed in GlobalMode.AsProvided
+        public class SetNonGlobalTests : TemplateExeuctionBase
+        {
+            public SetNonGlobalTests() : base(GlobalMode.AsProvided)
+            {
+            }
+
+            [TestCase("#set($x=123)")]
+            public void When_SettingAVariableThatAlreadyExists_Should_OverwriteValueInContextAndRenderNothing(string input)
+            {
+                var context = new Dictionary<string, object>
+                {
+                    ["x"] = "hello world"
+                };
+
+                var result = ExecuteTemplate(input, context);
+
+                Assert.That(result.Output, Is.Empty);
+                Assert.That(result.Context.Keys, Has.Member("x"));
+                Assert.That(result.Context["x"], Is.EqualTo(123));
+            }
+
+            [TestCase("#set($alreadySet=$undefined)")]
+            [TestCase("#set($alreadySet=$null)")]
+            public void When_SettingAVariableWithNullOrUndefined_Should_NeitherChangeContextNorRenderAnything(string input)
+            {
+                var originalAlreadySetValue = new object();
+                var context = new Dictionary<string, object>
+                {
+                    ["alreadySet"] = originalAlreadySetValue,
+                    ["null"] = null
+                };
+
+                var result = ExecuteTemplate(input, context);
+                Assert.That(result.Output, Is.Empty);
+                Assert.That(result.Context.Keys, Has.No.Member("x"));
+                Assert.That(result.Context["alreadySet"], Is.EqualTo(originalAlreadySetValue));
+            }
+
         }
 
         private class PropertyTest

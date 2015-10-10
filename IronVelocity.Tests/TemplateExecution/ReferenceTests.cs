@@ -4,8 +4,14 @@ using System.Collections.Generic;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class ReferenceTests : TemplateExeuctionBase
     {
+        public ReferenceTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [Test]
         public void ShouldRenderPropertyInvocation()
         {

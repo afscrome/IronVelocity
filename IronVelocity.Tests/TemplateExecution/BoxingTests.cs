@@ -10,8 +10,14 @@ namespace IronVelocity.Tests.TemplateExecution
     /// If we fail to properly unbox an object before calling a member which mutates the value type
     /// we will be modifying the boxed copy, and not the underlying value type.
     /// </summary>
+    /// 
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class BoxingTests : TemplateExeuctionBase
     {
+        public BoxingTests(GlobalMode mode) : base(mode)
+        {
+        }
 
         [Test]
         public void ShouldNotBoxBeforeInvokingPropertyOnValueType()

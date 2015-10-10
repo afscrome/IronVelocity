@@ -5,8 +5,14 @@ using System.IO;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class RegressionTests : TemplateExeuctionBase
     {
+        public RegressionTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         private static readonly string _base = "..\\..\\TemplateExecution\\Regression\\";
         private static readonly string _failureResultsDir = "Failures";
 

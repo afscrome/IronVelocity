@@ -5,8 +5,14 @@ using System.Text;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class DictionaryStringsTests : TemplateExeuctionBase
     {
+        public DictionaryStringsTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [TestCase("%{}")]
         [TestCase("%{    }")]
         public void ShouldProcessEmptyDictionary(string input)

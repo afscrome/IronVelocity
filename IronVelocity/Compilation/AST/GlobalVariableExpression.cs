@@ -7,13 +7,16 @@ namespace IronVelocity.Compilation.AST
     {
         public string Name { get; }
         public object Value { get; }
-        public override Type Type => Value.GetType();
+        public override Type Type => Value?.GetType() ?? typeof(object);
         public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.GlobalVariable;
 
         public GlobalVariableExpression(string name, object value)
         {
             if (string.IsNullOrWhiteSpace(name))
                 throw new ArgumentOutOfRangeException(nameof(name));
+
+            if (value == null)
+                throw new ArgumentNullException(nameof(name));
 
             Name = name;
             Value = value;

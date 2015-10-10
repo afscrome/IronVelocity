@@ -3,8 +3,14 @@ using System.Collections.Generic;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class OutputTests : TemplateExeuctionBase
     {
+        public OutputTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [TestCase("Hello World")]
         [TestCase("With\r\nNewlines")]
         public void When_RenderingText_Should_RenderAsIs(string input)

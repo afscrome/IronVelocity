@@ -3,9 +3,14 @@ using System.Collections.Generic;
 
 namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {
-    [TestFixture]
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class GetMemberReuseTests : BinderReuseTestBase
     {
+        public GetMemberReuseTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [Test]
         public void GetMemberReuse()
         {

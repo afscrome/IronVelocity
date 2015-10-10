@@ -2,8 +2,14 @@
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class EscapeTests : TemplateExeuctionBase
     {
+        public EscapeTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [TestCase(@"\#set")]
         [TestCase(@"\#if")]
         [TestCase(@"\#elseif")]

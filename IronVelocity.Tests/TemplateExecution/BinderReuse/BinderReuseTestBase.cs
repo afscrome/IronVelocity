@@ -4,8 +4,10 @@ using System.Dynamic;
 
 namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {
-    public abstract class BinderReuseTestBase : TemplateExeuctionBase
+    public class BinderReuseTestBase : TemplateExeuctionBase
     {
+        protected BinderReuseTestBase(GlobalMode mode) : base(mode) { }
+
         private BinderHelper _oldHelper;
         public int CallSiteBindCount => DuplicateBinderHelper.CallSiteBindCount;
 

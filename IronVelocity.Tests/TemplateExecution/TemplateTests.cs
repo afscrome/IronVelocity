@@ -2,8 +2,14 @@
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class TemplateTests : TemplateExeuctionBase
     {
+        public TemplateTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [TestCase("$('#$x')")]
         [TestCase("$.ajax()")]
         [TestCase("$('#some-id)")]

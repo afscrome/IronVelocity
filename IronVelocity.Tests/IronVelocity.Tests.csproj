@@ -128,7 +128,7 @@
     <Compile Include="Parser\TextTests.cs" />
     <Compile Include="TemplateExecution\ObjectArrayTests.cs" />
     <Compile Include="TemplateExecution\DictionaryStringsTests.cs" />
-    <Compile Include="TemplateExecution\Escape.cs" />
+    <Compile Include="TemplateExecution\EscapeTests.cs" />
     <Compile Include="TemplateExecution\InterpolatedStringTests.cs" />
     <Compile Include="TemplateExecution\RegressionTests.cs" />
     <Compile Include="Binders\ReflectionHelper\ArgumentCompatabilityTests.cs" />
@@ -144,7 +144,7 @@
     <Compile Include="MethodInfoReflectionTests.cs" />
     <Compile Include="RuntimeHelpers\IntegerRangeTests.cs" />
     <Compile Include="TemplateExecution\BooleanLogic.cs" />
-    <Compile Include="TemplateExecution\Directive.cs" />
+    <Compile Include="TemplateExecution\DirectiveTests.cs" />
     <Compile Include="TemplateExecution\BasicForeachTests.cs" />
     <Compile Include="TemplateExecution\IfTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -3,8 +3,14 @@ using System.Collections.Generic;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class BooleanLogic : TemplateExeuctionBase
     {
+        public BooleanLogic(GlobalMode mode) : base(mode)
+        {
+        }
+
         [TestCase(true, true, true)]
         [TestCase(true, false, true)]
         [TestCase(false, true, true)]

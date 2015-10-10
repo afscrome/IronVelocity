@@ -5,9 +5,14 @@ using System.Text;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
-    [TestFixture]
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class ObjectArrayTests : TemplateExeuctionBase
     {
+        public ObjectArrayTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [TestCase("[]")]
         [TestCase("[    ]")]
         public void EmptyArray(string input)

@@ -2,9 +2,14 @@
 
 namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {
-    [TestFixture]
+    [TestFixture(GlobalMode.AsProvided)]
+    [TestFixture(GlobalMode.Force)]
     public class SetMemberReuseTests : BinderReuseTestBase
     {
+        public SetMemberReuseTests(GlobalMode mode) : base(mode)
+        {
+        }
+
         [Test]
         public void SetMemberReuse()
         {
