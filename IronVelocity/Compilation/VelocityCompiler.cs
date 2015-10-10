@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -23,6 +24,12 @@ namespace IronVelocity.Compilation
         {
             if (globals != null)
             {
+                var nullValues = globals.Where(x => x.Value == null).ToList();
+                if (nullValues.Any())
+                {
+                    throw new ArgumentOutOfRangeException(nameof(globals), $"Global variables may not have null values: {String.Join(", ", nullValues.Select(x => x.Key))}");
+                }
+
                 Globals = new Dictionary<string, Type>(globals, StringComparer.OrdinalIgnoreCase);
             }
             _assemblyName = string.IsNullOrEmpty(assemblyName)

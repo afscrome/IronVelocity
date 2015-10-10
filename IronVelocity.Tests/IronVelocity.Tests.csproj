@@ -126,6 +126,7 @@
     <Compile Include="Parser\SetDirective.cs" />
     <Compile Include="Parser\StringTests.cs" />
     <Compile Include="Parser\TextTests.cs" />
+    <Compile Include="TemplateExecution\GlobalTests.cs" />
     <Compile Include="TemplateExecution\ObjectArrayTests.cs" />
     <Compile Include="TemplateExecution\DictionaryStringsTests.cs" />
     <Compile Include="TemplateExecution\EscapeTests.cs" />

@@ -26,7 +26,7 @@ namespace IronVelocity
             else
                 _globals = new Dictionary<string, object>(globals, StringComparer.OrdinalIgnoreCase);
 
-            var globalsTypeMap = _globals.Where(X => X.Value != null).ToDictionary(x => x.Key, x => x.Value.GetType());
+            var globalsTypeMap = _globals.ToDictionary(x => x.Key, x => x.Value?.GetType());
             _compiler = new VelocityCompiler(globalsTypeMap);
 
         }
