@@ -76,7 +76,10 @@ namespace IronVelocity.Tests.TemplateExecution
 
         private VelocityTemplateMethod CompileTemplate(string input, string fileName, IDictionary<string, object> globals, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
         {
-            var parser = new AntlrVelocityParser(customDirectives);
+            var readonlyGlobals = globals != null
+                ? new Dictionary<string, object>(globals)
+                : null;
+            var parser = new AntlrVelocityParser(customDirectives, readonlyGlobals);
             var runtime = new VelocityRuntime(parser, globals);
             return runtime.CompileTemplate(input, Utility.GetName(), fileName, true);
         }

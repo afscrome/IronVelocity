@@ -19,15 +19,17 @@ namespace IronVelocity.Parser
         };
 
         private readonly IReadOnlyCollection<CustomDirectiveBuilder> _customDirectives;
+        private readonly IReadOnlyDictionary<string, object> _globals;
 
         public AntlrVelocityParser()
-            : this(null)
+            : this(null, null)
         {
         }
 
-        public AntlrVelocityParser(IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
+        public AntlrVelocityParser(IReadOnlyCollection<CustomDirectiveBuilder> customDirectives, IReadOnlyDictionary<string, object> globals)
         {
             _customDirectives = customDirectives ?? DefaultDirectives;
+            _globals = globals ?? new Dictionary<string,object>(0);
         }
 
         public Expression<VelocityTemplateMethod> Parse(string input, string name)
@@ -107,7 +109,7 @@ namespace IronVelocity.Parser
 
         internal Expression<VelocityTemplateMethod> CompileToTemplateMethod(RuleContext parsed, string name)
         {
-            var visitor = new AntlrToExpressionTreeCompiler(this, _customDirectives);
+            var visitor = new AntlrToExpressionTreeCompiler(this, _customDirectives, _globals);
 
             TemplateGenerationEventSource.Log.ConvertToExpressionTreeStart(name);
             var body = visitor.Visit(parsed);

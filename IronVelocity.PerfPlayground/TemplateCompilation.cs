@@ -53,7 +53,7 @@ namespace IronVelocity.PerfPlayground
                     .Select(x => new AntlrBlockDirectiveBuilder(x))
                     .ToList<CustomDirectiveBuilder>();
                 antlrDirectives.Add(new ForeachDirectiveBuilder());
-                var parser = new AntlrVelocityParser(antlrDirectives);
+                var parser = new AntlrVelocityParser(antlrDirectives, null);
 
                 var expressionTree = parser.Parse(file, assemblyName);
                 if (Compile)
