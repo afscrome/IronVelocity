@@ -141,7 +141,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
 
-        private class Provider
+        public class Provider
         {
             public string this[string key] => key;
 
@@ -174,10 +174,10 @@ namespace IronVelocity.Tests.TemplateExecution
             public string ShowPerson(Person person) => person.Name;
 
         }
-        private class Person {
+        public class Person {
             public virtual string Name => "Person";
         }
-        private class Child : Person {
+        public class Child : Person {
             public override string Name => "Child";
         }
 
