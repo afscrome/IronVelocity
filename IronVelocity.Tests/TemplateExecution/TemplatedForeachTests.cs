@@ -2,11 +2,11 @@
 
 namespace IronVelocity.Tests.TemplateExecution
 {
-    [TestFixture(GlobalMode.AsProvided)]
-    [TestFixture(GlobalMode.Force)]
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class TemplatedForeachTests : TemplateExeuctionBase
     {
-        public TemplatedForeachTests(GlobalMode mode) : base(mode)
+        public TemplatedForeachTests(StaticTypingMode mode) : base(mode)
         {
         }
 

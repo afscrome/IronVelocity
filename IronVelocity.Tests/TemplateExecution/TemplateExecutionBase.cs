@@ -12,22 +12,22 @@ using System.Reflection;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
-    public enum GlobalMode
+    public enum StaticTypingMode
     {
-        Force,
+        PromoteContextToGlobals,
         AsProvided
     }
 
     public abstract class TemplateExeuctionBase
     {
-        protected TemplateExeuctionBase(GlobalMode mode)
+        protected TemplateExeuctionBase(StaticTypingMode mode)
         {
-            GlobalMode = mode;
+            StaticTypingMode = mode;
         }
 
         protected readonly IReadOnlyCollection<CustomDirectiveBuilder> DefaultCustomDirectives = new[] { new ForeachDirectiveBuilder() };
 
-        protected virtual GlobalMode GlobalMode { get; }
+        protected virtual StaticTypingMode StaticTypingMode { get; }
 
         public class ExecutionResult
         {
@@ -74,7 +74,7 @@ namespace IronVelocity.Tests.TemplateExecution
             var localsDictionary = ConvertToDictionary(locals);
             var globalsDictionary = ConvertToDictionary(globals);
 
-            if (GlobalMode == GlobalMode.Force && (!globalsDictionary?.Any() ?? true))
+            if (StaticTypingMode == StaticTypingMode.PromoteContextToGlobals && (!globalsDictionary?.Any() ?? true))
                 globalsDictionary = localsDictionary?.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
 
             fileName = fileName ?? Utility.GetName();

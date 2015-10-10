@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
-    [TestFixture(GlobalMode.AsProvided)]
-    [TestFixture(GlobalMode.Force)]
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class OrderOfEvaluationTests : TemplateExeuctionBase
     {
-        public OrderOfEvaluationTests(GlobalMode mode) : base(mode)
+        public OrderOfEvaluationTests(StaticTypingMode mode) : base(mode)
         {
         }
 

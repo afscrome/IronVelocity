@@ -2,11 +2,11 @@
 
 namespace IronVelocity.Tests.TemplateExecution
 {
-    [TestFixture(GlobalMode.AsProvided)]
-    [TestFixture(GlobalMode.Force)]
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class PrecedenceTests : TemplateExeuctionBase
     {
-        public PrecedenceTests(GlobalMode mode) : base(mode)
+        public PrecedenceTests(StaticTypingMode mode) : base(mode)
         {
         }
 

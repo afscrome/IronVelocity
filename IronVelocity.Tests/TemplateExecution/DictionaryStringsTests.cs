@@ -5,11 +5,11 @@ using System.Text;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
-    [TestFixture(GlobalMode.AsProvided)]
-    [TestFixture(GlobalMode.Force)]
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class DictionaryStringsTests : TemplateExeuctionBase
     {
-        public DictionaryStringsTests(GlobalMode mode) : base(mode)
+        public DictionaryStringsTests(StaticTypingMode mode) : base(mode)
         {
         }
 

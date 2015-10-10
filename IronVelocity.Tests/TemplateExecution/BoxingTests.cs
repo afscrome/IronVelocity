@@ -12,11 +12,11 @@ namespace IronVelocity.Tests.TemplateExecution
     /// we will be modifying the boxed copy, and not the underlying value type.
     /// </summary>
     /// 
-    [TestFixture(GlobalMode.AsProvided)]
-    [TestFixture(GlobalMode.Force)]
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class BoxingTests : TemplateExeuctionBase
     {
-        public BoxingTests(GlobalMode mode) : base(mode)
+        public BoxingTests(StaticTypingMode mode) : base(mode)
         {
         }
 

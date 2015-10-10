@@ -2,11 +2,11 @@
 
 namespace IronVelocity.Tests.TemplateExecution
 {
-    [TestFixture(GlobalMode.AsProvided)]
-    [TestFixture(GlobalMode.Force)]
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class EscapeTests : TemplateExeuctionBase
     {
-        public EscapeTests(GlobalMode mode) : base(mode)
+        public EscapeTests(StaticTypingMode mode) : base(mode)
         {
         }
 

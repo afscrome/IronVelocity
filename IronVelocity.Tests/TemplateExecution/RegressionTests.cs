@@ -5,11 +5,11 @@ using System.IO;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
-    [TestFixture(GlobalMode.AsProvided)]
-    [TestFixture(GlobalMode.Force)]
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class RegressionTests : TemplateExeuctionBase
     {
-        public RegressionTests(GlobalMode mode) : base(mode)
+        public RegressionTests(StaticTypingMode mode) : base(mode)
         {
         }
 

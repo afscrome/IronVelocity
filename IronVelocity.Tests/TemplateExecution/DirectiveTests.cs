@@ -5,11 +5,11 @@ using IronVelocity.Directives;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
-    [TestFixture(GlobalMode.AsProvided)]
-    [TestFixture(GlobalMode.Force)]
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class DirectiveTests : TemplateExeuctionBase
     {
-        public DirectiveTests(GlobalMode mode) : base(mode)
+        public DirectiveTests(StaticTypingMode mode) : base(mode)
         {
         }
 

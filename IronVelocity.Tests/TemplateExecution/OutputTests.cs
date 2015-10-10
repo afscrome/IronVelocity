@@ -3,11 +3,11 @@ using System.Collections.Generic;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
-    [TestFixture(GlobalMode.AsProvided)]
-    [TestFixture(GlobalMode.Force)]
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class OutputTests : TemplateExeuctionBase
     {
-        public OutputTests(GlobalMode mode) : base(mode)
+        public OutputTests(StaticTypingMode mode) : base(mode)
         {
         }
 

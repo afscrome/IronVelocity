@@ -5,7 +5,7 @@ namespace IronVelocity.Tests.TemplateExecution
 {
     public class GlobalTests : TemplateExeuctionBase
     {
-        public GlobalTests() : base(GlobalMode.Force) { }
+        public GlobalTests() : base(StaticTypingMode.PromoteContextToGlobals) { }
 
         [Test]
         public void ShouldRejectNullGlobalVariable()
