@@ -8,12 +8,26 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
+using System.Reflection;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    public enum StaticTypingMode
+    {
+        PromoteContextToGlobals,
+        AsProvided
+    }
+
     public abstract class TemplateExeuctionBase
     {
+        protected TemplateExeuctionBase(StaticTypingMode mode)
+        {
+            StaticTypingMode = mode;
+        }
+
         protected readonly IReadOnlyCollection<CustomDirectiveBuilder> DefaultCustomDirectives = new[] { new ForeachDirectiveBuilder() };
+
+        protected virtual StaticTypingMode StaticTypingMode { get; }
 
         public class ExecutionResult
         {
@@ -21,7 +35,7 @@ namespace IronVelocity.Tests.TemplateExecution
             public string OutputWithNormalisedLineEndings => Utility.NormaliseLineEndings(Output);
             public IReadOnlyDictionary<string, object> Context { get; set; }
 
-            public ExecutionResult(StringBuilder output, IReadOnlyDictionary<string,object> context)
+            public ExecutionResult(StringBuilder output, IReadOnlyDictionary<string, object> context)
             {
                 Output = output.ToString();
                 Context = context;
@@ -55,12 +69,20 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
 
-        public ExecutionResult ExecuteTemplate(string input, object locals = null, object globals = null, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives = null)
+        public ExecutionResult ExecuteTemplate(string input, object locals = null, object globals = null, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives = null, string fileName = null)
         {
             var localsDictionary = ConvertToDictionary(locals);
             var globalsDictionary = ConvertToDictionary(globals);
-            
-            var template = CompileTemplate(input, Utility.GetName(), globalsDictionary, customDirectives);
+
+            if (StaticTypingMode == StaticTypingMode.PromoteContextToGlobals && (!globalsDictionary?.Any() ?? true))
+                globalsDictionary = localsDictionary?.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
+
+            fileName = fileName ?? Utility.GetName();
+            var globals2 = globalsDictionary != null
+                ? new Dictionary<string, object>(globalsDictionary)
+                : null;
+
+            var template = CompileTemplate(input, fileName, globals2, customDirectives);
 
             var context = new VelocityContext(localsDictionary);
 
@@ -74,11 +96,32 @@ namespace IronVelocity.Tests.TemplateExecution
             return new ExecutionResult(outputBuilder, context);
         }
 
-        private VelocityTemplateMethod CompileTemplate(string input, string fileName, IDictionary<string, object> globals, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
+
+        private VelocityTemplateMethod CompileTemplate(string input, string fileName, IReadOnlyDictionary<string, object> globals, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
         {
-            var parser = new AntlrVelocityParser(customDirectives);
-            var runtime = new VelocityRuntime(parser, globals);
-            return runtime.CompileTemplate(input, Utility.GetName(), fileName, true);
+            //This is for debugging - change it with the Immediate window if you need to dump a test to disk for further investigation.
+            bool saveDllAndExtractIlForTroubleshooting = false;
+
+            var parser = new AntlrVelocityParser(customDirectives, globals);
+
+            VelocityDiskCompiler diskCompiler = null;
+
+            var runtime = new VelocityRuntime(parser);
+            if (saveDllAndExtractIlForTroubleshooting)
+            {
+                var assemblyName = Path.GetFileName(fileName);
+                diskCompiler = new VelocityDiskCompiler(new AssemblyName(assemblyName), ".");
+                new VelocityRuntime(parser, diskCompiler);
+            }
+
+            var template = runtime.CompileTemplate(input, Utility.GetName(), fileName, true);
+
+            if (saveDllAndExtractIlForTroubleshooting)
+            {
+                diskCompiler.SaveDll();
+                diskCompiler.SaveIl();
+            }
+            return template;
         }
     }
 }

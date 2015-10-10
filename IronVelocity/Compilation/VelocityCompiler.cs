@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -15,16 +16,11 @@ namespace IronVelocity.Compilation
         private const string _methodName = "Execute";
         private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(VelocityOutput) };
         private static readonly ConstructorInfo _debugAttributeConstructorInfo = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
-        protected IReadOnlyDictionary<string, Type> Globals { get; }
 
         private readonly AssemblyName _assemblyName;
 
-        public VelocityCompiler(IDictionary<string, Type> globals, string assemblyName = null)
+        public VelocityCompiler(string assemblyName = null)
         {
-            if (globals != null)
-            {
-                Globals = new Dictionary<string, Type>(globals, StringComparer.OrdinalIgnoreCase);
-            }
             _assemblyName = string.IsNullOrEmpty(assemblyName)
                 ? new AssemblyName("IronVelocityTemplate")
                 : new AssemblyName(assemblyName);

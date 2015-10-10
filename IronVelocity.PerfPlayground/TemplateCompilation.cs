@@ -18,8 +18,6 @@ namespace IronVelocity.PerfPlayground
     [Explicit]
     public class TemplateCompilation
     {
-        private const string IldasmPath = "C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v8.1A\\bin\\NETFX 4.5.1 Tools\\ildasm.exe";
-
         public bool Compile { get; set; } = false;
         public bool SaveDlls { get; set; } = false;
         public bool SaveIl { get; set; } = false;
@@ -53,19 +51,17 @@ namespace IronVelocity.PerfPlayground
                     .Select(x => new AntlrBlockDirectiveBuilder(x))
                     .ToList<CustomDirectiveBuilder>();
                 antlrDirectives.Add(new ForeachDirectiveBuilder());
-                var parser = new AntlrVelocityParser(antlrDirectives);
+                var parser = new AntlrVelocityParser(antlrDirectives, null);
 
                 var expressionTree = parser.Parse(file, assemblyName);
                 if (Compile)
                 {
-                    AssemblyBuilder assemblyBuilder = null;
+                    VelocityDiskCompiler diskCompiler = null;
                     VelocityCompiler compiler;
 
                     if (SaveDlls || SaveIl)
                     {
-                        var diskCompiler = new DiskCompiler(new AssemblyName(assemblyName), OutputDir);
-                        assemblyBuilder = diskCompiler.AssemblyBuilder;
-                        compiler = diskCompiler;
+                        compiler = diskCompiler = new VelocityDiskCompiler(new AssemblyName(assemblyName), OutputDir);
                     }
                     else
                     {
@@ -86,21 +82,11 @@ namespace IronVelocity.PerfPlayground
 
                     if (SaveDlls || SaveIl)
                     {
-                        var dllName = assemblyName + ".dll";
-                        assemblyBuilder.Save(dllName);
+                        diskCompiler.SaveDll();
 
                         if (SaveIl)
                         {
-                            var assemblyPath = Path.Combine(OutputDir, dllName);
-                            var ilPath = assemblyPath.Replace(".dll", ".il");
-                            var startInfo = new ProcessStartInfo(IldasmPath)
-                            {
-                                Arguments = $"\"{assemblyPath}\" /item:{assemblyName} /linenum /source /out:\"{ilPath}\"",
-                                CreateNoWindow = true,
-                                UseShellExecute = false,
-                                WindowStyle = ProcessWindowStyle.Hidden
-                            };
-                            Process.Start(startInfo);
+                            diskCompiler.SaveIl();
                         }
                     }
                 }
@@ -122,34 +108,6 @@ namespace IronVelocity.PerfPlayground
                            .SetName(TestNamePrefix + " " + relativePath);
                     }
                 }
-            }
-        }
-
-        /// <summary>
-        /// Helper compiler to allow 
-        /// </summary>
-        private class DiskCompiler : VelocityCompiler
-        {
-            public AssemblyBuilder AssemblyBuilder { get; }
-            private readonly AssemblyName _assemblyName;
-            public DiskCompiler(AssemblyName name, string outputDir)
-                : base(null)
-            {
-                _assemblyName = name;
-                AssemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(_assemblyName, AssemblyBuilderAccess.RunAndSave, outputDir);
-            }
-
-            protected override ModuleBuilder CreateModuleBuilder(bool debugMode)
-            {
-                var name = _assemblyName.Name;
-                var moduleBuilder = AssemblyBuilder.DefineDynamicModule(name, name + ".dll", true);
-
-                if (debugMode)
-                {
-                    AddDebugAttributes(AssemblyBuilder, moduleBuilder);
-                }
-
-                return moduleBuilder;
             }
         }
 

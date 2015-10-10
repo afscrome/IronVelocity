@@ -4,8 +4,14 @@ using System.Collections.Generic;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class BasicForeachTests : TemplateExeuctionBase
     {
+        public BasicForeachTests(StaticTypingMode mode) : base(mode)
+        {
+        }
+
         [Test]
         public void ShouldEnumerateEnumerable()
         {

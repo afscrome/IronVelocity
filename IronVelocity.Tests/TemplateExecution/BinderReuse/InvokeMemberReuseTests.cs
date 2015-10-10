@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {
-    [TestFixture]
     public class InvokeMemberReuseTests : BinderReuseTestBase
     {
         [Test]

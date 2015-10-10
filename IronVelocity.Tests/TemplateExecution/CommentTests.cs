@@ -2,8 +2,14 @@
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class CommentTests : TemplateExeuctionBase
     {
+        public CommentTests(StaticTypingMode mode) : base(mode)
+        {
+        }
+
         [TestCase("##Boo", "")]
         [TestCase("#*ya*#", "")]
         [TestCase("Hello##World", "Hello")]

@@ -5,8 +5,14 @@ using System.IO;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class RegressionTests : TemplateExeuctionBase
     {
+        public RegressionTests(StaticTypingMode mode) : base(mode)
+        {
+        }
+
         private static readonly string _base = "..\\..\\TemplateExecution\\Regression\\";
         private static readonly string _failureResultsDir = "Failures";
 
@@ -38,7 +44,7 @@ namespace IronVelocity.Tests.TemplateExecution
             var expected = Utility.NormaliseLineEndings(File.ReadAllText(expectedPath));
             var context = CreateContext(name);
 
-            var result = ExecuteTemplate(input, context);
+            var result = ExecuteTemplate(input, context, fileName: inputPath);
 
             try
             {
@@ -89,7 +95,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
 
-        public static IEnumerable<TestCaseData> TestsCases
+        public IEnumerable<TestCaseData> TestsCases
         {
             get
             {
@@ -124,6 +130,10 @@ namespace IronVelocity.Tests.TemplateExecution
                         case "literal":
                             testCase.Ignore("Macros not supported");
                             break;
+                        case "sample":
+                            if (StaticTypingMode == StaticTypingMode.PromoteContextToGlobals)
+                                testCase.Ignore("Does not support static typing");
+                            break;
                         default:
                             break;
                     }
@@ -135,7 +145,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
 
-        private class Provider
+        public class Provider
         {
             public string this[string key] => key;
 
@@ -168,10 +178,10 @@ namespace IronVelocity.Tests.TemplateExecution
             public string ShowPerson(Person person) => person.Name;
 
         }
-        private class Person {
+        public class Person {
             public virtual string Name => "Person";
         }
-        private class Child : Person {
+        public class Child : Person {
             public override string Name => "Child";
         }
 

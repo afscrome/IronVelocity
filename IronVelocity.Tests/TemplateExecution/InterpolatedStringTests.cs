@@ -1,10 +1,15 @@
 ﻿using NUnit.Framework;
 
-
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class InterpolatedStringTests : TemplateExeuctionBase
     {
+        public InterpolatedStringTests(StaticTypingMode mode) : base(mode)
+        {
+        }
+
         [Test]
         public void ShouldProcessInterpolatedStringWithOnlyText()
         {

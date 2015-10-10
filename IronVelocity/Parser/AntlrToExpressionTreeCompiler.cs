@@ -10,6 +10,7 @@ using IronVelocity.Binders;
 using System.Linq;
 using IronVelocity.Directives;
 using System.Text;
+using System.Dynamic;
 
 namespace IronVelocity.Parser
 {
@@ -17,11 +18,19 @@ namespace IronVelocity.Parser
     {
         private readonly AntlrVelocityParser _parser;
         private readonly IReadOnlyCollection<CustomDirectiveBuilder> _customDirectives;
+        private readonly IReadOnlyDictionary<string, object> _globals;
 
-        public AntlrToExpressionTreeCompiler(AntlrVelocityParser parser, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
+        public AntlrToExpressionTreeCompiler(AntlrVelocityParser parser, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives, IReadOnlyDictionary<string, object> globals)
         {
             _parser = parser;
             _customDirectives = customDirectives ?? new CustomDirectiveBuilder[0];
+            _globals = globals;
+
+            var nullGlobals = globals.Where(x => x.Value == null);
+            if (nullGlobals.Any())
+            {
+                throw new ArgumentOutOfRangeException(nameof(globals), $"The following global variables must not be null: {String.Join(", ", nullGlobals.Select(x => x.Key))}");
+            }
         }
 
         public Expression Visit(IParseTree tree) => tree.Accept(this);
@@ -85,14 +94,25 @@ namespace IronVelocity.Parser
 
             var further = context.GetRuleContexts<ParserRuleContext>();
 
-            for (int i = 0; i < further.Length; i++)
+            for (int i = 1; i < further.Length; i++)
             {
                 var innerContext = further[i];
                 var property = innerContext as VelocityParser.Property_invocationContext;
                 if (property != null)
                 {
                     var name = property.IDENTIFIER().GetText();
-                    result = new PropertyAccessExpression(result, name, GetSourceInfo(innerContext));
+                    if (ReflectionHelper.IsConstantType(result))
+                    {
+                        //TODO: include debug info
+                        result = ReflectionHelper.MemberExpression(name, result.Type, result, Reflection.MemberAccessMode.Read);
+
+                        if (result == null)
+                            return Constants.NullExpression;
+                    }
+                    else
+                    {
+                        result = new PropertyAccessExpression(result, name, GetSourceInfo(innerContext));
+                    }
                 }
                 else
                 {
@@ -101,7 +121,19 @@ namespace IronVelocity.Parser
                     {
                         var name = method.IDENTIFIER().GetText();
                         var args = VisitMany(method.argument_list().expression());
-                        result = new MethodInvocationExpression(result, name, args, GetSourceInfo(innerContext));
+                        if (ReflectionHelper.IsConstantType(result) && args.All(ReflectionHelper.IsConstantType))
+                        {
+                            var methodInfo = ReflectionHelper.ResolveMethod(result.Type, name, args.Select(x => x.Type).ToArray());
+                            //TODO: Include debug info
+                            if (methodInfo == null)
+                                return Constants.NullExpression;
+
+                            result = ReflectionHelper.ConvertMethodParameters(methodInfo, result, args.Select(x => new DynamicMetaObject(x, BindingRestrictions.Empty)).ToArray());
+                        }
+                        else
+                        {
+                            result = new MethodInvocationExpression(result, name, args, GetSourceInfo(innerContext));
+                        }
                     }
                 }
             }
@@ -109,7 +141,28 @@ namespace IronVelocity.Parser
             return result;
         }
 
-        public Expression VisitVariable([NotNull] VelocityParser.VariableContext context) => new VariableExpression(context.IDENTIFIER().GetText());
+        private readonly IDictionary<string, Expression> _variableCache = new Dictionary<string, Expression>();
+
+        public Expression VisitVariable([NotNull] VelocityParser.VariableContext context)
+        {
+            Expression result;
+            var name = context.IDENTIFIER().GetText();
+            if (!_variableCache.TryGetValue(name, out result))
+            {
+                object global = null;
+                if (_globals?.TryGetValue(name, out global) ?? false)
+                {
+                    _variableCache[name] = result = new GlobalVariableExpression(name, global);
+                }
+                else
+                {
+                    result = new VariableExpression(name);
+                }
+                _variableCache[name] = result;
+            }
+
+            return result;
+        }
 
         public Expression VisitPrimary_expression([NotNull] VelocityParser.Primary_expressionContext context) => Visit(context.GetRuleContext<ParserRuleContext>(0));
 
@@ -394,7 +447,7 @@ namespace IronVelocity.Parser
                 : null;
 
             return handler.Build(args, body);
-       }
+        }
 
 
         public Expression VisitDirective_argument([NotNull] VelocityParser.Directive_argumentContext context)
@@ -414,7 +467,7 @@ namespace IronVelocity.Parser
             return new SourceInfo(context.start.Line,
                 context.Start.Column + 1,
                 context.Stop.Line,
-                context.Stop.Column + context.Stop.Text.Length 
+                context.Stop.Column + context.Stop.Text.Length
                 );
         }
 

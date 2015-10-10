@@ -2,8 +2,14 @@
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class TemplateTests : TemplateExeuctionBase
     {
+        public TemplateTests(StaticTypingMode mode) : base(mode)
+        {
+        }
+
         [TestCase("$('#$x')")]
         [TestCase("$.ajax()")]
         [TestCase("$('#some-id)")]

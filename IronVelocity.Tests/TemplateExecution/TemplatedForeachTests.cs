@@ -2,8 +2,14 @@
 
 namespace IronVelocity.Tests.TemplateExecution
 {
+    [TestFixture(StaticTypingMode.AsProvided)]
+    [TestFixture(StaticTypingMode.PromoteContextToGlobals)]
     public class TemplatedForeachTests : TemplateExeuctionBase
     {
+        public TemplatedForeachTests(StaticTypingMode mode) : base(mode)
+        {
+        }
+
         [Test]
         public void ShouldRenderNoDataSectionWhenEnumerableHasNoItems()
         {

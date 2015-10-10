@@ -2,7 +2,6 @@
 
 namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {
-    [TestFixture]
     public class SetMemberReuseTests : BinderReuseTestBase
     {
         [Test]

@@ -10,25 +10,15 @@ namespace IronVelocity
     {
         private readonly IParser _parser;
         private readonly VelocityCompiler _compiler;
-        private readonly IReadOnlyDictionary<string, object> _globals;
 
-
-        public VelocityRuntime(IParser parser, IDictionary<string, object> globals)
+        public VelocityRuntime(IParser parser, VelocityCompiler compiler = null)
         {
             if (parser == null)
                 throw new ArgumentNullException(nameof(parser));
 
             _parser = parser;
 
-
-            if (globals == null)
-                _globals = new Dictionary<string, object>();
-            else
-                _globals = new Dictionary<string, object>(globals, StringComparer.OrdinalIgnoreCase);
-
-            var globalsTypeMap = _globals.ToDictionary(x => x.Key, x => x.Value.GetType());
-            _compiler = new VelocityCompiler(globalsTypeMap);
-
+            _compiler = compiler ?? new VelocityCompiler();
         }
 
 
