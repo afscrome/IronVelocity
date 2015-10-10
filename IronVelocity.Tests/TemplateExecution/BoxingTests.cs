@@ -62,6 +62,49 @@ namespace IronVelocity.Tests.TemplateExecution
             Assert.That(execution.Output, Is.EqualTo("0, 1, 2"));
         }
 
+        [Test]
+        public void ShouldNotBoxValueTypePropertyBeforeInvokingProperty()
+        {
+            if (StaticTypingMode == StaticTypingMode.AsProvided)
+                Assert.Ignore("Need to add support for wrapping structs in IStrongBox<T> to the binders");
+
+            var input = "$StrongBox.Value.CallCount, $StrongBox.Value.CallCount, $StrongBox.Value.CallCount";
+            var context = new { StrongBox = new StrongBox<MutableStruct>(new MutableStruct()) };
+
+            var execution = ExecuteTemplate(input, context);
+
+            Assert.That(execution.Output, Is.EqualTo("0, 1, 2"));
+        }
+
+        [Test]
+        public void ShouldNotBoxValueTypeProopertyBeforeSettingProperty()
+        {
+            if (StaticTypingMode == StaticTypingMode.AsProvided)
+                Assert.Ignore("Need to add support for wrapping structs in IStrongBox<T> to the binders");
+
+            var input = "#set($StrongBox.Value.ManualInt = 42)$StrongBox.Value.ManualInt";
+            var context = new { StrongBox = new StrongBox<MutableStruct>(new MutableStruct()) };
+
+            var execution = ExecuteTemplate(input, context);
+
+            Assert.That(execution.Output, Is.EqualTo("42"));
+            Assert.That(context.StrongBox.Value.ManualInt, Is.EqualTo(42));
+        }
+
+        [Test]
+        public void ShouldNotBoxValueTypePropertyBeforeInvokingMethod()
+        {
+            if (StaticTypingMode == StaticTypingMode.AsProvided)
+                Assert.Ignore("Need to add support for wrapping structs in IStrongBox<T> to the binders");
+
+            var input = "$StrongBox.Value.GetCallCount(), $StrongBox.Value.GetCallCount(), $StrongBox.Value.GetCallCount()";
+            var context = new { StrongBox = new StrongBox<MutableStruct>(new MutableStruct()) };
+
+            var execution = ExecuteTemplate(input, context);
+
+            Assert.That(execution.Output, Is.EqualTo("0, 1, 2"));
+            Assert.That(context.StrongBox.Value.CallCount, Is.EqualTo(3));
+        }
 
         public struct MutableStruct
         {
