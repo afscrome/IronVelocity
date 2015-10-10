@@ -16,22 +16,11 @@ namespace IronVelocity.Compilation
         private const string _methodName = "Execute";
         private static readonly Type[] _signature = new[] { typeof(VelocityContext), typeof(VelocityOutput) };
         private static readonly ConstructorInfo _debugAttributeConstructorInfo = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
-        protected IReadOnlyDictionary<string, Type> Globals { get; }
 
         private readonly AssemblyName _assemblyName;
 
-        public VelocityCompiler(IDictionary<string, Type> globals, string assemblyName = null)
+        public VelocityCompiler(string assemblyName = null)
         {
-            if (globals != null)
-            {
-                var nullValues = globals.Where(x => x.Value == null).ToList();
-                if (nullValues.Any())
-                {
-                    throw new ArgumentOutOfRangeException(nameof(globals), $"Global variables may not have null values: {String.Join(", ", nullValues.Select(x => x.Key))}");
-                }
-
-                Globals = new Dictionary<string, Type>(globals, StringComparer.OrdinalIgnoreCase);
-            }
             _assemblyName = string.IsNullOrEmpty(assemblyName)
                 ? new AssemblyName("IronVelocityTemplate")
                 : new AssemblyName(assemblyName);

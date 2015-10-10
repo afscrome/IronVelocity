@@ -77,7 +77,7 @@ namespace IronVelocity.Tests.TemplateExecution
                 globalsDictionary = localsDictionary?.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
 
             fileName = fileName ?? Utility.GetName();
-            var template = CompileTemplate(input, fileName, globalsDictionary, customDirectives);
+            var template = CompileTemplate(input, fileName, new Dictionary<string, object>(globalsDictionary), customDirectives);
 
             var context = new VelocityContext(localsDictionary);
 
@@ -91,13 +91,10 @@ namespace IronVelocity.Tests.TemplateExecution
             return new ExecutionResult(outputBuilder, context);
         }
 
-        private VelocityTemplateMethod CompileTemplate(string input, string fileName, IDictionary<string, object> globals, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
+        private VelocityTemplateMethod CompileTemplate(string input, string fileName, IReadOnlyDictionary<string, object> globals, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
         {
-            var readonlyGlobals = globals != null
-                ? new Dictionary<string, object>(globals)
-                : null;
-            var parser = new AntlrVelocityParser(customDirectives, readonlyGlobals);
-            var runtime = new VelocityRuntime(parser, globals);
+            var parser = new AntlrVelocityParser(customDirectives, globals);
+            var runtime = new VelocityRuntime(parser);
             return runtime.CompileTemplate(input, Utility.GetName(), fileName, true);
         }
     }
