@@ -77,7 +77,11 @@ namespace IronVelocity.Tests.TemplateExecution
                 globalsDictionary = localsDictionary?.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
 
             fileName = fileName ?? Utility.GetName();
-            var template = CompileTemplate(input, fileName, new Dictionary<string, object>(globalsDictionary), customDirectives);
+            var globals2 = globalsDictionary != null
+                ? new Dictionary<string, object>(globalsDictionary)
+                : null;
+
+            var template = CompileTemplate(input, fileName, globals2, customDirectives);
 
             var context = new VelocityContext(localsDictionary);
 
