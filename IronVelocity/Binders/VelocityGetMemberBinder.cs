@@ -37,7 +37,7 @@ namespace IronVelocity.Binders
             Expression result = null;
             try
             {
-                result = ReflectionHelper.MemberExpression(Name, target);
+                result = ReflectionHelper.MemberExpression(Name, target, Reflection.MemberAccessMode.Read);
                 if (result == null)
                 {
                     var method = ReflectionHelper.ResolveMethod(target.RuntimeType, Name);

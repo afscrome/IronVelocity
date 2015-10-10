@@ -9,7 +9,7 @@ namespace IronVelocity.Reflection
         //MemberInfo GetMember(string name, Type type, bool caseSensitive);
 
         //TODO: Move the following elsewhere
-        Expression MemberExpression(string name, DynamicMetaObject target);
-        Expression MemberExpression(string name, Type type, Expression expression);
+        Expression MemberExpression(string name, DynamicMetaObject target, MemberAccessMode mode);
+        Expression MemberExpression(string name, Type type, Expression expression, MemberAccessMode mode);
     }
 }

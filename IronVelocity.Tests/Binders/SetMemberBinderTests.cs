@@ -50,6 +50,51 @@ namespace IronVelocity.Tests.Binders
             Assert.AreEqual(123, input.Primitive);
         }
 
+        [Test]
+        public void ShouldSetPropetyWithSetterOnly()
+        {
+            var input = new FunkyProperties();
+            TestAssignmentOnReferenceType(input, nameof(input.SetterOnly), 789);
+
+            Assert.That(input.GetSetterOnlyValue(), Is.EqualTo(789));
+        }
+
+        [Test]
+        public void ShouldSetPropetyWithPublicSetterPrivateGetter()
+        {
+            var input = new FunkyProperties();
+            TestAssignmentOnReferenceType(input, nameof(input.PrivateGetPublicSet), 'f');
+
+            Assert.That(input.GetPrivateGetterValue(), Is.EqualTo('f'));
+        }
+
+        [Test]
+        public void ShouldIgnorePropetyWithPublicGetPrivateSetter()
+        {
+            var input = new FunkyProperties();
+            TestAssignmentOnReferenceType(input, nameof(input.PublicGetPrivateSetter), "new");
+
+            Assert.That(input.PublicGetPrivateSetter, Is.EqualTo("original"));
+        }
+
+        [Test]
+        public void ShouldIgnorePropertyWithGetterOnly()
+        {
+            var input = new FunkyProperties();
+            TestAssignmentOnReferenceType(input, nameof(input.GetterOnly), 7.12);
+
+            Assert.That(input.GetterOnly, Is.EqualTo(3.142));
+        }
+
+        [Test]
+        public void ShouldIgnoreSetOnMethodCall()
+        {
+            var input = new FunkyProperties();
+            TestAssignmentOnReferenceType(input, nameof(input.GetSetterOnlyValue), 78);
+
+            Assert.That(input.GetSetterOnlyValue, Is.EqualTo(123));
+        }
+
         private void TestAssignmentOnReferenceType<TTarget, TValue>(TTarget input, string memberName, TValue value)
             where TTarget : class
         {
@@ -195,7 +240,7 @@ namespace IronVelocity.Tests.Binders
         public struct StaticMembers
         {
             public static Guid StaticField = Guid.NewGuid();
-            public static Guid StaticProperty => StaticField;
+            public static Guid StaticProperty = StaticField;
         }
 
         public class AmbigiousNames
@@ -205,6 +250,19 @@ namespace IronVelocity.Tests.Binders
 
             public string POTENTIALLY_AMBIGIOUS_FIELD;
             public string potentially_ambigious_field;
+        }
+
+        public class FunkyProperties
+        {
+            private int _setterOnly = 123;
+            public string PublicGetPrivateSetter { get; private set; } = "original";
+            public char PrivateGetPublicSet { private get; set; } = 'c';
+
+            public int SetterOnly { set { _setterOnly= value; } }
+            public double GetterOnly { get; } = 3.142;
+
+            public int GetSetterOnlyValue() => _setterOnly;
+            public char GetPrivateGetterValue() => PrivateGetPublicSet;
         }
     }
 }

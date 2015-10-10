@@ -117,6 +117,7 @@
     <Compile Include="Reflection\IMemberResolver.cs" />
     <Compile Include="Reflection\IMethodResolver.cs" />
     <Compile Include="Reflection\ImplicitExpressionConverter.cs" />
+    <Compile Include="Reflection\MemberAccessMode.cs" />
     <Compile Include="Reflection\MethodSpecificityComparison.cs" />
     <Compile Include="Reflection\MemberResolver.cs" />
     <Compile Include="Reflection\VelocityMethodResolver.cs" />
