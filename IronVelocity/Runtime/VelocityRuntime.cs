@@ -11,14 +11,14 @@ namespace IronVelocity
         private readonly IParser _parser;
         private readonly VelocityCompiler _compiler;
 
-        public VelocityRuntime(IParser parser)
+        public VelocityRuntime(IParser parser, VelocityCompiler compiler = null)
         {
             if (parser == null)
                 throw new ArgumentNullException(nameof(parser));
 
             _parser = parser;
 
-            _compiler = new VelocityCompiler();
+            _compiler = compiler ?? new VelocityCompiler();
         }
 
 

@@ -88,7 +88,7 @@ namespace IronVelocity.Parser
 
             var further = context.GetRuleContexts<ParserRuleContext>();
 
-            for (int i = 0; i < further.Length; i++)
+            for (int i = 1; i < further.Length; i++)
             {
                 var innerContext = further[i];
                 var property = innerContext as VelocityParser.Property_invocationContext;

@@ -66,6 +66,7 @@
     <Compile Include="Compilation\AST\VelocityExpressionType.cs" />
     <Compile Include="Compilation\AST\DictionaryStringExpression.cs" />
     <Compile Include="Compilation\TemporaryLocalReuse.cs" />
+    <Compile Include="Compilation\VelocityDiskCompiler.cs" />
     <Compile Include="Compilation\VelocityExpressionVisitor.cs" />
     <Compile Include="Directives\ForeachDirective.cs" />
     <Compile Include="Directives\ForeachDirectiveBuilder.cs" />

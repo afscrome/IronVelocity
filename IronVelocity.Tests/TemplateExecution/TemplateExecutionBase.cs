@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Linq;
+using System.Reflection;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
@@ -95,11 +96,32 @@ namespace IronVelocity.Tests.TemplateExecution
             return new ExecutionResult(outputBuilder, context);
         }
 
+
         private VelocityTemplateMethod CompileTemplate(string input, string fileName, IReadOnlyDictionary<string, object> globals, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
         {
+            //This is for debugging - change it with the Immediate window if you need to dump a test to disk for further investigation.
+            bool saveDllAndExtractIlForTroubleshooting = false;
+
             var parser = new AntlrVelocityParser(customDirectives, globals);
+
+            VelocityDiskCompiler diskCompiler = null;
+
             var runtime = new VelocityRuntime(parser);
-            return runtime.CompileTemplate(input, Utility.GetName(), fileName, true);
+            if (saveDllAndExtractIlForTroubleshooting)
+            {
+                var assemblyName = Path.GetFileName(fileName);
+                diskCompiler = new VelocityDiskCompiler(new AssemblyName(assemblyName), ".");
+                new VelocityRuntime(parser, diskCompiler);
+            }
+
+            var template = runtime.CompileTemplate(input, Utility.GetName(), fileName, true);
+
+            if (saveDllAndExtractIlForTroubleshooting)
+            {
+                diskCompiler.SaveDll();
+                diskCompiler.SaveIl();
+            }
+            return template;
         }
     }
 }
