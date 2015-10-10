@@ -25,6 +25,12 @@ namespace IronVelocity.Parser
             _parser = parser;
             _customDirectives = customDirectives ?? new CustomDirectiveBuilder[0];
             _globals = globals;
+
+            var nullGlobals = globals.Where(x => x.Value == null);
+            if (nullGlobals.Any())
+            {
+                throw new ArgumentOutOfRangeException(nameof(globals), $"The following global variables must not be null: {String.Join(", ", nullGlobals.Select(x => x.Key))}");
+            }
         }
 
         public Expression Visit(IParseTree tree) => tree.Accept(this);
