@@ -30,6 +30,11 @@ namespace IronVelocity.Compilation.AST
                 var element = Parts[0];
                 if (element.Type != typeof(void))
                 {
+                    Expression nullValue = null;
+                    var reference = element as ReferenceExpression;
+                    if (reference !=  null && !reference.IsSilent)
+                        nullValue = Expression.Constant(reference.Raw);
+
                     if (element.Type == typeof(string))
                         return element;
 
@@ -40,17 +45,19 @@ namespace IronVelocity.Compilation.AST
 
                     return Expression.Condition(
                         Expression.Equal(element, Expression.Default(element.Type))
-                        , Expression.Constant(string.Empty)
+                        , nullValue ?? Expression.Constant(string.Empty)
                         , toStringExpr);
                 }
             }
             //If we don't have any void expressions (i.e. Macros), use String.Concat as it produces less IL and so JIT compiles faster
+            //TODO: This optimisation doesn't work as it fails with unsilenced null references.
+            /*
             else if (Parts.All(x => x.Type != typeof(void) ))
             {
                 var objParts = Parts.Select(x => VelocityExpressions.ConvertIfNeeded(x, typeof(object)));
                 return Expression.Call(_stringConcatMethodInfo, Expression.NewArrayInit(typeof(object),objParts));
 
-            }
+            }*/
 
             //Create a new scope, in which the Output parameter points to a different StringBuilder
             //So we can get the result, without writing it to the output stream.

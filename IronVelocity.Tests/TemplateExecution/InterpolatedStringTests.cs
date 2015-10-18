@@ -36,7 +36,6 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
-        [Ignore("This is currently failing, but it's also a bug in the NVelocity based implementation")]
         public void ShouldProcessInterpolatedStringWithUndefinedReference()
         {
             var input = "#set($result = \"$value\")";
@@ -74,7 +73,6 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
-        [Ignore("This is currently failing, but it's also a bug in the NVelocity based implementation")]
         public void ShouldProcessInterpolatedStringWithMixedTextAndUndefinedReference()
         {
             var input = "#set($result = \"Welcome back $name\")";
