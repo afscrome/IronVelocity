@@ -15,5 +15,15 @@ namespace IronVelocity.Tests.Parser
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));
         }
+
+        [Test]
+        public void ParseStringLiteralWithEscapedQuotes()
+        {
+            var input = "'Jim''s Foo'";
+
+            var result = Parse(input, x => x.@string(), VelocityLexer.ARGUMENTS);
+            Assert.That(result, Is.Not.Null);
+            Assert.That(result.GetText(), Is.EqualTo(input));
+        }
     }
 }

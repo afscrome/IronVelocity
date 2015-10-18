@@ -136,5 +136,17 @@ namespace IronVelocity.Tests.TemplateExecution
 
             Assert.That(result, Is.EqualTo("1 2 3 4 "));
         }
+
+        [Test]
+        public void ShouldProcessInteroplatedStringWithEscapedQuotes()
+        {
+            var input = "#set($result = \"\"\"Meow\"\" said the cat\")";
+            var execution = ExecuteTemplate(input);
+
+            Assert.That(execution.Context.Keys, Contains.Item("result"));
+            var result = execution.Context["result"];
+
+            Assert.That(result, Is.EqualTo("\"Meow\" said the cat"));
+        }
     }
 }
