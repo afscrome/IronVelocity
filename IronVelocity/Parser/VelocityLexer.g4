@@ -112,7 +112,7 @@ RightParenthesis : ')' -> popMode ;
 True : 'true' ;
 False : 'false' ;
 Number : NUMERIC_CHAR+ ;
-Dot : '.' -> type(Dot) ;
+Dot7 : '.' -> type(Dot) ;
 String : '\'' ~('\'' | '\r' | '\n' )* '\'' ;
 InterpolatedString : '"' ~('"' | '\r' | '\n' )* '"' ;
 Dollar7 : '$' -> type(Dollar) ;
