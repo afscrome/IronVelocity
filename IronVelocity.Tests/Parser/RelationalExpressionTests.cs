@@ -5,14 +5,14 @@ namespace IronVelocity.Tests.Parser
 {
     public class RelationalExpressionTests : ParserTestBase
     {
-        [TestCase(">",  VelocityLexer.GREATERTHAN)]
-        [TestCase("<",  VelocityLexer.LESSTHAN)]
-        [TestCase(">=",  VelocityLexer.GREATERTHANOREQUAL)]
-        [TestCase("<=",  VelocityLexer.LESSTHANOREQUAL)]
-        [TestCase("gt",  VelocityLexer.GREATERTHAN)]
-        [TestCase("lt",  VelocityLexer.LESSTHAN)]
-        [TestCase("ge",  VelocityLexer.GREATERTHANOREQUAL)]
-        [TestCase("le",  VelocityLexer.LESSTHANOREQUAL)]
+        [TestCase(">",  VelocityLexer.GreaterThan)]
+        [TestCase("<",  VelocityLexer.LessThan)]
+        [TestCase(">=",  VelocityLexer.GreaterThanOrEqual)]
+        [TestCase("<=",  VelocityLexer.LessThanOrEqual)]
+        [TestCase("gt",  VelocityLexer.GreaterThan)]
+        [TestCase("lt",  VelocityLexer.LessThan)]
+        [TestCase("ge",  VelocityLexer.GreaterThanOrEqual)]
+        [TestCase("le",  VelocityLexer.LessThanOrEqual)]
         public void ParseBinaryRelationalExpressionTests(string @operator, int operatorTokenKind)
         {
             var left = "$left";

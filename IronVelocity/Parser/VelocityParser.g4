@@ -12,30 +12,30 @@ template: block
 
 block: (text | reference | comment | setDirective | ifBlock | customDirective )* ;
 
-//"DOLLAR  (EXCLAMATION | LEFT_CURLEY)*"" accounts for scenarios where the DOLLAR_SEEN
+//"Dollar  (Exclamation | LeftCurley)*"" accounts for scenarios where the DOLLAR_SEEN
 // lexical state was entered, but did not move into the REFERENCE state
 // RIGHT_CURLEY required to cope with ${formal}}
 // DOT required to cope with "$name."
-text : (TEXT | HASH | DOLLAR (EXCLAMATION | LEFT_CURLEY)* | RIGHT_CURLEY | DOT | WHITESPACE | NEWLINE | ESCAPED_DOLLAR | ESCAPED_HASH | LONE_ESCAPE )+ ;
+text : (Text | Hash | Dollar (Exclamation | LeftCurley)* | RightCurley | Dot | Whitespace | Newline | EscapedDollar | EscapedHash | LoneEscape )+ ;
 
 
-comment : HASH COMMENT (NEWLINE | EOF) | HASH blockComment;
-blockComment : BLOCK_COMMENT_START (BLOCK_COMMENT_BODY | blockComment)*  BLOCK_COMMENT_END ;
+comment : Hash COMMENT (Newline | EOF) | Hash blockComment;
+blockComment : BlockCommentStart (BlockCommentBody | blockComment)*  BlockCommentEnd ;
 
-reference : DOLLAR EXCLAMATION? referenceBody
-	| DOLLAR EXCLAMATION? LEFT_CURLEY referenceBody RIGHT_CURLEY;
+reference : Dollar Exclamation? referenceBody
+	| Dollar Exclamation? LeftCurley referenceBody RightCurley;
 
-referenceBody : variable (DOT ( methodInvocation | propertyInvocation))* ;
+referenceBody : variable (Dot ( methodInvocation | propertyInvocation))* ;
 
-variable : IDENTIFIER;
-propertyInvocation: IDENTIFIER ;
-methodInvocation: IDENTIFIER LEFT_PARENTHESIS argument_list RIGHT_PARENTHESIS;
+variable : Identifier;
+propertyInvocation: Identifier ;
+methodInvocation: Identifier LeftParenthesis argument_list RightParenthesis;
 
-argument_list : (expression (COMMA expression)*)? ;
+argument_list : (expression (Comma expression)*)? ;
 
-directiveArguments: (WHITESPACE? LEFT_PARENTHESIS directiveArgument* RIGHT_PARENTHESIS)? ;
+directiveArguments: (Whitespace? LeftParenthesis directiveArgument* RightParenthesis)? ;
 directiveArgument : expression | directiveWord;
-directiveWord : IDENTIFIER;
+directiveWord : Identifier;
 primaryExpression : reference 
 	| boolean
 	| float
@@ -47,39 +47,39 @@ primaryExpression : reference
 	| parenthesisedExpression
 	;
 
-boolean : TRUE | FALSE ;
-integer : MINUS? NUMBER ;
-float: MINUS? NUMBER DOT NUMBER ;
-string : STRING ;
-interpolatedString : INTERPOLATED_STRING ;
+boolean : True | False ;
+integer : Minus? Number ;
+float: Minus? Number Dot Number ;
+string : String ;
+interpolatedString : InterpolatedString ;
 
-list : LEFT_SQUARE argument_list RIGHT_SQUARE ;
-range : LEFT_SQUARE expression  DOTDOT expression RIGHT_SQUARE ;
-parenthesisedExpression : LEFT_PARENTHESIS expression RIGHT_PARENTHESIS;
+list : LeftSquare argument_list RightSquare ;
+range : LeftSquare expression  DotDot expression RightSquare ;
+parenthesisedExpression : LeftParenthesis expression RightParenthesis;
 
-setDirective: HASH SET WHITESPACE? LEFT_PARENTHESIS assignment RIGHT_PARENTHESIS (WHITESPACE? NEWLINE)?;
-ifBlock : HASH IF WHITESPACE? LEFT_PARENTHESIS expression RIGHT_PARENTHESIS (WHITESPACE? NEWLINE)? block ifElseifBlock* ifElseBlock?end ;
-ifElseifBlock : HASH ELSEIF WHITESPACE? LEFT_PARENTHESIS expression RIGHT_PARENTHESIS (WHITESPACE? NEWLINE)? block ;
-ifElseBlock : HASH ELSE (WHITESPACE? NEWLINE)? block ;
-end: HASH END (WHITESPACE? NEWLINE)? ;
+setDirective: Hash Set Whitespace? LeftParenthesis assignment RightParenthesis (Whitespace? Newline)?;
+ifBlock : Hash If Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ifElseifBlock* ifElseBlock?end ;
+ifElseifBlock : Hash ElseIf Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ;
+ifElseBlock : Hash Else (Whitespace? Newline)? block ;
+end: Hash End (Whitespace? Newline)? ;
 
 customDirective :
-	{ !IsBlockDirective()}?  HASH DIRECTIVE_NAME directiveArguments (WHITESPACE? NEWLINE)?
-	 |  {IsBlockDirective()}? HASH DIRECTIVE_NAME directiveArguments (WHITESPACE? NEWLINE)? block end ;
+	{ !IsBlockDirective()}?  Hash DirectiveName directiveArguments (Whitespace? Newline)?
+	 |  {IsBlockDirective()}? Hash DirectiveName directiveArguments (Whitespace? Newline)? block end ;
 
-assignment: reference ASSIGN expression ;
+assignment: reference Assign expression ;
 
 unaryExpression : primaryExpression
-	| EXCLAMATION unaryExpression ;
+	| Exclamation unaryExpression ;
 multiplicativeExpression : unaryExpression
-	| multiplicativeExpression (MULTIPLY | DIVIDE | MODULO) unaryExpression;
+	| multiplicativeExpression (Multiply | Divide | Modulo) unaryExpression;
 additiveExpression : multiplicativeExpression
-	| additiveExpression (PLUS | MINUS) multiplicativeExpression;
+	| additiveExpression (Plus | Minus) multiplicativeExpression;
 relationalExpression : additiveExpression
-	| relationalExpression (LESSTHAN | GREATERTHAN | LESSTHANOREQUAL | GREATERTHANOREQUAL) additiveExpression;
+	| relationalExpression (LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual) additiveExpression;
 equalityExpression : relationalExpression
-	| equalityExpression (EQUAL | NOTEQUAL) relationalExpression ;
+	| equalityExpression (Equal | NotEqual) relationalExpression ;
 andExpression : equalityExpression
-	| andExpression AND equalityExpression ;
+	| andExpression And equalityExpression ;
 expression : andExpression
-	| expression OR andExpression ;
+	| expression Or andExpression ;

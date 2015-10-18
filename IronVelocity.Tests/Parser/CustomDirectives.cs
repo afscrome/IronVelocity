@@ -20,7 +20,7 @@ namespace IronVelocity.Tests.Parser
             var result = Parse(input, x => x.customDirective());
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.DIRECTIVE_NAME()?.GetText(), Is.EqualTo("test"));
+            Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("test"));
             Assert.That(result.block(), Is.Null);
         }
 
@@ -32,7 +32,7 @@ namespace IronVelocity.Tests.Parser
             var result = Parse(input, x => x.customDirective());
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.DIRECTIVE_NAME()?.GetText(), Is.EqualTo("custom"));
+            Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("custom"));
 
             Assert.That(result.directiveArguments(), Is.Not.Null);
             Assert.That(result.block(), Is.Null);
@@ -46,7 +46,7 @@ namespace IronVelocity.Tests.Parser
             var result = Parse(input, ParseBlockDirective);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.DIRECTIVE_NAME()?.GetText(), Is.EqualTo("multiLine"));
+            Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("multiLine"));
             Assert.That(result.directiveArguments(), Is.Not.Null);
             Assert.That(result.block(), Is.Not.Null);
         }
@@ -58,7 +58,7 @@ namespace IronVelocity.Tests.Parser
             var result = Parse(input, ParseBlockDirective);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.DIRECTIVE_NAME()?.GetText(), Is.EqualTo("multiLine"));
+            Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("multiLine"));
             Assert.That(result.block(), Is.Not.Null);
             Assert.That(result.directiveArguments(), Is.Not.Null);
         }
@@ -70,7 +70,7 @@ namespace IronVelocity.Tests.Parser
             var result = Parse(input, ParseBlockDirective);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.DIRECTIVE_NAME()?.GetText(), Is.EqualTo("multiLine"));
+            Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("multiLine"));
             Assert.That(result.block(), Is.Not.Null);
             Assert.That(result.directiveArguments(), Is.Not.Null);
         }

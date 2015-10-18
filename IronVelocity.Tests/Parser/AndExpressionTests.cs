@@ -11,14 +11,14 @@ namespace IronVelocity.Tests.Parser
         [TestCase(" false and true ", "false", "true")]
         public void ParseBinaryAndExpressionTests(string input, string left, string right)
         {
-            ParseBinaryExpressionTest(input, left, right, VelocityLexer.AND, x => x.andExpression());
+            ParseBinaryExpressionTest(input, left, right, VelocityLexer.And, x => x.andExpression());
         }
 
         [Test]
         public void ParseTernaryAndExpressionTests()
         {
             var input = "$a && $b and $c";
-            ParseTernaryExpressionWithEqualPrecedenceTest(input, VelocityLexer.AND, VelocityLexer.AND, x => x.andExpression());
+            ParseTernaryExpressionWithEqualPrecedenceTest(input, VelocityLexer.And, VelocityLexer.And, x => x.andExpression());
         }
     }
 }

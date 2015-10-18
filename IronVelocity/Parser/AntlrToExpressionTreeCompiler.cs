@@ -60,13 +60,13 @@ namespace IronVelocity.Parser
 
                 switch (token.Type)
                 {
-                    case VelocityLexer.WHITESPACE:
-                    case VelocityLexer.NEWLINE:
+                    case VelocityLexer.Whitespace:
+                    case VelocityLexer.Newline:
                         goto default;
-                    case VelocityLexer.ESCAPED_DOLLAR:
+                    case VelocityLexer.EscapedDollar:
                         _textBuffer.Append('$');
                         break;
-                    case VelocityLexer.ESCAPED_HASH:
+                    case VelocityLexer.EscapedHash:
                         _textBuffer.Append('#');
                         break;
                     default:
@@ -83,8 +83,8 @@ namespace IronVelocity.Parser
             return new ReferenceExpression(
                 value: Visit(context.referenceBody()),
                 raw: context.GetFullText(),
-                isSilent: context.EXCLAMATION() != null,
-                isFormal: context.LEFT_CURLEY() != null
+                isSilent: context.Exclamation() != null,
+                isFormal: context.LeftCurley() != null
                 );
         }
 
@@ -100,7 +100,7 @@ namespace IronVelocity.Parser
                 var property = innerContext as VelocityParser.PropertyInvocationContext;
                 if (property != null)
                 {
-                    var name = property.IDENTIFIER().GetText();
+                    var name = property.Identifier().GetText();
                     if (ReflectionHelper.IsConstantType(result))
                     {
                         //TODO: include debug info
@@ -119,7 +119,7 @@ namespace IronVelocity.Parser
                     var method = innerContext as VelocityParser.MethodInvocationContext;
                     if (method != null)
                     {
-                        var name = method.IDENTIFIER().GetText();
+                        var name = method.Identifier().GetText();
                         var args = VisitMany(method.argument_list().expression());
                         if (ReflectionHelper.IsConstantType(result) && args.All(ReflectionHelper.IsConstantType))
                         {
@@ -146,7 +146,7 @@ namespace IronVelocity.Parser
         public Expression VisitVariable([NotNull] VelocityParser.VariableContext context)
         {
             Expression result;
-            var name = context.IDENTIFIER().GetText();
+            var name = context.Identifier().GetText();
             if (!_variableCache.TryGetValue(name, out result))
             {
                 object global = null;
@@ -336,19 +336,19 @@ namespace IronVelocity.Parser
             MathematicalOperation operation;
             switch (operatorKind)
             {
-                case VelocityLexer.PLUS:
+                case VelocityLexer.Plus:
                     operation = MathematicalOperation.Add;
                     break;
-                case VelocityLexer.MINUS:
+                case VelocityLexer.Minus:
                     operation = MathematicalOperation.Subtract;
                     break;
-                case VelocityLexer.MULTIPLY:
+                case VelocityLexer.Multiply:
                     operation = MathematicalOperation.Multiply;
                     break;
-                case VelocityLexer.DIVIDE:
+                case VelocityLexer.Divide:
                     operation = MathematicalOperation.Divide;
                     break;
-                case VelocityLexer.MODULO:
+                case VelocityLexer.Modulo:
                     operation = MathematicalOperation.Modulo;
                     break;
                 default:
@@ -381,22 +381,22 @@ namespace IronVelocity.Parser
             ComparisonOperation operation;
             switch (operatorKind)
             {
-                case VelocityLexer.LESSTHAN:
+                case VelocityLexer.LessThan:
                     operation = ComparisonOperation.LessThan;
                     break;
-                case VelocityLexer.GREATERTHAN:
+                case VelocityLexer.GreaterThan:
                     operation = ComparisonOperation.GreaterThan;
                     break;
-                case VelocityLexer.LESSTHANOREQUAL:
+                case VelocityLexer.LessThanOrEqual:
                     operation = ComparisonOperation.LessThanOrEqual;
                     break;
-                case VelocityLexer.GREATERTHANOREQUAL:
+                case VelocityLexer.GreaterThanOrEqual:
                     operation = ComparisonOperation.GreaterThanOrEqual;
                     break;
-                case VelocityLexer.EQUAL:
+                case VelocityLexer.Equal:
                     operation = ComparisonOperation.Equal;
                     break;
-                case VelocityLexer.NOTEQUAL:
+                case VelocityLexer.NotEqual:
                     operation = ComparisonOperation.NotEqual;
                     break;
                 default:
@@ -434,7 +434,7 @@ namespace IronVelocity.Parser
 
         public Expression VisitCustomDirective([NotNull] VelocityParser.CustomDirectiveContext context)
         {
-            var name = context.DIRECTIVE_NAME().GetText();
+            var name = context.DirectiveName().GetText();
             var handler = _customDirectives.SingleOrDefault(x => x.Name == name);
 
             if (handler == null)
@@ -459,7 +459,7 @@ namespace IronVelocity.Parser
         }
 
         public Expression VisitDirectiveWord([NotNull] VelocityParser.DirectiveWordContext context)
-            => new DirectiveWord(context.IDENTIFIER().GetText());
+            => new DirectiveWord(context.Identifier().GetText());
 
         private SourceInfo GetSourceInfo(ParserRuleContext context)
         {

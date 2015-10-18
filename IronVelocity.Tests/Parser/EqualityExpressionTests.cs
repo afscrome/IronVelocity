@@ -5,10 +5,10 @@ namespace IronVelocity.Tests.Parser
 {
     public class EqualityExpressionTests : ParserTestBase
     {
-        [TestCase("$x==$y", "$x", "$y", VelocityLexer.EQUAL)]
-        [TestCase(" false != true ", "false", "true", VelocityLexer.NOTEQUAL)]
-        [TestCase(" false eq true ", "false", "true", VelocityLexer.EQUAL)]
-        [TestCase("${x}ne${y} ", "${x}", "${y}", VelocityLexer.NOTEQUAL)]
+        [TestCase("$x==$y", "$x", "$y", VelocityLexer.Equal)]
+        [TestCase(" false != true ", "false", "true", VelocityLexer.NotEqual)]
+        [TestCase(" false eq true ", "false", "true", VelocityLexer.Equal)]
+        [TestCase("${x}ne${y} ", "${x}", "${y}", VelocityLexer.NotEqual)]
         public void ParseBinaryEqualityExpressionTests(string input, string left, string right, int operatorTokenKind)
         {
             ParseBinaryExpressionTest(input, left, right, operatorTokenKind, x => x.equalityExpression());
@@ -18,7 +18,7 @@ namespace IronVelocity.Tests.Parser
         public void ParseTernaryEqualityExpressionTests()
         {
             var input = "$a == $b ne $c";
-            ParseTernaryExpressionWithEqualPrecedenceTest(input, VelocityLexer.EQUAL, VelocityLexer.NOTEQUAL, x => x.equalityExpression());
+            ParseTernaryExpressionWithEqualPrecedenceTest(input, VelocityLexer.Equal, VelocityLexer.NotEqual, x => x.equalityExpression());
         }
     }
 }

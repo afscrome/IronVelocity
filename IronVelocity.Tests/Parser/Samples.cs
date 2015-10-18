@@ -12,7 +12,7 @@ namespace IronVelocity.Tests.Parser
         };
 
         /// <summary>
-        /// Some examples of text that starts like a reference, but isn't as there is no IDENTIFIER.
+        /// Some examples of text that starts like a reference, but isn't as there is no Identifier.
         /// These patterns have historically caused lots of problems 
         /// </summary>
         public static IEnumerable<string> ReferenceLikeText { get; } = new[]

@@ -38,7 +38,7 @@ namespace IronVelocity.Tests.Parser
             var variable = reference?.referenceBody()?.variable();
             Assert.That(variable, Is.Not.Null);
 
-            Assert.That(variable.IDENTIFIER().GetText(), Is.EqualTo(variableName));
+            Assert.That(variable.Identifier().GetText(), Is.EqualTo(variableName));
         }
 
         [TestCase("$foo.dog", "dog")]
@@ -53,7 +53,7 @@ namespace IronVelocity.Tests.Parser
 
             var property = reference.referenceBody()?.propertyInvocation().Single();
             Assert.That(property, Is.Not.Null);
-            Assert.That(property.IDENTIFIER()?.GetText(), Is.EqualTo(propertyName));
+            Assert.That(property.Identifier()?.GetText(), Is.EqualTo(propertyName));
         }
 
 
@@ -69,7 +69,7 @@ namespace IronVelocity.Tests.Parser
 
             var method = reference.referenceBody()?.methodInvocation().Single();
             Assert.That(method, Is.Not.Null);
-            Assert.That(method.IDENTIFIER()?.GetText(), Is.EqualTo(methodName));
+            Assert.That(method.Identifier()?.GetText(), Is.EqualTo(methodName));
             Assert.That(method.argument_list(), Is.Not.Null);
         }
 

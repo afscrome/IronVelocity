@@ -5,8 +5,8 @@ namespace IronVelocity.Tests.Parser
 {
     public class AdditiveExpressionTests : ParserTestBase
     {
-        [TestCase("+",  VelocityLexer.PLUS)]
-        [TestCase("-",  VelocityLexer.MINUS)]
+        [TestCase("+",  VelocityLexer.Plus)]
+        [TestCase("-",  VelocityLexer.Minus)]
         public void ParseBinaryAdditiveExpressionTests(string @operator, int operatorTokenKind)
         {
             var left = "$left";

@@ -5,7 +5,7 @@ namespace IronVelocity.Tests.Parser
 {
     public class UnaryExpressionTests : ParserTestBase
     {
-        [TestCase("!",  VelocityLexer.EXCLAMATION)]
+        [TestCase("!",  VelocityLexer.Exclamation)]
         public void ParseUnaryExpressionTests(string @operator, int operatorTokenKind)
         {
             var target= "$target";
