@@ -32,20 +32,23 @@ LoneEscape : '\\' ;
 // the parser can distinguish between a textual '#', comments and directives
 mode HASH_SEEN ;
 
+LeftCurley : '{';
 SingleLineComment : '#' ~('\r' | '\n')* -> type(COMMENT), mode(DEFAULT_MODE);
 //Need to switch to default mode before pushing so that when the the matching end tag pops, we end back in text mode.
 BlockCommentStart : '*' -> mode(DEFAULT_MODE), pushMode(BLOCK_COMMENT) ;
+
 Set : 'set' -> mode(DIRECTIVE_ARGUMENTS) ;
 If : 'if' -> mode(DIRECTIVE_ARGUMENTS) ;
 ElseIf : 'elseif' -> mode(DIRECTIVE_ARGUMENTS);
-Else : 'else' -> mode(DEFAULT_MODE) ;
-End : 'end' -> mode(DEFAULT_MODE) ;
+Else : 'else' -> mode(DIRECTIVE_ARGUMENTS) ;
+End : 'end' -> mode(DIRECTIVE_ARGUMENTS) ;
 DirectiveName : DIRECTIVE_TEXT -> mode(DIRECTIVE_ARGUMENTS);
+
 TextFallback2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 mode DIRECTIVE_ARGUMENTS ;
 
-//TODO: Including spaces in LeftParenthesis is a bit of a hack
+RightCurley : '}' ;
 WhitespaceA:  WHITESPACE_TEXT -> type(Whitespace);
 LeftParenthesis : '(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
 TextFallback2A : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
@@ -70,7 +73,7 @@ mode DOLLAR_SEEN ;
 
 Identifier : IDENTIFIER_TEXT -> mode(REFERENCE) ;
 Exclamation : '!' ;
-LeftCurley : '{';
+LeftCurley4 : '{' -> type(LeftCurley);
 
 TextFallback4 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
@@ -83,7 +86,7 @@ mode REFERENCE ;
 
 Dot : '.' ;
 Identifier5: IDENTIFIER_TEXT -> type(Identifier) , mode(REFERENCE_MEMBER_ACCESS) ;
-RightCurley : '}' ->  mode(DEFAULT_MODE);
+RightCurley5 : '}' ->  type(RightCurley), mode(DEFAULT_MODE);
 
 DotDotText5 : '..' -> type(Text), mode(DEFAULT_MODE) ;
 TextFallback5 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;

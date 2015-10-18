@@ -10,6 +10,8 @@ namespace IronVelocity.Parser
         private bool IsBlockDirective()
         {
             var directiveName = _input.Lt(2).Text;
+            if (directiveName == "{")
+                directiveName = _input.Lt(3).Text;
 
             return BlockDirectives.Contains(directiveName);
         }

@@ -10,13 +10,12 @@ namespace IronVelocity.Tests.Parser
         {
             parser.BlockDirectives = new[] { "multiLine" };
             return parser.customDirective();
-        } 
+        }
 
-        [Test]
-        public void ShouldParseLineCustomDirectiveWithNoArguments()
+        [TestCase("#test")]
+        [TestCase("#{test}")]
+        public void ShouldParseLineCustomDirectiveWithNoArguments(string input)
         {
-            var input = "#test";
-
             var result = Parse(input, x => x.customDirective());
 
             Assert.That(result, Is.Not.Null);
@@ -27,6 +26,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#custom()")]
         [TestCase("#custom(   )")]
         [TestCase("#custom( 123 456 )")]
+        [TestCase("#{custom}()")]
         public void ShouldParseLineCustomDirectiveWithArguments(string input)
         {
             var result = Parse(input, x => x.customDirective());
@@ -41,7 +41,8 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#multiLine()#end")]
         [TestCase("#multiLine(   )#end")]
         [TestCase("#multiLine( 123 456 )#end")]
-        public void ShouldParseBlockCustomDirectiveWithNoArguments(string input)
+        [TestCase("#{multiLine}( 123 456 )#end")]
+        public void ShouldParseBlockCustomDirectiveWithContent(string input)
         {
             var result = Parse(input, ParseBlockDirective);
 
@@ -51,10 +52,10 @@ namespace IronVelocity.Tests.Parser
             Assert.That(result.block(), Is.Not.Null);
         }
 
-        [Test]
-        public void ShouldParseBlockCustomDirectiveWithContent()
+        [TestCase("#multiLine\r\nHello\r\n#end")]
+        [TestCase("#{multiLine}\r\nHello\r\n#end")]
+        public void ShouldParseBlockCustomDirectiveWithNoArgumentsContent(string input)
         {
-            var input = "#multiLine\r\nHello\r\n#end";
             var result = Parse(input, ParseBlockDirective);
 
             Assert.That(result, Is.Not.Null);

@@ -12,6 +12,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#set($output = $input.ToString( ))")]
         [TestCase("#set($output = $input.ToString(123))")]
         [TestCase("#set($output = ($input.ToString(123, 'hello')))")]
+        [TestCase("#{set}($foo = 'bar')")]
         public void ParseSetDirective(string input)
         {
             var result = Parse(input, x => x.setDirective());
