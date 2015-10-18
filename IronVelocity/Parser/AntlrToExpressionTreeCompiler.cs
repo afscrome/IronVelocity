@@ -195,7 +195,7 @@ namespace IronVelocity.Parser
         public Expression VisitString([NotNull] VelocityParser.StringContext context)
         {
             var interval = new Interval(context.start.StartIndex + 1, context.Stop.StopIndex - 1);
-            var unquotedText = context.start.InputStream.GetText(interval);
+            var unquotedText = context.start.InputStream.GetText(interval).Replace("''", "'");
             return Expression.Constant(unquotedText);
         }
 
@@ -214,6 +214,8 @@ namespace IronVelocity.Parser
                 return new DictionaryStringExpression(unquotedText, InterpolateString);
             }
 
+            //Quote Escaping
+            unquotedText = unquotedText.Replace("\"\"", "\"");
             return InterpolateString(unquotedText);
         }
 
