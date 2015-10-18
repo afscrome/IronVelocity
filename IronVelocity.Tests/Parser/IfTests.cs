@@ -12,7 +12,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#if( !(true) )#end")]
         public void ShouldParseBasicIf(string input)
         {
-            var result = Parse(input, x => x.if_block());
+            var result = Parse(input, x => x.ifBlock());
 
             Assert.That(result, Is.Not.Null);
         }

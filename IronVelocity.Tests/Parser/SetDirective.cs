@@ -14,7 +14,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#set($output = ($input.ToString(123, 'hello')))")]
         public void ParseSetDirective(string input)
         {
-            var result = Parse(input, x => x.set_directive());
+            var result = Parse(input, x => x.setDirective());
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetFullText(), Is.EqualTo(input));

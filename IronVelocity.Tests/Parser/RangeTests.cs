@@ -24,13 +24,13 @@ namespace IronVelocity.Tests.Parser
 
         }
 
-        private VelocityParser.Primary_expressionContext GetPrimaryExpression(VelocityParser.ExpressionContext expression)
+        private VelocityParser.PrimaryExpressionContext GetPrimaryExpression(VelocityParser.ExpressionContext expression)
         {
             IParseTree tree = expression;
 
             while (tree != null)
             {
-                var primaryExpression = tree as VelocityParser.Primary_expressionContext;
+                var primaryExpression = tree as VelocityParser.PrimaryExpressionContext;
                 if (primaryExpression != null)
                     return primaryExpression;
 

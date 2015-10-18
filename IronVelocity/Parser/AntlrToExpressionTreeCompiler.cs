@@ -44,7 +44,7 @@ namespace IronVelocity.Parser
                 );
         }
 
-        public Expression VisitBlock_comment([NotNull] VelocityParser.Block_commentContext context) => Constants.EmptyExpression;
+        public Expression VisitBlockComment([NotNull] VelocityParser.BlockCommentContext context) => Constants.EmptyExpression;
 
         public Expression VisitComment([NotNull] VelocityParser.CommentContext context) => Constants.EmptyExpression;
 
@@ -81,14 +81,14 @@ namespace IronVelocity.Parser
         public Expression VisitReference([NotNull] VelocityParser.ReferenceContext context)
         {
             return new ReferenceExpression(
-                value: Visit(context.reference_body()),
+                value: Visit(context.referenceBody()),
                 raw: context.GetFullText(),
                 isSilent: context.EXCLAMATION() != null,
                 isFormal: context.LEFT_CURLEY() != null
                 );
         }
 
-        public Expression VisitReference_body([NotNull] VelocityParser.Reference_bodyContext context)
+        public Expression VisitReferenceBody([NotNull] VelocityParser.ReferenceBodyContext context)
         {
             var result = VisitVariable(context.variable());
 
@@ -97,7 +97,7 @@ namespace IronVelocity.Parser
             for (int i = 1; i < further.Length; i++)
             {
                 var innerContext = further[i];
-                var property = innerContext as VelocityParser.Property_invocationContext;
+                var property = innerContext as VelocityParser.PropertyInvocationContext;
                 if (property != null)
                 {
                     var name = property.IDENTIFIER().GetText();
@@ -116,7 +116,7 @@ namespace IronVelocity.Parser
                 }
                 else
                 {
-                    var method = innerContext as VelocityParser.Method_invocationContext;
+                    var method = innerContext as VelocityParser.MethodInvocationContext;
                     if (method != null)
                     {
                         var name = method.IDENTIFIER().GetText();
@@ -164,7 +164,7 @@ namespace IronVelocity.Parser
             return result;
         }
 
-        public Expression VisitPrimary_expression([NotNull] VelocityParser.Primary_expressionContext context) => Visit(context.GetRuleContext<ParserRuleContext>(0));
+        public Expression VisitPrimaryExpression([NotNull] VelocityParser.PrimaryExpressionContext context) => Visit(context.GetRuleContext<ParserRuleContext>(0));
 
         public Expression VisitInteger([NotNull] VelocityParser.IntegerContext context)
         {
@@ -199,7 +199,7 @@ namespace IronVelocity.Parser
             return Expression.Constant(unquotedText);
         }
 
-        public Expression VisitInterpolated_string([NotNull] VelocityParser.Interpolated_stringContext context)
+        public Expression VisitInterpolatedString([NotNull] VelocityParser.InterpolatedStringContext context)
         {
             //TODO: Should dictionary strings be handled in the lexer/parser?
             // Yes - would be more efficient.
@@ -266,7 +266,7 @@ namespace IronVelocity.Parser
             return visitedExpressions;
         }
 
-        public Expression VisitSet_directive([NotNull] VelocityParser.Set_directiveContext context)
+        public Expression VisitSetDirective([NotNull] VelocityParser.SetDirectiveContext context)
             => VisitAssignment(context.assignment());
 
         public Expression VisitAssignment([NotNull] VelocityParser.AssignmentContext context)
@@ -284,14 +284,14 @@ namespace IronVelocity.Parser
             return new SetDirective(left, right, GetSourceInfo(context));
         }
 
-        public Expression VisitIf_block([NotNull] VelocityParser.If_blockContext context)
+        public Expression VisitIfBlock([NotNull] VelocityParser.IfBlockContext context)
         {
-            var elseBlock = context.if_else_block();
+            var elseBlock = context.ifElseBlock();
             Expression falseContent = elseBlock == null
                 ? Constants.EmptyExpression
                 : Visit(elseBlock.block());
 
-            var elseIfBlocks = context.GetRuleContexts<VelocityParser.If_elseif_blockContext>();
+            var elseIfBlocks = context.GetRuleContexts<VelocityParser.IfElseifBlockContext>();
             for (int i = elseIfBlocks.Length - 1; i >= 0; i--)
             {
                 var elseIf = elseIfBlocks[i];
@@ -309,7 +309,7 @@ namespace IronVelocity.Parser
 
 
 
-        public Expression VisitUnary_expression([NotNull] VelocityParser.Unary_expressionContext context)
+        public Expression VisitUnaryExpression([NotNull] VelocityParser.UnaryExpressionContext context)
         {
             if (context.ChildCount == 1)
                 return Visit(context.GetChild(0));
@@ -318,10 +318,10 @@ namespace IronVelocity.Parser
             return Expression.Not(VelocityExpressions.CoerceToBoolean(target));
         }
 
-        public Expression VisitMultiplicative_expression([NotNull] VelocityParser.Multiplicative_expressionContext context)
+        public Expression VisitMultiplicativeExpression([NotNull] VelocityParser.MultiplicativeExpressionContext context)
             => VisitMathematicalExpression(context);
 
-        public Expression VisitAdditive_expression([NotNull] VelocityParser.Additive_expressionContext context)
+        public Expression VisitAdditiveExpression([NotNull] VelocityParser.AdditiveExpressionContext context)
             => VisitMathematicalExpression(context);
 
         private Expression VisitMathematicalExpression(ParserRuleContext context)
@@ -362,10 +362,10 @@ namespace IronVelocity.Parser
             return new MathematicalExpression(left, right, sourceInfo, operation);
         }
 
-        public Expression VisitRelational_expression([NotNull] VelocityParser.Relational_expressionContext context)
+        public Expression VisitRelationalExpression([NotNull] VelocityParser.RelationalExpressionContext context)
             => VisitComparisonExpression(context);
 
-        public Expression VisitEquality_expression([NotNull] VelocityParser.Equality_expressionContext context)
+        public Expression VisitEqualityExpression([NotNull] VelocityParser.EqualityExpressionContext context)
             => VisitComparisonExpression(context);
 
         private Expression VisitComparisonExpression(ParserRuleContext context)
@@ -413,26 +413,26 @@ namespace IronVelocity.Parser
         public Expression VisitExpression([NotNull] VelocityParser.ExpressionContext context)
         {
             if (context.ChildCount == 1)
-                return Visit(context.and_expression());
+                return Visit(context.andExpression());
 
             var left = VelocityExpressions.CoerceToBoolean(Visit(context.expression()));
-            var right = VelocityExpressions.CoerceToBoolean(Visit(context.and_expression()));
+            var right = VelocityExpressions.CoerceToBoolean(Visit(context.andExpression()));
 
             return Expression.OrElse(left, right);
         }
 
-        public Expression VisitAnd_expression([NotNull] VelocityParser.And_expressionContext context)
+        public Expression VisitAndExpression([NotNull] VelocityParser.AndExpressionContext context)
         {
             if (context.ChildCount == 1)
-                return Visit(context.equality_expression());
+                return Visit(context.equalityExpression());
 
-            var left = VelocityExpressions.CoerceToBoolean(Visit(context.and_expression()));
-            var right = VelocityExpressions.CoerceToBoolean(Visit(context.equality_expression()));
+            var left = VelocityExpressions.CoerceToBoolean(Visit(context.andExpression()));
+            var right = VelocityExpressions.CoerceToBoolean(Visit(context.equalityExpression()));
 
             return Expression.AndAlso(left, right);
         }
 
-        public Expression VisitCustom_directive([NotNull] VelocityParser.Custom_directiveContext context)
+        public Expression VisitCustomDirective([NotNull] VelocityParser.CustomDirectiveContext context)
         {
             var name = context.DIRECTIVE_NAME().GetText();
             var handler = _customDirectives.SingleOrDefault(x => x.Name == name);
@@ -440,7 +440,7 @@ namespace IronVelocity.Parser
             if (handler == null)
                 return new UnrecognisedDirective(name, context.GetFullText());
 
-            var args = VisitMany(context.directive_arguments()?.directive_argument());
+            var args = VisitMany(context.directiveArguments()?.directiveArgument());
 
             var body = handler.IsBlockDirective
                 ? VisitBlock(context.block())
@@ -450,15 +450,15 @@ namespace IronVelocity.Parser
         }
 
 
-        public Expression VisitDirective_argument([NotNull] VelocityParser.Directive_argumentContext context)
+        public Expression VisitDirectiveArgument([NotNull] VelocityParser.DirectiveArgumentContext context)
         {
             var arg = context.expression();
             return arg == null
-                ? VisitDirective_word(context.directive_word())
+                ? VisitDirectiveWord(context.directiveWord())
                 : VisitExpression(arg);
         }
 
-        public Expression VisitDirective_word([NotNull] VelocityParser.Directive_wordContext context)
+        public Expression VisitDirectiveWord([NotNull] VelocityParser.DirectiveWordContext context)
             => new DirectiveWord(context.IDENTIFIER().GetText());
 
         private SourceInfo GetSourceInfo(ParserRuleContext context)
@@ -478,22 +478,22 @@ namespace IronVelocity.Parser
 
 
 
-        public Expression VisitIf_else_block([NotNull] VelocityParser.If_else_blockContext context)
+        public Expression VisitIfElseBlock([NotNull] VelocityParser.IfElseBlockContext context)
         {
             throw new NotImplementedException();
         }
 
-        public Expression VisitIf_elseif_block([NotNull] VelocityParser.If_elseif_blockContext context)
+        public Expression VisitIfElseifBlock([NotNull] VelocityParser.IfElseifBlockContext context)
         {
             throw new NotImplementedException();
         }
 
-        public Expression VisitProperty_invocation([NotNull] VelocityParser.Property_invocationContext context)
+        public Expression VisitPropertyInvocation([NotNull] VelocityParser.PropertyInvocationContext context)
         {
             throw new NotImplementedException();
         }
 
-        public Expression VisitMethod_invocation([NotNull] VelocityParser.Method_invocationContext context)
+        public Expression VisitMethodInvocation([NotNull] VelocityParser.MethodInvocationContext context)
         {
             throw new NotImplementedException();
         }
@@ -513,10 +513,10 @@ namespace IronVelocity.Parser
             throw new NotImplementedException();
         }
 
-        public Expression VisitParenthesised_expression([NotNull] VelocityParser.Parenthesised_expressionContext context)
+        public Expression VisitParenthesisedExpression([NotNull] VelocityParser.ParenthesisedExpressionContext context)
             => Visit(context.expression());
 
-        public Expression VisitDirective_arguments([NotNull] VelocityParser.Directive_argumentsContext context)
+        public Expression VisitDirectiveArguments([NotNull] VelocityParser.DirectiveArgumentsContext context)
         {
             throw new InvalidOperationException();
         }

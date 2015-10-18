@@ -19,7 +19,7 @@ namespace IronVelocity.Tests.Parser
             var right = "$right";
             var input = $"{left} {@operator} {right}";
 
-            ParseBinaryExpressionTest(input, left, right, operatorTokenKind, x => x.relational_expression());
+            ParseBinaryExpressionTest(input, left, right, operatorTokenKind, x => x.relationalExpression());
         }
     }
 }

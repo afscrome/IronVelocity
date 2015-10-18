@@ -11,14 +11,14 @@ namespace IronVelocity.Tests.Parser
         [TestCase("${x}ne${y} ", "${x}", "${y}", VelocityLexer.NOTEQUAL)]
         public void ParseBinaryEqualityExpressionTests(string input, string left, string right, int operatorTokenKind)
         {
-            ParseBinaryExpressionTest(input, left, right, operatorTokenKind, x => x.equality_expression());
+            ParseBinaryExpressionTest(input, left, right, operatorTokenKind, x => x.equalityExpression());
         }
 
         [Test]
         public void ParseTernaryEqualityExpressionTests()
         {
             var input = "$a == $b ne $c";
-            ParseTernaryExpressionWithEqualPrecedenceTest(input, VelocityLexer.EQUAL, VelocityLexer.NOTEQUAL, x => x.equality_expression());
+            ParseTernaryExpressionWithEqualPrecedenceTest(input, VelocityLexer.EQUAL, VelocityLexer.NOTEQUAL, x => x.equalityExpression());
         }
     }
 }
