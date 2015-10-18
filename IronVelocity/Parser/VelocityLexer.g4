@@ -44,6 +44,7 @@ Else : 'else' -> mode(DIRECTIVE_ARGUMENTS) ;
 End : 'end' -> mode(DIRECTIVE_ARGUMENTS) ;
 DirectiveName : DIRECTIVE_TEXT -> mode(DIRECTIVE_ARGUMENTS);
 
+LiteralContent : '[[' (~(']') | ']' ~(']'))* ']]' ;
 TextFallback2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 mode DIRECTIVE_ARGUMENTS ;

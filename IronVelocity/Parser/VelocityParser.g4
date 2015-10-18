@@ -10,7 +10,7 @@ template: block
 		| (end {NotifyErrorListeners("Unexpected #end"); } template)
 	) ;
 
-block: (text | reference | comment | setDirective | ifBlock | customDirective )* ;
+block: (text | reference | comment | setDirective | ifBlock | customDirective | literal)* ;
 
 //"Dollar  (Exclamation | LeftCurley)*"" accounts for scenarios where the DOLLAR_SEEN
 // lexical state was entered, but did not move into the REFERENCE state
@@ -57,6 +57,7 @@ list : LeftSquare argument_list RightSquare ;
 range : LeftSquare expression  DotDot expression RightSquare ;
 parenthesisedExpression : LeftParenthesis expression RightParenthesis;
 
+literal : Hash LiteralContent;
 setDirective: Hash (Set | LeftCurley Set RightCurley) Whitespace? LeftParenthesis assignment RightParenthesis (Whitespace? Newline)?;
 ifBlock : Hash (If | LeftCurley If RightCurley) Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ifElseifBlock* ifElseBlock? end ;
 ifElseifBlock : Hash (ElseIf | LeftCurley ElseIf RightCurley) Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ;

@@ -461,6 +461,13 @@ namespace IronVelocity.Parser
         public Expression VisitDirectiveWord([NotNull] VelocityParser.DirectiveWordContext context)
             => new DirectiveWord(context.Identifier().GetText());
 
+        public Expression VisitLiteral([NotNull] VelocityParser.LiteralContext context)
+        {
+            var interval = new Interval(context.start.StartIndex + 3, context.Stop.StopIndex - 2);
+            var content = context.Start.InputStream.GetText(interval);
+            return Expression.Constant(content);
+        }
+
         private SourceInfo GetSourceInfo(ParserRuleContext context)
         {
             //N.B. the following assumes that the rule does not span multiple lines.
@@ -525,5 +532,6 @@ namespace IronVelocity.Parser
         {
             throw new InvalidOperationException();
         }
+
     }
 }
