@@ -6,10 +6,10 @@ namespace IronVelocity.Tests.Parser
     public class CustomDirectives : ParserTestBase
     {
 
-        private VelocityParser.Custom_directiveContext ParseBlockDirective(VelocityParser parser)
+        private VelocityParser.CustomDirectiveContext ParseBlockDirective(VelocityParser parser)
         {
             parser.BlockDirectives = new[] { "multiLine" };
-            return parser.custom_directive();
+            return parser.customDirective();
         } 
 
         [Test]
@@ -17,10 +17,10 @@ namespace IronVelocity.Tests.Parser
         {
             var input = "#test";
 
-            var result = Parse(input, x => x.custom_directive());
+            var result = Parse(input, x => x.customDirective());
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.DIRECTIVE_NAME()?.GetText(), Is.EqualTo("test"));
+            Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("test"));
             Assert.That(result.block(), Is.Null);
         }
 
@@ -29,12 +29,12 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#custom( 123 456 )")]
         public void ShouldParseLineCustomDirectiveWithArguments(string input)
         {
-            var result = Parse(input, x => x.custom_directive());
+            var result = Parse(input, x => x.customDirective());
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.DIRECTIVE_NAME()?.GetText(), Is.EqualTo("custom"));
+            Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("custom"));
 
-            Assert.That(result.directive_arguments(), Is.Not.Null);
+            Assert.That(result.directiveArguments(), Is.Not.Null);
             Assert.That(result.block(), Is.Null);
         }
 
@@ -46,8 +46,8 @@ namespace IronVelocity.Tests.Parser
             var result = Parse(input, ParseBlockDirective);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.DIRECTIVE_NAME()?.GetText(), Is.EqualTo("multiLine"));
-            Assert.That(result.directive_arguments(), Is.Not.Null);
+            Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("multiLine"));
+            Assert.That(result.directiveArguments(), Is.Not.Null);
             Assert.That(result.block(), Is.Not.Null);
         }
 
@@ -58,9 +58,9 @@ namespace IronVelocity.Tests.Parser
             var result = Parse(input, ParseBlockDirective);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.DIRECTIVE_NAME()?.GetText(), Is.EqualTo("multiLine"));
+            Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("multiLine"));
             Assert.That(result.block(), Is.Not.Null);
-            Assert.That(result.directive_arguments(), Is.Not.Null);
+            Assert.That(result.directiveArguments(), Is.Not.Null);
         }
 
         [Test]
@@ -70,9 +70,9 @@ namespace IronVelocity.Tests.Parser
             var result = Parse(input, ParseBlockDirective);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.DIRECTIVE_NAME()?.GetText(), Is.EqualTo("multiLine"));
+            Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("multiLine"));
             Assert.That(result.block(), Is.Not.Null);
-            Assert.That(result.directive_arguments(), Is.Not.Null);
+            Assert.That(result.directiveArguments(), Is.Not.Null);
         }
 
         [Test]

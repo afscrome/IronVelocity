@@ -5,13 +5,13 @@ namespace IronVelocity.Tests.Parser
 {
     public class UnaryExpressionTests : ParserTestBase
     {
-        [TestCase("!",  VelocityLexer.EXCLAMATION)]
+        [TestCase("!",  VelocityLexer.Exclamation)]
         public void ParseUnaryExpressionTests(string @operator, int operatorTokenKind)
         {
             var target= "$target";
             var input = @operator + target;
 
-            var parsed = Parse(input, x => x.unary_expression(), VelocityLexer.ARGUMENTS);
+            var parsed = Parse(input, x => x.unaryExpression(), VelocityLexer.ARGUMENTS);
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.GetText(), Is.EqualTo(input));
             Assert.That(parsed.ChildCount, Is.EqualTo(2));

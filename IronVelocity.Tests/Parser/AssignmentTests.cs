@@ -13,7 +13,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("$x = $y.stuff(123)", "$x", "$y.stuff(123)")]
         public void ParseAssignmentExpression(string input, string left, string right)
         {
-            ParseBinaryExpressionTest(input, left, right, VelocityParser.ASSIGN, x => x.assignment());
+            ParseBinaryExpressionTest(input, left, right, VelocityParser.Assign, x => x.assignment());
         }
     }
 }

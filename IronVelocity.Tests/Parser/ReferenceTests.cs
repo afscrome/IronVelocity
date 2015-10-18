@@ -35,10 +35,10 @@ namespace IronVelocity.Tests.Parser
             Assert.That(reference, Is.Not.Null);
             Assert.That(reference.GetText(), Is.EqualTo(input));
 
-            var variable = reference?.reference_body()?.variable();
+            var variable = reference?.referenceBody()?.variable();
             Assert.That(variable, Is.Not.Null);
 
-            Assert.That(variable.IDENTIFIER().GetText(), Is.EqualTo(variableName));
+            Assert.That(variable.Identifier().GetText(), Is.EqualTo(variableName));
         }
 
         [TestCase("$foo.dog", "dog")]
@@ -51,9 +51,9 @@ namespace IronVelocity.Tests.Parser
             Assert.That(reference, Is.Not.Null);
             Assert.That(reference.GetText(), Is.EqualTo(input));
 
-            var property = reference.reference_body()?.property_invocation().Single();
+            var property = reference.referenceBody()?.propertyInvocation().Single();
             Assert.That(property, Is.Not.Null);
-            Assert.That(property.IDENTIFIER()?.GetText(), Is.EqualTo(propertyName));
+            Assert.That(property.Identifier()?.GetText(), Is.EqualTo(propertyName));
         }
 
 
@@ -67,9 +67,9 @@ namespace IronVelocity.Tests.Parser
             Assert.That(reference, Is.Not.Null);
             Assert.That(reference.GetText(), Is.EqualTo(input));
 
-            var method = reference.reference_body()?.method_invocation().Single();
+            var method = reference.referenceBody()?.methodInvocation().Single();
             Assert.That(method, Is.Not.Null);
-            Assert.That(method.IDENTIFIER()?.GetText(), Is.EqualTo(methodName));
+            Assert.That(method.Identifier()?.GetText(), Is.EqualTo(methodName));
             Assert.That(method.argument_list(), Is.Not.Null);
         }
 

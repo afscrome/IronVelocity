@@ -18,37 +18,37 @@ fragment WHITESPACE_TEXT : WHITESPACE_CHAR+ ;
 //===================================
 // Default mode used for parsing text
 // Moves to the HASH_SEEN or DOLLAR_SEEN states upon seeing '$' or '#' respectively
-TEXT : ~('$'| '#' | ' ' | '\t' | '\r' | '\n' | '\\' )+ ;
-DOLLAR : '$' ->  mode(DOLLAR_SEEN) ;
-HASH : '#' -> mode(HASH_SEEN) ;
-WHITESPACE:  WHITESPACE_TEXT ;
-NEWLINE : '\r' | '\n' | '\r\n' ;
-ESCAPED_DOLLAR: '\\'+ '$' ;
-ESCAPED_HASH: '\\'+ '#' ;
-LONE_ESCAPE : '\\' ;
+Text : ~('$'| '#' | ' ' | '\t' | '\r' | '\n' | '\\' )+ ;
+Dollar : '$' ->  mode(DOLLAR_SEEN) ;
+Hash : '#' -> mode(HASH_SEEN) ;
+Whitespace:  WHITESPACE_TEXT ;
+Newline : '\r' | '\n' | '\r\n' ;
+EscapedDollar: '\\'+ '$' ;
+EscapedHash: '\\'+ '#' ;
+LoneEscape : '\\' ;
 
 //===================================
 // The mode is for when a hash has been seen in a location that allows text so
 // the parser can distinguish between a textual '#', comments and directives
 mode HASH_SEEN ;
 
-SINGLE_LINE_COMMENT : '#' ~('\r' | '\n')* -> type(COMMENT), mode(DEFAULT_MODE);
+SingleLineComment : '#' ~('\r' | '\n')* -> type(COMMENT), mode(DEFAULT_MODE);
 //Need to switch to default mode before pushing so that when the the matching end tag pops, we end back in text mode.
-BLOCK_COMMENT_START : '*' -> mode(DEFAULT_MODE), pushMode(BLOCK_COMMENT) ;
-SET : 'set' -> mode(DIRECTIVE_ARGUMENTS) ;
-IF : 'if' -> mode(DIRECTIVE_ARGUMENTS) ;
-ELSEIF : 'elseif' -> mode(DIRECTIVE_ARGUMENTS);
-ELSE : 'else' -> mode(DEFAULT_MODE) ;
-END : 'end' -> mode(DEFAULT_MODE) ;
-DIRECTIVE_NAME : DIRECTIVE_TEXT -> mode(DIRECTIVE_ARGUMENTS);
-TEXT_FALLBACK2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
+BlockCommentStart : '*' -> mode(DEFAULT_MODE), pushMode(BLOCK_COMMENT) ;
+Set : 'set' -> mode(DIRECTIVE_ARGUMENTS) ;
+If : 'if' -> mode(DIRECTIVE_ARGUMENTS) ;
+ElseIf : 'elseif' -> mode(DIRECTIVE_ARGUMENTS);
+Else : 'else' -> mode(DEFAULT_MODE) ;
+End : 'end' -> mode(DEFAULT_MODE) ;
+DirectiveName : DIRECTIVE_TEXT -> mode(DIRECTIVE_ARGUMENTS);
+TextFallback2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 mode DIRECTIVE_ARGUMENTS ;
 
-//TODO: Including spaces in LEFT_PARENTHESIS is a bit of a hack
-WHITESPACE2A:  WHITESPACE_TEXT -> type(WHITESPACE);
-LEFT_PARENTHESIS : '(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
-TEXT_FALLBACK2A : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
+//TODO: Including spaces in LeftParenthesis is a bit of a hack
+WhitespaceA:  WHITESPACE_TEXT -> type(Whitespace);
+LeftParenthesis : '(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
+TextFallback2A : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
 //===================================
@@ -57,9 +57,9 @@ TEXT_FALLBACK2A : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 // Because of this, we need match start & close comment tokens by pushing & poping the mode.
 mode BLOCK_COMMENT ;
 
-BLOCK_COMMENT_START3 : '#*' -> pushMode(BLOCK_COMMENT), type(BLOCK_COMMENT_START);
-BLOCK_COMMENT_END : '*#' -> popMode ;
-BLOCK_COMMENT_BODY :  (~('#' | '*') | '#' ~'*' | '*' ~'#')+ ;
+NestedBlockCommentStart : '#*' -> pushMode(BLOCK_COMMENT), type(BlockCommentStart);
+BlockCommentEnd : '*#' -> popMode ;
+BlockCommentBody :  (~('#' | '*') | '#' ~'*' | '*' ~'#')+ ;
 
 
 
@@ -68,11 +68,11 @@ BLOCK_COMMENT_BODY :  (~('#' | '*') | '#' ~'*' | '*' ~'#')+ ;
 //
 mode DOLLAR_SEEN ;
 
-IDENTIFIER : IDENTIFIER_TEXT -> mode(REFERENCE) ;
-EXCLAMATION : '!' ;
-LEFT_CURLEY : '{';
+Identifier : IDENTIFIER_TEXT -> mode(REFERENCE) ;
+Exclamation : '!' ;
+LeftCurley : '{';
 
-TEXT_FALLBACK4 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
+TextFallback4 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
 
@@ -81,12 +81,12 @@ TEXT_FALLBACK4 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 // text, or further member access.
 mode REFERENCE ;
 
-DOT : '.' ;
-IDENTIFIER5: IDENTIFIER_TEXT -> type(IDENTIFIER) , mode(REFERENCE_MEMBER_ACCESS) ;
-RIGHT_CURLEY : '}' ->  mode(DEFAULT_MODE);
+Dot : '.' ;
+Identifier5: IDENTIFIER_TEXT -> type(Identifier) , mode(REFERENCE_MEMBER_ACCESS) ;
+RightCurley : '}' ->  mode(DEFAULT_MODE);
 
-DOTDOT_TEXT5 : '..' -> type(TEXT), mode(DEFAULT_MODE) ;
-TEXT_FALLBACK5 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
+DotDotText5 : '..' -> type(Text), mode(DEFAULT_MODE) ;
+TextFallback5 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
 //===================================
@@ -95,8 +95,8 @@ TEXT_FALLBACK5 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 // Otherwise it is a property invocation and returns to the REFERENCE state.
 mode REFERENCE_MEMBER_ACCESS ;
 
-LEFT_PARENTHESIS6 : '(' -> type(LEFT_PARENTHESIS), mode(REFERENCE), pushMode(ARGUMENTS) ;
-TEXT_FALLBACK6 : -> type(TRANSITION), channel(HIDDEN), mode(REFERENCE) ;
+LeftParenthesis6 : '(' -> type(LeftParenthesis), mode(REFERENCE), pushMode(ARGUMENTS) ;
+TextFallback6 : -> type(TRANSITION), channel(HIDDEN), mode(REFERENCE) ;
 
 
 
@@ -105,36 +105,36 @@ TEXT_FALLBACK6 : -> type(TRANSITION), channel(HIDDEN), mode(REFERENCE) ;
 // or a directive #directive(ARGUMENTS)
 mode ARGUMENTS ;
 
-WHITESPACE7 : WHITESPACE_TEXT -> type(WHITESPACE), channel(HIDDEN);
-COMMA : ',' ;
-LEFT_PARENTHESIS7 : '(' -> type(LEFT_PARENTHESIS), pushMode(ARGUMENTS);
-RIGHT_PARENTHESIS : ')' -> popMode ;
-TRUE : 'true' ;
-FALSE : 'false' ;
-NUMBER : NUMERIC_CHAR+ ;
-DOT7 : '.' -> type(DOT) ;
-STRING : '\'' ~('\'' | '\r' | '\n' )* '\'' ;
-INTERPOLATED_STRING : '"' ~('"' | '\r' | '\n' )* '"' ;
-DOLLAR7 : '$' -> type(DOLLAR) ;
-EXCLAMATION7 : '!' -> type(EXCLAMATION) ;
-LEFT_CURLEY7 : '{' -> type(LEFT_CURLEY);
-RIGHT_CURLEY7 : '}' -> type(RIGHT_CURLEY);
-LEFT_SQUARE : '[' ;
-RIGHT_SQUARE : ']' ;
-DOTDOT : '..' ;
-ASSIGN : '=' ;
-MULTIPLY : '*' ;
-DIVIDE : '/' ;
-MODULO : '%' ;
-PLUS : '+' ;
-MINUS : '-' ;
-LESSTHAN : '<' | 'lt' ;
-GREATERTHAN : '>' | 'gt' ;
-LESSTHANOREQUAL : '<=' | 'le' ;
-GREATERTHANOREQUAL : '>=' | 'ge' ;
-EQUAL : '==' | 'eq' ;
-NOTEQUAL : '!=' | 'ne' ;
-AND : '&&' | 'and' ;
-OR : '||' | 'or' ;
-IDENTIFIER7 : IDENTIFIER_TEXT -> type(IDENTIFIER) ;
-UNKNOWN_CHAR : . ;
+Whitespace7 : WHITESPACE_TEXT -> type(Whitespace), channel(HIDDEN);
+Comma : ',' ;
+LeftParenthesis7 : '(' -> type(LeftParenthesis), pushMode(ARGUMENTS);
+RightParenthesis : ')' -> popMode ;
+True : 'true' ;
+False : 'false' ;
+Number : NUMERIC_CHAR+ ;
+Dot7 : '.' -> type(Dot) ;
+String : '\'' ~('\'' | '\r' | '\n' )* '\'' ;
+InterpolatedString : '"' ~('"' | '\r' | '\n' )* '"' ;
+Dollar7 : '$' -> type(Dollar) ;
+Exclamation7 : '!' -> type(Exclamation) ;
+LeftCurley7 : '{' -> type(LeftCurley);
+RightCurley7 : '}' -> type(RightCurley);
+LeftSquare : '[' ;
+RightSquare : ']' ;
+DotDot : '..' ;
+Assign : '=' ;
+Multiply : '*' ;
+Divide : '/' ;
+Modulo : '%' ;
+Plus : '+' ;
+Minus : '-' ;
+LessThan : '<' | 'lt' ;
+GreaterThan : '>' | 'gt' ;
+LessThanOrEqual : '<=' | 'le' ;
+GreaterThanOrEqual : '>=' | 'ge' ;
+Equal : '==' | 'eq' ;
+NotEqual : '!=' | 'ne' ;
+And : '&&' | 'and' ;
+Or : '||' | 'or' ;
+Identifier7 : IDENTIFIER_TEXT -> type(Identifier) ;
+UnknownChar : . ;
