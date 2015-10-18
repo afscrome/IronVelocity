@@ -84,7 +84,7 @@ namespace IronVelocity.Tests.Parser
                             // If the left is a single hash, and the right starts with a hash
                             // Then the two will combine to form a single comment, so we ignore those
                             // scenarios
-                            if (leftValue == "#" && rightValue.StartsWith("#"))
+                            if (leftValue == "#" && (rightValue.StartsWith("#") || rightValue.StartsWith("{")))
                                 continue;
 
                             var input = leftValue + rightValue;
