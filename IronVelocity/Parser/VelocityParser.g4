@@ -58,7 +58,7 @@ range : LeftSquare expression  DotDot expression RightSquare ;
 parenthesisedExpression : LeftParenthesis expression RightParenthesis;
 
 setDirective: Hash Set Whitespace? LeftParenthesis assignment RightParenthesis (Whitespace? Newline)?;
-ifBlock : Hash If Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ifElseifBlock* ifElseBlock?end ;
+ifBlock : Hash If Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ifElseifBlock* ifElseBlock? end ;
 ifElseifBlock : Hash ElseIf Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ;
 ifElseBlock : Hash Else (Whitespace? Newline)? block ;
 end: Hash End (Whitespace? Newline)? ;
