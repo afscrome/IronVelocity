@@ -36,26 +36,15 @@ argument_list : (expression (Comma expression)*)? ;
 directiveArguments: (Whitespace? LeftParenthesis directiveArgument* RightParenthesis)? ;
 directiveArgument : expression | directiveWord;
 directiveWord : Identifier;
-primaryExpression : reference 
-	| boolean
-	| float
-	| integer
-	| string
-	| interpolatedString
-	| list
-	| range 
-	| parenthesisedExpression
+primaryExpression : reference #Reference2
+	| Boolean=(True | False) #BooleanLiteral
+	| Minus? Number Dot Number #FloatingPointLiteral
+	| Minus? Number #IntegerLiteral
+	| String #StringLiteral
+	| InterpolatedString #InterpolatedStringLiteral
+	| LeftSquare argument_list RightSquare #List
+	| LeftSquare expression  DotDot expression RightSquare #Range 
 	;
-
-boolean : True | False ;
-integer : Minus? Number ;
-float: Minus? Number Dot Number ;
-string : String ;
-interpolatedString : InterpolatedString ;
-
-list : LeftSquare argument_list RightSquare ;
-range : LeftSquare expression  DotDot expression RightSquare ;
-parenthesisedExpression : LeftParenthesis expression RightParenthesis;
 
 literal : Hash LiteralContent;
 setDirective: Hash (Set | LeftCurley Set RightCurley) Whitespace? LeftParenthesis assignment RightParenthesis (Whitespace? Newline)?;
@@ -72,6 +61,7 @@ assignment: reference Assign expression ;
 
 expression
 	: primaryExpression #PrimaryExpression2
+	| LeftParenthesis expression RightParenthesis #ParenthesisedExpression
 	| Exclamation expression #UnaryExpression
 	| expression Operator=(Multiply | Divide | Modulo) expression #MultiplicativeExpression
 	| expression Operator=(Plus | Minus) expression #AdditiveExpression

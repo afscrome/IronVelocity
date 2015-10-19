@@ -10,7 +10,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("\"'\"")]
         public void ParseInterpolatedString(string input)
         {
-            var result = Parse(input, x => x.interpolatedString(), VelocityLexer.ARGUMENTS);
+            var result = Parse(input, x => x.primaryExpression(), VelocityLexer.ARGUMENTS);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));
@@ -21,7 +21,7 @@ namespace IronVelocity.Tests.Parser
         {
             var input = "\"Bob said \"\"Hello\"\" to his neighbour\"";
 
-            var result = Parse(input, x => x.interpolatedString(), VelocityLexer.ARGUMENTS);
+            var result = Parse(input, x => x.primaryExpression(), VelocityLexer.ARGUMENTS);
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));
         }

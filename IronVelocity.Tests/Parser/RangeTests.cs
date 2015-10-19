@@ -7,20 +7,20 @@ namespace IronVelocity.Tests.Parser
 {
     public class RangeTests : ParserTestBase
     {
-        [TestCase("[1..2]", typeof(VelocityParser.IntegerContext), typeof(VelocityParser.IntegerContext))]
-        [TestCase("[$reference..3]", typeof(VelocityParser.ReferenceContext), typeof(VelocityParser.IntegerContext))]
-        [TestCase("[-53..$var]", typeof(VelocityParser.IntegerContext), typeof(VelocityParser.ReferenceContext))]
-        [TestCase("[$ref..$otherRef]", typeof(VelocityParser.ReferenceContext), typeof(VelocityParser.ReferenceContext))]
-        [TestCase("[true..[]]", typeof(VelocityParser.BooleanContext), typeof(VelocityParser.ListContext))]
+        [TestCase("[1..2]", typeof(VelocityParser.IntegerLiteralContext), typeof(VelocityParser.IntegerLiteralContext))]
+        [TestCase("[$reference..3]", typeof(VelocityParser.Reference2Context), typeof(VelocityParser.IntegerLiteralContext))]
+        [TestCase("[-53..$var]", typeof(VelocityParser.IntegerLiteralContext), typeof(VelocityParser.Reference2Context))]
+        [TestCase("[$ref..$otherRef]", typeof(VelocityParser.Reference2Context), typeof(VelocityParser.Reference2Context))]
+        [TestCase("[true..[]]", typeof(VelocityParser.BooleanLiteralContext), typeof(VelocityParser.ListContext))]
         public void ParseRangeExpression(string input, Type leftArgType, Type rightArgType)
         {
-            var result = Parse(input, x => x.range(), VelocityLexer.ARGUMENTS);
+            var result = (VelocityParser.RangeContext)Parse(input, x => x.primaryExpression(), VelocityLexer.ARGUMENTS);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));
 
-            Assert.That(GetPrimaryExpression(result.expression(0))?.GetChild(0), Is.InstanceOf(leftArgType));
-            Assert.That(GetPrimaryExpression(result.expression(1))?.GetChild(0), Is.InstanceOf(rightArgType));
+            Assert.That(result.expression(0).GetChild(0), Is.InstanceOf(leftArgType));
+            Assert.That(result.expression(1).GetChild(0), Is.InstanceOf(rightArgType));
 
         }
 

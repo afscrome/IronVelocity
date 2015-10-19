@@ -166,40 +166,39 @@ namespace IronVelocity.Parser
 
         public Expression VisitPrimaryExpression([NotNull] VelocityParser.PrimaryExpressionContext context) => Visit(context.GetRuleContext<ParserRuleContext>(0));
 
-        public Expression VisitInteger([NotNull] VelocityParser.IntegerContext context)
+        public Expression VisitIntegerLiteral([NotNull] VelocityParser.IntegerLiteralContext context)
         {
             var value = int.Parse(context.GetText());
             return Expression.Constant(value);
         }
 
-        public Expression VisitFloat([NotNull] VelocityParser.FloatContext context)
+        public Expression VisitFloatingPointLiteral([NotNull] VelocityParser.FloatingPointLiteralContext context)
         {
             var value = float.Parse(context.GetText());
             return Expression.Constant(value);
         }
 
-        public Expression VisitBoolean([NotNull] VelocityParser.BooleanContext context)
+        public Expression VisitBooleanLiteral([NotNull] VelocityParser.BooleanLiteralContext context)
         {
-            var text = context.GetText();
-            switch (text)
+            switch(context.Boolean.Type)
             {
-                case "true":
+                case VelocityLexer.True:
                     return Constants.True;
-                case "false":
+                case VelocityLexer.False:
                     return Constants.False;
                 default:
-                    throw new InvalidOperationException($"'${text}' is not a valid boolean expression");
+                    throw new InvalidOperationException($"'${context.Boolean}' is not a valid boolean expression");
             }
         }
 
-        public Expression VisitString([NotNull] VelocityParser.StringContext context)
+        public Expression VisitStringLiteral([NotNull] VelocityParser.StringLiteralContext context)
         {
             var interval = new Interval(context.start.StartIndex + 1, context.Stop.StopIndex - 1);
             var unquotedText = context.start.InputStream.GetText(interval).Replace("''", "'");
             return Expression.Constant(unquotedText);
         }
 
-        public Expression VisitInterpolatedString([NotNull] VelocityParser.InterpolatedStringContext context)
+        public Expression VisitInterpolatedStringLiteral([NotNull] VelocityParser.InterpolatedStringLiteralContext context)
         {
             //TODO: Should dictionary strings be handled in the lexer/parser?
             // Yes - would be more efficient.
@@ -518,5 +517,8 @@ namespace IronVelocity.Parser
         {
             throw new NotImplementedException();
         }
+
+        public Expression VisitReference2([NotNull] VelocityParser.Reference2Context context)
+            => VisitReference(context.reference());
     }
 }
