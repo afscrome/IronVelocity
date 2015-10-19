@@ -70,17 +70,12 @@ customDirective :
 
 assignment: reference Assign expression ;
 
-unaryExpression : primaryExpression
-	| Exclamation unaryExpression ;
-multiplicativeExpression : unaryExpression
-	| multiplicativeExpression (Multiply | Divide | Modulo) unaryExpression;
-additiveExpression : multiplicativeExpression
-	| additiveExpression (Plus | Minus) multiplicativeExpression;
-relationalExpression : additiveExpression
-	| relationalExpression (LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual) additiveExpression;
-equalityExpression : relationalExpression
-	| equalityExpression (Equal | NotEqual) relationalExpression ;
-andExpression : equalityExpression
-	| andExpression And equalityExpression ;
-expression : andExpression
-	| expression Or andExpression ;
+expression
+	: primaryExpression #PrimaryExpression2
+	| Exclamation expression #UnaryExpression
+	| expression Operator=(Multiply | Divide | Modulo) expression #MultiplicativeExpression
+	| expression Operator=(Plus | Minus) expression #AdditiveExpression
+	| expression Operator=(LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual) expression #RelationalExpression
+	| expression Operator=(Equal | NotEqual) expression #EqualityExpression
+	| expression And expression #AndExpression
+	| expression Or expression #OrExpression ;

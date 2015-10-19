@@ -309,34 +309,22 @@ namespace IronVelocity.Parser
             return Expression.IfThenElse(condition, trueContent, falseContent);
         }
 
-
-
         public Expression VisitUnaryExpression([NotNull] VelocityParser.UnaryExpressionContext context)
         {
-            if (context.ChildCount == 1)
-                return Visit(context.GetChild(0));
-
-            var target = Visit(context.GetChild(context.ChildCount - 1));
+            var target = Visit(context.expression());
             return Expression.Not(VelocityExpressions.CoerceToBoolean(target));
         }
 
         public Expression VisitMultiplicativeExpression([NotNull] VelocityParser.MultiplicativeExpressionContext context)
-            => VisitMathematicalExpression(context);
+            => VisitMathematicalExpression(context.Operator, context.expression(0), context.expression(1), context);
 
         public Expression VisitAdditiveExpression([NotNull] VelocityParser.AdditiveExpressionContext context)
-            => VisitMathematicalExpression(context);
+            => VisitMathematicalExpression(context.Operator, context.expression(0), context.expression(1), context);
 
-        private Expression VisitMathematicalExpression(ParserRuleContext context)
+        private Expression VisitMathematicalExpression(IToken operationToken, VelocityParser.ExpressionContext left, VelocityParser.ExpressionContext right, VelocityParser.ExpressionContext context)
         {
-            if (context.ChildCount == 1)
-                return Visit(context.GetChild(0));
-
-            if (context.ChildCount != 3)
-                throw new ArgumentOutOfRangeException(nameof(context));
-
-            var operatorKind = ((ITerminalNode)context.GetChild(1)).Symbol.Type;
             MathematicalOperation operation;
-            switch (operatorKind)
+            switch (operationToken.Type)
             {
                 case VelocityLexer.Plus:
                     operation = MathematicalOperation.Add;
@@ -354,34 +342,26 @@ namespace IronVelocity.Parser
                     operation = MathematicalOperation.Modulo;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(context));
+                    throw new ArgumentOutOfRangeException(nameof(operationToken));
             }
 
-            var left = Visit(context.GetChild(0));
-            var right = Visit(context.GetChild(2));
+            var visitedLeft = Visit(left);
+            var visitedRight = Visit(right);
             var sourceInfo = GetSourceInfo(context);
 
-            return new MathematicalExpression(left, right, sourceInfo, operation);
+            return new MathematicalExpression(visitedLeft, visitedRight, sourceInfo, operation);
         }
 
         public Expression VisitRelationalExpression([NotNull] VelocityParser.RelationalExpressionContext context)
-            => VisitComparisonExpression(context);
+            => VisitComparisonExpression(context.Operator, context.expression(0), context.expression(1), context);
 
         public Expression VisitEqualityExpression([NotNull] VelocityParser.EqualityExpressionContext context)
-            => VisitComparisonExpression(context);
+            => VisitComparisonExpression(context.Operator, context.expression(0), context.expression(1), context);
 
-        private Expression VisitComparisonExpression(ParserRuleContext context)
+        private Expression VisitComparisonExpression(IToken operationToken, VelocityParser.ExpressionContext left, VelocityParser.ExpressionContext right, VelocityParser.ExpressionContext context)
         {
-            if (context.ChildCount == 1)
-                return Visit(context.GetChild(0));
-
-            if (context.ChildCount != 3)
-                throw new ArgumentOutOfRangeException(nameof(context));
-
-            var operatorKind = ((ITerminalNode)context.GetChild(1)).Symbol.Type;
-
             ComparisonOperation operation;
-            switch (operatorKind)
+            switch (operationToken.Type)
             {
                 case VelocityLexer.LessThan:
                     operation = ComparisonOperation.LessThan;
@@ -402,36 +382,30 @@ namespace IronVelocity.Parser
                     operation = ComparisonOperation.NotEqual;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(context));
+                    throw new ArgumentOutOfRangeException(nameof(operationToken));
             }
 
-            var left = Visit(context.GetChild(0));
-            var right = Visit(context.GetChild(2));
+            var visitedLeft = Visit(left);
+            var visitedRight = Visit(right);
             var sourceInfo = GetSourceInfo(context);
 
-            return new ComparisonExpression(left, right, sourceInfo, operation);
-        }
-
-        public Expression VisitExpression([NotNull] VelocityParser.ExpressionContext context)
-        {
-            if (context.ChildCount == 1)
-                return Visit(context.andExpression());
-
-            var left = VelocityExpressions.CoerceToBoolean(Visit(context.expression()));
-            var right = VelocityExpressions.CoerceToBoolean(Visit(context.andExpression()));
-
-            return Expression.OrElse(left, right);
+            return new ComparisonExpression(visitedLeft, visitedRight, sourceInfo, operation);
         }
 
         public Expression VisitAndExpression([NotNull] VelocityParser.AndExpressionContext context)
         {
-            if (context.ChildCount == 1)
-                return Visit(context.equalityExpression());
-
-            var left = VelocityExpressions.CoerceToBoolean(Visit(context.andExpression()));
-            var right = VelocityExpressions.CoerceToBoolean(Visit(context.equalityExpression()));
+            var left = VelocityExpressions.CoerceToBoolean(Visit(context.expression(0)));
+            var right = VelocityExpressions.CoerceToBoolean(Visit(context.expression(1)));
 
             return Expression.AndAlso(left, right);
+        }
+
+        public Expression VisitOrExpression([NotNull] VelocityParser.OrExpressionContext context)
+        {
+            var left = VelocityExpressions.CoerceToBoolean(Visit(context.expression(0)));
+            var right = VelocityExpressions.CoerceToBoolean(Visit(context.expression(1)));
+
+            return Expression.OrElse(left, right);
         }
 
         public Expression VisitCustomDirective([NotNull] VelocityParser.CustomDirectiveContext context)
@@ -457,7 +431,7 @@ namespace IronVelocity.Parser
             var arg = context.expression();
             return arg == null
                 ? VisitDirectiveWord(context.directiveWord())
-                : VisitExpression(arg);
+                : Visit(arg);
         }
 
         public Expression VisitDirectiveWord([NotNull] VelocityParser.DirectiveWordContext context)
@@ -535,5 +509,14 @@ namespace IronVelocity.Parser
             throw new InvalidOperationException();
         }
 
+        public Expression VisitPrimaryExpression2([NotNull] VelocityParser.PrimaryExpression2Context context)
+        {
+            return Visit(context.primaryExpression());
+        }
+
+        public Expression VisitExpression([NotNull] VelocityParser.ExpressionContext context)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
