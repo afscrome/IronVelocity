@@ -15,12 +15,10 @@ namespace IronVelocity.Tests.Parser
         [TestCase("[1..3]", typeof(VelocityParser.RangeContext))]
         public void ParsePrimaryExpression(string input, Type parsedNodeType)
         {
-            var result = Parse(input, x => x.primaryExpression(), VelocityLexer.ARGUMENTS);
-
-            Assert.That(result, Is.Not.Null);
-            Assert.That(result.GetText(), Is.EqualTo(input));
+            var result = Parse(input, x => x.expression(), VelocityLexer.ARGUMENTS);
 
             Assert.That(result, Is.InstanceOf(parsedNodeType));
+            Assert.That(result.GetText(), Is.EqualTo(input));
         }
     }
 }

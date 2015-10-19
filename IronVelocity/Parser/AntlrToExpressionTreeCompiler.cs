@@ -164,8 +164,6 @@ namespace IronVelocity.Parser
             return result;
         }
 
-        public Expression VisitPrimaryExpression([NotNull] VelocityParser.PrimaryExpressionContext context) => Visit(context.GetRuleContext<ParserRuleContext>(0));
-
         public Expression VisitIntegerLiteral([NotNull] VelocityParser.IntegerLiteralContext context)
         {
             var value = int.Parse(context.GetText());
@@ -508,17 +506,12 @@ namespace IronVelocity.Parser
             throw new InvalidOperationException();
         }
 
-        public Expression VisitPrimaryExpression2([NotNull] VelocityParser.PrimaryExpression2Context context)
-        {
-            return Visit(context.primaryExpression());
-        }
-
         public Expression VisitExpression([NotNull] VelocityParser.ExpressionContext context)
         {
             throw new NotImplementedException();
         }
 
-        public Expression VisitReference2([NotNull] VelocityParser.Reference2Context context)
+        public Expression VisitReferenceExpression([NotNull] VelocityParser.ReferenceExpressionContext context)
             => VisitReference(context.reference());
     }
 }

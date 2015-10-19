@@ -9,9 +9,9 @@ namespace IronVelocity.Tests.Parser
         [TestCase("false")]
         public void ParseBooleanLiteral(string input)
         {
-            var result = Parse(input, x => x.primaryExpression(), VelocityLexer.ARGUMENTS);
+            var result = Parse(input, x => x.expression(), VelocityLexer.ARGUMENTS);
 
-            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.InstanceOf<VelocityParser.BooleanLiteralContext>());
             Assert.That(result.GetText(), Is.EqualTo(input));
         }
     }

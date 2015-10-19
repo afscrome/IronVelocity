@@ -14,9 +14,9 @@ namespace IronVelocity.Tests.Parser
         //TODO: Looks like velocity 1.7 allows specifying floats int he form 1.4E12
         public void ParseFloatLiteral(string input)
         {
-            var result = Parse(input, x => x.primaryExpression(), VelocityLexer.ARGUMENTS);
+            var result = Parse(input, x => x.expression(), VelocityLexer.ARGUMENTS);
 
-            Assert.That(result, Is.Not.Null);
+            Assert.That(result, Is.InstanceOf<VelocityParser.FloatingPointLiteralContext>());
             Assert.That(result.GetText(), Is.EqualTo(input));
         }
 
