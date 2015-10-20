@@ -22,17 +22,6 @@ text : (Text | Hash | Dollar (Exclamation | LeftCurley)* | RightCurley | Dot | W
 comment : Hash COMMENT (Newline | EOF) | Hash blockComment;
 blockComment : BlockCommentStart (BlockCommentBody | blockComment)*  BlockCommentEnd ;
 
-reference : Dollar Exclamation? referenceBody
-	| Dollar Exclamation? LeftCurley referenceBody RightCurley;
-
-referenceBody : variable (Dot ( methodInvocation | propertyInvocation))* ;
-
-variable : Identifier;
-propertyInvocation: Identifier ;
-methodInvocation: Identifier LeftParenthesis argument_list RightParenthesis;
-
-argument_list : (expression (Comma expression)*)? ;
-
 directiveArguments: (Whitespace? LeftParenthesis directiveArgument* RightParenthesis)? ;
 directiveArgument : expression | directiveWord;
 directiveWord : Identifier;
@@ -48,6 +37,18 @@ customDirective :
 	{ !IsBlockDirective()}?  Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveArguments (Whitespace? Newline)?
 	 |  {IsBlockDirective()}? Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveArguments (Whitespace? Newline)? block end ;
 
+
+reference : Dollar Exclamation? referenceBody
+	| Dollar Exclamation? LeftCurley referenceBody RightCurley;
+
+referenceBody : variable (Dot ( methodInvocation | propertyInvocation))* ;
+
+variable : Identifier;
+propertyInvocation: Identifier ;
+methodInvocation: Identifier LeftParenthesis argument_list RightParenthesis;
+
+argument_list : (expression (Comma expression)*)? ;
+
 assignment: reference Assign expression ;
 
 expression
@@ -58,7 +59,8 @@ expression
 	| String #StringLiteral
 	| InterpolatedString #InterpolatedStringLiteral
 	| LeftSquare argument_list RightSquare #List
-	| LeftSquare expression  DotDot expression RightSquare #Range 
+	| LeftSquare expression  DotDot expression RightSquare #Range
+	| LeftCurley (dictionaryEntry (Comma dictionaryEntry)*)?  RightCurley #DictionaryExpression
 	| LeftParenthesis expression RightParenthesis #ParenthesisedExpression
 	| Exclamation expression #UnaryExpression
 	| expression Operator=(Multiply | Divide | Modulo) expression #MultiplicativeExpression
@@ -67,3 +69,5 @@ expression
 	| expression Operator=(Equal | NotEqual) expression #EqualityExpression
 	| expression And expression #AndExpression
 	| expression Or expression #OrExpression ;
+
+dictionaryEntry : Key=(String | InterpolatedString | Identifier) Colon expression;

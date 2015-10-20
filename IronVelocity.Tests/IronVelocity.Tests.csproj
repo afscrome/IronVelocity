@@ -93,6 +93,7 @@
     <Compile Include="Binders\ComparisonBinderTests.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Parser\DictionaryExpressionTests.cs" />
     <Compile Include="Parser\LiteralTests.cs" />
     <Compile Include="TemplateExecution\BinderReuse\BinderReuseTestBase.cs" />
     <Compile Include="TemplateExecution\BinderReuse\GetMemberReuseTests.cs" />

@@ -246,6 +246,16 @@ namespace IronVelocity.Parser
             return new IntegerRangeExpression(left, right, GetSourceInfo(context));
         }
 
+        public Expression VisitDictionaryExpression([NotNull] VelocityParser.DictionaryExpressionContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Expression VisitDictionaryEntry([NotNull] VelocityParser.DictionaryEntryContext context)
+        {
+            throw new NotImplementedException();
+        }
+
         private IReadOnlyList<Expression> VisitMany(IReadOnlyList<ParserRuleContext> contexts)
         {
             if (contexts == null || contexts.Count == 0)
@@ -513,5 +523,6 @@ namespace IronVelocity.Parser
 
         public Expression VisitReferenceExpression([NotNull] VelocityParser.ReferenceExpressionContext context)
             => VisitReference(context.reference());
+
     }
 }
