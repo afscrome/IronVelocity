@@ -36,26 +36,6 @@ argument_list : (expression (Comma expression)*)? ;
 directiveArguments: (Whitespace? LeftParenthesis directiveArgument* RightParenthesis)? ;
 directiveArgument : expression | directiveWord;
 directiveWord : Identifier;
-primaryExpression : reference 
-	| boolean
-	| float
-	| integer
-	| string
-	| interpolatedString
-	| list
-	| range 
-	| parenthesisedExpression
-	;
-
-boolean : True | False ;
-integer : Minus? Number ;
-float: Minus? Number Dot Number ;
-string : String ;
-interpolatedString : InterpolatedString ;
-
-list : LeftSquare argument_list RightSquare ;
-range : LeftSquare expression  DotDot expression RightSquare ;
-parenthesisedExpression : LeftParenthesis expression RightParenthesis;
 
 literal : Hash LiteralContent;
 setDirective: Hash (Set | LeftCurley Set RightCurley) Whitespace? LeftParenthesis assignment RightParenthesis (Whitespace? Newline)?;
@@ -70,17 +50,20 @@ customDirective :
 
 assignment: reference Assign expression ;
 
-unaryExpression : primaryExpression
-	| Exclamation unaryExpression ;
-multiplicativeExpression : unaryExpression
-	| multiplicativeExpression (Multiply | Divide | Modulo) unaryExpression;
-additiveExpression : multiplicativeExpression
-	| additiveExpression (Plus | Minus) multiplicativeExpression;
-relationalExpression : additiveExpression
-	| relationalExpression (LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual) additiveExpression;
-equalityExpression : relationalExpression
-	| equalityExpression (Equal | NotEqual) relationalExpression ;
-andExpression : equalityExpression
-	| andExpression And equalityExpression ;
-expression : andExpression
-	| expression Or andExpression ;
+expression
+	: reference #ReferenceExpression
+	| Boolean=(True | False) #BooleanLiteral
+	| Minus? Number Dot Number #FloatingPointLiteral
+	| Minus? Number #IntegerLiteral
+	| String #StringLiteral
+	| InterpolatedString #InterpolatedStringLiteral
+	| LeftSquare argument_list RightSquare #List
+	| LeftSquare expression  DotDot expression RightSquare #Range 
+	| LeftParenthesis expression RightParenthesis #ParenthesisedExpression
+	| Exclamation expression #UnaryExpression
+	| expression Operator=(Multiply | Divide | Modulo) expression #MultiplicativeExpression
+	| expression Operator=(Plus | Minus) expression #AdditiveExpression
+	| expression Operator=(LessThan | GreaterThan | LessThanOrEqual | GreaterThanOrEqual) expression #RelationalExpression
+	| expression Operator=(Equal | NotEqual) expression #EqualityExpression
+	| expression And expression #AndExpression
+	| expression Or expression #OrExpression ;

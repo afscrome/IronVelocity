@@ -11,6 +11,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [TestCase("true || true && false", true, TestName = "when_ExecutingAnExpression_AndHasHigherPrecedenceThanOr")]
+        [TestCase("false && true || true ", true, TestName = "when_ExecutingAnExpression_AndHasHigherPrecedenceThanOr")]
         [TestCase("false && false == false", false, TestName = "when_ExecutingAnExpression_EqualityHasHigherPrecedenceThanAnd")]
         [TestCase("false == true > false", true, TestName = "when_ExecutingAnExpression_RelationalHasHigherPrecedenceThanEquality")]
         [TestCase("1 > 2 + 3", false, TestName = "when_ExecutingAnExpression_AdditiveHasHigherPrecedenceThanRelational")]
