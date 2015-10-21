@@ -126,6 +126,7 @@ RightCurley7 : '}' -> type(RightCurley);
 LeftSquare : '[' ;
 RightSquare : ']' ;
 DotDot : '..' ;
+Colon : ':' ;
 Assign : '=' ;
 Multiply : '*' ;
 Divide : '/' ;
