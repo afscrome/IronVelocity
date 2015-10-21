@@ -32,7 +32,7 @@ namespace IronVelocity.Tests.Parser
             var result = Parse(input, x => x.dictionaryEntry(), VelocityLexer.ARGUMENTS);
 
             Assert.That(result, Is.Not.Null);
-            Assert.That(result.Key.Text, Is.EqualTo(key));
+            Assert.That(result.dictionaryKey().GetText(), Is.EqualTo(key));
             Assert.That(result.expression().GetText(), Is.EqualTo(value));
         }
     }

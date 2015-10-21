@@ -248,13 +248,30 @@ namespace IronVelocity.Parser
 
         public Expression VisitDictionaryExpression([NotNull] VelocityParser.DictionaryExpressionContext context)
         {
-            throw new NotImplementedException();
+            var entries = context.dictionaryEntry();
+            var elements = new Dictionary<Expression, Expression>(entries.Length);
+
+            foreach (var entry in entries)
+            {
+                elements.Add(VisitDictionaryKey(entry.dictionaryKey()), Visit(entry.expression()));
+            }
+
+            return new DictionaryExpression(elements);
         }
 
         public Expression VisitDictionaryEntry([NotNull] VelocityParser.DictionaryEntryContext context)
         {
             throw new NotImplementedException();
         }
+
+        public Expression VisitDictionaryKey([NotNull] VelocityParser.DictionaryKeyContext context)
+        {
+            var identifier = context.Identifier();
+            return identifier != null
+                ? Expression.Constant(identifier.GetText())
+                : Visit(context.@string());
+        }
+
 
         private IReadOnlyList<Expression> VisitMany(IReadOnlyList<ParserRuleContext> contexts)
         {
@@ -524,5 +541,12 @@ namespace IronVelocity.Parser
         public Expression VisitReferenceExpression([NotNull] VelocityParser.ReferenceExpressionContext context)
             => VisitReference(context.reference());
 
+        public Expression VisitStringExpression([NotNull] VelocityParser.StringExpressionContext context)
+            => Visit(context.@string());
+
+        public Expression VisitString([NotNull] VelocityParser.StringContext context)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

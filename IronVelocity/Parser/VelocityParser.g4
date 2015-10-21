@@ -56,8 +56,7 @@ expression
 	| Boolean=(True | False) #BooleanLiteral
 	| Minus? Number Dot Number #FloatingPointLiteral
 	| Minus? Number #IntegerLiteral
-	| String #StringLiteral
-	| InterpolatedString #InterpolatedStringLiteral
+	| string #StringExpression
 	| LeftSquare argument_list RightSquare #List
 	| LeftSquare expression  DotDot expression RightSquare #Range
 	| LeftCurley (dictionaryEntry (Comma dictionaryEntry)*)?  RightCurley #DictionaryExpression
@@ -70,4 +69,9 @@ expression
 	| expression And expression #AndExpression
 	| expression Or expression #OrExpression ;
 
-dictionaryEntry : Key=(String | InterpolatedString | Identifier) Colon expression;
+string 
+	: String #StringLiteral
+	| InterpolatedString #InterpolatedStringLiteral ;
+
+dictionaryEntry : dictionaryKey Colon expression;
+dictionaryKey : string | Identifier ;

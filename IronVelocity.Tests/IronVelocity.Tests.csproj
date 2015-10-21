@@ -128,6 +128,7 @@
     <Compile Include="Parser\SetDirective.cs" />
     <Compile Include="Parser\StringTests.cs" />
     <Compile Include="Parser\TextTests.cs" />
+    <Compile Include="TemplateExecution\DictionaryTests.cs" />
     <Compile Include="TemplateExecution\GlobalTests.cs" />
     <Compile Include="TemplateExecution\LiteralTests.cs" />
     <Compile Include="TemplateExecution\ObjectArrayTests.cs" />

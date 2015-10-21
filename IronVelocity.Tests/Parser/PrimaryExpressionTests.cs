@@ -9,8 +9,8 @@ namespace IronVelocity.Tests.Parser
         [TestCase("123", typeof(VelocityParser.IntegerLiteralContext))]
         [TestCase("7.4", typeof(VelocityParser.FloatingPointLiteralContext))]
         [TestCase("true", typeof(VelocityParser.BooleanLiteralContext))]
-        [TestCase("'string'", typeof(VelocityParser.StringLiteralContext))]
-        [TestCase("\"interpolated\"", typeof(VelocityParser.InterpolatedStringLiteralContext))]
+        [TestCase("'string'", typeof(VelocityParser.StringExpressionContext))]
+        [TestCase("\"interpolated\"", typeof(VelocityParser.StringExpressionContext))]
         [TestCase("[]", typeof(VelocityParser.ListContext))]
         [TestCase("[1..3]", typeof(VelocityParser.RangeContext))]
         public void ParsePrimaryExpression(string input, Type parsedNodeType)

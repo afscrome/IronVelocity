@@ -15,7 +15,7 @@ namespace IronVelocity.Tests.TemplateExecution
 
         [TestCase("%{}")]
         [TestCase("%{    }")]
-        public void ShouldProcessEmptyDictionary(string input)
+        public void ShouldProcessEmptyDictionaryString(string input)
         {
             var result = EvaluateDictionary(input);
 
@@ -31,7 +31,7 @@ namespace IronVelocity.Tests.TemplateExecution
         [TestCase("%{key='value'  }")]
         [TestCase("%{key=  'value'  }")]
         [TestCase("%{  key  =  'value'  }")]
-        public void ShouldProcessDictionaryWithWhitespaceAroundKeysOrValuesWithConstantValues(string input)
+        public void ShouldProcessDictionaryStringWithWhitespaceAroundKeysOrValuesWithConstantValues(string input)
         {
             var result = EvaluateDictionary(input);
 
@@ -47,7 +47,7 @@ namespace IronVelocity.Tests.TemplateExecution
         [TestCase("97", (int)97)]
         [TestCase("44.67", (float)44.67)]
         [TestCase("$x", "beautiful")]
-        public void ShouldProcessDictionaryWithSIngleValueTypeValue(string input, object expected)
+        public void ShouldProcessDictionaryStringWithSingleValueTypeValue(string input, object expected)
         {
             var dictionary = "%{ key = " + input + "}";
             var env = new
@@ -64,7 +64,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
-        public void ShouldProcessDictionaryWithSinglePrimitiveValue()
+        public void ShouldProcessDictionaryStringWithSinglePrimitiveValue()
         {
             var primitive = 623;
             var input = "%{primitive = $primitive}";
@@ -77,7 +77,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
-        public void ShouldProcessDictionaryWithSingleValueType()
+        public void ShouldProcessDictionaryStringWithSingleValueType()
         {
             var value = new Guid("56357676-88b0-401f-b75b-5ab124268801");
             var input = "%{value = $value}";
@@ -90,7 +90,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
-        public void ShouldProcessDictionaryWithSingleReferenceTypeValue()
+        public void ShouldProcessDictionaryStringWithSingleReferenceTypeValue()
         {
             var reference = new StringBuilder();
             var input = "%{reference = $reference}";
@@ -103,7 +103,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
-        public void ShouldProcessDictionaryWithSingleInterpolatedValue()
+        public void ShouldProcessDictionaryStringWithSingleInterpolatedValue()
         {
             var input = "%{interpolated = 32$value}";
             var context = new { value = "fizzbuzz"};
@@ -149,7 +149,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
-        public void ShouldProcessDictionaryWithMixedItems()
+        public void ShouldProcessDictionaryStringWithMixedItems()
         {
             var reference = new StringBuilder();
             var primitive = 623;
@@ -163,8 +163,6 @@ namespace IronVelocity.Tests.TemplateExecution
                 primitive = primitive,
                 value = value
             };
-
-
 
             var result = EvaluateDictionary(input, context);
 
