@@ -35,5 +35,13 @@ namespace IronVelocity
         public static bool IsInteger(Type type) => IsSignedInteger(type) || IsUnsignedInteger(type);
 
         public static bool SupportsDivisionByZero(Type type) => type == typeof(Single) || type == typeof(BigInteger);
+
+        public static bool IsNullableType(Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+
+            return !(type.IsValueType && Nullable.GetUnderlyingType(type) == null);
+        }
     }
 }

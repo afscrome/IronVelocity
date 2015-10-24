@@ -54,9 +54,8 @@
     <Reference Include="System.Numerics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Binders\BinaryOperationHelper.cs" />
-    <Compile Include="Binders\BinderHelper.cs" />
-    <Compile Include="Binders\ReflectionHelper.cs" />
+    <Compile Include="Binders\BigIntegerHelper.cs" />
+    <Compile Include="Binders\BinderFactory.cs" />
     <Compile Include="Compilation\AST\DirectiveWord.cs" />
     <Compile Include="Compilation\AST\MathematicalExpression.cs" />
     <Compile Include="Compilation\AST\ReferenceExpression.cs" />
@@ -67,6 +66,7 @@
     <Compile Include="Compilation\AST\DictionaryStringExpression.cs" />
     <Compile Include="Compilation\TemporaryLocalReuse.cs" />
     <Compile Include="Compilation\VelocityDiskCompiler.cs" />
+    <Compile Include="Compilation\VelocityExpressionFactory.cs" />
     <Compile Include="Compilation\VelocityExpressionVisitor.cs" />
     <Compile Include="Directives\ForeachDirective.cs" />
     <Compile Include="Directives\ForeachDirectiveBuilder.cs" />
@@ -122,6 +122,7 @@
     <Compile Include="Reflection\MethodSpecificityComparison.cs" />
     <Compile Include="Reflection\MemberResolver.cs" />
     <Compile Include="Reflection\VelocityMethodResolver.cs" />
+    <Compile Include="Runtime\BigIntegerSimplifier.cs" />
     <Compile Include="Runtime\BooleanCoercion.cs" />
     <Compile Include="Runtime\IntegerRange.cs" />
     <Compile Include="Runtime\RuntimeDictionary.cs" />

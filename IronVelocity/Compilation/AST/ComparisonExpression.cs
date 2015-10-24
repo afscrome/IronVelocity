@@ -6,24 +6,23 @@ namespace IronVelocity.Compilation.AST
 {
     public class ComparisonExpression : VelocityBinaryExpression
     {
-        public ComparisonOperation Operation { get; }
+        private readonly VelocityComparisonOperationBinder _binder;
+        public ComparisonOperation Operation => _binder.Operation;
 
-        public override Type Type => typeof(bool);
+        public override Type Type => _binder.ReturnType;
         public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.Comparison;
 
-        public ComparisonExpression(Expression left, Expression right, SourceInfo sourceInfo, ComparisonOperation op)
+        public ComparisonExpression(Expression left, Expression right, SourceInfo sourceInfo, VelocityComparisonOperationBinder binder)
             : base(left, right, sourceInfo)
         {
-            Operation = op;
+            _binder = binder;
         }
 
         public override Expression Reduce()
         {
-            var binder = BinderHelper.Instance.GetComparisonOperationBinder(Operation);
-
             return Expression.Dynamic(
-                binder,
-                binder.ReturnType,
+                _binder,
+                _binder.ReturnType,
                 Left,
                 Right
             );
@@ -34,7 +33,7 @@ namespace IronVelocity.Compilation.AST
             if (Left == left && Right == right)
                 return this;
             else
-                return new ComparisonExpression(left, right, SourceInfo, Operation);
+                return new ComparisonExpression(left, right, SourceInfo, _binder);
         }
     }
 }

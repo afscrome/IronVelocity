@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Binders;
+using IronVelocity.Reflection;
 using NUnit.Framework;
 using System;
 
@@ -243,6 +244,7 @@ namespace IronVelocity.Tests.Binders
 
         #region Methods
         [Test]
+        [Ignore("NVelocity specific")]
         public void PublicMethodWithZeroArgumentsIsInvokedAsMember()
         {
             var input = new MethodsWith0Parameters();
@@ -281,6 +283,7 @@ namespace IronVelocity.Tests.Binders
         }
         
         [Test]
+        [Ignore("NVelocity specific")]
         public void ShouldReturnEnumValueWhenMemberOnEnumType()
         {
             var input = typeof(UriFormat);
@@ -328,7 +331,7 @@ namespace IronVelocity.Tests.Binders
 
         private object test(object input, string memberName)
         {
-            var binder = new VelocityGetMemberBinder(memberName);
+            var binder = new VelocityGetMemberBinder(memberName, new MemberResolver());
             return InvokeBinder(binder, input);
         }
 

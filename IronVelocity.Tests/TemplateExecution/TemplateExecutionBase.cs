@@ -9,6 +9,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Reflection;
+using IronVelocity.Binders;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
@@ -96,13 +97,20 @@ namespace IronVelocity.Tests.TemplateExecution
             return new ExecutionResult(outputBuilder, context);
         }
 
+        protected virtual BinderFactory CreateBinderFactory()
+            => new BinderFactory();
 
         private VelocityTemplateMethod CompileTemplate(string input, string fileName, IReadOnlyDictionary<string, object> globals, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
         {
             //This is for debugging - change it with the Immediate window if you need to dump a test to disk for further investigation.
             bool saveDllAndExtractIlForTroubleshooting = false;
 
-            var parser = new AntlrVelocityParser(customDirectives, globals);
+            var binderFactory = CreateBinderFactory();
+            var expressionFactory = StaticTypingMode == StaticTypingMode.AsProvided
+                ? new VelocityExpressionFactory(binderFactory)
+                : new StaticTypedVelocityExpressionFactory(binderFactory, globals);
+
+            var parser = new AntlrVelocityParser(customDirectives, expressionFactory);
 
             VelocityDiskCompiler diskCompiler = null;
 

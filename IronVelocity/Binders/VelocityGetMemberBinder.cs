@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation;
+using IronVelocity.Reflection;
 using System;
 using System.Dynamic;
 using System.Linq.Expressions;
@@ -8,10 +9,12 @@ namespace IronVelocity.Binders
 {
     public class VelocityGetMemberBinder : GetMemberBinder
     {
+        private readonly IMemberResolver _memberResolver;
 
-        public VelocityGetMemberBinder(string name)
+        public VelocityGetMemberBinder(string name, IMemberResolver memberResolver)
             : base(name, ignoreCase: true)
         {
+            _memberResolver = memberResolver;
         }
 
 
@@ -37,19 +40,7 @@ namespace IronVelocity.Binders
             Expression result = null;
             try
             {
-                result = ReflectionHelper.MemberExpression(Name, target, Reflection.MemberAccessMode.Read);
-                if (result == null)
-                {
-                    var method = ReflectionHelper.ResolveMethod(target.RuntimeType, Name);
-                    if (method == null)
-                    {
-                        BindingEventSource.Log.GetMemberResolutionFailure(Name, target.RuntimeType.FullName);
-                    }
-                    else
-                    {
-                        result = Expression.Call(VelocityExpressions.ConvertIfNeeded(target, method.DeclaringType),method);
-                    }
-                }
+                result = _memberResolver.MemberExpression(Name, target, Reflection.MemberAccessMode.Read);
             }
             catch (AmbiguousMatchException)
             {

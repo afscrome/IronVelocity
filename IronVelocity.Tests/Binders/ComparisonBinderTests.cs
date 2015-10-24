@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Binders;
+using IronVelocity.Reflection;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -96,7 +97,7 @@ namespace IronVelocity.Tests.Binders
 
         private void ComparisonTest(object left, object right, ComparisonOperation operation, bool expected, string message = null)
         {
-            var binder = new VelocityComparisonOperationBinder(operation);
+            var binder = new VelocityComparisonOperationBinder(operation, new ArgumentConverter());
 
             var result = InvokeBinder<bool>(binder, left, right);
 

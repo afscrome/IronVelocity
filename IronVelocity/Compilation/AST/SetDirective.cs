@@ -7,14 +7,16 @@ namespace IronVelocity.Compilation.AST
     public class SetDirective : VelocityBinaryExpression
     {
         private static readonly ParameterExpression _objectTemp = Expression.Parameter(typeof(object), "setDirectiveTemp");
+        private readonly BinderFactory _binderFactory;
 
         public override Type Type => typeof(void);
         public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.SetDirective;
 
 
-        public SetDirective(Expression left, Expression right, SourceInfo sourceInfo)
+        public SetDirective(Expression left, Expression right, SourceInfo sourceInfo, BinderFactory binderFactory)
             : base(left, right, sourceInfo)
         {
+            _binderFactory = binderFactory;
         }
 
 
@@ -26,7 +28,7 @@ namespace IronVelocity.Compilation.AST
             if (left is GlobalVariableExpression)
                 throw new NotSupportedException("Cannot assign to a global variable");
 
-            return new SetDirective(left, right, SourceInfo);
+            return new SetDirective(left, right, SourceInfo, _binderFactory);
         }
 
 
@@ -47,10 +49,10 @@ namespace IronVelocity.Compilation.AST
             var getMember = left as PropertyAccessExpression;
             if (getMember != null)
             {
-                return new SetMemberExpression(getMember.Name, getMember.Target, right);
+                return new SetMemberExpression(getMember.Target, right, _binderFactory.GetSetMemberBinder(getMember.Name));
             }
 
-            bool rightIsNullableType = ReflectionHelper.IsNullableType(right.Type);
+            bool rightIsNullableType = TypeHelper.IsNullableType(right.Type);
 
             bool isVariableExpression = left is VariableExpression;
             if (isVariableExpression)

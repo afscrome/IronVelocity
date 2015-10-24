@@ -6,25 +6,24 @@ namespace IronVelocity.Compilation.AST
 {
     public class MathematicalExpression : VelocityBinaryExpression
     {
+        private readonly VelocityMathematicalOperationBinder _binder;
         public MathematicalOperation Operation { get; }
-        public ExpressionType ExpressionType { get; }
+        public ExpressionType ExpressionType => _binder.Operation;
 
         public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.Mathematical;
 
-        public MathematicalExpression(Expression left, Expression right, SourceInfo sourceInfo, MathematicalOperation op)
+        public MathematicalExpression(Expression left, Expression right, SourceInfo sourceInfo, MathematicalOperation operation, VelocityMathematicalOperationBinder binder)
             : base(left, right, sourceInfo)
         {
-            Operation = op;
-            ExpressionType = MathematicalOperationToExpressionType(op);
+            Operation = operation;
+            _binder = binder;
         }
 
         public override Expression Reduce()
         {
-            var binder = BinderHelper.Instance.GetMathematicalOperationBinder(ExpressionType);
-
             return Expression.Dynamic(
-                binder,
-                binder.ReturnType,
+                _binder,
+                _binder.ReturnType,
                 Left,
                 Right
             );
@@ -35,38 +34,7 @@ namespace IronVelocity.Compilation.AST
             if (Left == left && Right == right)
                 return this;
             else
-                return new MathematicalExpression(left, right, SourceInfo, Operation);
+                return new MathematicalExpression(left, right, SourceInfo, Operation, _binder);
         }
-
-
-        public static ExpressionType MathematicalOperationToExpressionType(MathematicalOperation op)
-        {
-            switch (op)
-            {
-                case MathematicalOperation.Add:
-                    return ExpressionType.Add;
-                case MathematicalOperation.Subtract:
-                    return ExpressionType.Subtract;
-                case MathematicalOperation.Multiply:
-                    return ExpressionType.Multiply;
-                case MathematicalOperation.Divide:
-                    return ExpressionType.Divide;
-                case MathematicalOperation.Modulo:
-                    return ExpressionType.Modulo;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(op));
-            }
-        }
-
-
-    }
-
-    public enum MathematicalOperation
-    {
-        Add,
-        Subtract,
-        Multiply,
-        Divide,
-        Modulo,
     }
 }

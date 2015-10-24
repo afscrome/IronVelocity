@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Binders;
+using IronVelocity.Reflection;
 using NUnit.Framework;
 using System;
 using System.Dynamic;
@@ -157,6 +158,7 @@ namespace IronVelocity.Tests.Binders
 
 
         [Test]
+        [Ignore("NVelocity Specific functionality")]
         public void PropertyInvokedForMethodWithNoArguments()
         {
             var target = new MethodTests();
@@ -164,7 +166,9 @@ namespace IronVelocity.Tests.Binders
 
             Assert.AreEqual("A property", result);
         }
+
         [Test]
+        [Ignore("NVelocity Specific functionality")]
         public void FieldInvokedForMethodWithNoArguments()
         {
             var target = new MethodTests();
@@ -179,7 +183,7 @@ namespace IronVelocity.Tests.Binders
 
         private object test(object input, string methodName, params object[] paramaters)
         {
-            var binder = new VelocityInvokeMemberBinder(methodName, new CallInfo(paramaters.Length));
+            var binder = new VelocityInvokeMemberBinder(methodName, new CallInfo(paramaters.Length), new MethodResolver(new ArgumentConverter()));
 
             var args = new[] { input }.Concat(paramaters).ToArray();
 

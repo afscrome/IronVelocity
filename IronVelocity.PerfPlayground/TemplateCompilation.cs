@@ -1,4 +1,5 @@
-﻿using IronVelocity.Compilation;
+﻿using IronVelocity.Binders;
+using IronVelocity.Compilation;
 using IronVelocity.Directives;
 using IronVelocity.Parser;
 using IronVelocity.Runtime;
@@ -51,7 +52,11 @@ namespace IronVelocity.PerfPlayground
                     .Select(x => new AntlrBlockDirectiveBuilder(x))
                     .ToList<CustomDirectiveBuilder>();
                 antlrDirectives.Add(new ForeachDirectiveBuilder());
-                var parser = new AntlrVelocityParser(antlrDirectives, null);
+
+
+                var expressionTreeFactory = new VelocityExpressionFactory(new BinderFactory());
+                var parser = new AntlrVelocityParser(antlrDirectives, expressionTreeFactory);
+
 
                 var expressionTree = parser.Parse(file, assemblyName);
                 if (Compile)

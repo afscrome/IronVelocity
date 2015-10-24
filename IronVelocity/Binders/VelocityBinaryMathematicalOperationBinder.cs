@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation;
+using IronVelocity.Reflection;
 using System;
 using System.Dynamic;
 using System.Linq.Expressions;
@@ -7,10 +8,14 @@ namespace IronVelocity.Binders
 {
     public class VelocityMathematicalOperationBinder : BinaryOperationBinder
     {
+        private readonly IArgumentConverter _argumentConverter;
+        public MathematicalOperation MathematicalOperation;
 
-        public VelocityMathematicalOperationBinder(ExpressionType type)
-            : base(type)
+        public VelocityMathematicalOperationBinder(MathematicalOperation operation, IArgumentConverter argumentConverter)
+            : base(MathematicalOperationToExpressionType(operation))
         {
+            _argumentConverter = argumentConverter;
+            MathematicalOperation = operation;
         }
 
 
@@ -35,9 +40,9 @@ namespace IronVelocity.Binders
             var restrictions = GetEarlyEscapeRestrictions(target, arg);
             if (restrictions == null)
             {
-
-                Expression left, right;
-                BinaryOperationHelper.MakeArgumentsCompatible(target, arg, out left, out right);
+                var left = VelocityExpressions.ConvertIfNeeded(target);
+                var right = VelocityExpressions.ConvertIfNeeded(arg);
+                _argumentConverter.MakeBinaryOperandsCompatible(target.RuntimeType, arg.RuntimeType, ref left, ref right);
 
                 if(!TypeHelper.IsNumeric(left.Type))
                 {
@@ -122,8 +127,8 @@ namespace IronVelocity.Binders
 
         private Expression AddOverflowHandler(Expression main, Expression left, Expression right)
         {
-            left = BinaryOperationHelper.ConvertToBigInteger(left);
-            right = BinaryOperationHelper.ConvertToBigInteger(right);
+            left = BigIntegerHelper.ConvertToBigInteger(left);
+            right = BigIntegerHelper.ConvertToBigInteger(right);
             Expression oveflowHandler;
             switch (Operation)
             {
@@ -167,14 +172,46 @@ namespace IronVelocity.Binders
             // We only support mathematical operations on value types.
             // Using a restriction against Reference Types helps stop us generating a large number of rules for different type combinations
             if (!left.RuntimeType.IsValueType)
-                return BinaryOperationHelper.GetNotValueTypeRestrictions(left.Expression);
+                return GetNotValueTypeRestrictions(left.Expression);
             else if (!right.RuntimeType.IsValueType)
-                return BinaryOperationHelper.GetNotValueTypeRestrictions(right.Expression);
+                return GetNotValueTypeRestrictions(right.Expression);
 
             return null;
         }
 
+        private static BindingRestrictions GetNotValueTypeRestrictions(Expression expression)
+        {
+            var restrictionExpression = Expression.Not(Expression.TypeIs(expression, typeof(ValueType)));
+            return BindingRestrictions.GetExpressionRestriction(restrictionExpression);
+        }
 
+        private static ExpressionType MathematicalOperationToExpressionType(MathematicalOperation op)
+        {
+            switch (op)
+            {
+                case MathematicalOperation.Add:
+                    return ExpressionType.Add;
+                case MathematicalOperation.Subtract:
+                    return ExpressionType.Subtract;
+                case MathematicalOperation.Multiply:
+                    return ExpressionType.Multiply;
+                case MathematicalOperation.Divide:
+                    return ExpressionType.Divide;
+                case MathematicalOperation.Modulo:
+                    return ExpressionType.Modulo;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(op));
+            }
+
+        }
     }
 
+    public enum MathematicalOperation
+    {
+        Add,
+        Subtract,
+        Multiply,
+        Divide,
+        Modulo,
+    }
 }

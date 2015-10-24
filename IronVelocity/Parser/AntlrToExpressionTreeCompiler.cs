@@ -18,19 +18,13 @@ namespace IronVelocity.Parser
     {
         private readonly AntlrVelocityParser _parser;
         private readonly IReadOnlyCollection<CustomDirectiveBuilder> _customDirectives;
-        private readonly IReadOnlyDictionary<string, object> _globals;
+        private readonly VelocityExpressionFactory _expressionFactory;
 
-        public AntlrToExpressionTreeCompiler(AntlrVelocityParser parser, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives, IReadOnlyDictionary<string, object> globals)
+        public AntlrToExpressionTreeCompiler(AntlrVelocityParser parser, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives, VelocityExpressionFactory expressionFactory)
         {
             _parser = parser;
             _customDirectives = customDirectives ?? new CustomDirectiveBuilder[0];
-            _globals = globals;
-
-            var nullGlobals = globals.Where(x => x.Value == null);
-            if (nullGlobals.Any())
-            {
-                throw new ArgumentOutOfRangeException(nameof(globals), $"The following global variables must not be null: {String.Join(", ", nullGlobals.Select(x => x.Key))}");
-            }
+            _expressionFactory = expressionFactory;
         }
 
         public Expression Visit(IParseTree tree) => tree.Accept(this);
@@ -101,18 +95,7 @@ namespace IronVelocity.Parser
                 if (property != null)
                 {
                     var name = property.Identifier().GetText();
-                    if (ReflectionHelper.IsConstantType(result))
-                    {
-                        //TODO: include debug info
-                        result = ReflectionHelper.MemberExpression(name, result.Type, result, Reflection.MemberAccessMode.Read);
-
-                        if (result == null)
-                            return Constants.NullExpression;
-                    }
-                    else
-                    {
-                        result = new PropertyAccessExpression(result, name, GetSourceInfo(innerContext));
-                    }
+                    result = _expressionFactory.Property(result, name, GetSourceInfo(innerContext));
                 }
                 else
                 {
@@ -121,21 +104,16 @@ namespace IronVelocity.Parser
                     {
                         var name = method.Identifier().GetText();
                         var args = VisitMany(method.argument_list().expression());
-                        if (ReflectionHelper.IsConstantType(result) && args.All(ReflectionHelper.IsConstantType))
-                        {
-                            var methodInfo = ReflectionHelper.ResolveMethod(result.Type, name, args.Select(x => x.Type).ToArray());
-                            //TODO: Include debug info
-                            if (methodInfo == null)
-                                return Constants.NullExpression;
 
-                            result = ReflectionHelper.ConvertMethodParameters(methodInfo, result, args.Select(x => new DynamicMetaObject(x, BindingRestrictions.Empty)).ToArray());
-                        }
-                        else
-                        {
-                            result = new MethodInvocationExpression(result, name, args, GetSourceInfo(innerContext));
-                        }
+                        result = _expressionFactory.Method(result, name, args, GetSourceInfo(innerContext));
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException();
                     }
                 }
+                if (result == Constants.NullExpression)
+                    break;
             }
 
             return result;
@@ -145,23 +123,9 @@ namespace IronVelocity.Parser
 
         public Expression VisitVariable([NotNull] VelocityParser.VariableContext context)
         {
-            Expression result;
             var name = context.Identifier().GetText();
-            if (!_variableCache.TryGetValue(name, out result))
-            {
-                object global = null;
-                if (_globals?.TryGetValue(name, out global) ?? false)
-                {
-                    _variableCache[name] = result = new GlobalVariableExpression(name, global);
-                }
-                else
-                {
-                    result = new VariableExpression(name);
-                }
-                _variableCache[name] = result;
-            }
-
-            return result;
+            var sourceInfo = GetSourceInfo(context);
+            return _expressionFactory.Variable(name, sourceInfo);
         }
 
         public Expression VisitIntegerLiteral([NotNull] VelocityParser.IntegerLiteralContext context)
@@ -297,17 +261,11 @@ namespace IronVelocity.Parser
 
         public Expression VisitAssignment([NotNull] VelocityParser.AssignmentContext context)
         {
-            var left = Visit(context.reference());
+            var target = Visit(context.reference());
+            var value = Visit(context.expression());
+            var sourceInfo = GetSourceInfo(context);
 
-            if (left is MethodInvocationExpression)
-            {
-                //TODO: log?, throw?
-                throw new InvalidOperationException("Cannot assign to a method");
-            }
-
-            var right = Visit(context.expression());
-
-            return new SetDirective(left, right, GetSourceInfo(context));
+            return _expressionFactory.Assign(target, value, sourceInfo);
         }
 
         public Expression VisitIfBlock([NotNull] VelocityParser.IfBlockContext context)
@@ -373,7 +331,7 @@ namespace IronVelocity.Parser
             var visitedRight = Visit(right);
             var sourceInfo = GetSourceInfo(context);
 
-            return new MathematicalExpression(visitedLeft, visitedRight, sourceInfo, operation);
+            return _expressionFactory.Maths(visitedLeft, visitedRight, sourceInfo, operation);
         }
 
         public Expression VisitRelationalExpression([NotNull] VelocityParser.RelationalExpressionContext context)
@@ -413,7 +371,7 @@ namespace IronVelocity.Parser
             var visitedRight = Visit(right);
             var sourceInfo = GetSourceInfo(context);
 
-            return new ComparisonExpression(visitedLeft, visitedRight, sourceInfo, operation);
+            return _expressionFactory.Comparison(visitedLeft, visitedRight, operation, sourceInfo);
         }
 
         public Expression VisitAndExpression([NotNull] VelocityParser.AndExpressionContext context)

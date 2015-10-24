@@ -5,6 +5,8 @@ using Antlr4.Runtime.Tree;
 using System;
 using Antlr4.Runtime.Misc;
 using System.Diagnostics;
+using IronVelocity.Compilation;
+using IronVelocity.Binders;
 
 namespace IronVelocity.Tests.Parser
 {
@@ -16,7 +18,9 @@ namespace IronVelocity.Tests.Parser
             where T : RuleContext
         {
             var inputStream = new AntlrInputStream(input);
-            return new AntlrVelocityParser().ParseTemplate(inputStream, Utility.GetName(), parseFunc, lexerMode);
+            var expressionFactory = new VelocityExpressionFactory(new BinderFactory());
+            return new AntlrVelocityParser(expressionFactory)
+                .ParseTemplate(inputStream, Utility.GetName(), parseFunc, lexerMode);
         }
 
         protected Exception ParseShouldProduceError(string input, Func<VelocityParser, RuleContext> parseFunc, int? lexerMode = null, bool shouldLexCompletely = true)

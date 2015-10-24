@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation;
+using IronVelocity.Reflection;
 using System;
 using System.Dynamic;
 using System.Linq.Expressions;
@@ -7,12 +8,15 @@ namespace IronVelocity.Binders
 {
     public class VelocityComparisonOperationBinder : DynamicMetaObjectBinder 
     {
+        private readonly IArgumentConverter _argumentConverter;
+
         public override Type ReturnType => typeof(bool);
         public ComparisonOperation Operation { get; }
 
-        public VelocityComparisonOperationBinder(ComparisonOperation type)
+        public VelocityComparisonOperationBinder(ComparisonOperation type, IArgumentConverter argumentConverter)
         {
             Operation = type;
+            _argumentConverter = argumentConverter;
         }
         
         public override DynamicMetaObject Bind(DynamicMetaObject target, DynamicMetaObject[] args)
@@ -59,8 +63,9 @@ namespace IronVelocity.Binders
             BindingRestrictions restrictions = null;
             Expression  mainExpression = null;
 
-            Expression left, right;
-            BinaryOperationHelper.MakeArgumentsCompatible(target, arg, out left, out right);
+            var left = VelocityExpressions.ConvertIfNeeded(target);
+            var right = VelocityExpressions.ConvertIfNeeded(arg);
+            _argumentConverter.MakeBinaryOperandsCompatible(target.RuntimeType ?? typeof(object), arg.RuntimeType ?? typeof(object), ref left, ref right);
 
 
             bool isEqualityTest = generator == Expression.Equal || generator == Expression.NotEqual;
@@ -101,13 +106,24 @@ namespace IronVelocity.Binders
 
             if(restrictions == null)
             {
-                restrictions = BinaryOperationHelper.DeduceArgumentRestrictions(target)
-                    .Merge(BinaryOperationHelper.DeduceArgumentRestrictions(arg));
+                restrictions = DeduceArgumentRestrictions(target)
+                    .Merge(DeduceArgumentRestrictions(arg));
             }
             return new DynamicMetaObject(
                     VelocityExpressions.ConvertIfNeeded(mainExpression, ReturnType),
                     restrictions
                 );
+        }
+
+        private static BindingRestrictions DeduceArgumentRestrictions(DynamicMetaObject value)
+        {
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
+            if (value.Value != null)
+                return BindingRestrictions.GetTypeRestriction(value.Expression, value.RuntimeType);
+            else
+                return BindingRestrictions.GetInstanceRestriction(value.Expression, null);
         }
     }
 
