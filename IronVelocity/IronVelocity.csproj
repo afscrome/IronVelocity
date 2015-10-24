@@ -149,6 +149,7 @@
     <Antlr4 Include="Parser\VelocityParser.g4">
       <Generator>MSBuild:Compile</Generator>
       <CustomToolNamespace>IronVelocity.Parser</CustomToolNamespace>
+	  <Listener>false</Listener>
     </Antlr4>
   </ItemGroup>
   <ItemGroup>
