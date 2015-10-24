@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation;
+using IronVelocity.Reflection;
 using System;
 using System.Dynamic;
 using System.Linq;
@@ -9,9 +10,12 @@ namespace IronVelocity.Binders
 {
     public class VelocityInvokeMemberBinder : InvokeMemberBinder
     {
-        public VelocityInvokeMemberBinder(string name, CallInfo callInfo)
+        private IMethodResolver _methodResolver;
+
+        public VelocityInvokeMemberBinder(string name, CallInfo callInfo, IMethodResolver methodResolver)
             : base(name, true, callInfo)
         {
+            _methodResolver = methodResolver;
         }
 
         //Don't support static invocation
@@ -58,7 +62,7 @@ namespace IronVelocity.Binders
             bool isAmbigious = false;
             try
             {
-                method = ReflectionHelper.ResolveMethod(target.LimitType, Name, argTypeArray);
+                method = _methodResolver.ResolveMethod(target.LimitType.GetTypeInfo(), Name, argTypeArray);
             }
             catch (AmbiguousMatchException)
             {
@@ -68,37 +72,21 @@ namespace IronVelocity.Binders
 
             if (method == null)
             {
-                if(args.Length == 0)
+                var log = BindingEventSource.Log;
+                if (log.IsEnabled())
                 {
-                    result = ReflectionHelper.MemberExpression(Name, target, Reflection.MemberAccessMode.Read);
+                    var argTypeString = string.Join(",", argTypeArray.Select(x => x.FullName).ToArray());
+                    if (isAmbigious)
+                        log.InvokeMemberResolutionAmbiguous(Name, target.LimitType.FullName, argTypeString);
+                    else
+                        log.InvokeMemberResolutionFailure(Name, target.LimitType.FullName, argTypeString);
                 }
-                if (result == null)
-                {
-                    var log = BindingEventSource.Log;
-                    if (log.IsEnabled())
-                    {
-                        var argTypeString = string.Join(",", argTypeArray.Select(x => x.FullName).ToArray());
-                        if (isAmbigious)
-                            log.InvokeMemberResolutionAmbiguous(Name, target.LimitType.FullName, argTypeString);
-                        else
-                            log.InvokeMemberResolutionFailure(Name, target.LimitType.FullName, argTypeString);
-                    }
 
-                    result = Constants.VelocityUnresolvableResult;
-                }
+                result = Constants.VelocityUnresolvableResult;
             }
             else
             {
-                result = ReflectionHelper.ConvertMethodParameters(method, target.Expression, args);
-
-                //Not keen on returning empty string, but this maintains consistency with NVelocity.
-                // Otherwise returning void fails with an exception because the DLR can't convert 
-                // Returning null causes problems as null indicates the method call failed, and so
-                // causes the Identifier to be emitted instead of blank.
-
-
-                //Dynamic return type is object, but primitives are not objects
-                // DLR does not handle boxing to make primitives objects, so do it ourselves
+                result = _methodResolver.ConvertMethodParameters(method, target.Expression, args);
             }
 
             var restrictions = BindingRestrictions.GetTypeRestriction(target.Expression, target.LimitType);

@@ -54,26 +54,7 @@ namespace IronVelocity.Reflection
         }
 
         public Expression MemberExpression(string name, DynamicMetaObject target, MemberAccessMode mode)
-        {
-            if (target == null)
-                throw new ArgumentNullException(nameof(target));
-
-            // Also if the value is typeof(ENUM), then return the relevant enumerated type
-            if (target.Value is Type)
-            {
-                var valueType = (Type)target.Value;
-                if (valueType.IsEnum)
-                {
-                    try
-                    {
-                        return Expression.Constant(Enum.Parse(valueType, name, true), valueType);
-                    }
-                    catch (ArgumentException) { }
-                }
-            }
-
-            return MemberExpression(name, target.LimitType, target.Expression, mode);
-        }
+            => MemberExpression(name, target.LimitType, target.Expression, mode);
 
 
         public Expression MemberExpression(string name, Type type, Expression expression, MemberAccessMode mode)
@@ -83,32 +64,6 @@ namespace IronVelocity.Reflection
 
             if (name == null)
                 throw new ArgumentNullException(nameof(name));
-
-            if (type.IsPrimitive || type == typeof(string) || type == typeof(decimal))
-            {
-                if (name.Equals("to_quote", StringComparison.OrdinalIgnoreCase))
-                    return VelocityStrings.EscapeDoubleQuote(expression);
-                else if (name.Equals("to_squote", StringComparison.OrdinalIgnoreCase))
-                    return VelocityStrings.EscapeSingleQuote(expression);
-            }
-
-
-            if (typeof(Type).IsAssignableFrom(type))
-            {
-                var globalExpression = expression as GlobalVariableExpression;
-                if (globalExpression != null)
-                {
-                    var valueType = globalExpression.Value as Type;
-                    if (valueType != null && valueType.IsEnum)
-                    {
-                        var result = Enum.Parse(valueType, name);
-                        if (result != null)
-                        {
-                            return Expression.Constant(result, valueType);
-                        }
-                    }
-                }
-            }
 
             MemberInfo member = null;
             try
@@ -133,15 +88,7 @@ namespace IronVelocity.Reflection
                             new[] { Expression.Constant(name) }
                         );
                 }
-                else if (mode == MemberAccessMode.Read)
-                {
-                    var method = IronVelocity.Binders.ReflectionHelper.ResolveMethod(type, name);
-                    if (method != null)
-                    {
-                        return Expression.Call(VelocityExpressions.ConvertIfNeeded(expression, method.DeclaringType), method);
-                    }
-                }
-                
+                                
                 if (type.IsArray && name.Equals("count", StringComparison.OrdinalIgnoreCase))
                 {
                     return MemberExpression("Length", type, expression, mode);

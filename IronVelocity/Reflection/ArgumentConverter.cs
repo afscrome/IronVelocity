@@ -1,6 +1,9 @@
-﻿using System;
+﻿using IronVelocity.Binders;
+using IronVelocity.Compilation;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace IronVelocity.Reflection
 {
@@ -66,5 +69,31 @@ namespace IronVelocity.Reflection
 
             return null;
         }
+
+        public void MakeBinaryOperandsCompatible(Type leftType, Type rightType, ref Expression leftExpression, ref Expression rightExpression)
+        {
+            if (CanBeConverted(leftType, rightType))
+            {
+                leftExpression = VelocityExpressions.ConvertIfNeeded(leftExpression, rightType);
+            }
+            else if (CanBeConverted(rightType, leftType))
+            {
+                rightExpression = VelocityExpressions.ConvertIfNeeded(rightExpression, leftType);
+            }
+            else if (leftType == typeof(string) && (rightType == typeof(char) || rightType.IsEnum))
+            {
+                rightExpression = Expression.Call(rightExpression, MethodHelpers.ToStringMethodInfo);
+            }
+            else if (rightType == typeof(string) && (leftType == typeof(char) || leftType.IsEnum))
+            {
+                leftExpression = Expression.Call(leftExpression, MethodHelpers.ToStringMethodInfo);
+            }
+            else if (leftType != rightType && TypeHelper.IsInteger(leftType) && TypeHelper.IsInteger(rightType))
+            {
+                leftExpression = BigIntegerHelper.ConvertToBigInteger(leftExpression);
+                rightExpression = BigIntegerHelper.ConvertToBigInteger(rightExpression);
+            }
+        }
+
     }
 }

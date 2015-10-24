@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation;
+using IronVelocity.Reflection;
 using System;
 using System.Dynamic;
 using System.Linq.Expressions;
@@ -7,9 +8,12 @@ namespace IronVelocity.Binders
 {
     public class VelocitySetMemberBinder : SetMemberBinder
     {
-        public VelocitySetMemberBinder(string name)
+        private IMemberResolver _memberResolver;
+
+        public VelocitySetMemberBinder(string name, IMemberResolver memberResolver)
             : base(name, ignoreCase: true)
         {
+            _memberResolver = memberResolver;
         }
 
         public override DynamicMetaObject FallbackSetMember(DynamicMetaObject target, DynamicMetaObject value, DynamicMetaObject errorSuggestion)
@@ -33,7 +37,7 @@ namespace IronVelocity.Binders
                 );
             }
 
-            var result = ReflectionHelper.MemberExpression(Name, target, Reflection.MemberAccessMode.Write);
+            var result = _memberResolver.MemberExpression(Name, target, Reflection.MemberAccessMode.Write);
 
             if (result != null && result.Type.IsAssignableFrom(value.RuntimeType))
                 result = VelocityExpressions.BoxIfNeeded(

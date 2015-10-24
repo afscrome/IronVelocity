@@ -1,5 +1,4 @@
-﻿using IronVelocity.Binders;
-using NUnit.Framework;
+﻿using NUnit.Framework;
 using System;
 using System.Text;
 
@@ -17,7 +16,7 @@ namespace IronVelocity.Tests.Binders
         [TestCase(typeof(string), true)]
         public void Test(Type type, bool isNullable)
         {
-            Assert.AreEqual(isNullable, ReflectionHelper.IsNullableType(type));
+            Assert.AreEqual(isNullable, TypeHelper.IsNullableType(type));
         }
     }
 }

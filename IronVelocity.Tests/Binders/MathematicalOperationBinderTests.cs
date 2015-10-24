@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Binders;
+using IronVelocity.Reflection;
 using NUnit.Framework;
 using System;
 using System.Linq.Expressions;
@@ -26,7 +27,7 @@ namespace IronVelocity.Tests.Binders
         [TestCase(-9223372036854775808, -1, -9223372036854775809f, typeof(float), TestName = "Addition Long Underflow")]
         public void BasicAdditionTests(object left, object right, object expectedValue, Type expectedType)
         {
-            MathTest(left, right, ExpressionType.Add, expectedValue, expectedType);
+            MathTest(left, right, MathematicalOperation.Add, expectedValue, expectedType);
         }
 
 
@@ -48,7 +49,7 @@ namespace IronVelocity.Tests.Binders
         [TestCase(-9223372036854775808, 1, -9223372036854775809f, typeof(float), TestName = "Subtraction Long Underflow")]
         public void SubtractionTest(object left, object right, object expectedValue, Type expectedType)
         {
-            MathTest(left, right, ExpressionType.Subtract, expectedValue, expectedType);
+            MathTest(left, right, MathematicalOperation.Subtract, expectedValue, expectedType);
         }
 
 
@@ -69,7 +70,7 @@ namespace IronVelocity.Tests.Binders
         [TestCase(-9223372036854775808, -2, 18446744073709551616d, typeof(float), TestName = "Multiply Long Underflow")]
         public void BasicMultiplicationTest(object left, object right, object expectedValue, Type expectedType)
         {
-            MathTest(left, right, ExpressionType.Multiply, expectedValue, expectedType);
+            MathTest(left, right, MathematicalOperation.Multiply, expectedValue, expectedType);
         }
 
         [TestCase(5, 3, 1, typeof(int), TestName = "Division Positive Integer")]
@@ -86,9 +87,8 @@ namespace IronVelocity.Tests.Binders
         [TestCase(1, 0, null, null, TestName = "Division By Zero")]
         public void BasicDivisionTest(object left, object right, object expectedValue, Type expectedType)
         {
-            MathTest(left, right, ExpressionType.Divide, expectedValue, expectedType);
+            MathTest(left, right, MathematicalOperation.Divide, expectedValue, expectedType);
         }
-
 
         [TestCase(5, 3, 2, typeof(int), TestName = "Modulo Positive Integer")]
         [TestCase(-5, -3, -2, typeof(int), TestName = "Modulo Negative Integer")]
@@ -104,25 +104,25 @@ namespace IronVelocity.Tests.Binders
         [TestCase(1, 0, null, null, TestName = "Modulo By Zero")]
         public void BasicModuloTest(object left, object right, object expected, Type expectedType)
         {
-            MathTest(left, right, ExpressionType.Modulo, expected, expectedType);
+            MathTest(left, right, MathematicalOperation.Modulo, expected, expectedType);
         }
 
-        [TestCase(ExpressionType.Add)]
-        [TestCase(ExpressionType.Subtract)]
-        [TestCase(ExpressionType.Multiply)]
-        [TestCase(ExpressionType.Divide)]
-        [TestCase(ExpressionType.Modulo)]
-        public void OperatorOverloadNotSupported(ExpressionType type)
+        [TestCase(MathematicalOperation.Add)]
+        [TestCase(MathematicalOperation.Subtract)]
+        [TestCase(MathematicalOperation.Multiply)]
+        [TestCase(MathematicalOperation.Divide)]
+        [TestCase(MathematicalOperation.Modulo)]
+        public void OverloadedMathematicalOperation(MathematicalOperation operation)
         {
             var left = new OverloadedMaths(1);
             var right = new OverloadedMaths(3);
-            MathTest(left, right, type, expectedValue: null, expectedType: null);
+            MathTest(left, right, operation, expectedValue: null, expectedType: null);
         }
 
 
-        private void MathTest(object left, object right, ExpressionType expressionType, object expectedValue, Type expectedType)
+        private void MathTest(object left, object right, MathematicalOperation operation, object expectedValue, Type expectedType)
         {
-            var binder = new VelocityMathematicalOperationBinder(expressionType);
+            var binder = new VelocityMathematicalOperationBinder(operation, new ArgumentConverter());
 
             var result = InvokeBinder(binder, left, right);
 

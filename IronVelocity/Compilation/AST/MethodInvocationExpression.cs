@@ -1,33 +1,32 @@
 ﻿using IronVelocity.Binders;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
     public class MethodInvocationExpression : VelocityExpression
     {
+        private readonly InvokeMemberBinder _binder;
         public Expression Target { get; }
-        public string Name { get; }
+        public string Name => _binder.Name;
         public IReadOnlyList<Expression> Arguments { get; }
 
         public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.MethodInvocation;
 
-        public MethodInvocationExpression(Expression target, string name, IReadOnlyList<Expression> arguments, SourceInfo sourceInfo)
+        public MethodInvocationExpression(Expression target, IReadOnlyList<Expression> arguments, SourceInfo sourceInfo, InvokeMemberBinder binder)
         {
             if (target == null)
                 throw new ArgumentNullException(nameof(target));
-
-            if (string.IsNullOrEmpty(name))
-                throw new ArgumentOutOfRangeException(nameof(name));
 
             if (arguments == null)
                 throw new ArgumentOutOfRangeException(nameof(arguments));
 
             Target = target;
-            Name = name;
             Arguments = arguments;
             SourceInfo = sourceInfo;
+            _binder = binder;
         }
 
         public override Expression Reduce()
@@ -41,8 +40,8 @@ namespace IronVelocity.Compilation.AST
             }
 
             return Expression.Dynamic(
-                BinderHelper.Instance.GetInvokeMemberBinder(Name, Arguments.Count),
-                typeof(object),
+                _binder,
+                _binder.ReturnType,
                 args
             );
         }
@@ -52,7 +51,7 @@ namespace IronVelocity.Compilation.AST
             if (target == Target && arguments == Arguments)
                 return this;
             else
-                return new MethodInvocationExpression(target, Name, arguments, SourceInfo);
+                return new MethodInvocationExpression(target, arguments, SourceInfo, _binder);
         }
     }
 }

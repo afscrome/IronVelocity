@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Binders;
+using IronVelocity.Reflection;
 using NUnit.Framework;
 using System;
 using System.Linq.Expressions;
@@ -98,7 +99,7 @@ namespace IronVelocity.Tests.Binders
         private void TestAssignmentOnReferenceType<TTarget, TValue>(TTarget input, string memberName, TValue value)
             where TTarget : class
         {
-            var binder = new VelocitySetMemberBinder(memberName);
+            var binder = new VelocitySetMemberBinder(memberName, new MemberResolver());
 
             InvokeBinder(binder, input, value);
         }
@@ -166,7 +167,7 @@ namespace IronVelocity.Tests.Binders
             //    See https://dlr.codeplex.com/discussions/69200 for more details.
 
             
-            var binder = new VelocitySetMemberBinder(memberName);
+            var binder = new VelocitySetMemberBinder(memberName, new MemberResolver());
 
             var methodParameter = Expression.Parameter(typeof(TTarget).MakeByRefType());
             var delegateType = typeof(StructByReferenceDynamicDelegate<TTarget, TValue>);

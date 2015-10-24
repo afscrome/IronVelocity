@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Binders;
+using IronVelocity.Reflection;
 using NUnit.Framework;
 using System.Dynamic;
 
@@ -9,24 +10,12 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
         //With globals, binders may not be used, so only test in AsProvided Mode
         protected BinderReuseTestBase() : base(StaticTypingMode.AsProvided) { }
 
-        private BinderHelper _oldHelper;
         public int CallSiteBindCount => DuplicateBinderHelper.CallSiteBindCount;
 
-        [SetUp]
-        public void SetUp()
-        {
-            _oldHelper = BinderHelper.Instance;
-            BinderHelper.Instance = new DuplicateBinderHelper();
-        }
+        protected override BinderFactory CreateBinderFactory()
+            => new DuplicateBinderHelper();
 
-        [TearDown]
-        public void TearDown()
-        {
-            if(_oldHelper != null)
-                BinderHelper.Instance = _oldHelper;
-        }
-
-        private class DuplicateBinderHelper : BinderHelper
+        private class DuplicateBinderHelper : BinderFactory
         {
             public static int CallSiteBindCount { get; set; }
 
@@ -42,7 +31,7 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
             private class DupDetectionGetMemberBinder : VelocityGetMemberBinder
             {
                 public DupDetectionGetMemberBinder(string name)
-                    : base(name)
+                    : base(name, new MemberResolver())
                 {
                 }
 
@@ -57,7 +46,7 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
             private class DupDetectionSetMemberBinder : VelocitySetMemberBinder
             {
                 public DupDetectionSetMemberBinder(string name)
-                    : base(name)
+                    : base(name, new MemberResolver())
                 {
                 }
 
@@ -72,7 +61,7 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
             private class DupDetectionInvokeMemberBinder : VelocityInvokeMemberBinder
             {
                 public DupDetectionInvokeMemberBinder(string name, CallInfo callInfo)
-                    : base(name, callInfo)
+                    : base(name, callInfo, new MethodResolver(new ArgumentConverter()))
                 {
                 }
 
@@ -87,7 +76,7 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
             private class DupDetectionComparisonOperationBinder : VelocityComparisonOperationBinder
             {
                 public DupDetectionComparisonOperationBinder(ComparisonOperation type)
-                    : base(type)
+                    : base(type, new ArgumentConverter())
                 {
                 }
 
