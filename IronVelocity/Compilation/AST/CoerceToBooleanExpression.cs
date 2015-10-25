@@ -24,7 +24,7 @@ namespace IronVelocity.Compilation.AST
             if (expression.Type == typeof(bool) || expression.Type == typeof(bool?))
                 return expression;
 
-            else if (expression.Type.IsValueType)
+            else if (!TypeHelper.IsNullableType(Value.Type))
                 return Constants.True;
 
             expression = VelocityExpressions.ConvertIfNeeded(expression, typeof(object));

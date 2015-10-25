@@ -40,7 +40,7 @@ namespace IronVelocity.Compilation.AST
 
                     var toStringExpr = Expression.Call(element, MethodHelpers.ToStringMethodInfo);
 
-                    if (element.Type.IsValueType)
+                    if (!TypeHelper.IsNullableType(element.Type))
                         return toStringExpr;
 
                     return Expression.Condition(
