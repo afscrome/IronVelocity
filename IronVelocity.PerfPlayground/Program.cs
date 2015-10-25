@@ -10,8 +10,8 @@ namespace IronVelocity.PerfPlayground
         {
             var generator = new TemplateCompilation()
             {
-                ExecuteTemplate = false,
                 Compile = false,
+                ExecuteTemplate = false,
                 SaveDlls = false,
             };
             generator.TemplateDirectories.Add("../../templates/");
