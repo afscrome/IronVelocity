@@ -20,7 +20,7 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            if (Value.Type.IsValueType)
+            if (!TypeHelper.IsNullableType(Value.Type))
             {
                 var type = Value.Type;
                 var method = MethodHelpers.OutputValueTypeMethodInfo.MakeGenericMethod(Value.Type);
