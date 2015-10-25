@@ -149,20 +149,22 @@ namespace IronVelocity.Compilation
             if (expression is DynamicExpression || typeof(IDynamicMetaObjectProvider).IsAssignableFrom(expression.Type))
                 return false;
 
-            if (expression is ConstantExpression || expression is GlobalVariableExpression)
-                return true;
-
-            //Interpolated & dictionary strings will always return the same type
-            if (expression is InterpolatedStringExpression || expression is DictionaryStringExpression
-                || expression is DictionaryExpression || expression is ObjectArrayExpression)
+            if (expression is ConstantExpression || expression is DefaultExpression
+                || expression is InterpolatedStringExpression || expression is DictionaryStringExpression
+                || expression is DictionaryExpression || expression is ObjectArrayExpression
+                || expression is GlobalVariableExpression || expression is IntegerRangeExpression)
                 return true;
 
             if (expression.Type == typeof(void))
                 return true;
 
-            //If the return type is sealed, we can't get any subclasses back
-            if (expression.Type.IsSealed)
+            if (!TypeHelper.IsNullableType(expression.Type))
                 return true;
+
+            //If the return type is sealed, we can't get any subclasses back
+            //But it could be null
+            //if (expression.Type.IsSealed)
+            //    return true;
 
             var reference = expression as ReferenceExpression;
             if (reference != null && IsConstantType(reference.Value))
