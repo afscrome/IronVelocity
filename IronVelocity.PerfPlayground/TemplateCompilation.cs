@@ -27,6 +27,7 @@ namespace IronVelocity.PerfPlayground
         public ICollection<string> TemplateDirectories { get; } = new List<string>();
         public string TestNamePrefix { get; set; } = "Compilation";
         public ICollection<string> BlockDirectives { get; } = new List<string>();
+        private BinderFactory _binderFactory;
 
         [TestFixtureSetUp]
         public void SetUp()
@@ -41,6 +42,7 @@ namespace IronVelocity.PerfPlayground
                 if (!Directory.Exists(OutputDir))
                     Directory.CreateDirectory(OutputDir);
             }
+            _binderFactory = new BinderFactory();
         }
 
         [TestCaseSource("CreateTemplateTestCases")]
@@ -54,12 +56,12 @@ namespace IronVelocity.PerfPlayground
                 antlrDirectives.Add(new ForeachDirectiveBuilder());
 
 
-                var expressionTreeFactory = new VelocityExpressionFactory(new BinderFactory());
+                var expressionTreeFactory = new VelocityExpressionFactory(_binderFactory);
                 var parser = new AntlrVelocityParser(antlrDirectives, expressionTreeFactory);
 
 
                 var expressionTree = parser.Parse(file, assemblyName);
-                if (Compile)
+                if (Compile || ExecuteTemplate)
                 {
                     VelocityDiskCompiler diskCompiler = null;
                     VelocityCompiler compiler;
