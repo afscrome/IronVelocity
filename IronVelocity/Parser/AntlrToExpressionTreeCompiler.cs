@@ -19,6 +19,8 @@ namespace IronVelocity.Parser
         private readonly AntlrVelocityParser _parser;
         private readonly IReadOnlyCollection<CustomDirectiveBuilder> _customDirectives;
         private readonly VelocityExpressionFactory _expressionFactory;
+        private static readonly Expression _reducedHorizontalWhitespace = Expression.Constant(" ");
+        private static readonly Expression _reducedVerticalWhitespace = Expression.Constant("\n");
 
         public AntlrToExpressionTreeCompiler(AntlrVelocityParser parser, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives, VelocityExpressionFactory expressionFactory)
         {
@@ -54,9 +56,6 @@ namespace IronVelocity.Parser
 
                 switch (token.Type)
                 {
-                    case VelocityLexer.Whitespace:
-                    case VelocityLexer.Newline:
-                        goto default;
                     case VelocityLexer.EscapedDollar:
                         _textBuffer.Append('$');
                         break;
@@ -503,6 +502,24 @@ namespace IronVelocity.Parser
             => Visit(context.@string());
 
         public Expression VisitString([NotNull] VelocityParser.StringContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Expression VisitWhitespace([NotNull] VelocityParser.WhitespaceContext context)
+        {
+            //TODO: the below is requried for regression tests
+            return Expression.Constant(context.GetText());
+
+            //This is what we desire, but should be plugable
+            if (context.Newline().Length == 0)
+                return _reducedHorizontalWhitespace;
+            else
+                return _reducedVerticalWhitespace;
+        }
+
+
+        public Expression VisitRawText([NotNull] VelocityParser.RawTextContext context)
         {
             throw new NotImplementedException();
         }

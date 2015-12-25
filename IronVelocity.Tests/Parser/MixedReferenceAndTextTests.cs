@@ -11,7 +11,7 @@ namespace IronVelocity.Tests.Parser
         public void ParseTwoReferenceswithTextInBetween(string input, string reference1, string text, string reference2)
         {
             var result = Parse(input, x => x.block());
-            var textNode = result.text().Single();
+            var textNode = result.rawText().Single();
             Assert.That(textNode.GetText(), Is.EqualTo(text));
 
             var referenceTexts = result.reference().Select(x => x.GetText());

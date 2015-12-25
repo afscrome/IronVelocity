@@ -12,7 +12,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [TestCase("Hello World")]
-        [TestCase("With\r\nNewlines")]
+        [TestCase("With\nNewlines")]
         public void When_RenderingText_Should_RenderAsIs(string input)
         {
             var result = ExecuteTemplate(input);
