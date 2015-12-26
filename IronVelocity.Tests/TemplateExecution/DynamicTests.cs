@@ -18,31 +18,31 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
-        public void ShouldInvokeOnCustomDynamic()
+        public void ShouldDoInvokeMemberOperationOnCustomDynamic()
         {
-            var dynamic = new CustomDynamic();
+            var dynamic = new TestDynamicMetaObjectProvider();
             var context = new { Dynamic = dynamic };
 
             var execution = ExecuteTemplate("$dynamic.Foo('hello')", context);
 
-            Assert.That(execution.Output, Is.EqualTo("Invoke Foo: (hello)"));
+            Assert.That(execution.Output, Is.EqualTo("DMO InvokeMember Foo: (hello)"));
         }
 
         [Test]
-        public void ShouldGetMemberOnCustomDynamic()
+        public void ShouldDoGetMemberOperationOnCustomDynamic()
         {
-            dynamic dynamic = new CustomDynamic();
+            dynamic dynamic = new TestDynamicMetaObjectProvider();
             var context = new { Dynamic = dynamic };
 
             var execution = ExecuteTemplate("$dynamic.Fizz", context);
 
-            Assert.That(execution.Output, Is.EqualTo("GetMember: Fizz"));
+            Assert.That(execution.Output, Is.EqualTo("DMO GetMember: Fizz"));
         }
 
         [Test]
-        public void ShouldSetMemberOnCustomDynamic()
+        public void ShouldDoSetMemberOperationOnCustomDynamic()
         {
-            var dynamic = new CustomDynamic();
+            var dynamic = new TestDynamicMetaObjectProvider();
             var context = new { Dynamic = dynamic };
 
             var execution = ExecuteTemplate("#set($dynamic.Bar = 7.45)", context);
@@ -53,28 +53,28 @@ namespace IronVelocity.Tests.TemplateExecution
 
 
         [Test]
-        public void ShouldBinaryOnCustomDynamicForMathematicalExpression()
+        public void ShouldDoBinaryOperationOnCustomDynamicForMathematicalExpression()
         {
-            var dynamic = new CustomDynamic();
+            var dynamic = new TestDynamicMetaObjectProvider();
             var context = new { Dynamic = dynamic };
 
             var execution = ExecuteTemplate("#set($result = $dynamic + 1)", context);
 
-            var result = execution.Context["result"];
-            Assert.That(result, Is.EqualTo("Binary Add: 1"));
+            Assert.That(execution.Context.Keys, Contains.Item("result"));
+            Assert.That(execution.Context["result"], Is.EqualTo("DMO Binary Add: 1"));
         }
 
 
         [Test]
-        public void ShouldBinaryOnCustomDynamicForRelationalExpression()
+        public void ShouldDoBinaryOperationOnCustomDynamicForRelationalExpression()
         {
-            var dynamic = new CustomDynamic();
+            var dynamic = new TestDynamicMetaObjectProvider();
             var context = new { Dynamic = dynamic };
 
             var execution = ExecuteTemplate("#set($result = ($dynamic > 472))", context);
 
-            var result = execution.Context["result"];
-            Assert.That(result, Is.EqualTo("Binary GreaterThan: 472"));
+            Assert.That(execution.Context.Keys, Contains.Item("result"));
+            Assert.That(execution.Context["result"], Is.EqualTo("DMO Binary GreaterThan: 472"));
         }
 
 
@@ -171,7 +171,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
 
-        public class CustomDynamic : IDynamicMetaObjectProvider
+        public class TestDynamicMetaObjectProvider : IDynamicMetaObjectProvider
         {
             public IDictionary<string, object> SetValues { get; } = new Dictionary<string, object>();
 
@@ -182,22 +182,22 @@ namespace IronVelocity.Tests.TemplateExecution
 
             private class CustomDynamicMetaObject : DynamicMetaObject
             {
-                private readonly CustomDynamic _customDynamic;
+                private readonly TestDynamicMetaObjectProvider _customDynamic;
 
-                public CustomDynamicMetaObject(Expression expression, CustomDynamic value)
+                public CustomDynamicMetaObject(Expression expression, TestDynamicMetaObjectProvider value)
                     : base(expression, BindingRestrictions.Empty, value)
                 {
                     _customDynamic = value;
                 }
 
                 public override DynamicMetaObject BindGetMember(GetMemberBinder binder)
-                    => ConstantDynamicMetaObject($"GetMember: {binder.Name}");
+                    => ConstantDynamicMetaObject($"DMO GetMember: {binder.Name}");
 
                 public override DynamicMetaObject BindInvokeMember(InvokeMemberBinder binder, DynamicMetaObject[] args)
-                    => ConstantDynamicMetaObject($"Invoke {binder.Name}: ({string.Join(", ", args.Select(x => x.Value))})");
+                    => ConstantDynamicMetaObject($"DMO InvokeMember {binder.Name}: ({string.Join(", ", args.Select(x => x.Value))})");
 
                 public override DynamicMetaObject BindBinaryOperation(BinaryOperationBinder binder, DynamicMetaObject arg)
-                    => ConstantDynamicMetaObject($"Binary {binder.Operation}: {arg.Value}");
+                    => ConstantDynamicMetaObject($"DMO Binary {binder.Operation}: {arg.Value}");
 
 
                 public override DynamicMetaObject BindSetMember(SetMemberBinder binder, DynamicMetaObject value)
@@ -219,7 +219,7 @@ namespace IronVelocity.Tests.TemplateExecution
 
         }
 
-        public class MyDynamicObject : DynamicObject
+        public class TestDynamicObject : DynamicObject
         {
             public override DynamicMetaObject GetMetaObject(Expression parameter)
             {
