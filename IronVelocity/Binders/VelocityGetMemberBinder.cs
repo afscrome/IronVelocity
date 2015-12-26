@@ -47,8 +47,8 @@ namespace IronVelocity.Binders
                 BindingEventSource.Log.GetMemberResolutionAmbiguous(Name, target.RuntimeType.FullName);
             }
 
-            if(result == null)
-                result = Constants.VelocityUnresolvableResult;
+            if (result == null)
+                result = errorSuggestion?.Expression ?? Constants.VelocityUnresolvableResult;
             else
                 result = VelocityExpressions.BoxIfNeeded(result);
 

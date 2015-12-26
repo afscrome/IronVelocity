@@ -80,10 +80,10 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
                 {
                 }
 
-                public override DynamicMetaObject Bind(DynamicMetaObject target, DynamicMetaObject[] args)
+                public override DynamicMetaObject FallbackBinaryOperation(DynamicMetaObject target, DynamicMetaObject arg, DynamicMetaObject errorSuggestion)
                 {
                     CallSiteBindCount++;
-                    return base.Bind(target, args);
+                    return base.FallbackBinaryOperation(target, arg, errorSuggestion);
                 }
             }
 
