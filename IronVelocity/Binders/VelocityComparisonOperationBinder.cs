@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Binders
 {
-    public class VelocityComparisonOperationBinder : BinaryOperationBinder 
+    public class VelocityComparisonOperationBinder : BinaryOperationBinder
     {
         private readonly IArgumentConverter _argumentConverter;
 
@@ -28,24 +28,24 @@ namespace IronVelocity.Binders
             switch (Operation)
             {
                 case ComparisonOperation.Equal:
-                    return Compare(target, arg, Expression.Equal);
+                    return Compare(target, arg, Expression.Equal, errorSuggestion);
                 case ComparisonOperation.NotEqual:
-                    return Compare(target, arg, Expression.NotEqual);
+                    return Compare(target, arg, Expression.NotEqual, errorSuggestion);
                 case ComparisonOperation.LessThan:
-                    return Compare(target, arg, Expression.LessThan);
+                    return Compare(target, arg, Expression.LessThan, errorSuggestion);
                 case ComparisonOperation.LessThanOrEqual:
-                    return Compare(target, arg, Expression.LessThanOrEqual);
+                    return Compare(target, arg, Expression.LessThanOrEqual, errorSuggestion);
                 case ComparisonOperation.GreaterThan:
-                    return Compare(target, arg, Expression.GreaterThan);
+                    return Compare(target, arg, Expression.GreaterThan, errorSuggestion);
                 case ComparisonOperation.GreaterThanOrEqual:
-                    return Compare(target, arg, Expression.GreaterThanOrEqual);
+                    return Compare(target, arg, Expression.GreaterThanOrEqual, errorSuggestion);
                 default:
-                    throw new InvalidOperationException("Operation: '" + Operation +"' not supported");
+                    throw new InvalidOperationException("Operation: '" + Operation + "' not supported");
             }
         }
 
 
-        private DynamicMetaObject Compare(DynamicMetaObject target, DynamicMetaObject arg, Func<Expression, Expression, Expression> generator)
+        private DynamicMetaObject Compare(DynamicMetaObject target, DynamicMetaObject arg, Func<Expression, Expression, Expression> generator, DynamicMetaObject errorSuggestion)
         {
             //Cannot build a comparison expression until we've resolved the argument type & value
             if (!target.HasValue)
@@ -54,7 +54,7 @@ namespace IronVelocity.Binders
                 Defer(arg);
 
             BindingRestrictions restrictions = null;
-            Expression  mainExpression = null;
+            Expression mainExpression = null;
 
             var left = VelocityExpressions.ConvertIfNeeded(target);
             var right = VelocityExpressions.ConvertIfNeeded(arg);
@@ -92,12 +92,19 @@ namespace IronVelocity.Binders
             {
                 BindingEventSource.Log.ComparisonResolutionFailure(Operation, target.LimitType.FullName, arg.LimitType.FullName);
 
-                mainExpression = generator == Expression.NotEqual
-                    ? Constants.True
-                    : Constants.False;
+                if (errorSuggestion != null)
+                {
+                    mainExpression = errorSuggestion.Expression;
+                }
+                else
+                {
+                    mainExpression = generator == Expression.NotEqual
+                        ? Constants.True
+                        : Constants.False;
+                }
             }
 
-            if(restrictions == null)
+            if (restrictions == null)
             {
                 restrictions = DeduceArgumentRestrictions(target)
                     .Merge(DeduceArgumentRestrictions(arg));

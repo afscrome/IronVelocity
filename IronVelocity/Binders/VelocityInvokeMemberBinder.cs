@@ -82,7 +82,7 @@ namespace IronVelocity.Binders
                         log.InvokeMemberResolutionFailure(Name, target.LimitType.FullName, argTypeString);
                 }
 
-                result = Constants.VelocityUnresolvableResult;
+                result = errorSuggestion?.Expression ?? Constants.VelocityUnresolvableResult;
             }
             else
             {

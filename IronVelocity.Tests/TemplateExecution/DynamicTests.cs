@@ -78,6 +78,98 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
 
+        [Test]
+        public void ShouldInvokeGetMemberOnDynamicObject()
+        {
+            var dynamic = new CustomDynamicObject();
+
+            var context = new { Dynamic = dynamic };
+            var execution = ExecuteTemplate("$dynamic.Prop", context);
+
+            Assert.That(execution.Output, Is.EqualTo("DO GetMember: Prop"));
+        }
+
+        [Test]
+        [Ignore("Issue #52")]
+        public void ShouldInvokeInvokeMemberOnDynamicObject()
+        {
+            var dynamic = new CustomDynamicObject();
+
+            var context = new { Dynamic = dynamic };
+            var execution = ExecuteTemplate("$dynamic.Double(87)", context);
+
+            Assert.That(execution.Output, Is.EqualTo("174"));
+        }
+
+        [Test]
+        public void ShouldInvokeSetMemberOnDynamicObject()
+        {
+            var dynamic = new CustomDynamicObject();
+
+            var context = new { Dynamic = dynamic };
+            var execution = ExecuteTemplate("#set($dynamic.SetMe = true)", context);
+
+            Assert.That(dynamic.SetMembers.Keys, Contains.Item("SetMe"));
+            Assert.That(dynamic.SetMembers["SetMe"], Is.EqualTo(true));
+        }
+
+        [Test]
+        public void ShouldInvokeBinaryOnDynamicObjectForMathematicalExpressioh()
+        {
+            var dynamic = new CustomDynamicObject();
+
+            var context = new { Dynamic = dynamic };
+            var execution = ExecuteTemplate("#set($result = $dynamic + 1)", context);
+
+            Assert.That(execution.Context.Keys, Contains.Item("result"));
+            Assert.That(execution.Context["result"], Is.EqualTo("DO Binary Add: 1"));
+        }
+
+
+
+        [Test]
+        public void ShouldInvokeBinaryOnDynamicObjectFoRelationalExpressioh()
+        {
+            var dynamic = new CustomDynamicObject();
+
+            var context = new { Dynamic = dynamic };
+            var execution = ExecuteTemplate("#set($result = $dynamic != false)", context);
+
+            Assert.That(execution.Context.Keys, Contains.Item("result"));
+            Assert.That(execution.Context["result"], Is.EqualTo("DO Binary NotEqual: False"));
+        }
+
+
+        public class CustomDynamicObject : DynamicObject
+        {
+            public IDictionary<string, object> SetMembers { get; } = new Dictionary<string, object>();
+
+            public override bool TryGetMember(GetMemberBinder binder, out object result)
+            {
+                result = $"DO GetMember: {binder.Name}";
+                return true;
+            }
+
+            public override bool TrySetMember(SetMemberBinder binder, object value)
+            {
+                SetMembers[binder.Name] = value;
+                return true;
+            }
+
+            public override bool TryInvokeMember(InvokeMemberBinder binder, object[] args, out object result)
+            {
+                result = $"DO InvokeMember {binder.Name}: ({string.Join(", ", args)})";
+                return true;
+            }
+
+            public override bool TryBinaryOperation(BinaryOperationBinder binder, object arg, out object result)
+            {
+                result = $"DO Binary {binder.Operation}: {arg}";
+                return true;
+            }
+
+        }
+
 
         public class CustomDynamic : IDynamicMetaObjectProvider
         {
