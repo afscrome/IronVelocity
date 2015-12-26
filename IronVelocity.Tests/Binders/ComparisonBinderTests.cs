@@ -99,7 +99,7 @@ namespace IronVelocity.Tests.Binders
         {
             var binder = new VelocityComparisonOperationBinder(operation, new ArgumentConverter());
 
-            var result = InvokeBinder<bool>(binder, left, right);
+            var result = InvokeBinder(binder, left, right);
 
             Assert.AreEqual(expected, result);
         }

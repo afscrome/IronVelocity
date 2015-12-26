@@ -6,32 +6,25 @@ using System.Linq.Expressions;
 
 namespace IronVelocity.Binders
 {
-    public class VelocityComparisonOperationBinder : DynamicMetaObjectBinder 
+    public class VelocityComparisonOperationBinder : BinaryOperationBinder 
     {
         private readonly IArgumentConverter _argumentConverter;
 
-        public override Type ReturnType => typeof(bool);
+        //public override Type ReturnType => typeof(bool);
         public ComparisonOperation Operation { get; }
 
         public VelocityComparisonOperationBinder(ComparisonOperation type, IArgumentConverter argumentConverter)
+            : base(ComparisonOperationToExpressionType(type))
         {
             Operation = type;
             _argumentConverter = argumentConverter;
         }
-        
-        public override DynamicMetaObject Bind(DynamicMetaObject target, DynamicMetaObject[] args)
+
+        public override DynamicMetaObject FallbackBinaryOperation(DynamicMetaObject target, DynamicMetaObject arg, DynamicMetaObject errorSuggestion)
         {
             if (target == null)
                 throw new ArgumentNullException(nameof(target));
 
-            if (args == null)
-                throw new ArgumentNullException(nameof(args));
-
-
-            if (args.Length != 1)
-                throw new ArgumentOutOfRangeException(nameof(args));
-
-            var arg = args[0];
             switch (Operation)
             {
                 case ComparisonOperation.Equal:
@@ -124,6 +117,27 @@ namespace IronVelocity.Binders
                 return BindingRestrictions.GetTypeRestriction(value.Expression, value.RuntimeType);
             else
                 return BindingRestrictions.GetInstanceRestriction(value.Expression, null);
+        }
+
+        private static ExpressionType ComparisonOperationToExpressionType(ComparisonOperation operation)
+        {
+            switch (operation)
+            {
+                case ComparisonOperation.Equal:
+                    return ExpressionType.Equal;
+                case ComparisonOperation.NotEqual:
+                    return ExpressionType.NotEqual;
+                case ComparisonOperation.LessThan:
+                    return ExpressionType.LessThan;
+                case ComparisonOperation.LessThanOrEqual:
+                    return ExpressionType.LessThanOrEqual;
+                case ComparisonOperation.GreaterThan:
+                    return ExpressionType.GreaterThan;
+                case ComparisonOperation.GreaterThanOrEqual:
+                    return ExpressionType.GreaterThanOrEqual;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(operation), operation, "Invalid enumeration value");
+            }
         }
     }
 
