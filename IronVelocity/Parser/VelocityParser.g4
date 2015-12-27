@@ -41,11 +41,12 @@ customDirective :
 reference : Dollar Exclamation? referenceBody
 	| Dollar Exclamation? LeftCurley referenceBody RightCurley;
 
-referenceBody : variable (Dot ( methodInvocation | propertyInvocation))* ;
+referenceBody : variable (Dot ( methodInvocation | propertyInvocation)| indexInvocation)* ;
 
 variable : Identifier;
 propertyInvocation: Identifier ;
 methodInvocation: Identifier LeftParenthesis argument_list RightParenthesis;
+indexInvocation : LeftSquare argument_list RightSquare ;
 
 argument_list : (expression (Comma expression)*)? ;
 

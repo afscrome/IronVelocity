@@ -506,5 +506,10 @@ namespace IronVelocity.Parser
         {
             throw new NotImplementedException();
         }
+
+        public Expression VisitIndexInvocation([NotNull] VelocityParser.IndexInvocationContext context)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
