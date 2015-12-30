@@ -3,6 +3,7 @@ using System.Linq;
 using IronVelocity.Binders;
 using System.Dynamic;
 using NUnit.Framework;
+using IronVelocity.Reflection;
 
 namespace IronVelocity.Tests.Binders
 {
@@ -72,7 +73,8 @@ namespace IronVelocity.Tests.Binders
 
         private object GetIndexerTest(object input, params object[] args)
         {
-            var binder = new VelocityGetIndexBinder(new CallInfo(args.Length));
+            var resolver = new IndexResolver();
+            var binder = new VelocityGetIndexBinder(resolver, new CallInfo(args.Length));
             args = new[] { input }.Concat(args).ToArray();
 
             return InvokeBinder(binder, args);

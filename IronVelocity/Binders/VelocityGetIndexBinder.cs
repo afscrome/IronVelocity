@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Compilation;
+using IronVelocity.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -11,10 +12,12 @@ namespace IronVelocity.Binders
 {
     public class VelocityGetIndexBinder : GetIndexBinder
     {
-        public VelocityGetIndexBinder(CallInfo callInfo):
+        private readonly IIndexResolver _indexerResolver;
+
+        public VelocityGetIndexBinder(IIndexResolver indexerResolver, CallInfo callInfo) :
             base(callInfo)
         {
-
+            _indexerResolver = indexerResolver;
         }
 
         public override DynamicMetaObject FallbackGetIndex(DynamicMetaObject target, DynamicMetaObject[] indexes, DynamicMetaObject errorSuggestion)
@@ -32,44 +35,13 @@ namespace IronVelocity.Binders
             if (target.Value == null)
                 return BinderHelper.NullTargetResult(target,errorSuggestion);
 
-            var arrayRank = target.LimitType.GetArrayRank();
-
-            return arrayRank == 0
-                ? CustomIndexer(target, indexes, errorSuggestion)
-                : ArrayIndexer(arrayRank, target, indexes, errorSuggestion);
-        }
-
-        protected virtual DynamicMetaObject ArrayIndexer(int arrayRank, DynamicMetaObject target, DynamicMetaObject[] indexes, DynamicMetaObject errorSuggestion)
-        {
-            Expression result;
+            var index = _indexerResolver.ReadableIndexer(target, indexes);
             var restrictions = BinderHelper.CreateCommonRestrictions(target, indexes);
-            if (arrayRank == indexes.Length && indexes.All(x => x.LimitType == typeof(int)))
-            {
-                result = VelocityExpressions.ConvertIfNeeded(Expression.ArrayAccess(target.Expression, indexes.Select(x => x.Expression).ToArray()), ReturnType);
 
-                return new DynamicMetaObject(result, restrictions);
-            }
-            else
-            {
-                if (errorSuggestion != null)
-                {
-                    result= errorSuggestion.Expression;
-                    restrictions = restrictions.Merge(errorSuggestion.Restrictions);
-                }
-                else
-                {
-                    result = Constants.VelocityUnresolvableResult;
-                }
-            }
+            if (index == null)
+                return BinderHelper.UnresolveableResult(restrictions, errorSuggestion);
 
-            return new DynamicMetaObject(result, restrictions);
-        }
-
-
-        protected virtual DynamicMetaObject CustomIndexer(DynamicMetaObject target, DynamicMetaObject[] indexes, DynamicMetaObject errorSuggestion)
-        {
-            throw new NotImplementedException();
-
+            return new DynamicMetaObject(VelocityExpressions.ConvertIfNeeded(index, ReturnType), restrictions);
         }
     }
 }
