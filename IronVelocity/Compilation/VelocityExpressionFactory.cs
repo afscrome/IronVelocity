@@ -44,7 +44,7 @@ namespace IronVelocity.Compilation
     {
         private IReadOnlyDictionary<string, object> _globals;
         private readonly IMemberResolver _memberResolver = new MemberResolver();
-        private readonly IMethodResolver _methodResolver = new MethodResolver(new ArgumentConverter());
+        private readonly IMethodResolver _methodResolver = new MethodResolver(new OverloadResolver(new ArgumentConverter()), new ArgumentConverter());
 
         private readonly IDictionary<string, Expression> _variableCache = new Dictionary<string, Expression>();
 

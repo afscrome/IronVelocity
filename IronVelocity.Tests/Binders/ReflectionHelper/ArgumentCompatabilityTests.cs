@@ -8,20 +8,20 @@ namespace IronVelocity.Tests.Binders
     //Tests based on section 6.1 from C# spec
     public class ArgumentCompatabilityTests
     {
-        private readonly MethodResolver _methodResolver = new MethodResolver(new ArgumentConverter());
+        private readonly OverloadResolver _overloadResolution = new OverloadResolver(new ArgumentConverter());
 
         [Test]
         public void ChildTypeIsCompatibleWithParent()
         {
             var param = GetParameterInfo("Parent");
-            var result = _methodResolver.IsArgumentCompatible(typeof(Child), param);
+            var result = _overloadResolution.IsArgumentCompatible(typeof(Child), param);
             Assert.IsTrue(result);
         }
         [Test]
         public void ParentTypeIsIncompatibleWithChild()
         {
             var param = GetParameterInfo("Child");
-            var result = _methodResolver.IsArgumentCompatible(typeof(Parent), param);
+            var result = _overloadResolution.IsArgumentCompatible(typeof(Parent), param);
             Assert.IsFalse(result);
         }
 
@@ -29,7 +29,7 @@ namespace IronVelocity.Tests.Binders
         public void SiblingTypesAreIncompatible()
         {
             var param = GetParameterInfo("Son");
-            var result = _methodResolver.IsArgumentCompatible(typeof(Daughter), param);
+            var result = _overloadResolution.IsArgumentCompatible(typeof(Daughter), param);
             Assert.IsFalse(result);
         }
 
@@ -37,7 +37,7 @@ namespace IronVelocity.Tests.Binders
         public void UnderlyingTypeIsCompatibleWithParamsArray()
         {
             var param = GetParameterInfo("ParamArray");
-            var result = _methodResolver.IsArgumentCompatible(typeof(Child), param);
+            var result = _overloadResolution.IsArgumentCompatible(typeof(Child), param);
             Assert.IsTrue(result);
         }
 
@@ -45,7 +45,7 @@ namespace IronVelocity.Tests.Binders
         public void UnderlyingTypeArrayIsCompatibleWithParamsArray()
         {
             var param = GetParameterInfo("ParamArray");
-            var result = _methodResolver.IsArgumentCompatible(typeof(Child[]), param);
+            var result = _overloadResolution.IsArgumentCompatible(typeof(Child[]), param);
             Assert.IsTrue(result);
         }
 
@@ -53,7 +53,7 @@ namespace IronVelocity.Tests.Binders
         public void ParentOfUnderlyingTypeIsIncompatibleWithParamsArray()
         {
             var param = GetParameterInfo("ParamArray");
-            var result = _methodResolver.IsArgumentCompatible(typeof(Parent), param);
+            var result = _overloadResolution.IsArgumentCompatible(typeof(Parent), param);
             Assert.IsFalse(result);
         }
 
@@ -61,14 +61,14 @@ namespace IronVelocity.Tests.Binders
         public void ChildOfUnderlyingTypeIsIncompatibleWithParamsArray()
         {
             var param = GetParameterInfo("ParamArray");
-            var result = _methodResolver.IsArgumentCompatible(typeof(Son), param);
+            var result = _overloadResolution.IsArgumentCompatible(typeof(Son), param);
             Assert.IsTrue(result);
         }
         [Test]
         public void ChildOfUnderlyingTypeArrayIsIncompatibleWithParamsArray()
         {
             var param = GetParameterInfo("ParamArray");
-            var result = _methodResolver.IsArgumentCompatible(typeof(Son[]), param);
+            var result = _overloadResolution.IsArgumentCompatible(typeof(Son[]), param);
             Assert.IsTrue(result);
         }
 
@@ -76,7 +76,7 @@ namespace IronVelocity.Tests.Binders
         public void NullIsIncompatibleWithValueType()
         {
             var param = GetParameterInfo("ValueType");
-            var result = _methodResolver.IsArgumentCompatible(null, param);
+            var result = _overloadResolution.IsArgumentCompatible(null, param);
             Assert.IsFalse(result);
         }
 
@@ -84,7 +84,7 @@ namespace IronVelocity.Tests.Binders
         public void NullIsIncompatibleWithPrimitive()
         {
             var param = GetParameterInfo("Primitive");
-            var result = _methodResolver.IsArgumentCompatible(null, param);
+            var result = _overloadResolution.IsArgumentCompatible(null, param);
             Assert.IsFalse(result);
         }
 
@@ -92,7 +92,7 @@ namespace IronVelocity.Tests.Binders
         public void NullIsCompatibleWithReferenceType()
         {
             var param = GetParameterInfo("ReferenceType");
-            var result = _methodResolver.IsArgumentCompatible(null, param);
+            var result = _overloadResolution.IsArgumentCompatible(null, param);
             Assert.IsTrue(result);
         }
 
@@ -100,7 +100,7 @@ namespace IronVelocity.Tests.Binders
         public void PrimitiveCanBeBoxedToObject()
         {
             var param = GetParameterInfo("Object");
-            var result = _methodResolver.IsArgumentCompatible(typeof(int), param);
+            var result = _overloadResolution.IsArgumentCompatible(typeof(int), param);
             Assert.IsTrue(result);
         }
 
@@ -108,14 +108,14 @@ namespace IronVelocity.Tests.Binders
         public void ValueTypeCanBeBoxedToObject()
         {
             var param = GetParameterInfo("Object");
-            var result = _methodResolver.IsArgumentCompatible(typeof(Guid), param);
+            var result = _overloadResolution.IsArgumentCompatible(typeof(Guid), param);
             Assert.IsTrue(result);
         }
         [Test]
         public void GenericTypeArgumentNotSupported()
         {
             var param = GetParameterInfo("GenericArgument");
-            var result = _methodResolver.IsArgumentCompatible(typeof(object), param);
+            var result = _overloadResolution.IsArgumentCompatible(typeof(object), param);
             Assert.IsFalse(result);
         }
 

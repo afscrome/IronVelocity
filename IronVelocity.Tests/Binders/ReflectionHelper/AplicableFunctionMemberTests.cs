@@ -1,19 +1,22 @@
 ﻿using IronVelocity.Reflection;
 using NUnit.Framework;
 using System;
+using System.Reflection;
 
 namespace IronVelocity.Tests.Binders
 {
-    public class MethodApplicabilityTests
+    public class AplicableFunctionMemberTests
     {
-        private readonly MethodResolver _methodResolver = new MethodResolver(new ArgumentConverter());
+        private readonly OverloadResolver _methodResolver = new OverloadResolver(new ArgumentConverter());
 
+        private bool IsMethodApplicable(MethodInfo method, params Type[] argTypes)
+            => _methodResolver.IsApplicableFunctionMember(method.GetParameters(), argTypes);
 
         [Test]
         public void ParameterlessMethodIsApplicable()
         {
             var method = typeof(TestMethods).GetMethod("Parameterless");
-            var result = _methodResolver.IsMethodApplicable(method);
+            var result = IsMethodApplicable(method);
             Assert.IsTrue(result);
         }
 
@@ -21,7 +24,7 @@ namespace IronVelocity.Tests.Binders
         public void MethodWithSingleArgumentIsApplicable()
         {
             var method = typeof(TestMethods).GetMethod("Int");
-            var result = _methodResolver.IsMethodApplicable(method, typeof(int));
+            var result = IsMethodApplicable(method, typeof(int));
             Assert.IsTrue(result);
         }
 
@@ -29,7 +32,7 @@ namespace IronVelocity.Tests.Binders
         public void MethodWithDerivedArgumentIsApplicable()
         {
             var method = typeof(TestMethods).GetMethod("Parent");
-            var result = _methodResolver.IsMethodApplicable(method, typeof(Child));
+            var result = IsMethodApplicable(method, typeof(Child));
             Assert.IsTrue(result);
         }
 
@@ -37,7 +40,7 @@ namespace IronVelocity.Tests.Binders
         public void MethodWithIncompatibleSingleArgumentIsNotApplicable()
         {
             var method = typeof(TestMethods).GetMethod("Int");
-            var result = _methodResolver.IsMethodApplicable(method, typeof(string));
+            var result = IsMethodApplicable(method, typeof(string));
             Assert.IsFalse(result);
         }
 
@@ -45,7 +48,7 @@ namespace IronVelocity.Tests.Binders
         public void MethodWithParentArgumentIsApplicable()
         {
             var method = typeof(TestMethods).GetMethod("Child");
-            var result = _methodResolver.IsMethodApplicable(method, typeof(Parent));
+            var result = IsMethodApplicable(method, typeof(Parent));
             Assert.IsFalse(result);
         }
 
@@ -53,7 +56,7 @@ namespace IronVelocity.Tests.Binders
         public void MethodWithReferenceTypeIsApplicableWithNullValue()
         {
             var method = typeof(TestMethods).GetMethod("Child");
-            var result = _methodResolver.IsMethodApplicable(method, new Type[] {null});
+            var result = IsMethodApplicable(method, new Type[] {null});
             Assert.IsTrue(result);
         }
 
@@ -61,39 +64,16 @@ namespace IronVelocity.Tests.Binders
         public void MethodWithValueTypeIsNotApplicableWithNullValue()
         {
             var method = typeof(TestMethods).GetMethod("Int");
-            var result = _methodResolver.IsMethodApplicable(method, new Type[] { null });
+            var result = IsMethodApplicable(method, new Type[] { null });
             Assert.IsFalse(result);
         }
 
-        [Test]
-        public void MethodWithGenericSignatureIsNotApplicable()
-        {
-            var method = typeof(TestMethods).GetMethod("Generic");
-            var result = _methodResolver.IsMethodApplicable(method);
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void MethodWithGenericReturnTypeIsNotApplicable()
-        {
-            var method = typeof(TestMethods).GetMethod("GenericReturn");
-            var result = _methodResolver.IsMethodApplicable(method);
-            Assert.IsFalse(result);
-        }
-
-        [Test]
-        public void MethodWithGenericArgumentIsNotApplicable()
-        {
-            var method = typeof(TestMethods).GetMethod("GenericArg");
-            var result = _methodResolver.IsMethodApplicable(method, new Type[] { null });
-            Assert.IsFalse(result);
-        }
 
         [Test]
         public void ParamsArrayIsApplicableToNoArgument()
         {
             var method = typeof(TestMethods).GetMethod("ParamArray");
-            var result = _methodResolver.IsMethodApplicable(method);
+            var result = IsMethodApplicable(method);
             Assert.IsTrue(result);
         }
 
@@ -101,7 +81,7 @@ namespace IronVelocity.Tests.Binders
         public void ParamsArrayIsApplicableToSingleArgument()
         {
             var method = typeof(TestMethods).GetMethod("ParamArray");
-            var result = _methodResolver.IsMethodApplicable(method, typeof(string));
+            var result = IsMethodApplicable(method, typeof(string));
             Assert.IsTrue(result);
         }
 
@@ -109,7 +89,7 @@ namespace IronVelocity.Tests.Binders
         public void ParamsArrayIsApplicableToTwoArguments()
         {
             var method = typeof(TestMethods).GetMethod("ParamArray");
-            var result = _methodResolver.IsMethodApplicable(method, typeof(string), typeof(string));
+            var result = IsMethodApplicable(method, typeof(string), typeof(string));
             Assert.IsTrue(result);
         }
 
@@ -117,7 +97,7 @@ namespace IronVelocity.Tests.Binders
         public void StringArrayIsApplicableToStringParamArray()
         {
             var method = typeof(TestMethods).GetMethod("ParamArray");
-            var result = _methodResolver.IsMethodApplicable(method, typeof(string[]));
+            var result = IsMethodApplicable(method, typeof(string[]));
             Assert.IsTrue(result);
         }
 
@@ -125,7 +105,7 @@ namespace IronVelocity.Tests.Binders
         public void ParamsArrayWithOptionalParamIsNotApplicableToSingleArgument()
         {
             var method = typeof(TestMethods).GetMethod("ParamArrayWithOptional");
-            var result = _methodResolver.IsMethodApplicable(method, typeof(string));
+            var result = IsMethodApplicable(method, typeof(string));
             Assert.IsFalse(result);
         }
 
@@ -138,10 +118,6 @@ namespace IronVelocity.Tests.Binders
             public void Child(Child arg) { }
 
             public void ParamArray(params string[] args) { }
-
-            public void Generic<T>() { }
-            public T GenericReturn<T>() => default(T);
-            public void GenericArg<T>(T arg) { }
 
             public void NoMandatoryOneOptional(string s = null) { }
             public void OneMandatoryOneOptional(int i, string s = null) { }

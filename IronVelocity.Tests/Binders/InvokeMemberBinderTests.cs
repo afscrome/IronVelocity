@@ -183,7 +183,7 @@ namespace IronVelocity.Tests.Binders
 
         private object test(object input, string methodName, params object[] paramaters)
         {
-            var binder = new VelocityInvokeMemberBinder(methodName, new CallInfo(paramaters.Length), new MethodResolver(new ArgumentConverter()));
+            var binder = new VelocityInvokeMemberBinder(methodName, new CallInfo(paramaters.Length), new MethodResolver(new OverloadResolver(new ArgumentConverter()), new ArgumentConverter()));
 
             var args = new[] { input }.Concat(paramaters).ToArray();
 

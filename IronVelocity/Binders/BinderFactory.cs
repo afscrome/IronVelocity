@@ -28,7 +28,7 @@ namespace IronVelocity.Binders
         public BinderFactory()
         {
             _argumentConverter = new ArgumentConverter();
-            _methodResolver = new MethodResolver(_argumentConverter);
+            _methodResolver = new MethodResolver(new OverloadResolver(_argumentConverter), _argumentConverter);
             _memberResolver = new MemberResolver();
         }
 
