@@ -4,6 +4,7 @@ using IronVelocity.Binders;
 using System.Dynamic;
 using NUnit.Framework;
 using IronVelocity.Reflection;
+using System.Collections.Generic;
 
 namespace IronVelocity.Tests.Binders
 {
@@ -70,10 +71,19 @@ namespace IronVelocity.Tests.Binders
             Assert.That(result, Is.Null);
         }
 
+        [Test]
+        public void ShouldGetIndexOnList()
+        {
+            var list = new List<string> { "foo", "bar" };
+
+            var result = GetIndexerTest(list, 0);
+
+            Assert.That(result, Is.EqualTo("foo"));
+        }
 
         private object GetIndexerTest(object input, params object[] args)
         {
-            var resolver = new IndexResolver();
+            var resolver = new IndexResolver(new MethodResolver(new ArgumentConverter()));
             var binder = new VelocityGetIndexBinder(resolver, new CallInfo(args.Length));
             args = new[] { input }.Concat(args).ToArray();
 
