@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -8,19 +8,41 @@ namespace IronVelocity.Reflection
 {
     public class IndexResolver : IIndexResolver
     {
-        private readonly IMethodResolver _methodResolver;
+        private readonly IOverloadResolver _overloadResolver;
+        private readonly IArgumentConverter _argumentConverter = new ArgumentConverter();
 
-        public IndexResolver(IMethodResolver methodResolver)
+        public IndexResolver(IOverloadResolver overloadResolver)
         {
-            _methodResolver = methodResolver;
+            _overloadResolver = overloadResolver;
         }
 
         public Expression ReadableIndexer(DynamicMetaObject target, DynamicMetaObject[] args)
         {
-            return target.RuntimeType.IsArray
-                ? ArrayIndexer(target, args)
-                : CustomIndexer(target, args);
+            if (target.RuntimeType.IsArray)
+                return ArrayIndexer(target, args);
+
+            var candidates  = GetCandidateIndexers(target.RuntimeType.GetTypeInfo())
+                .Select(x => new FunctionMemberData<PropertyInfo>(x, x.GetIndexParameters()));
+
+            var typeArgs = args.Select(x => x.RuntimeType.GetTypeInfo()).ToArray();
+
+            var result = _overloadResolver.Resolve(candidates, typeArgs);
+
+            if (result == null)
+                return null;
+
+            var argExpressions = _overloadResolver.CreateParameterExpressions(result.Parameters, args);
+
+            return Expression.MakeIndex(target.Expression, result.FunctionMember, argExpressions);
         }
+
+
+        private IEnumerable<PropertyInfo> GetCandidateIndexers(TypeInfo targetType)
+        {
+            return targetType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(x => x.Name == "Item");
+        }
+
 
         public Expression WriteableIndexer(DynamicMetaObject target, DynamicMetaObject[] args)
         {
@@ -36,21 +58,6 @@ namespace IronVelocity.Reflection
                 return Expression.ArrayAccess(target.Expression, args.Select(x => x.Expression));
             }
             return null;
-        }
-
-        protected virtual Expression CustomIndexer(DynamicMetaObject target, DynamicMetaObject[] args)
-        {
-            //TODO: Is there a custom indexer name (System.Runtime.CompilerServices.IndexerNameAttribute)
-            //TODO: What about the whole hierarchy?
-
-            var argTypes = args.Select(X => X.RuntimeType).ToArray();
-
-            var method = _methodResolver.ResolveMethod(target.RuntimeType.GetTypeInfo(), "get_Item", argTypes);
-
-            if (method == null)
-                return null;
-
-            return Expression.Call(target.Expression, method,  args.Select(x => x.Expression));
         }
 
     }

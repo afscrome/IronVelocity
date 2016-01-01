@@ -27,7 +27,7 @@ namespace IronVelocity.Reflection
             if (args == null)
                 throw new ArgumentNullException(nameof(args));
 
-            var argExpressions = ConvertDynamicMetaObjectToMatchMethodParameters(method.GetParameters(), args);
+            var argExpressions = _overloadResolver.CreateParameterExpressions(method.GetParameters(), args);
 
             Expression result = Expression.Call(
                 VelocityExpressions.ConvertIfNeeded(target, method.DeclaringType),
@@ -46,55 +46,6 @@ namespace IronVelocity.Reflection
             return result;
         }
 
-        public Expression[] ConvertDynamicMetaObjectToMatchMethodParameters(ParameterInfo[] parameters, DynamicMetaObject[] args)
-        {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
-
-            if (args == null)
-                throw new ArgumentNullException(nameof(args));
-
-            var lastParameter = parameters.LastOrDefault();
-            bool hasParamsArray = _overloadResolver.IsParameterArrayArgument(lastParameter);
-
-            int trivialParams = hasParamsArray
-                ? parameters.Length - 1
-                : parameters.Length;
-
-            var argTypeArray = args
-                .Select(x => x.Value == null ? null : x.LimitType)
-                .ToArray();
-
-
-            var argExpressions = new Expression[parameters.Length];
-            for (int i = 0; i < trivialParams; i++)
-            {
-                var parameter = parameters[i];
-                argExpressions[i] = VelocityExpressions.ConvertParameterIfNeeded(args[i], parameter);
-            }
-            if (hasParamsArray)
-            {
-                int lastIndex = argExpressions.Length - 1;
-                //Check if the array has been explicitly passed, rather than as individual elements
-                if (args.Length == parameters.Length
-                    && _argumentConverter.CanBeConverted(argTypeArray.Last(), lastParameter.ParameterType)
-                    && argTypeArray.Last() != null)
-                {
-                    argExpressions[lastIndex] = VelocityExpressions.ConvertParameterIfNeeded(args[lastIndex], lastParameter);
-                }
-                else
-                {
-                    var elementType = lastParameter.ParameterType.GetElementType();
-                    argExpressions[lastIndex] = Expression.NewArrayInit(
-                        elementType,
-                        args.Skip(lastIndex)
-                            .Select(x => VelocityExpressions.ConvertIfNeeded(x, elementType))
-                        );
-                }
-            }
-
-            return argExpressions;
-        }
 
 
 
