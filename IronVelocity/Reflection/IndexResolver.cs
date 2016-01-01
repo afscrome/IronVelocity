@@ -22,6 +22,7 @@ namespace IronVelocity.Reflection
                 return ArrayIndexer(target, args);
 
             var candidates  = GetCandidateIndexers(target.RuntimeType.GetTypeInfo())
+                .Where(x => x.CanRead)
                 .Select(x => new FunctionMemberData<PropertyInfo>(x, x.GetIndexParameters()));
 
             var typeArgs = args.Select(x => x.RuntimeType.GetTypeInfo()).ToArray();

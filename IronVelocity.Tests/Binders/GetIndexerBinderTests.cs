@@ -72,6 +72,37 @@ namespace IronVelocity.Tests.Binders
         }
 
         [Test]
+        public void ShouldGetIndexWithOneParameter()
+        {
+            var input = new IndexerTestHelper();
+            var arg = new Guid("d182d744-e9f4-4811-9336-3d7d87b586a9");
+
+            var result = GetIndexerTest(input, arg);
+
+            Assert.That(result, Is.EqualTo(arg));
+        }
+
+        [Test]
+        public void ShouldGetIndexWithTwoParameters()
+        {
+            var input = new IndexerTestHelper();
+
+            var result = GetIndexerTest(input, 1.923, 4.73);
+
+            Assert.That(result, Is.EqualTo("1.923 4.73"));
+        }
+
+        [Test]
+        public void ShouldGetIndexWithParamsArgument()
+        {
+            var input = new IndexerTestHelper();
+
+            var result = GetIndexerTest(input, 73, 917, 12, -19);
+
+            Assert.That(result, Is.EqualTo("73, 917, 12, -19"));
+        }
+
+        [Test]
         public void ShouldGetIndexOnList()
         {
             var list = new List<string> { "foo", "bar" };
@@ -81,6 +112,17 @@ namespace IronVelocity.Tests.Binders
             Assert.That(result, Is.EqualTo("foo"));
         }
 
+        [Test]
+        public void ShouldIgnoreSetterOnlyIndexer()
+        {
+            var input = new IndexerTestHelper();
+
+            var result = GetIndexerTest(input, "Foo");
+
+            Assert.That(result, Is.Null);
+        }
+
+        
         private object GetIndexerTest(object input, params object[] args)
         {
             var resolver = new IndexResolver(new OverloadResolver(new ArgumentConverter()));
@@ -88,6 +130,16 @@ namespace IronVelocity.Tests.Binders
             args = new[] { input }.Concat(args).ToArray();
 
             return InvokeBinder(binder, args);
+        }
+
+        private class IndexerTestHelper
+        {
+            public Guid this[Guid  value] => value;
+            public string this[double i1, double i2] => $"{i1} {i2}";
+            public string this[params long[] values] => string.Join(", ", values);
+
+            public object this[string str] { set { } }
+
         }
     }
 }
