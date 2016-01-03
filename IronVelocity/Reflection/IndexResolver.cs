@@ -21,33 +21,21 @@ namespace IronVelocity.Reflection
             if (target.RuntimeType.IsArray)
                 return ArrayIndexer(target, args);
 
-            var candidates  = GetCandidateIndexers(target.RuntimeType.GetTypeInfo())
-                .Where(x => x.CanRead)
-                .Select(x => new FunctionMemberData<PropertyInfo>(x, x.GetIndexParameters()));
+            var candidateIndexers = GetCandidateIndexers(target.RuntimeType.GetTypeInfo())
+                .Where(x => x.CanRead);
 
-            var typeArgs = args.Select(x => x.RuntimeType.GetTypeInfo()).ToArray();
-
-            var result = _overloadResolver.Resolve(candidates, typeArgs);
-
-            if (result == null)
-                return null;
-
-            var argExpressions = _overloadResolver.CreateParameterExpressions(result.Parameters, args);
-
-            return Expression.MakeIndex(target.Expression, result.FunctionMember, argExpressions);
+            return IndexExpression(target, args, candidateIndexers);
         }
-
-
-        private IEnumerable<PropertyInfo> GetCandidateIndexers(TypeInfo targetType)
-        {
-            return targetType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .Where(x => x.Name == "Item");
-        }
-
 
         public Expression WriteableIndexer(DynamicMetaObject target, DynamicMetaObject[] args)
         {
-            return ArrayIndexer(target, args);
+            if (target.RuntimeType.IsArray)
+                return ArrayIndexer(target, args);
+
+            var candidateIndexers = GetCandidateIndexers(target.RuntimeType.GetTypeInfo())
+                .Where(x => x.CanWrite);
+
+            return IndexExpression(target, args, candidateIndexers);
         }
 
         protected virtual Expression ArrayIndexer(DynamicMetaObject target, DynamicMetaObject[] args)
@@ -59,6 +47,29 @@ namespace IronVelocity.Reflection
                 return Expression.ArrayAccess(target.Expression, args.Select(x => x.Expression));
             }
             return null;
+        }
+
+        private IEnumerable<PropertyInfo> GetCandidateIndexers(TypeInfo targetType)
+        {
+            return targetType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .Where(x => x.Name == "Item");
+        }
+
+        private Expression IndexExpression(DynamicMetaObject target, DynamicMetaObject[] args, IEnumerable<PropertyInfo> candidateProperties)
+        {
+            var typeArgs = args.Select(x => x.RuntimeType.GetTypeInfo()).ToArray();
+
+            var candidateData = candidateProperties.Select(x => new FunctionMemberData<PropertyInfo>(x, x.GetIndexParameters()));
+
+            var result = _overloadResolver.Resolve(candidateData, typeArgs);
+
+            if (result == null)
+                return null;
+
+            var argExpressions = _overloadResolver.CreateParameterExpressions(result.Parameters, args);
+
+            return Expression.MakeIndex(target.Expression, result.FunctionMember, argExpressions);
+
         }
 
     }
