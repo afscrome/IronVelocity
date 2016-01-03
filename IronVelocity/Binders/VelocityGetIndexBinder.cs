@@ -14,8 +14,8 @@ namespace IronVelocity.Binders
     {
         private readonly IIndexResolver _indexerResolver;
 
-        public VelocityGetIndexBinder(IIndexResolver indexerResolver, CallInfo callInfo) :
-            base(callInfo)
+        public VelocityGetIndexBinder(int argumentCount, IIndexResolver indexerResolver) :
+            base(new CallInfo(argumentCount))
         {
             _indexerResolver = indexerResolver;
         }

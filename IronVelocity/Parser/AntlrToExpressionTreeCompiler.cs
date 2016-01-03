@@ -91,27 +91,33 @@ namespace IronVelocity.Parser
             for (int i = 1; i < further.Length; i++)
             {
                 var innerContext = further[i];
-                var property = innerContext as VelocityParser.PropertyInvocationContext;
-                if (property != null)
-                {
-                    var name = property.Identifier().GetText();
-                    result = _expressionFactory.Property(result, name, GetSourceInfo(innerContext));
-                }
-                else
-                {
-                    var method = innerContext as VelocityParser.MethodInvocationContext;
-                    if (method != null)
-                    {
-                        var name = method.Identifier().GetText();
-                        var args = VisitMany(method.argument_list().expression());
+                var sourceInfo = GetSourceInfo(innerContext);
 
-                        result = _expressionFactory.Method(result, name, args, GetSourceInfo(innerContext));
-                    }
-                    else
-                    {
-                        throw new InvalidOperationException();
-                    }
+                switch (innerContext.RuleIndex)
+                {
+                    case VelocityParser.RULE_propertyInvocation:
+                        var property = (VelocityParser.PropertyInvocationContext)innerContext;
+                        var propertyName = property.Identifier().GetText();
+
+                        result = _expressionFactory.Property(result, propertyName, sourceInfo);
+                        break;
+                    case VelocityParser.RULE_methodInvocation:
+                        var method = (VelocityParser.MethodInvocationContext)innerContext;
+                        var methodName = method.Identifier().GetText();
+                        var methodArgs = VisitMany(method.argument_list().expression());
+
+                        result = _expressionFactory.Method(result, methodName, methodArgs, sourceInfo);
+                        break;
+                    case VelocityParser.RULE_indexInvocation:
+                        var index = (VelocityParser.IndexInvocationContext)innerContext;
+                        var indexArgs = VisitMany(index.argument_list().expression());
+
+                        result = _expressionFactory.Index(result, indexArgs, sourceInfo);
+                        break;
+                    default:
+                        throw new InvalidOperationException($"Unrecognised reference body kind - {innerContext.GetType().FullName}");
                 }
+
                 if (result == Constants.NullExpression)
                     break;
             }

@@ -10,6 +10,7 @@
         Directive,
         Foreach,
         GlobalVariable,
+        IndexInvocation,
         IntegerRange,
         InterpolatedString,
         Mathematical,

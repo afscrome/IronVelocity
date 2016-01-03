@@ -61,6 +61,7 @@
     <Compile Include="Binders\VelocitySetIndexBinder.cs" />
     <Compile Include="Compilation\AST\DirectiveWord.cs" />
     <Compile Include="Compilation\AST\MathematicalExpression.cs" />
+    <Compile Include="Compilation\AST\IndexInvocationExpression.cs" />
     <Compile Include="Compilation\AST\ReferenceExpression.cs" />
     <Compile Include="Compilation\AST\RenderableExpression.cs" />
     <Compile Include="Compilation\AST\SourceInfo.cs" />

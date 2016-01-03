@@ -29,6 +29,9 @@ namespace IronVelocity.Compilation
         public virtual Expression Method(Expression target, string name, IReadOnlyList<Expression> args, SourceInfo sourceInfo)
             => new MethodInvocationExpression(target, args, sourceInfo, _binderFactory.GetInvokeMemberBinder(name, args?.Count ?? 0));
 
+        public virtual Expression Index(Expression target, IReadOnlyList<Expression> args, SourceInfo sourceInfo)
+            => new IndexInvocationExpression(target, args, sourceInfo, _binderFactory.GetGetIndexBinder(args.Count));
+
         public virtual Expression Comparison(Expression left, Expression right, ComparisonOperation operation, SourceInfo sourceInfo)
             => new ComparisonExpression(left, right, sourceInfo, _binderFactory.GetComparisonOperationBinder(operation));
 
@@ -44,6 +47,7 @@ namespace IronVelocity.Compilation
     {
         private IReadOnlyDictionary<string, object> _globals;
         private readonly IMemberResolver _memberResolver = new MemberResolver();
+        private readonly IIndexResolver _indexResolver = new IndexResolver(new OverloadResolver(new ArgumentConverter()));
         private readonly IMethodResolver _methodResolver = new MethodResolver(new OverloadResolver(new ArgumentConverter()), new ArgumentConverter());
 
         private readonly IDictionary<string, Expression> _variableCache = new Dictionary<string, Expression>();

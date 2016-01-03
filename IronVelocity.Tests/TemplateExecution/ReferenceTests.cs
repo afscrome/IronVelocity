@@ -69,6 +69,21 @@ namespace IronVelocity.Tests.TemplateExecution
             Assert.That(result.Output, Is.EqualTo("35fae5880bad4ea0b092619e00323041"));
         }
 
+        [Test]
+        public void ShouldRenderIndexer()
+        {
+            var context = new
+            {
+                Array = new double[] { 3.42, 7.12 }
+            };
+
+            var input = "$array[0]";
+
+            var result = ExecuteTemplate(input, context);
+
+            Assert.That(result.Output, Is.EqualTo("3.42"));
+        }
+
         [TestCase("$foo")]
         [TestCase("${formal}")]
         [TestCase("$bar.bat")]

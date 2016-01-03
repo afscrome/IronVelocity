@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using IronVelocity.Compilation;
+using IronVelocity.Compilation.AST;
+using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -44,7 +46,8 @@ namespace IronVelocity.Reflection
             if (args.All(x => (typeof(int)).IsAssignableFrom(x.RuntimeType)))
             {
                 var rank = target.RuntimeType.GetArrayRank();
-                return Expression.ArrayAccess(target.Expression, args.Select(x => x.Expression));
+                var targetExpression = VelocityExpressions.ConvertIfNeeded(target.Expression, type);
+                return Expression.ArrayAccess(targetExpression, args.Select(x => x.Expression));
             }
             return null;
         }
@@ -68,7 +71,8 @@ namespace IronVelocity.Reflection
 
             var argExpressions = _overloadResolver.CreateParameterExpressions(result.Parameters, args);
 
-            return Expression.MakeIndex(target.Expression, result.FunctionMember, argExpressions);
+            var targetExpression = VelocityExpressions.ConvertIfNeeded(target.Expression, type);
+            return Expression.MakeIndex(targetExpression, result.FunctionMember, argExpressions);
 
         }
 

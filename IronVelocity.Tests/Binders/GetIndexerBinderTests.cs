@@ -126,7 +126,7 @@ namespace IronVelocity.Tests.Binders
         private object GetIndexerTest(object input, params object[] args)
         {
             var resolver = new IndexResolver(new OverloadResolver(new ArgumentConverter()));
-            var binder = new VelocityGetIndexBinder(resolver, new CallInfo(args.Length));
+            var binder = new VelocityGetIndexBinder(args.Length, resolver);
             args = new[] { input }.Concat(args).ToArray();
 
             return InvokeBinder(binder, args);
