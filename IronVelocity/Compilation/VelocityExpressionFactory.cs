@@ -39,7 +39,7 @@ namespace IronVelocity.Compilation
             => new MathematicalExpression(left, right, sourceInfo, operation, _binderFactory.GetMathematicalOperationBinder(operation));
 
         public virtual Expression Assign(Expression target, Expression value, SourceInfo sourceInfo)
-            =>  new SetDirective(target, value, sourceInfo, _binderFactory);
+            => new SetDirective(target, value, sourceInfo, _binderFactory);
 
     }
 
@@ -96,6 +96,19 @@ namespace IronVelocity.Compilation
             return base.Property(target, name, sourceInfo);
         }
 
+        public override Expression Index(Expression target, IReadOnlyList<Expression> args, SourceInfo sourceInfo)
+        {
+            if (IsConstantType(target) && args.All(IsConstantType))
+            {
+                var indexExpression = _indexResolver.ReadableIndexer(new DynamicMetaObject(target, BindingRestrictions.Empty), args.Select(x => new DynamicMetaObject(x, BindingRestrictions.Empty)).ToArray());
+
+                return indexExpression
+                    ?? Constants.NullExpression;
+            }
+
+            return base.Index(target, args, sourceInfo);
+        }
+
         public override Expression Method(Expression target, string name, IReadOnlyList<Expression> args, SourceInfo sourceInfo)
         {
             if (IsConstantType(target) && args.All(IsConstantType))
@@ -142,7 +155,7 @@ namespace IronVelocity.Compilation
             }
 
 
-                return base.Assign(target, value, sourceInfo);
+            return base.Assign(target, value, sourceInfo);
         }
 
         private static bool IsConstantType(Expression expression)

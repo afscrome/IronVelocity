@@ -20,10 +20,11 @@ namespace IronVelocity.Reflection
 
         public Expression ReadableIndexer(DynamicMetaObject target, DynamicMetaObject[] args)
         {
-            if (target.RuntimeType.IsArray)
+            var targetType = target.LimitType;
+            if (targetType.IsArray)
                 return ArrayIndexer(target, args);
 
-            var candidateIndexers = GetCandidateIndexers(target.RuntimeType.GetTypeInfo())
+            var candidateIndexers = GetCandidateIndexers(targetType.GetTypeInfo())
                 .Where(x => x.CanRead);
 
             return IndexExpression(target, args, candidateIndexers);
@@ -31,10 +32,11 @@ namespace IronVelocity.Reflection
 
         public Expression WriteableIndexer(DynamicMetaObject target, DynamicMetaObject[] args)
         {
-            if (target.RuntimeType.IsArray)
+            var targetType = target.LimitType;
+            if (targetType.IsArray)
                 return ArrayIndexer(target, args);
 
-            var candidateIndexers = GetCandidateIndexers(target.RuntimeType.GetTypeInfo())
+            var candidateIndexers = GetCandidateIndexers(targetType.GetTypeInfo())
                 .Where(x => x.CanWrite);
 
             return IndexExpression(target, args, candidateIndexers);
@@ -60,7 +62,7 @@ namespace IronVelocity.Reflection
 
         private Expression IndexExpression(DynamicMetaObject target, DynamicMetaObject[] args, IEnumerable<PropertyInfo> candidateProperties)
         {
-            var typeArgs = args.Select(x => x.RuntimeType.GetTypeInfo()).ToArray();
+            var typeArgs = args.Select(x => x.LimitType.GetTypeInfo()).ToArray();
 
             var candidateData = candidateProperties.Select(x => new FunctionMemberData<PropertyInfo>(x, x.GetIndexParameters()));
 
@@ -70,9 +72,10 @@ namespace IronVelocity.Reflection
                 return null;
 
             var argExpressions = _overloadResolver.CreateParameterExpressions(result.Parameters, args);
+            var indexer = result.FunctionMember;
 
-            var targetExpression = VelocityExpressions.ConvertIfNeeded(target.Expression, target.RuntimeType);
-            return Expression.MakeIndex(targetExpression, result.FunctionMember, argExpressions);
+            var targetExpression = VelocityExpressions.ConvertIfNeeded(target.Expression, indexer.DeclaringType);
+            return Expression.MakeIndex(targetExpression, indexer, argExpressions);
 
         }
 

@@ -51,7 +51,7 @@ mode DIRECTIVE_ARGUMENTS ;
 
 RightCurley : '}' ;
 WhitespaceA:  WHITESPACE_TEXT -> type(Whitespace);
-LeftParenthesis : '(' -> mode(DEFAULT_MODE), pushMode(PARENTHESISED_ARGUMENT_LIST) ;
+LeftParenthesis : '(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
 TextFallback2A : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
@@ -87,7 +87,7 @@ mode REFERENCE ;
 
 Dot : '.' ;
 Identifier5: IDENTIFIER_TEXT -> type(Identifier) , mode(REFERENCE_MEMBER_ACCESS) ;
-LeftSquare5 : '[' -> type(LeftSquare), mode(SQUARE_ARGUMENT_LIST);
+LeftSquare5 : '[' -> type(LeftSquare), pushMode(ARGUMENTS);
 RightCurley5 : '}' ->  type(RightCurley), mode(DEFAULT_MODE);
 
 DotDotText5 : '..' -> type(Text), mode(DEFAULT_MODE) ;
@@ -100,24 +100,9 @@ TextFallback5 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 // Otherwise it is a property invocation and returns to the REFERENCE state.
 mode REFERENCE_MEMBER_ACCESS ;
 
-LeftParenthesis6 : '(' -> type(LeftParenthesis), mode(REFERENCE), pushMode(PARENTHESISED_ARGUMENT_LIST) ;
+LeftParenthesis6 : '(' -> type(LeftParenthesis), mode(REFERENCE), pushMode(ARGUMENTS) ;
+LeftSquare6 : '[' -> type(LeftSquare), pushMode(ARGUMENTS);
 TextFallback6 : -> type(TRANSITION), channel(HIDDEN), mode(REFERENCE) ;
-
-
-mode PARENTHESISED_ARGUMENT_LIST ;
-LeftParenthesis8 : '(' -> type(LeftParenthesis), pushMode(ARGUMENTS);
-RightParenthesis : ')' -> popMode ;
-LeftSquare : '[' ;
-RightSquare : ']' ;
-ArgFallback: -> type(TRANSITION), channel(HIDDEN), mode(ARGUMENTS);
-
-mode SQUARE_ARGUMENT_LIST ;
-LeftSquare9 : '[' -> type(LeftSquare), pushMode(ARGUMENTS);
-RightSquare9 : ']' -> type(RightSquare), popMode;
-LeftParenthesis9 : '(' -> type(LeftParenthesis);
-RightParenthesis9 : ')' -> type(RightParenthesis);
-ArgFallback2: -> type(TRANSITION), channel(HIDDEN), mode(ARGUMENTS);
-
 
 
 //===================================
@@ -154,5 +139,8 @@ NotEqual : '!=' | 'ne' ;
 And : '&&' | 'and' ;
 Or : '||' | 'or' ;
 Identifier7 : IDENTIFIER_TEXT -> type(Identifier) ;
-UnknownChar : ~('(' |')'| '[' | ']');
-BracketFallback : -> type(TRANSITION), channel(HIDDEN), mode(PARENTHESISED_ARGUMENT_LIST);
+LeftParenthesis8 : '(' -> type(LeftParenthesis), pushMode(ARGUMENTS);
+RightParenthesis : ')' -> popMode ;
+LeftSquare : '['  -> pushMode(ARGUMENTS);
+RightSquare : ']' -> popMode ;
+UnknownChar : .;
