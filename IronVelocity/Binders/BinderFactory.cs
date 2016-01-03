@@ -92,7 +92,7 @@ namespace IronVelocity.Binders
     {
         GetMemberBinder GetGetMemberBinder(string memberName);
         SetMemberBinder GetSetMemberBinder(string memberName);
-        GetMemberBinder GetGetIndexBinder(int argumentCount);
+        GetIndexBinder GetGetIndexBinder(int argumentCount);
         InvokeMemberBinder GetInvokeMemberBinder(string name, int argumentCount);
         VelocityComparisonOperationBinder GetComparisonOperationBinder(ComparisonOperation operation);
         VelocityMathematicalOperationBinder GetMathematicalOperationBinder(MathematicalOperation type);

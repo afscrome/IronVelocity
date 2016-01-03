@@ -71,7 +71,7 @@ namespace IronVelocity.Reflection
 
             var argExpressions = _overloadResolver.CreateParameterExpressions(result.Parameters, args);
 
-            var targetExpression = VelocityExpressions.ConvertIfNeeded(target.Expression, type);
+            var targetExpression = VelocityExpressions.ConvertIfNeeded(target.Expression, target.RuntimeType);
             return Expression.MakeIndex(targetExpression, result.FunctionMember, argExpressions);
 
         }

@@ -137,7 +137,7 @@ namespace IronVelocity.Tests.Binders
         private void SetIndexTest(object target, object value, params object[] args)
         {
             var resolver = new IndexResolver(new OverloadResolver(new ArgumentConverter()));
-            var binder = new VelocitySetIndexBinder(resolver, args.Length);
+            var binder = new VelocitySetIndexBinder(args.Length, resolver);
             args = new[] { target }.Concat(args).Concat(new[] { value }).ToArray();
 
             InvokeBinder(binder, args);
