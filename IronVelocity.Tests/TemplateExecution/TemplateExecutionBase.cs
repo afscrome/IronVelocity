@@ -114,13 +114,12 @@ namespace IronVelocity.Tests.TemplateExecution
 
             VelocityDiskCompiler diskCompiler = null;
 
-            var runtime = new VelocityRuntime(parser);
             if (saveDllAndExtractIlForTroubleshooting)
             {
                 var assemblyName = Path.GetFileName(fileName);
                 diskCompiler = new VelocityDiskCompiler(new AssemblyName(assemblyName), ".");
-                new VelocityRuntime(parser, diskCompiler);
             }
+            var runtime = new VelocityRuntime(parser, diskCompiler);
 
             var template = runtime.CompileTemplate(input, Utility.GetName(), fileName, true);
 
