@@ -75,7 +75,7 @@ namespace IronVelocity.Tests.TemplateExecution
             var localsDictionary = ConvertToDictionary(locals);
             var globalsDictionary = ConvertToDictionary(globals);
 
-            if (StaticTypingMode == StaticTypingMode.PromoteContextToGlobals && (!globalsDictionary?.Any() ?? true))
+            if (StaticTypingMode == StaticTypingMode.PromoteContextToGlobals && globals == null)
                 globalsDictionary = localsDictionary?.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
 
             fileName = fileName ?? Utility.GetName();

@@ -44,10 +44,10 @@ namespace IronVelocity.Reflection
 
         protected virtual Expression ArrayIndexer(DynamicMetaObject target, DynamicMetaObject[] args)
         {
-            var type = target.RuntimeType;
-            if (args.All(x => (typeof(int)).IsAssignableFrom(x.RuntimeType)))
+            var type = target.LimitType;
+            if (args.All(x => (typeof(int)).IsAssignableFrom(x.LimitType)))
             {
-                var rank = target.RuntimeType.GetArrayRank();
+                var rank = target.LimitType.GetArrayRank();
                 var targetExpression = VelocityExpressions.ConvertIfNeeded(target.Expression, type);
                 return Expression.ArrayAccess(targetExpression, args.Select(x => x.Expression));
             }

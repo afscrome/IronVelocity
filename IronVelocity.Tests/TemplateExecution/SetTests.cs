@@ -31,11 +31,11 @@ namespace IronVelocity.Tests.TemplateExecution
                 item = item
             };
 
-            var input = "#set($item.Property = 82.21)";
+            var input = "#set($item.Property = 'Foo')";
 
             var result = ExecuteTemplate(input, locals);
             Assert.That(result.Output, Is.Empty);
-            Assert.That(item.Property, Is.EqualTo(82.21f));
+            Assert.That(item.Property, Is.EqualTo("Foo"));
         }
 
         [Test]
@@ -47,79 +47,10 @@ namespace IronVelocity.Tests.TemplateExecution
                 item = item
             };
 
-            var input = "#set($item[789] = true)";
-
+            var input = "#set($item[8323] = 'FizzBuzz')";
             var result = ExecuteTemplate(input, locals);
             Assert.That(result.Output, Is.Empty);
-            Assert.That(item[789], Is.True);
-        }
-
-        [TestCase("#set($x=123)")]
-        /*
-        [TestCase("#set($x = 123)\r\n", IgnoreReason = "TODO: Implement correct Whitespace Eating")]
-        [TestCase("#set($x = 123)   \r\n", IgnoreReason = "TODO: Implement correct Whitespace Eating")]
-        [TestCase(" #set($x = 123)", IgnoreReason = "TODO: Implement correct Whitespace Eating")]
-        [TestCase("\t \t\t  #set($x = 123)", IgnoreReason = "TODO: Implement correct Whitespace Eating")]
-        */
-        public void When_SettingAVariable_Should_StoreInContextAndRenderNothing(string input)
-        {
-            var result = ExecuteTemplate(input);
-
-            Assert.That(result.Output, Is.Empty);
-            Assert.That(result.Context.Keys, Has.Member("x"));
-            Assert.That(result.Context["x"], Is.EqualTo(123));
-        }
-
-        [TestCase("#set($y=$undefined)")]
-        [TestCase("#set($y=$null)")]
-        public void When_SettingAVariableWithNullOrUndefined_Should_NeitherChangeContextNorRenderAnything(string input)
-        {
-            var originalAlreadySetValue = new object();
-            var context = new Dictionary<string, object>
-            {
-                ["alreadySet"] = originalAlreadySetValue,
-                ["null"] = null
-            };
-
-            var result = ExecuteTemplate(input, context);
-            Assert.That(result.Output, Is.Empty);
-            Assert.That(result.Context.Keys, Has.No.Member("x"));
-            Assert.That(result.Context["alreadySet"], Is.EqualTo(originalAlreadySetValue));
-        }
-
-        [TestCase("#set($fake.Property=123)")]
-        [TestCase("#set($y.Property=123)")]
-        public void When_SettingAPropertyThatDoesNotExist_Should_NeitherChangeContextNorRenderAnything(string input)
-        {
-            var context = new Dictionary<string, object>
-            {
-                ["item"] = 123,
-                ["null"] = null
-            };
-
-            var result = ExecuteTemplate(input, context);
-
-            Assert.That(result.Output, Is.Empty);
-            Assert.That(result.Context, Has.Count.EqualTo(2));
-        }
-
-        [TestCase("#set($item.Property=$undefined)")]
-        [TestCase("#set($item.Property=$null)")]
-        public void When_SettingAPropertyWithNullOrUndefined_Should_NeitherChangePropertyValueOrRenderAnything(string input)
-        {
-            var item = new { Property = new object() };
-            var originalPropertyValue = item.Property;
-
-            var context = new Dictionary<string, object>
-            {
-                ["y"] = item,
-                ["null"] = null
-            };
-
-            var result = ExecuteTemplate(input, context);
-
-            Assert.That(result.Output, Is.Empty);
-            Assert.That(item.Property, Is.EqualTo(originalPropertyValue));
+            Assert.That(item[8323], Is.EqualTo("FizzBuzz"));
         }
 
         [Test]
@@ -138,7 +69,6 @@ namespace IronVelocity.Tests.TemplateExecution
             Assert.That(result.Context["output"], Is.EqualTo(123));
         }
 
-
         [Test]
         public void ShouldSetFromProperty()
         {
@@ -152,6 +82,22 @@ namespace IronVelocity.Tests.TemplateExecution
             Assert.That(result.Output, Is.Empty);
             Assert.That(result.Context.Keys, Contains.Item("output"));
             Assert.That(result.Context["output"], Is.EqualTo(11));
+        }
+
+        [Test]
+        public void ShouldSetFromIndex()
+        {
+            var context = new
+            {
+                array = new[] { "Hello", "World" }
+            };
+
+            var input = "#set($output = $array[1])";
+            var result = ExecuteTemplate(input, context);
+
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(result.Context.Keys, Contains.Item("output"));
+            Assert.That(result.Context["output"], Is.EqualTo("World"));
         }
 
         [Test]
@@ -184,6 +130,139 @@ namespace IronVelocity.Tests.TemplateExecution
             Assert.That(result.Context["output"], Is.EqualTo("7.6"));
         }
 
+        [TestCase("#set($undefined=$undefined)")]
+        [TestCase("#set($undefined=$null)")]
+        public void ShouldIgnoreNullAssignmentToNotPresentVariable(string input)
+        {
+            var originalAlreadySetValue = new object();
+            var context = new Dictionary<string, object>
+            {
+                ["null"] = null
+            };
+
+            var result = ExecuteTemplate(input, context);
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(result.Context, Has.Count.EqualTo(1));
+        }
+
+        [TestCase("#set($alreadySet=$undefined)")]
+        [TestCase("#set($alreadySet=$null)")]
+        public void ShouldIgnoreNullAssignmentToExistingVariable(string input)
+        {
+            var context = new Dictionary<string, object>
+            {
+                ["alreadySet"] = 937,
+                ["null"] = null
+            };
+
+            //Explicitly provide no globals so alreadySet is treated as a local, not a global variable
+            var result = ExecuteTemplate(input, locals: context, globals: new { });
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(result.Context, Has.Count.EqualTo(2));
+            Assert.That(result.Context["alreadySet"], Is.EqualTo(937));
+        }
+
+
+        [TestCase("#set($item.Property=$undefined)")]
+        [TestCase("#set($item.Property=$null)")]
+        public void ShouldIgnoreNullAssignmentToProperty(string input)
+        {
+            var item = new { Property = new object() };
+            var originalPropertyValue = item.Property;
+
+            var context = new Dictionary<string, object>
+            {
+                ["null"] = null
+            };
+
+            var result = ExecuteTemplate(input, context);
+
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(item.Property, Is.EqualTo(originalPropertyValue));
+        }
+
+        [TestCase("#set($item['fake'] =$undefined)")]
+        [TestCase("#set($item['fake'] = $null)")]
+        public void ShouldIgnoreNullAssignmentToIndex(string input)
+        {
+            var item = new SetTestHelper();
+            item[27] = "Fake";
+
+            var context = new Dictionary<string, object>
+            {
+                ["item"] = item,
+                ["null"] = null
+            };
+
+            var result = ExecuteTemplate(input, context);
+
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(item[27], Is.EqualTo("Fake"));
+        }
+
+        [TestCase("#set($fake.NonExistantProperty=123)")]
+        [TestCase("#set($undefined.Property=123)")]
+        public void ShouldIgnoreAssignmentToInvalidProperty(string input)
+        {
+            var context = new
+            {
+                fake = new object()
+            };
+
+            var result = ExecuteTemplate(input, context);
+
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(result.Context, Has.Count.EqualTo(1));
+        }
+
+        [TestCase("#set($array['foo']=928)")]
+        [TestCase("#set($undefined['foo']=328)")]
+        public void ShouldIgnoreAssignmentToInvalidIndex(string input)
+        {
+            var context = new
+            {
+                array = new int[0]
+            };
+
+            var result = ExecuteTemplate(input, context);
+
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(result.Context, Has.Count.EqualTo(1));
+        }
+
+        [Test]
+        public void ShouldIgnorePropertyAssignmentOfIncompatibleType()
+        {
+            var item = new SetTestHelper();
+            var locals = new
+            {
+                item = item
+            };
+
+            var input = "#set($item.Property = 123)";
+
+            var result = ExecuteTemplate(input, locals);
+
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(item.Property, Is.Null);
+        }
+
+        [Test]
+        public void ShouldIgnoreIndexAssignmentOfIncompatibleType()
+        {
+            var item = new SetTestHelper();
+            var locals = new
+            {
+                item = item
+            };
+
+            var input = "#set($item[123] = true)";
+
+            var result = ExecuteTemplate(input, locals);
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(item._indexValues, Is.Empty);
+        }
+
         [Test]
         public void ShouldIgnoreSetToMethod()
         {
@@ -200,7 +279,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         //These tests deal with setting variables that have already been set.  The rules of global variables
-        // do not allow these to be changed, so these tests can only be perfomed in GlobalMode.AsProvided
+        // do not allow these to be changed, so these tests can only be performed in GlobalMode.AsProvided
         public class SetNonGlobalTests : TemplateExeuctionBase
         {
             public SetNonGlobalTests() : base(StaticTypingMode.AsProvided)
@@ -243,15 +322,15 @@ namespace IronVelocity.Tests.TemplateExecution
 
         public class SetTestHelper
         {
-            private IDictionary<object, object> _indexHelper = new Dictionary<object, object>();
+            public IDictionary<object, string> _indexValues = new Dictionary<object, string>();
 
-            public object this[object key]
+            public string this[object key]
             {
-                get { return _indexHelper[key]; }
-                set { _indexHelper[key] = value; }
+                get { return _indexValues[key]; }
+                set { _indexValues[key] = value; }
             }
 
-            public object Property { get; set; }
+            public string Property { get; set; }
             public object Method() => null;
         }
 
