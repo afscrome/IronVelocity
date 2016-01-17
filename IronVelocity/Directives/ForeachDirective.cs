@@ -73,7 +73,7 @@ namespace IronVelocity.Directives
 
             }
 
-            return parts.Select(x => x.ToImmutable()).ToImmutableArray();
+            return parts.Select(x => x?.ToImmutable()).ToImmutableArray();
         }
 
         protected override Expression ReduceInternal()
