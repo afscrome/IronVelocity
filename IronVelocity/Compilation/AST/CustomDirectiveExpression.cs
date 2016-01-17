@@ -1,5 +1,4 @@
-﻿using NVelocity.Runtime.Parser.Node;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
@@ -11,7 +10,6 @@ namespace IronVelocity.Compilation.AST
         {
         }
 
-        public virtual Expression ProcessChildDirective(string name, INode node) => null;
         public override Expression Reduce() => ReduceInternal();
         protected abstract Expression ReduceInternal();
     }

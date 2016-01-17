@@ -1,5 +1,4 @@
 ﻿using IronVelocity.Compilation.AST;
-using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -37,8 +36,6 @@ namespace IronVelocity.Directives
             CurrentIndex = new VariableExpression("velocityCount").ReduceExtensions();
         }
 
-
-        public override Expression ProcessChildDirective(string name, INode node) => null;
 
         private Expression GetExpressionBlock(ImmutableArray<ImmutableList<Expression>> parts, ForeachSection section)
         {
