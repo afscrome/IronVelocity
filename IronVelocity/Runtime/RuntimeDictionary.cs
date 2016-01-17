@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace IronVelocity.Runtime
 {
-    public class RuntimeDictionary : IDictionary<object, object>, IDictionary
+    public class RuntimeDictionary : IDictionary<object, object>, IDictionary, IReadOnlyDictionary<object,object>
     {
         private static IEqualityComparer<object> _comparer = new KeyComparer();
 
@@ -81,8 +81,8 @@ namespace IronVelocity.Runtime
         [SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
         object ICollection.SyncRoot => ((IDictionary)_values).SyncRoot;
 
-
-
+        IEnumerable<object> IReadOnlyDictionary<object, object>.Keys => _values.Keys;
+        IEnumerable<object> IReadOnlyDictionary<object, object>.Values => _values.Values;
 
         [SuppressMessage("Microsoft.Design", "CA1033:InterfaceMethodsShouldBeCallableByChildTypes", Justification = "Hiding for consistency with IDictionary<TKey,TValue>")]
         bool IDictionary.Contains(object key) => _values.ContainsKey(key);
