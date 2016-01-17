@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Compilation.AST;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -12,8 +13,8 @@ namespace IronVelocity.Compilation
         private readonly IDictionary<ParameterExpression, ParameterExpression> _replacements = new Dictionary<ParameterExpression, ParameterExpression>();
 
         private int index = 0;
-        public IReadOnlyCollection<ParameterExpression> TemporaryVariables
-            => _avaialbleTemps.SelectMany(x => x.Value).ToList();
+        public IImmutableList<ParameterExpression> TemporaryVariables
+            => _avaialbleTemps.SelectMany(x => x.Value).ToImmutableList();
 
         protected override Expression VisitTemporaryVariableScope(TemporaryVariableScopeExpression node)
         {

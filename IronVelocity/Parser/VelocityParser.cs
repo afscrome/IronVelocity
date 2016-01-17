@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 
 namespace IronVelocity.Parser
 {
     public partial class VelocityParser
     {
-        public IReadOnlyCollection<string> BlockDirectives { get; set; }
+        public IImmutableList<string> BlockDirectives { get; set; }
 
         private bool IsBlockDirective()
         {

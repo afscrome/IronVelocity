@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Compilation;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -20,12 +21,12 @@ namespace IronVelocity.Reflection
             _argumentConverter = argumentConverter;
         }
 
-        public FunctionMemberData<T> Resolve<T>(IEnumerable<FunctionMemberData<T>> candidates, Type[] args)
+        public FunctionMemberData<T> Resolve<T>(IEnumerable<FunctionMemberData<T>> candidates, IImmutableList<Type> args)
         {
             //	Given the set of applicable candidate function members, 
             var aplicableCandidateFunctionMembers = candidates
                 .Where(x => IsApplicableFunctionMember(x.Parameters, args))
-                .ToList();
+                .ToImmutableList();
 
             //If the set contains only one function member, then that function member is the best function member
             if (aplicableCandidateFunctionMembers.Count == 1)
@@ -37,7 +38,7 @@ namespace IronVelocity.Reflection
             return GetBestFunctionMember(aplicableCandidateFunctionMembers);
         }
 
-        public Expression[] CreateParameterExpressions(ParameterInfo[] parameters, DynamicMetaObject[] args)
+        public IImmutableList<Expression> CreateParameterExpressions(ParameterInfo[] parameters, DynamicMetaObject[] args)
         {
             if (parameters == null)
                 throw new ArgumentNullException(nameof(parameters));
@@ -57,37 +58,38 @@ namespace IronVelocity.Reflection
                 .ToArray();
 
 
-            var argExpressions = new Expression[parameters.Length];
+            var argExpressionBuilder = ImmutableArray.CreateBuilder<Expression>(parameters.Length);
+
             for (int i = 0; i < trivialParams; i++)
             {
                 var parameter = parameters[i];
-                argExpressions[i] = VelocityExpressions.ConvertParameterIfNeeded(args[i], parameter);
+                argExpressionBuilder.Add(VelocityExpressions.ConvertParameterIfNeeded(args[i], parameter));
             }
             if (hasParamsArray)
             {
-                int lastIndex = argExpressions.Length - 1;
+                int lastIndex = parameters.Length - 1;
                 //Check if the array has been explicitly passed, rather than as individual elements
                 if (args.Length == parameters.Length
                     && _argumentConverter.CanBeConverted(argTypeArray.Last(), lastParameter.ParameterType)
                     && argTypeArray.Last() != null)
                 {
-                    argExpressions[lastIndex] = VelocityExpressions.ConvertParameterIfNeeded(args[lastIndex], lastParameter);
+                    argExpressionBuilder.Add(VelocityExpressions.ConvertParameterIfNeeded(args[lastIndex], lastParameter));
                 }
                 else
                 {
                     var elementType = lastParameter.ParameterType.GetElementType();
-                    argExpressions[lastIndex] = Expression.NewArrayInit(
+                    argExpressionBuilder.Add(Expression.NewArrayInit(
                         elementType,
                         args.Skip(lastIndex)
                             .Select(x => VelocityExpressions.ConvertIfNeeded(x, elementType))
-                        );
+                        ));
                 }
             }
 
-            return argExpressions;
+            return argExpressionBuilder.ToImmutable();
         }
 
-        private FunctionMemberData<T> GetBestFunctionMember<T>(IReadOnlyCollection<FunctionMemberData<T>> candidates)
+        private FunctionMemberData<T> GetBestFunctionMember<T>(IImmutableList<FunctionMemberData<T>> candidates)
         {
             if (candidates == null)
                 throw new ArgumentNullException(nameof(candidates));
@@ -132,7 +134,7 @@ namespace IronVelocity.Reflection
         }
 
 
-        public bool IsApplicableFunctionMember(ParameterInfo[] parameters, params Type[] argumentList)
+        public bool IsApplicableFunctionMember(ParameterInfo[] parameters, IImmutableList<Type> argumentList)
         {
             var lastArg = parameters.LastOrDefault();
             ParameterInfo paramsArrayInfo = null;
@@ -141,13 +143,13 @@ namespace IronVelocity.Reflection
 
             //If there is no params array, the argument count must match the parameter count
             //This will not be true if we support default parameters
-            if (paramsArrayInfo == null && parameters.Length != argumentList.Length)
+            if (paramsArrayInfo == null && parameters.Length != argumentList.Count)
                 return false;
             //If there is a params parameter, the argument list must not be shorter than the parameter list without the params parameter
-            else if (argumentList.Length < parameters.Length - 1)
+            else if (argumentList.Count < parameters.Length - 1)
                 return false;
 
-            for (int i = 0; i < argumentList.Length; i++)
+            for (int i = 0; i < argumentList.Count; i++)
             {
                 var paramToValidateAgainst = i >= parameters.Length
                     ? paramsArrayInfo

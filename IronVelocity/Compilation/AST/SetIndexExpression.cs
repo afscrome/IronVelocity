@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -14,13 +15,13 @@ namespace IronVelocity.Compilation.AST
 
         public Expression Target { get; }
         public Expression Value { get; }
-        public IReadOnlyList<Expression> Arguments { get; }
+        public IImmutableList<Expression> Arguments { get; }
 
 
         public override Type Type => typeof(void);
         public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.SetIndex;
 
-        public SetIndexExpression(Expression target, Expression value, IReadOnlyList<Expression> arguments, SetIndexBinder binder)
+        public SetIndexExpression(Expression target, Expression value, IImmutableList<Expression> arguments, SetIndexBinder binder)
         {
             if (target == null)
                 throw new ArgumentNullException(nameof(target));
@@ -39,19 +40,15 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            var args = new Expression[Arguments.Count + 2];
-            args[0] = Target;
-
-            for (int i = 0; i < Arguments.Count; i++)
-            {
-                args[i + 1] = Arguments[i];
-            }
-            args[args.Length - 1] = Value;
+            var builder = ImmutableArray.CreateBuilder<Expression>(Arguments.Count + 2);
+            builder.Add(Target);
+            builder.AddRange(Arguments);
+            builder.Add(Value);
 
             return Expression.Dynamic(
                 _binder,
                 typeof(void),
-                args
+                builder.ToImmutable()
             );
         }
     }

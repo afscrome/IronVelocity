@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Runtime;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
@@ -37,7 +38,7 @@ namespace IronVelocity.Compilation.AST
 
             lastIndex = 0;
 
-            var hash = new Dictionary<string, Expression>(StringComparer.OrdinalIgnoreCase);
+            var builder = ImmutableDictionary.CreateBuilder<string, Expression>(StringComparer.OrdinalIgnoreCase);
 
             bool inKey, valueStarted, expectSingleCommaAtEnd, inTransition;
             int inEvaluationContext = 0;
@@ -97,7 +98,7 @@ namespace IronVelocity.Compilation.AST
                         else if (c == '{')
                         {
                             var value = RecursiveBuildDictionary(contents, i + 1, out i);
-                            ProcessDictEntry(hash, sbKeyBuilder, value);
+                            ProcessDictEntry(builder, sbKeyBuilder, value);
                             inKey = false;
                             valueStarted = false;
                             inTransition = true;
@@ -137,7 +138,7 @@ namespace IronVelocity.Compilation.AST
                         (!expectSingleCommaAtEnd && c == ',') ||
                         (inEvaluationContext == 0 && c == '}'))
                     {
-                        ProcessDictEntry(hash, sbKeyBuilder, sbValBuilder, expectSingleCommaAtEnd);
+                        ProcessDictEntry(builder, sbKeyBuilder, sbValBuilder, expectSingleCommaAtEnd);
 
                         inKey = false;
                         valueStarted = false;
@@ -174,7 +175,7 @@ namespace IronVelocity.Compilation.AST
 
                     lastIndex = i;
 
-                    ProcessDictEntry(hash, sbKeyBuilder, sbValBuilder, expectSingleCommaAtEnd);
+                    ProcessDictEntry(builder, sbKeyBuilder, sbValBuilder, expectSingleCommaAtEnd);
 
                     inKey = false;
                     valueStarted = false;
@@ -183,7 +184,7 @@ namespace IronVelocity.Compilation.AST
                 }
             }
 
-            return new DictionaryExpression(hash);
+            return new DictionaryExpression(builder.ToImmutable());
         }
 
         private static void ProcessDictEntry(IDictionary<string, Expression> map, StringBuilder keyBuilder, Expression value)

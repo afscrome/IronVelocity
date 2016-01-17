@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Compilation.AST;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -105,12 +106,10 @@ namespace IronVelocity.Compilation
 
             var site = Expression.Variable(siteConstant.Type, "$site_" + callSiteId++);
 
-            var arguments = new Expression[node.Arguments.Count + 1];
-            arguments[0] = site;
-            for (int i = 0; i < node.Arguments.Count; i++)
-            {
-                arguments[i + 1] = Visit(node.Arguments[i]);
-            }
+
+            var callSiteArgumentBuilder = ImmutableArray.CreateBuilder<Expression>(node.Arguments.Count + 1);
+            callSiteArgumentBuilder.Add(site);
+            callSiteArgumentBuilder.AddRange(node.Arguments);
 
 
             var body = Expression.Call(
@@ -119,7 +118,7 @@ namespace IronVelocity.Compilation
                         siteConstant.Type.GetField("Target")
                     ),
                     node.DelegateType.GetMethod("Invoke"),
-                    arguments
+                    callSiteArgumentBuilder.ToImmutable()
                 );
 
             return new TemporaryVariableScopeExpression(

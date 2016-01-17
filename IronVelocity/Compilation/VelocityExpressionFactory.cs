@@ -3,6 +3,7 @@ using IronVelocity.Compilation.AST;
 using IronVelocity.Reflection;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -26,10 +27,10 @@ namespace IronVelocity.Compilation
         public virtual Expression Property(Expression target, string name, SourceInfo sourceInfo)
             => new PropertyAccessExpression(target, name, sourceInfo, _binderFactory.GetGetMemberBinder(name));
 
-        public virtual Expression Method(Expression target, string name, IReadOnlyList<Expression> args, SourceInfo sourceInfo)
+        public virtual Expression Method(Expression target, string name, IImmutableList<Expression> args, SourceInfo sourceInfo)
             => new MethodInvocationExpression(target, args, sourceInfo, _binderFactory.GetInvokeMemberBinder(name, args?.Count ?? 0));
 
-        public virtual Expression Index(Expression target, IReadOnlyList<Expression> args, SourceInfo sourceInfo)
+        public virtual Expression Index(Expression target, IImmutableList<Expression> args, SourceInfo sourceInfo)
             => new IndexInvocationExpression(target, args, sourceInfo, _binderFactory.GetGetIndexBinder(args.Count));
 
         public virtual Expression Comparison(Expression left, Expression right, ComparisonOperation operation, SourceInfo sourceInfo)
@@ -45,14 +46,14 @@ namespace IronVelocity.Compilation
 
     public class StaticTypedVelocityExpressionFactory : VelocityExpressionFactory
     {
-        private IReadOnlyDictionary<string, object> _globals;
+        private IImmutableDictionary<string, object> _globals;
         private readonly IMemberResolver _memberResolver = new MemberResolver();
         private readonly IIndexResolver _indexResolver = new IndexResolver(new OverloadResolver(new ArgumentConverter()));
         private readonly IMethodResolver _methodResolver = new MethodResolver(new OverloadResolver(new ArgumentConverter()), new ArgumentConverter());
 
         private readonly IDictionary<string, Expression> _variableCache = new Dictionary<string, Expression>();
 
-        public StaticTypedVelocityExpressionFactory(BinderFactory binderFactory, IReadOnlyDictionary<string, object> globals)
+        public StaticTypedVelocityExpressionFactory(BinderFactory binderFactory, IImmutableDictionary<string, object> globals)
             : base(binderFactory)
         {
             var nullGlobals = globals?.Where(x => x.Value == null);
@@ -96,7 +97,7 @@ namespace IronVelocity.Compilation
             return base.Property(target, name, sourceInfo);
         }
 
-        public override Expression Index(Expression target, IReadOnlyList<Expression> args, SourceInfo sourceInfo)
+        public override Expression Index(Expression target, IImmutableList<Expression> args, SourceInfo sourceInfo)
         {
             if (IsConstantType(target) && args.All(IsConstantType))
             {
@@ -109,11 +110,11 @@ namespace IronVelocity.Compilation
             return base.Index(target, args, sourceInfo);
         }
 
-        public override Expression Method(Expression target, string name, IReadOnlyList<Expression> args, SourceInfo sourceInfo)
+        public override Expression Method(Expression target, string name, IImmutableList<Expression> args, SourceInfo sourceInfo)
         {
             if (IsConstantType(target) && args.All(IsConstantType))
             {
-                var methodInfo = _methodResolver.ResolveMethod(target.Type.GetTypeInfo(), name, args.Select(x => x.Type).ToArray());
+                var methodInfo = _methodResolver.ResolveMethod(target.Type.GetTypeInfo(), name, args.Select(x => x.Type).ToImmutableArray());
                 //TODO: Include debug info
                 if (methodInfo == null)
                     return Constants.NullExpression;

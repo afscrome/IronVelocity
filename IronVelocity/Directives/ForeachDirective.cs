@@ -3,6 +3,8 @@ using NVelocity.Runtime.Parser.Node;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Directives
@@ -38,18 +40,18 @@ namespace IronVelocity.Directives
 
         public override Expression ProcessChildDirective(string name, INode node) => null;
 
-        private Expression GetExpressionBlock(ICollection<Expression>[] parts, ForeachSection section)
+        private Expression GetExpressionBlock(ImmutableArray<ImmutableList<Expression>> parts, ForeachSection section)
         {
             var expressions = parts[(int)section];
             if (expressions == null)
                 return null;
             else
-                return new RenderedBlock(expressions);
+                return new RenderedBlock(expressions.ToImmutableList());
         }
 
-        private static ICollection<Expression>[] GetParts(IReadOnlyCollection<Expression> body)
+        private static ImmutableArray<ImmutableList<Expression>> GetParts(IImmutableList<Expression> body)
         {
-            var parts = new List<Expression>[9];
+            var parts = new ImmutableList<Expression>.Builder[9];
             var currentSection = ForeachSection.Each;
 
             foreach (var expression in body)
@@ -65,14 +67,13 @@ namespace IronVelocity.Directives
                     }
                 }
                 if (parts[(int)currentSection] == null)
-                    parts[(int)currentSection] = new List<Expression>();
+                    parts[(int)currentSection] = ImmutableList.CreateBuilder<Expression>();
 
                 parts[(int)currentSection].Add(expression);
 
             }
 
-            return parts;
-
+            return parts.Select(x => x?.ToImmutable()).ToImmutableArray();
         }
 
         protected override Expression ReduceInternal()

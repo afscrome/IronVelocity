@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
@@ -64,7 +65,7 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            var body = new List<Expression>();
+            var body = ImmutableList.CreateBuilder<Expression>();
 
             //Initalise the index to 0
             Expression indexInitalise = Expression.Assign(_internalIndex, Constants.Zero);
@@ -89,7 +90,7 @@ namespace IronVelocity.Compilation.AST
             return Expression.Block(
                     typeof(void),
                     new[] { _internalIndex, },
-                    body
+                    body.ToImmutable()
                 );
         }
 

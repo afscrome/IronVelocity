@@ -2,6 +2,7 @@
 using IronVelocity.Reflection;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Dynamic;
 using System.Linq.Expressions;
 using System.Numerics;
@@ -12,14 +13,14 @@ namespace IronVelocity.Binders
     internal static class BigIntegerHelper
     {
         private static readonly IArgumentConverter _argumentConverter = new ArgumentConverter();
-        private static IDictionary<Type, ConstructorInfo> _bigIntConstructors = new Dictionary<Type, ConstructorInfo> {
+        private static IImmutableDictionary<Type, ConstructorInfo> _bigIntConstructors = new Dictionary<Type, ConstructorInfo> {
             { typeof(byte), typeof(BigInteger).GetConstructor(new[] { typeof(int)})},
             { typeof(int), typeof(BigInteger).GetConstructor(new[] { typeof(int)})},
             { typeof(long), typeof(BigInteger).GetConstructor(new[] { typeof(long)})},
             { typeof(sbyte), typeof(BigInteger).GetConstructor(new[] { typeof(uint)})},
             { typeof(uint), typeof(BigInteger).GetConstructor(new[] { typeof(uint)})},
             { typeof(ulong), typeof(BigInteger).GetConstructor(new[] { typeof(ulong)})}
-        };
+        }.ToImmutableDictionary();
 
         public static Expression ConvertToBigInteger(Expression expression)
         {
@@ -39,9 +40,5 @@ namespace IronVelocity.Binders
             else
                 throw new NotSupportedException();
         }
-
-
-
-
     }
 }

@@ -11,19 +11,20 @@ using System.Linq;
 using IronVelocity.Directives;
 using System.Text;
 using System.Dynamic;
+using System.Collections.Immutable;
 
 namespace IronVelocity.Parser
 {
     public class AntlrToExpressionTreeCompiler : IVelocityParserVisitor<Expression>
     {
         private readonly AntlrVelocityParser _parser;
-        private readonly IReadOnlyCollection<CustomDirectiveBuilder> _customDirectives;
+        private readonly IImmutableList<CustomDirectiveBuilder> _customDirectives;
         private readonly VelocityExpressionFactory _expressionFactory;
 
-        public AntlrToExpressionTreeCompiler(AntlrVelocityParser parser, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives, VelocityExpressionFactory expressionFactory)
+        public AntlrToExpressionTreeCompiler(AntlrVelocityParser parser, IImmutableList<CustomDirectiveBuilder> customDirectives, VelocityExpressionFactory expressionFactory)
         {
             _parser = parser;
-            _customDirectives = customDirectives ?? new CustomDirectiveBuilder[0];
+            _customDirectives = customDirectives ?? ImmutableList<CustomDirectiveBuilder>.Empty;
             _expressionFactory = expressionFactory;
         }
 
@@ -125,8 +126,6 @@ namespace IronVelocity.Parser
             return result;
         }
 
-        private readonly IDictionary<string, Expression> _variableCache = new Dictionary<string, Expression>();
-
         public Expression VisitVariable([NotNull] VelocityParser.VariableContext context)
         {
             var name = context.Identifier().GetText();
@@ -218,15 +217,14 @@ namespace IronVelocity.Parser
 
         public Expression VisitDictionaryExpression([NotNull] VelocityParser.DictionaryExpressionContext context)
         {
-            var entries = context.dictionaryEntry();
-            var elements = new Dictionary<Expression, Expression>(entries.Length);
+            var builder = ImmutableDictionary.CreateBuilder<Expression, Expression>();
 
-            foreach (var entry in entries)
+            foreach (var entry in context.dictionaryEntry())
             {
-                elements.Add(VisitDictionaryKey(entry.dictionaryKey()), Visit(entry.expression()));
+                builder.Add(Visit(entry.dictionaryKey()), Visit(entry.expression()));
             }
 
-            return new DictionaryExpression(elements);
+            return new DictionaryExpression(builder.ToImmutable());
         }
 
         public Expression VisitDictionaryEntry([NotNull] VelocityParser.DictionaryEntryContext context)
@@ -243,23 +241,23 @@ namespace IronVelocity.Parser
         }
 
 
-        private IReadOnlyList<Expression> VisitMany(IReadOnlyList<ParserRuleContext> contexts)
+        private IImmutableList<Expression> VisitMany(IReadOnlyList<ParserRuleContext> contexts)
         {
             if (contexts == null || contexts.Count == 0)
-                return new Expression[0]; //TODO: Use Array.Empty
+                return ImmutableArray<Expression>.Empty;
 
-            var visitedExpressions = new Expression[contexts.Count];
+            var builder = ImmutableArray.CreateBuilder<Expression>(contexts.Count);
 
-            for (int i = 0; i < contexts.Count; i++)
+            foreach(var context in contexts)
             {
-                var visitedContext = Visit(contexts[i]);
+                var visitedContext = Visit(context);
                 if (visitedContext == null)
                     throw new InvalidOperationException("Failed to visit");
 
-                visitedExpressions[i] = visitedContext;
+                builder.Add(visitedContext);
             }
 
-            return visitedExpressions;
+            return builder.ToImmutable();
         }
 
         public Expression VisitSetDirective([NotNull] VelocityParser.SetDirectiveContext context)

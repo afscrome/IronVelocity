@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using IronVelocity.Parser;
+using System.Collections.Immutable;
 
 namespace IronVelocity.Tests.Parser
 {
@@ -8,7 +9,7 @@ namespace IronVelocity.Tests.Parser
 
         private VelocityParser.CustomDirectiveContext ParseBlockDirective(VelocityParser parser)
         {
-            parser.BlockDirectives = new[] { "multiLine" };
+            parser.BlockDirectives = new[] { "multiLine" }.ToImmutableList();
             return parser.customDirective();
         }
 
@@ -81,7 +82,7 @@ namespace IronVelocity.Tests.Parser
         {
             var input = "#multiLine ABC123";
             ParseShouldProduceError(input, x => {
-                x.BlockDirectives = new[] { "multiLine" };
+                x.BlockDirectives = new[] { "multiLine" }.ToImmutableList();
                 return x.template();
             });
         }

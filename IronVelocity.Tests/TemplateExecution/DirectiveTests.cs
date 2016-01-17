@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using IronVelocity.Directives;
+using System.Collections.Immutable;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
@@ -55,7 +56,7 @@ namespace IronVelocity.Tests.TemplateExecution
             public override string Name => "custom";
             public override bool IsBlockDirective => false;
 
-            public override Expression Build(IReadOnlyList<Expression> arguments, Expression body)
+            public override Expression Build(IImmutableList<Expression> arguments, Expression body)
                 => Expression.Constant($"This directive has {arguments.Count} arguments");
         }
 
@@ -64,7 +65,7 @@ namespace IronVelocity.Tests.TemplateExecution
             public override string Name => "multiLine";
             public override bool IsBlockDirective => true;
 
-            public override Expression Build(IReadOnlyList<Expression> arguments, Expression body)
+            public override Expression Build(IImmutableList<Expression> arguments, Expression body)
             {
                 Assert.That(body, Is.Not.Null);
                 return Expression.Constant($"This block directive has {arguments.Count} arguments");

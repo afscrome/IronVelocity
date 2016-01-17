@@ -8,17 +8,18 @@ using Antlr4.Runtime.Atn;
 using System.Collections.Generic;
 using IronVelocity.Directives;
 using System.IO;
+using System.Collections.Immutable;
 
 namespace IronVelocity.Parser
 {
     public class AntlrVelocityParser : IParser
     {
-        public static IReadOnlyCollection<CustomDirectiveBuilder> DefaultDirectives { get; } = new[]
+        public static IImmutableList<CustomDirectiveBuilder> DefaultDirectives { get; } = new CustomDirectiveBuilder[]
         {
             new ForeachDirectiveBuilder()
-        };
+        }.ToImmutableList();
 
-        private readonly IReadOnlyCollection<CustomDirectiveBuilder> _customDirectives;
+        private readonly IImmutableList<CustomDirectiveBuilder> _customDirectives;
         private readonly VelocityExpressionFactory _expressionFactory;
 
         public AntlrVelocityParser(VelocityExpressionFactory expressionFactory)
@@ -26,7 +27,7 @@ namespace IronVelocity.Parser
         {
         }
 
-        public AntlrVelocityParser(IReadOnlyCollection<CustomDirectiveBuilder> customDirectives, VelocityExpressionFactory expressionFactory)
+        public AntlrVelocityParser(IImmutableList<CustomDirectiveBuilder> customDirectives, VelocityExpressionFactory expressionFactory)
         {
             _customDirectives = customDirectives ?? DefaultDirectives;
             _expressionFactory = expressionFactory;
@@ -69,7 +70,7 @@ namespace IronVelocity.Parser
 
             var originalErrorStrategy = parser.ErrorHandler;
             parser.ErrorHandler = new BailErrorStrategy();
-            parser.BlockDirectives = _customDirectives.Where(x => x.IsBlockDirective).Select(x => x.Name).ToList();
+            parser.BlockDirectives = _customDirectives.Where(x => x.IsBlockDirective).Select(x => x.Name).ToImmutableList();
 
             if (lexerMode.HasValue)
                 lexer.Mode(lexerMode.Value);

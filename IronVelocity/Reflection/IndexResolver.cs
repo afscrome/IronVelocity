@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Compilation;
 using IronVelocity.Compilation.AST;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -62,7 +63,7 @@ namespace IronVelocity.Reflection
 
         private Expression IndexExpression(DynamicMetaObject target, DynamicMetaObject[] args, IEnumerable<PropertyInfo> candidateProperties)
         {
-            var typeArgs = args.Select(x => x.LimitType.GetTypeInfo()).ToArray();
+            var typeArgs = args.Select(x => x.LimitType).ToImmutableArray();
 
             var candidateData = candidateProperties.Select(x => new FunctionMemberData<PropertyInfo>(x, x.GetIndexParameters()));
 

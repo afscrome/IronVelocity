@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Directives
@@ -8,6 +9,6 @@ namespace IronVelocity.Directives
         public abstract string Name { get; }
         public abstract bool IsBlockDirective { get; }
 
-        public abstract Expression Build(IReadOnlyList<Expression> arguments, Expression body);
+        public abstract Expression Build(IImmutableList<Expression> arguments, Expression body);
     }
 }
