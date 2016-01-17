@@ -37,6 +37,8 @@ namespace IronVelocity.Compilation
                     return VisitForeach((ForeachExpression)node);
                 case VelocityExpressionType.GlobalVariable:
                     return VisitGlobalVariable((GlobalVariableExpression)node);
+                case VelocityExpressionType.IndexInvocation:
+                    return VisitIndexInvocation((IndexInvocationExpression)node);
                 case VelocityExpressionType.IntegerRange:
                     return VisitIntegerRange((IntegerRangeExpression)node);
                 case VelocityExpressionType.InterpolatedString:
@@ -59,6 +61,8 @@ namespace IronVelocity.Compilation
                     return VisitSetDirective((SetDirective)node);
                 case VelocityExpressionType.SetMember:
                     return VisitSetMember((SetMemberExpression)node);
+                case VelocityExpressionType.SetIndex:
+                    return VisitSetIndex((SetIndexExpression)node);
                 case VelocityExpressionType.TemplatedForeach:
                     return VisitTemplatedForEach((TemplatedForeachExpression)node);
                 case VelocityExpressionType.Variable:
@@ -79,6 +83,7 @@ namespace IronVelocity.Compilation
         protected virtual Expression VisitDirectiveWord(DirectiveWord node) => base.VisitExtension(node);
         protected virtual Expression VisitForeach(ForeachExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitGlobalVariable(GlobalVariableExpression node) => base.VisitExtension(node);
+        protected virtual Expression VisitIndexInvocation(IndexInvocationExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitIntegerRange(IntegerRangeExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitInterpolatedString(InterpolatedStringExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitMathematical(MathematicalExpression node) => base.VisitExtension(node);
@@ -90,6 +95,7 @@ namespace IronVelocity.Compilation
         protected virtual Expression VisitRenderedBlock(RenderedBlock node) => base.VisitExtension(node);
         protected virtual Expression VisitSetDirective(SetDirective node) => base.VisitExtension(node);
         protected virtual Expression VisitSetMember(SetMemberExpression node) => base.VisitExtension(node);
+        protected virtual Expression VisitSetIndex(SetIndexExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitTemplatedForEach(TemplatedForeachExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitTemporaryVariableScope(TemporaryVariableScopeExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitVariable(VariableExpression node) => base.VisitExtension(node);

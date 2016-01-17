@@ -88,11 +88,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Binders\BinderTestBase.cs" />
+    <Compile Include="Binders\GetIndexerBinderTests.cs" />
     <Compile Include="Binders\MathematicalOperationBinderTests.cs" />
     <Compile Include="Binders\ReflectionHelper\IsNullableTypeTests.cs" />
     <Compile Include="Binders\ComparisonBinderTests.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Binders\ReflectionHelper\MethodResolverTests.cs" />
+    <Compile Include="Binders\SetIndexBinderTests.cs" />
     <Compile Include="Parser\DictionaryExpressionTests.cs" />
     <Compile Include="Parser\LiteralTests.cs" />
     <Compile Include="TemplateExecution\BinderReuse\BinderReuseTestBase.cs" />
@@ -140,7 +143,7 @@
     <Compile Include="Binders\ReflectionHelper\ArgumentCompatabilityTests.cs" />
     <Compile Include="Binders\ReflectionHelper\BetterFunctionMemberTests.cs" />
     <Compile Include="Binders\ReflectionHelper\ImplicitConversionSupportTests.cs" />
-    <Compile Include="Binders\ReflectionHelper\MethodApplicabilityTests.cs" />
+    <Compile Include="Binders\ReflectionHelper\AplicableFunctionMemberTests.cs" />
     <Compile Include="Binders\SetMemberBinderTests.cs" />
     <Compile Include="Binders\InvokeMemberBinderTests.cs" />
     <Compile Include="Binders\GetMemberBinderTests.cs" />

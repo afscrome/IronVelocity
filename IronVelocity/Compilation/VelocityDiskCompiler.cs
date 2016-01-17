@@ -15,7 +15,7 @@ namespace IronVelocity.Compilation
         private readonly string _outputDir;
 
         public VelocityDiskCompiler(AssemblyName name, string outputDir)
-            : base(null)
+            : base(name.Name)
         {
             _assemblyName = name;
             _outputDir = outputDir;

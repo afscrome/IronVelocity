@@ -29,6 +29,9 @@ namespace IronVelocity.Compilation
         public virtual Expression Method(Expression target, string name, IReadOnlyList<Expression> args, SourceInfo sourceInfo)
             => new MethodInvocationExpression(target, args, sourceInfo, _binderFactory.GetInvokeMemberBinder(name, args?.Count ?? 0));
 
+        public virtual Expression Index(Expression target, IReadOnlyList<Expression> args, SourceInfo sourceInfo)
+            => new IndexInvocationExpression(target, args, sourceInfo, _binderFactory.GetGetIndexBinder(args.Count));
+
         public virtual Expression Comparison(Expression left, Expression right, ComparisonOperation operation, SourceInfo sourceInfo)
             => new ComparisonExpression(left, right, sourceInfo, _binderFactory.GetComparisonOperationBinder(operation));
 
@@ -36,7 +39,7 @@ namespace IronVelocity.Compilation
             => new MathematicalExpression(left, right, sourceInfo, operation, _binderFactory.GetMathematicalOperationBinder(operation));
 
         public virtual Expression Assign(Expression target, Expression value, SourceInfo sourceInfo)
-            =>  new SetDirective(target, value, sourceInfo, _binderFactory);
+            => new SetDirective(target, value, sourceInfo, _binderFactory);
 
     }
 
@@ -44,7 +47,8 @@ namespace IronVelocity.Compilation
     {
         private IReadOnlyDictionary<string, object> _globals;
         private readonly IMemberResolver _memberResolver = new MemberResolver();
-        private readonly IMethodResolver _methodResolver = new MethodResolver(new ArgumentConverter());
+        private readonly IIndexResolver _indexResolver = new IndexResolver(new OverloadResolver(new ArgumentConverter()));
+        private readonly IMethodResolver _methodResolver = new MethodResolver(new OverloadResolver(new ArgumentConverter()), new ArgumentConverter());
 
         private readonly IDictionary<string, Expression> _variableCache = new Dictionary<string, Expression>();
 
@@ -90,6 +94,19 @@ namespace IronVelocity.Compilation
             }
 
             return base.Property(target, name, sourceInfo);
+        }
+
+        public override Expression Index(Expression target, IReadOnlyList<Expression> args, SourceInfo sourceInfo)
+        {
+            if (IsConstantType(target) && args.All(IsConstantType))
+            {
+                var indexExpression = _indexResolver.ReadableIndexer(new DynamicMetaObject(target, BindingRestrictions.Empty), args.Select(x => new DynamicMetaObject(x, BindingRestrictions.Empty)).ToArray());
+
+                return indexExpression
+                    ?? Constants.NullExpression;
+            }
+
+            return base.Index(target, args, sourceInfo);
         }
 
         public override Expression Method(Expression target, string name, IReadOnlyList<Expression> args, SourceInfo sourceInfo)
@@ -138,7 +155,7 @@ namespace IronVelocity.Compilation
             }
 
 
-                return base.Assign(target, value, sourceInfo);
+            return base.Assign(target, value, sourceInfo);
         }
 
         private static bool IsConstantType(Expression expression)

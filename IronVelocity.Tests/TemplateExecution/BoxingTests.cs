@@ -50,6 +50,20 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
+        public void ShouldNotBoxValueTypeVariableBeforeInvokingIndex()
+        {
+            // If $x is boxed each time a property is invoked, the property is invoked on the copy
+            // So any state mutations won't persist for the next use of $x
+            var input = "$x[5], $x[6], $x[7]";
+
+            var context = new { x = new MutableStruct() };
+
+            var execution = ExecuteTemplate(input, context);
+
+            Assert.That(execution.Output, Is.EqualTo("0, 1, 2"));
+        }
+
+        [Test]
         public void ShouldNotBoxValueTypeVariableBeforeInvokingMethod()
         {
             // If $x is boxed each time a method is invoked, the method is invoked on the copy
@@ -77,7 +91,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
-        public void ShouldNotBoxValueTypeProopertyBeforeSettingProperty()
+        public void ShouldNotBoxValueTypePropertyBeforeSettingProperty()
         {
             if (StaticTypingMode == StaticTypingMode.AsProvided)
                 Assert.Ignore("Need to add support for wrapping structs in IStrongBox<T> to the binders");
@@ -110,6 +124,7 @@ namespace IronVelocity.Tests.TemplateExecution
         {
             private int _callCount;
 
+            public int this[int i] => _callCount++;
             public int GetCallCount() => _callCount++;
             public int CallCount => _callCount++; 
             public int ManualInt { get; set; }

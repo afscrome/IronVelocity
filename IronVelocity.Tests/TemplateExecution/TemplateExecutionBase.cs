@@ -75,7 +75,7 @@ namespace IronVelocity.Tests.TemplateExecution
             var localsDictionary = ConvertToDictionary(locals);
             var globalsDictionary = ConvertToDictionary(globals);
 
-            if (StaticTypingMode == StaticTypingMode.PromoteContextToGlobals && (!globalsDictionary?.Any() ?? true))
+            if (StaticTypingMode == StaticTypingMode.PromoteContextToGlobals && globals == null)
                 globalsDictionary = localsDictionary?.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
 
             fileName = fileName ?? Utility.GetName();
@@ -114,13 +114,12 @@ namespace IronVelocity.Tests.TemplateExecution
 
             VelocityDiskCompiler diskCompiler = null;
 
-            var runtime = new VelocityRuntime(parser);
             if (saveDllAndExtractIlForTroubleshooting)
             {
                 var assemblyName = Path.GetFileName(fileName);
                 diskCompiler = new VelocityDiskCompiler(new AssemblyName(assemblyName), ".");
-                new VelocityRuntime(parser, diskCompiler);
             }
+            var runtime = new VelocityRuntime(parser, diskCompiler);
 
             var template = runtime.CompileTemplate(input, Utility.GetName(), fileName, true);
 

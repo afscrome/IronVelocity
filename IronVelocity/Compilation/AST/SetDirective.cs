@@ -43,21 +43,25 @@ namespace IronVelocity.Compilation.AST
             if (left is GlobalVariableExpression)
                 throw new NotSupportedException("Cannot assign to a Global Variable");
 
-            if (left is MethodCallExpression)
-                return Constants.EmptyExpression; //TODO: should this error?
-
             var getMember = left as PropertyAccessExpression;
             if (getMember != null)
             {
                 return new SetMemberExpression(getMember.Target, right, _binderFactory.GetSetMemberBinder(getMember.Name));
             }
 
+            var indexer = left as IndexInvocationExpression;
+            if (indexer != null)
+            {
+                return new SetIndexExpression(indexer.Target, right, indexer.Arguments, _binderFactory.GetSetIndexBinder(indexer.Arguments.Count));
+            }
+
+
             bool rightIsNullableType = TypeHelper.IsNullableType(right.Type);
 
             bool isVariableExpression = left is VariableExpression;
             if (isVariableExpression)
                 left = left.Reduce();
-            else if (left is MethodInvocationExpression)
+            else if (left is MethodInvocationExpression || left is MethodCallExpression || left is ConstantExpression)
                 return Constants.EmptyExpression;
 
             if (!left.Type.IsAssignableFrom(right.Type))
@@ -70,7 +74,8 @@ namespace IronVelocity.Compilation.AST
                 }
                 else
                 {
-                    throw new InvalidOperationException($"Cannot assign from type '{left.Type}' to '{right.Type}'");
+                    //TODO: Log
+                    return Constants.EmptyExpression;
                 }
             }
             else
@@ -81,7 +86,7 @@ namespace IronVelocity.Compilation.AST
 
 
             //However, if the expression is guaranteed to be a value type (i.e. not nullable), why bother?
-            //Similarly if it's a variable expression, the null handling is handled in side the setter
+            //Similarly if it's a variable expression, the null handling is handled inside VelocityContext
             if (isVariableExpression || !rightIsNullableType)
                 return Expression.Block(typeof(void), Expression.Assign(left, right));
 

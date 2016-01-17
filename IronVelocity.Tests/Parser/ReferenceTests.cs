@@ -73,6 +73,40 @@ namespace IronVelocity.Tests.Parser
             Assert.That(method.argument_list(), Is.Not.Null);
         }
 
+        [TestCase("$cat['bar']")]
+        [TestCase("$!dog[123]")]
+        [TestCase("${mouse[false]}")]
+        [TestCase("$!{elephant[37.1]}")]
+        public void ShouldParseReferenceWithIndexer(string input)
+        {
+            var reference = Parse(input, x => x.reference(), LexerInitialState);
+            Assert.That(reference, Is.Not.Null);
+            Assert.That(reference.GetText(), Is.EqualTo(input));
+
+            var method = reference.referenceBody()?.indexInvocation().Single();
+            Assert.That(method, Is.Not.Null);
+            Assert.That(method.argument_list(), Is.Not.Null);
+        }
+
+
+        [TestCase("$alpha.bravo.charlie", 2, 0, 0)]
+        [TestCase("$alpha.bravo().charlie()", 0, 2, 0)]
+        [TestCase("$alpha[123]['foo']", 0, 0, 2)]
+        [TestCase("$!variable.Undefined.AnotherUndefined()[123]", 1, 1, 1)]
+        [TestCase("$foo[123]['abc'].Bar[true].Baz().Fizz.Stuff()[\"fizz\"][5.71]",2, 2, 5)]
+        public void ShouldParseCompoundReference(string input, int propertyCount, int methodCount, int indexerCount)
+        {
+            var reference = Parse(input, x => x.reference(), LexerInitialState);
+            Assert.That(reference, Is.Not.Null);
+            Assert.That(reference.GetText(), Is.EqualTo(input));
+
+            var refBody = reference.referenceBody();
+            Assert.That(refBody.propertyInvocation(), Has.Length.EqualTo(propertyCount));
+            Assert.That(refBody.methodInvocation(), Has.Length.EqualTo(methodCount));
+            Assert.That(refBody.indexInvocation(), Has.Length.EqualTo(indexerCount));
+        }
+
+
         [TestCase("$!alpha.bravo().charlie()")]
         [TestCase("$!variable.Undefined.AnotherUndefined()")]
         public void ParsesReferenceWithMultipleParts(string input)

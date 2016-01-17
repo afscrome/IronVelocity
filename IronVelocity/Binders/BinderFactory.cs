@@ -1,9 +1,7 @@
-﻿using IronVelocity.Compilation.AST;
-using IronVelocity.Reflection;
+﻿using IronVelocity.Reflection;
 using System;
 using System.Collections.Concurrent;
 using System.Dynamic;
-using System.Linq.Expressions;
 
 namespace IronVelocity.Binders
 {
@@ -17,27 +15,46 @@ namespace IronVelocity.Binders
     {
         private readonly IArgumentConverter _argumentConverter;
         private readonly IMemberResolver _memberResolver;
+        private readonly IIndexResolver _indexResolver;
         private readonly IMethodResolver _methodResolver;
 
-        private readonly ConcurrentDictionary<Tuple<string, int>, InvokeMemberBinder> _invokeMemberBinders = new ConcurrentDictionary<Tuple<string, int>, InvokeMemberBinder>();
         private readonly ConcurrentDictionary<string, GetMemberBinder> _getMemberBinders = new ConcurrentDictionary<string, GetMemberBinder>();
         private readonly ConcurrentDictionary<string, SetMemberBinder> _setMemberBinders = new ConcurrentDictionary<string, SetMemberBinder>();
+        private readonly ConcurrentDictionary<int, GetIndexBinder> _getIndexBinders = new ConcurrentDictionary<int, GetIndexBinder>();
+        private readonly ConcurrentDictionary<int, SetIndexBinder> _setIndexBinders = new ConcurrentDictionary<int, SetIndexBinder>();
+        private readonly ConcurrentDictionary<Tuple<string, int>, InvokeMemberBinder> _invokeMemberBinders = new ConcurrentDictionary<Tuple<string, int>, InvokeMemberBinder>();
         private readonly ConcurrentDictionary<MathematicalOperation, VelocityMathematicalOperationBinder> _mathsBinders = new ConcurrentDictionary<MathematicalOperation, VelocityMathematicalOperationBinder>();
         private readonly ConcurrentDictionary<ComparisonOperation, VelocityComparisonOperationBinder> _comparisonBinders = new ConcurrentDictionary<ComparisonOperation, VelocityComparisonOperationBinder>();
 
         public BinderFactory()
         {
             _argumentConverter = new ArgumentConverter();
-            _methodResolver = new MethodResolver(_argumentConverter);
+            var overloadResolver = new OverloadResolver(_argumentConverter);
+
             _memberResolver = new MemberResolver();
+            _indexResolver = new IndexResolver(overloadResolver);
+            _methodResolver = new MethodResolver(overloadResolver, _argumentConverter);
         }
 
-        public BinderFactory(IArgumentConverter argumentConverter, IMemberResolver memberResolver, IMethodResolver methodResolver)
+        public BinderFactory(IArgumentConverter argumentConverter, IMemberResolver memberResolver, IIndexResolver indexResolver, IMethodResolver methodResolver)
         {
             _argumentConverter = argumentConverter;
-            _methodResolver = methodResolver;
             _memberResolver = memberResolver;
+            _indexResolver = indexResolver;
+            _methodResolver = methodResolver;
         }
+
+        public GetMemberBinder GetGetMemberBinder(string memberName)
+            => _getMemberBinders.GetOrAdd(memberName, CreateGetMemberBinder);
+
+        public SetMemberBinder GetSetMemberBinder(string memberName)
+            => _setMemberBinders.GetOrAdd(memberName, CreateSetMemberBinder);
+
+        public GetIndexBinder GetGetIndexBinder(int argumentCount)
+            => _getIndexBinders.GetOrAdd(argumentCount, CreateGetIndexBinder);
+        public SetIndexBinder GetSetIndexBinder(int argumentCount)
+            => _setIndexBinders.GetOrAdd(argumentCount, CreateSetIndexBinder);
+
 
         public InvokeMemberBinder GetInvokeMemberBinder(string name, int argumentCount)
         {
@@ -47,12 +64,6 @@ namespace IronVelocity.Binders
             );
         }
 
-        public GetMemberBinder GetGetMemberBinder(string memberName)
-            => _getMemberBinders.GetOrAdd(memberName, CreateGetMemberBinder);
-
-        public SetMemberBinder GetSetMemberBinder(string memberName)
-            => _setMemberBinders.GetOrAdd(memberName, CreateSetMemberBinder);
-
         public VelocityComparisonOperationBinder GetComparisonOperationBinder(ComparisonOperation operation)
             => _comparisonBinders.GetOrAdd(operation, CreateComparisonOperationBinder);
 
@@ -60,14 +71,20 @@ namespace IronVelocity.Binders
             => _mathsBinders.GetOrAdd(operation, CreateMathematicalOperationBinder);
 
 
-        protected virtual InvokeMemberBinder CreateInvokeMemberBinder(string name, int argumentCount)
-            => new VelocityInvokeMemberBinder(name, new CallInfo(argumentCount), _methodResolver);
-
         protected virtual GetMemberBinder CreateGetMemberBinder(string memberName)
             => new VelocityGetMemberBinder(memberName, _memberResolver);
 
         protected virtual SetMemberBinder CreateSetMemberBinder(string memberName)
             => new VelocitySetMemberBinder(memberName, _memberResolver);
+
+        protected virtual GetIndexBinder CreateGetIndexBinder(int argumentCount)
+            => new VelocityGetIndexBinder(argumentCount, _indexResolver);
+
+        protected virtual SetIndexBinder CreateSetIndexBinder(int argumentCount)
+            => new VelocitySetIndexBinder(argumentCount, _indexResolver);
+
+        protected virtual InvokeMemberBinder CreateInvokeMemberBinder(string name, int argumentCount)
+            => new VelocityInvokeMemberBinder(name, new CallInfo(argumentCount), _methodResolver);
 
         protected virtual VelocityMathematicalOperationBinder CreateMathematicalOperationBinder(MathematicalOperation operation)
             => new VelocityMathematicalOperationBinder(operation, _argumentConverter);
@@ -79,9 +96,11 @@ namespace IronVelocity.Binders
 
     public interface IBinderFactory
     {
-        InvokeMemberBinder GetInvokeMemberBinder(string name, int argumentCount);
         GetMemberBinder GetGetMemberBinder(string memberName);
         SetMemberBinder GetSetMemberBinder(string memberName);
+        GetIndexBinder GetGetIndexBinder(int argumentCount);
+        SetIndexBinder GetSetIndexBinder(int argumentCount);
+        InvokeMemberBinder GetInvokeMemberBinder(string name, int argumentCount);
         VelocityComparisonOperationBinder GetComparisonOperationBinder(ComparisonOperation operation);
         VelocityMathematicalOperationBinder GetMathematicalOperationBinder(MathematicalOperation type);
     }

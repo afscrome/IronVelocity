@@ -56,10 +56,15 @@
   <ItemGroup>
     <Compile Include="Binders\BigIntegerHelper.cs" />
     <Compile Include="Binders\BinderFactory.cs" />
+    <Compile Include="Binders\BinderHelper.cs" />
+    <Compile Include="Binders\VelocityGetIndexBinder.cs" />
+    <Compile Include="Binders\VelocitySetIndexBinder.cs" />
     <Compile Include="Compilation\AST\DirectiveWord.cs" />
     <Compile Include="Compilation\AST\MathematicalExpression.cs" />
+    <Compile Include="Compilation\AST\IndexInvocationExpression.cs" />
     <Compile Include="Compilation\AST\ReferenceExpression.cs" />
     <Compile Include="Compilation\AST\RenderableExpression.cs" />
+    <Compile Include="Compilation\AST\SetIndexExpression.cs" />
     <Compile Include="Compilation\AST\SourceInfo.cs" />
     <Compile Include="Compilation\AST\TemporaryVariableScope.cs" />
     <Compile Include="Compilation\AST\VelocityExpressionType.cs" />
@@ -113,14 +118,19 @@
     <Compile Include="Parser\ParserRuleContextExtensions.cs" />
     <Compile Include="Parser\VelocityParser.cs" />
     <Compile Include="Reflection\ArgumentConverter.cs" />
+    <Compile Include="Reflection\FunctionMemberData.cs" />
     <Compile Include="Reflection\IArgumentConverter.cs" />
     <Compile Include="Reflection\IExpressionConverter.cs" />
+    <Compile Include="Reflection\IIndexResolver.cs" />
     <Compile Include="Reflection\IMemberResolver.cs" />
     <Compile Include="Reflection\IMethodResolver.cs" />
     <Compile Include="Reflection\ImplicitExpressionConverter.cs" />
+    <Compile Include="Reflection\IndexResolver.cs" />
+    <Compile Include="Reflection\IOverloadResolver.cs" />
     <Compile Include="Reflection\MemberAccessMode.cs" />
-    <Compile Include="Reflection\MethodSpecificityComparison.cs" />
+    <Compile Include="Reflection\FunctionMemberComparisonResult.cs" />
     <Compile Include="Reflection\MemberResolver.cs" />
+    <Compile Include="Reflection\OverloadResolution.cs" />
     <Compile Include="Reflection\VelocityMethodResolver.cs" />
     <Compile Include="Runtime\BigIntegerSimplifier.cs" />
     <Compile Include="Runtime\BooleanCoercion.cs" />

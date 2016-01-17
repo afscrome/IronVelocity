@@ -87,6 +87,7 @@ mode REFERENCE ;
 
 Dot : '.' ;
 Identifier5: IDENTIFIER_TEXT -> type(Identifier) , mode(REFERENCE_MEMBER_ACCESS) ;
+LeftSquare5 : '[' -> type(LeftSquare), pushMode(ARGUMENTS);
 RightCurley5 : '}' ->  type(RightCurley), mode(DEFAULT_MODE);
 
 DotDotText5 : '..' -> type(Text), mode(DEFAULT_MODE) ;
@@ -95,13 +96,13 @@ TextFallback5 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 //===================================
 // The mode is entered once we have a member access.  If followed by '(' the member access
-// becomes a method invocation, and moves to the ARGUMENTS state to tokenise arguments.
+// becomes a method invocation, and moves to the PARENTHESISED_ARGUMENT_LIST state to tokenise arguments.
 // Otherwise it is a property invocation and returns to the REFERENCE state.
 mode REFERENCE_MEMBER_ACCESS ;
 
 LeftParenthesis6 : '(' -> type(LeftParenthesis), mode(REFERENCE), pushMode(ARGUMENTS) ;
+LeftSquare6 : '[' -> type(LeftSquare), pushMode(ARGUMENTS);
 TextFallback6 : -> type(TRANSITION), channel(HIDDEN), mode(REFERENCE) ;
-
 
 
 //===================================
@@ -111,8 +112,6 @@ mode ARGUMENTS ;
 
 Whitespace7 : WHITESPACE_TEXT -> type(Whitespace), channel(HIDDEN);
 Comma : ',' ;
-LeftParenthesis7 : '(' -> type(LeftParenthesis), pushMode(ARGUMENTS);
-RightParenthesis : ')' -> popMode ;
 True : 'true' ;
 False : 'false' ;
 Number : NUMERIC_CHAR+ ;
@@ -123,8 +122,6 @@ Dollar7 : '$' -> type(Dollar) ;
 Exclamation7 : '!' -> type(Exclamation) ;
 LeftCurley7 : '{' -> type(LeftCurley);
 RightCurley7 : '}' -> type(RightCurley);
-LeftSquare : '[' ;
-RightSquare : ']' ;
 DotDot : '..' ;
 Colon : ':' ;
 Assign : '=' ;
@@ -142,4 +139,8 @@ NotEqual : '!=' | 'ne' ;
 And : '&&' | 'and' ;
 Or : '||' | 'or' ;
 Identifier7 : IDENTIFIER_TEXT -> type(Identifier) ;
-UnknownChar : . ;
+LeftParenthesis8 : '(' -> type(LeftParenthesis), pushMode(ARGUMENTS);
+RightParenthesis : ')' -> popMode ;
+LeftSquare : '['  -> pushMode(ARGUMENTS);
+RightSquare : ']' -> popMode ;
+UnknownChar : .;

@@ -1,12 +1,13 @@
 ﻿using IronVelocity.Reflection;
 using NUnit.Framework;
 using System;
+using System.Reflection;
 
 namespace IronVelocity.Tests.Binders
 {
     public class BetterFunctionMemberTests
     {
-        private readonly MethodResolver _methodResolver = new MethodResolver(new ArgumentConverter());
+        private readonly OverloadResolver _overoladResolver = new OverloadResolver(new ArgumentConverter());
 
         [TestCase("String", "Object", TestName="String_BetterThan_Object")]
         [TestCase("Int", "Long", TestName = "Int_BetterThan_Long")]
@@ -18,11 +19,11 @@ namespace IronVelocity.Tests.Binders
             var left = typeof(TestMethods).GetMethod(betterName);
             var right = typeof(TestMethods).GetMethod(worseName);
 
-            var result = _methodResolver.IsBetterFunctionMember(left, right);
-            Assert.AreEqual(MethodSpecificityComparison.Better, result);
+            var result = IsBetterFunctionMember(left, right);
+            Assert.AreEqual(FunctionMemberComparisonResult.Better, result);
 
-            var inverse = _methodResolver.IsBetterFunctionMember(right, left);
-            Assert.AreEqual(MethodSpecificityComparison.Worse, inverse);
+            var inverse = IsBetterFunctionMember(right, left);
+            Assert.AreEqual(FunctionMemberComparisonResult.Worse, inverse);
         }
 
         [TestCase("Inseperable1", "Inseperable2")]
@@ -31,13 +32,15 @@ namespace IronVelocity.Tests.Binders
             var left = typeof(TestMethods).GetMethod(leftName);
             var right = typeof(TestMethods).GetMethod(rightName);
 
-            var result1 = _methodResolver.IsBetterFunctionMember(left, right);
-            Assert.AreEqual(MethodSpecificityComparison.Incomparable, result1);
+            var result1 = IsBetterFunctionMember(left, right);
+            Assert.AreEqual(FunctionMemberComparisonResult.Incomparable, result1);
 
-            var result2 = _methodResolver.IsBetterFunctionMember(right, left);
-            Assert.AreEqual(MethodSpecificityComparison.Incomparable, result2);
+            var result2 = IsBetterFunctionMember(right, left);
+            Assert.AreEqual(FunctionMemberComparisonResult.Incomparable, result2);
         }
 
+        private FunctionMemberComparisonResult IsBetterFunctionMember(MethodBase left, MethodBase right)
+            => _overoladResolver.IsBetterFunctionMember(left?.GetParameters(), right?.GetParameters());
 
         private class TestMethods
         {
