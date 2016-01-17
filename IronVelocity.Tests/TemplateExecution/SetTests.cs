@@ -11,6 +11,22 @@ namespace IronVelocity.Tests.TemplateExecution
         {
         }
 
+        [Test]
+        public void ShouldSetIndex()
+        {
+            var item = new SetTestHelper();
+            var locals = new
+            {
+                item = item
+            };
+
+            var input = "#set($item[789] = true)";
+
+            var result = ExecuteTemplate(input, locals);
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(item[789], Is.True);
+        }
+
         [TestCase("#set($x=123)")]
         /*
         [TestCase("#set($x = 123)\r\n", IgnoreReason = "TODO: Implement correct Whitespace Eating")]
@@ -140,13 +156,13 @@ namespace IronVelocity.Tests.TemplateExecution
             Assert.That(result.Context.Keys, Contains.Item("output"));
             Assert.That(result.Context["output"], Is.EqualTo("7.6"));
         }
-        
+
         [Test]
         public void ShouldIgnoreSetToMethod()
         {
             var context = new Dictionary<string, object>
             {
-                ["input"] = new PropertyTest()
+                ["input"] = new SetTestHelper()
             };
             var input = "#set($input.Method() = 123)";
             var result = ExecuteTemplate(input, context);
@@ -198,9 +214,17 @@ namespace IronVelocity.Tests.TemplateExecution
 
         }
 
-        private class PropertyTest
+        public class SetTestHelper
         {
-            public object Property { get; set; } = new object();
+            private IDictionary<object, object> _indexHelper = new Dictionary<object, object>();
+
+            public object this[object key]
+            {
+                get { return _indexHelper[key]; }
+                set { _indexHelper[key] = value; }
+            }
+
+            public object Property { get; set; }
             public object Method() => null;
         }
 

@@ -22,6 +22,7 @@
         RenderedBlock,
         SetDirective,
         SetMember,
+        SetIndex,
         TemplatedForeach,
         TemporaryVariableScope,
         Variable,

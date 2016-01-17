@@ -43,7 +43,7 @@ namespace IronVelocity.Binders
             if (index == null || !index.Type.IsAssignableFrom(value.RuntimeType))
                 return BinderHelper.UnresolveableResult(restrictions, errorSuggestion);
 
-            var assignment = Expression.Assign(index, value.Expression);
+            var assignment = Expression.Assign(index, VelocityExpressions.ConvertIfNeeded(value.Expression, index.Type));
 
             return new DynamicMetaObject(VelocityExpressions.ConvertIfNeeded(assignment, typeof(object)), restrictions);
         }

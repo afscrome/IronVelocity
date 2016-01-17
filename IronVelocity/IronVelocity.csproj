@@ -64,6 +64,7 @@
     <Compile Include="Compilation\AST\IndexInvocationExpression.cs" />
     <Compile Include="Compilation\AST\ReferenceExpression.cs" />
     <Compile Include="Compilation\AST\RenderableExpression.cs" />
+    <Compile Include="Compilation\AST\SetIndexExpression.cs" />
     <Compile Include="Compilation\AST\SourceInfo.cs" />
     <Compile Include="Compilation\AST\TemporaryVariableScope.cs" />
     <Compile Include="Compilation\AST\VelocityExpressionType.cs" />

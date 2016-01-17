@@ -21,6 +21,7 @@ namespace IronVelocity.Binders
         private readonly ConcurrentDictionary<string, GetMemberBinder> _getMemberBinders = new ConcurrentDictionary<string, GetMemberBinder>();
         private readonly ConcurrentDictionary<string, SetMemberBinder> _setMemberBinders = new ConcurrentDictionary<string, SetMemberBinder>();
         private readonly ConcurrentDictionary<int, GetIndexBinder> _getIndexBinders = new ConcurrentDictionary<int, GetIndexBinder>();
+        private readonly ConcurrentDictionary<int, SetIndexBinder> _setIndexBinders = new ConcurrentDictionary<int, SetIndexBinder>();
         private readonly ConcurrentDictionary<Tuple<string, int>, InvokeMemberBinder> _invokeMemberBinders = new ConcurrentDictionary<Tuple<string, int>, InvokeMemberBinder>();
         private readonly ConcurrentDictionary<MathematicalOperation, VelocityMathematicalOperationBinder> _mathsBinders = new ConcurrentDictionary<MathematicalOperation, VelocityMathematicalOperationBinder>();
         private readonly ConcurrentDictionary<ComparisonOperation, VelocityComparisonOperationBinder> _comparisonBinders = new ConcurrentDictionary<ComparisonOperation, VelocityComparisonOperationBinder>();
@@ -51,6 +52,8 @@ namespace IronVelocity.Binders
 
         public GetIndexBinder GetGetIndexBinder(int argumentCount)
             => _getIndexBinders.GetOrAdd(argumentCount, CreateGetIndexBinder);
+        public SetIndexBinder GetSetIndexBinder(int argumentCount)
+            => _setIndexBinders.GetOrAdd(argumentCount, CreateSetIndexBinder);
 
 
         public InvokeMemberBinder GetInvokeMemberBinder(string name, int argumentCount)
@@ -77,6 +80,9 @@ namespace IronVelocity.Binders
         protected virtual GetIndexBinder CreateGetIndexBinder(int argumentCount)
             => new VelocityGetIndexBinder(argumentCount, _indexResolver);
 
+        protected virtual SetIndexBinder CreateSetIndexBinder(int argumentCount)
+            => new VelocitySetIndexBinder(argumentCount, _indexResolver);
+
         protected virtual InvokeMemberBinder CreateInvokeMemberBinder(string name, int argumentCount)
             => new VelocityInvokeMemberBinder(name, new CallInfo(argumentCount), _methodResolver);
 
@@ -93,6 +99,7 @@ namespace IronVelocity.Binders
         GetMemberBinder GetGetMemberBinder(string memberName);
         SetMemberBinder GetSetMemberBinder(string memberName);
         GetIndexBinder GetGetIndexBinder(int argumentCount);
+        SetIndexBinder GetSetIndexBinder(int argumentCount);
         InvokeMemberBinder GetInvokeMemberBinder(string name, int argumentCount);
         VelocityComparisonOperationBinder GetComparisonOperationBinder(ComparisonOperation operation);
         VelocityMathematicalOperationBinder GetMathematicalOperationBinder(MathematicalOperation type);

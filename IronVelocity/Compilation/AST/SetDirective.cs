@@ -52,6 +52,13 @@ namespace IronVelocity.Compilation.AST
                 return new SetMemberExpression(getMember.Target, right, _binderFactory.GetSetMemberBinder(getMember.Name));
             }
 
+            var indexer = left as IndexInvocationExpression;
+            if (indexer != null)
+            {
+                return new SetIndexExpression(indexer.Target, right, indexer.Arguments, _binderFactory.GetSetIndexBinder(indexer.Arguments.Count));
+            }
+
+
             bool rightIsNullableType = TypeHelper.IsNullableType(right.Type);
 
             bool isVariableExpression = left is VariableExpression;
