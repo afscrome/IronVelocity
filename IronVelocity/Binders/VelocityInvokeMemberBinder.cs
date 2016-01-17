@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Compilation;
 using IronVelocity.Reflection;
 using System;
+using System.Collections.Immutable;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -48,21 +49,18 @@ namespace IronVelocity.Binders
             }
 
             // If an argument has a null value, use a null type so that the resolution algorithm can do implicit null conversions
-            var argTypeArray = new Type[args.Length];
-            for (int i = 0; i < args.Length; i++)
-			{
-                var arg = args[i];
-    			 argTypeArray[i] = arg.Value == null
-                     ? null
-                     : arg.LimitType;
-			}
-
+            var argTypeBuilder = ImmutableArray.CreateBuilder<Type>(args.Length);
+            foreach (var arg in args)
+            {
+                argTypeBuilder.Add(arg.Value == null ? null : arg.LimitType);
+            }
+                
             MethodInfo method;
             Expression result = null;
             bool isAmbigious = false;
             try
             {
-                method = _methodResolver.ResolveMethod(target.LimitType.GetTypeInfo(), Name, argTypeArray);
+                method = _methodResolver.ResolveMethod(target.LimitType.GetTypeInfo(), Name, argTypeBuilder.ToImmutable());
             }
             catch (AmbiguousMatchException)
             {
@@ -75,7 +73,7 @@ namespace IronVelocity.Binders
                 var log = BindingEventSource.Log;
                 if (log.IsEnabled())
                 {
-                    var argTypeString = string.Join(",", argTypeArray.Select(x => x.FullName).ToArray());
+                    var argTypeString = string.Join(",", argTypeBuilder.Select(x => x.FullName).ToArray());
                     if (isAmbigious)
                         log.InvokeMemberResolutionAmbiguous(Name, target.LimitType.FullName, argTypeString);
                     else

@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Binders;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Dynamic;
 using System.Linq.Expressions;
 
@@ -10,11 +11,11 @@ namespace IronVelocity.Compilation.AST
     {
         private readonly GetIndexBinder _binder;
         public Expression Target { get; }
-        public IReadOnlyList<Expression> Arguments { get; }
+        public IImmutableList<Expression> Arguments { get; }
 
         public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.IndexInvocation;
 
-        public IndexInvocationExpression(Expression target, IReadOnlyList<Expression> arguments, SourceInfo sourceInfo, GetIndexBinder binder)
+        public IndexInvocationExpression(Expression target, IImmutableList<Expression> arguments, SourceInfo sourceInfo, GetIndexBinder binder)
         {
             if (target == null)
                 throw new ArgumentNullException(nameof(target));
@@ -30,18 +31,14 @@ namespace IronVelocity.Compilation.AST
 
         public override Expression Reduce()
         {
-            var args = new Expression[Arguments.Count + 1];
-            args[0] = Target;
-
-            for (int i = 0; i < Arguments.Count; i++)
-            {
-                args[i + 1] = Arguments[i];
-            }
+            var builder = ImmutableArray.CreateBuilder<Expression>(Arguments.Count + 1);
+            builder.Add(Target);
+            builder.AddRange(Arguments);
 
             return Expression.Dynamic(
                 _binder,
                 _binder.ReturnType,
-                args
+                builder.ToImmutable()
             );
         }
     }

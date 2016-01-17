@@ -6,6 +6,7 @@ using IronVelocity.Runtime;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -52,7 +53,7 @@ namespace IronVelocity.PerfPlayground
             {
                 var antlrDirectives = BlockDirectives
                     .Select(x => new AntlrBlockDirectiveBuilder(x))
-                    .ToList<CustomDirectiveBuilder>();
+                    .ToImmutableList<CustomDirectiveBuilder>();
                 antlrDirectives.Add(new ForeachDirectiveBuilder());
 
 
@@ -128,7 +129,7 @@ namespace IronVelocity.PerfPlayground
             public override bool IsBlockDirective => true;
             public override string Name { get; }
 
-            public override Expression Build(IReadOnlyList<Expression> arguments, Expression body)
+            public override Expression Build(IImmutableList<Expression> arguments, Expression body)
                 => body;
         }
     }

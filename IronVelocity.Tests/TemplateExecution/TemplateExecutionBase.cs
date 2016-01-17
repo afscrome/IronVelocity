@@ -10,6 +10,7 @@ using System.Text;
 using System.Linq;
 using System.Reflection;
 using IronVelocity.Binders;
+using System.Collections.Immutable;
 
 namespace IronVelocity.Tests.TemplateExecution
 {
@@ -50,7 +51,7 @@ namespace IronVelocity.Tests.TemplateExecution
 
             var dictionary = obj as IDictionary<string, object>;
             if (dictionary != null)
-                return dictionary;
+                return dictionary.ToImmutableDictionary();
 
             var type = obj.GetType();
             if (type.Namespace != null)
@@ -70,20 +71,17 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
 
-        public ExecutionResult ExecuteTemplate(string input, object locals = null, object globals = null, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives = null, string fileName = null)
+        public ExecutionResult ExecuteTemplate(string input, object locals = null, object globals = null, IReadOnlyList<CustomDirectiveBuilder> customDirectives = null, string fileName = null)
         {
             var localsDictionary = ConvertToDictionary(locals);
-            var globalsDictionary = ConvertToDictionary(globals);
+            var globalsDictionary = ConvertToDictionary(globals)?.ToImmutableDictionary();
 
             if (StaticTypingMode == StaticTypingMode.PromoteContextToGlobals && globals == null)
-                globalsDictionary = localsDictionary?.Where(x => x.Value != null).ToDictionary(x => x.Key, x => x.Value);
+                globalsDictionary = localsDictionary?.Where(x => x.Value != null).ToImmutableDictionary(x => x.Key, x => x.Value);
 
             fileName = fileName ?? Utility.GetName();
-            var globals2 = globalsDictionary != null
-                ? new Dictionary<string, object>(globalsDictionary)
-                : null;
 
-            var template = CompileTemplate(input, fileName, globals2, customDirectives);
+            var template = CompileTemplate(input, fileName, globalsDictionary, customDirectives?.ToImmutableList());
 
             var context = new VelocityContext(localsDictionary);
 
@@ -100,7 +98,7 @@ namespace IronVelocity.Tests.TemplateExecution
         protected virtual BinderFactory CreateBinderFactory()
             => new BinderFactory();
 
-        private VelocityTemplateMethod CompileTemplate(string input, string fileName, IReadOnlyDictionary<string, object> globals, IReadOnlyCollection<CustomDirectiveBuilder> customDirectives)
+        private VelocityTemplateMethod CompileTemplate(string input, string fileName, IImmutableDictionary<string, object> globals, IImmutableList<CustomDirectiveBuilder> customDirectives)
         {
             //This is for debugging - change it with the Immediate window if you need to dump a test to disk for further investigation.
             bool saveDllAndExtractIlForTroubleshooting = false;

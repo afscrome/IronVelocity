@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -10,16 +11,16 @@ namespace IronVelocity.Compilation.AST
         public override Type Type => typeof(void);
         public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.RenderedBlock;
 
-        public RenderedBlock(IEnumerable<Expression> expressions)
+        public RenderedBlock(IImmutableList<Expression> expressions)
         {
             if (expressions == null)
                 throw new ArgumentNullException(nameof(expressions));
 
-            Children = expressions.ToList();
+            Children = expressions;
         }
 
 
-        public IReadOnlyCollection<Expression> Children { get; }
+        public IImmutableList<Expression> Children { get; }
 
         public override Expression Reduce()
         {

@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Reflection;
 using NUnit.Framework;
 using System;
+using System.Collections.Immutable;
 using System.Reflection;
 
 namespace IronVelocity.Tests.Binders
@@ -10,7 +11,7 @@ namespace IronVelocity.Tests.Binders
         private readonly OverloadResolver _methodResolver = new OverloadResolver(new ArgumentConverter());
 
         private bool IsMethodApplicable(MethodInfo method, params Type[] argTypes)
-            => _methodResolver.IsApplicableFunctionMember(method.GetParameters(), argTypes);
+            => _methodResolver.IsApplicableFunctionMember(method.GetParameters(), argTypes.ToImmutableArray());
 
         [Test]
         public void ParameterlessMethodIsApplicable()

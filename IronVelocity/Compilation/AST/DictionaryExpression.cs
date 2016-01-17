@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Runtime;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -13,12 +14,12 @@ namespace IronVelocity.Compilation.AST
         private static readonly ConstructorInfo _dictionaryConstructorInfo = _dictionaryType.GetConstructor(new[] { typeof(int) });
         private static readonly MethodInfo _dictionaryAddMemberInfo = _dictionaryType.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string), typeof(object) }, null);
 
-        public IReadOnlyDictionary<Expression, Expression> Values { get; }
+        public IImmutableDictionary<Expression, Expression> Values { get; }
         public override Type Type => typeof(RuntimeDictionary);
         public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.Dictionary;
 
 
-        public DictionaryExpression(IReadOnlyDictionary<Expression, Expression> values)
+        public DictionaryExpression(IImmutableDictionary<Expression, Expression> values)
         {
             if (values == null)
                 throw new ArgumentNullException(nameof(values));
@@ -27,16 +28,23 @@ namespace IronVelocity.Compilation.AST
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="values"></param>
-        public DictionaryExpression(IReadOnlyDictionary<string, Expression> values)
+        public DictionaryExpression(IImmutableDictionary<string, Expression> values)
         {
             if (values == null)
-                throw new ArgumentNullException(nameof(values));
+            {
+                Values = ImmutableDictionary<Expression, Expression>.Empty;
+            }
+            else
+            {
+                var builder = ImmutableDictionary.CreateBuilder<Expression, Expression>();
 
-            Values = new Dictionary<Expression, Expression>(values.ToDictionary(x => (Expression)Expression.Constant(x.Key), x => x.Value));
+                foreach (var item in values)
+                {
+                    builder.Add(Expression.Constant(item.Key), item.Value);
+                }
+
+                Values = builder.ToImmutable();
+            }
         }
 
         public override Expression Reduce()
@@ -58,12 +66,12 @@ namespace IronVelocity.Compilation.AST
             return Expression.ListInit(dictionaryInit, initializers);
         }
 
-        public DictionaryExpression Update(IReadOnlyDictionary<string, Expression> values)
+        public DictionaryExpression Update(IImmutableDictionary<string, Expression> values)
         {
             return Values == values
                 ? this
                 : new DictionaryExpression(values);
         }
-       
+
     }
 }

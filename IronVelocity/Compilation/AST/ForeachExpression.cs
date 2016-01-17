@@ -7,8 +7,8 @@ namespace IronVelocity.Compilation.AST
 {
     public class ForeachExpression : VelocityExpression
     {
-        private static readonly MethodInfo _moveNextMethodInfo = typeof(IEnumerator).GetMethod("MoveNext", new Type[] { });
-        private static readonly MethodInfo _enumeratorMethodInfo = typeof(IEnumerable).GetMethod("GetEnumerator", new Type[] { });
+        private static readonly MethodInfo _moveNextMethodInfo = typeof(IEnumerator).GetMethod("MoveNext", Type.EmptyTypes);
+        private static readonly MethodInfo _enumeratorMethodInfo = typeof(IEnumerable).GetMethod("GetEnumerator", Type.EmptyTypes);
         private static readonly PropertyInfo _currentPropertyInfo = typeof(IEnumerator).GetProperty("Current");
 
         public Expression Enumerable { get; }

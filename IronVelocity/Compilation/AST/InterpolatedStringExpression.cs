@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -11,12 +12,12 @@ namespace IronVelocity.Compilation.AST
         private static MethodInfo _stringConcatMethodInfo = typeof(string).GetMethod("Concat", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object[]) }, null);
 
 
-        public IReadOnlyList<Expression> Parts { get; set; }
+        public IImmutableList<Expression> Parts { get; set; }
 
         public override Type Type => typeof(string);
         public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.InterpolatedString;
 
-        public InterpolatedStringExpression(IReadOnlyList<Expression> parts)
+        public InterpolatedStringExpression(IImmutableList<Expression> parts)
         {
             Parts = parts;
         }
@@ -73,7 +74,7 @@ namespace IronVelocity.Compilation.AST
                 );
         }
 
-        public InterpolatedStringExpression Update(params Expression[] parts)
+        public InterpolatedStringExpression Update(ImmutableList<Expression> parts)
         {
             return parts == Parts
                 ? this

@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Compilation;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -49,7 +50,7 @@ namespace IronVelocity.Reflection
 
 
 
-        public MethodInfo ResolveMethod(TypeInfo type, string name, params Type[] argTypes)
+        public MethodInfo ResolveMethod(TypeInfo type, string name, IImmutableList<Type> argTypes)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
