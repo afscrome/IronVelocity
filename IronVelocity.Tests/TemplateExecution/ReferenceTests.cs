@@ -86,10 +86,12 @@ namespace IronVelocity.Tests.TemplateExecution
 
         [TestCase("$foo")]
         [TestCase("${formal}")]
+        [TestCase("$quarter[123]")]
         [TestCase("$bar.bat")]
         [TestCase("$fizz.buzz()")]
         [TestCase("$hello.world($fizzbuzz)")]
         [TestCase("$one.two( $three )")]
+        [TestCase("$semi.final[123]")]
         public void ShouldRenderOriginalSourceForUnsilencedNullReference(string input)
         {
             var result = ExecuteTemplate(input);
@@ -98,10 +100,12 @@ namespace IronVelocity.Tests.TemplateExecution
 
         [TestCase("$!foo")]
         [TestCase("$!{formal}")]
+        [TestCase("$!quarter[123]")]
         [TestCase("$!bar.bat")]
         [TestCase("$!fizz.buzz()")]
         [TestCase("$!hello.world($fizzbuzz)")]
         [TestCase("$!one.two( $three )")]
+        [TestCase("$!semi.final[123]")]
         public void ShouldRenderNothingForSilencedNullReference(string input)
         {
             var result = ExecuteTemplate(input);
