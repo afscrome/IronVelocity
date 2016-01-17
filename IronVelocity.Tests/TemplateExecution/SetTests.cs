@@ -12,6 +12,33 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
+        public void ShouldSetVariable()
+        {
+            var input = "#set($foo = 'bar')";
+
+            var result = ExecuteTemplate(input);
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(result.Context.Keys, Has.Member("foo"));
+            Assert.That(result.Context["foo"], Is.EqualTo("bar"));
+        }
+
+        [Test]
+        public void ShouldSetProperty()
+        {
+            var item = new SetTestHelper();
+            var locals = new
+            {
+                item = item
+            };
+
+            var input = "#set($item.Property = 82.21)";
+
+            var result = ExecuteTemplate(input, locals);
+            Assert.That(result.Output, Is.Empty);
+            Assert.That(item.Property, Is.EqualTo(82.21f));
+        }
+
+        [Test]
         public void ShouldSetIndex()
         {
             var item = new SetTestHelper();
