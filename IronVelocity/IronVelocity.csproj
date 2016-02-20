@@ -118,6 +118,8 @@
     <Compile Include="Parser\ErrorListener.cs" />
     <Compile Include="Parser\ParserRuleContextExtensions.cs" />
     <Compile Include="Parser\VelocityParser.cs" />
+    <Compile Include="Reflection\OverloadResolutionData.cs" />
+    <Compile Include="Reflection\ApplicableForm.cs" />
     <Compile Include="Reflection\ArgumentConverter.cs" />
     <Compile Include="Reflection\FunctionMemberData.cs" />
     <Compile Include="Reflection\IArgumentConverter.cs" />
@@ -129,7 +131,7 @@
     <Compile Include="Reflection\IndexResolver.cs" />
     <Compile Include="Reflection\IOverloadResolver.cs" />
     <Compile Include="Reflection\MemberAccessMode.cs" />
-    <Compile Include="Reflection\FunctionMemberComparisonResult.cs" />
+    <Compile Include="Reflection\BetterResult.cs" />
     <Compile Include="Reflection\MemberResolver.cs" />
     <Compile Include="Reflection\OverloadResolution.cs" />
     <Compile Include="Reflection\VelocityMethodResolver.cs" />

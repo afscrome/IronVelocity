@@ -1,6 +1,6 @@
 ﻿namespace IronVelocity.Reflection
 {
-    public enum FunctionMemberComparisonResult
+    public enum BetterResult
     {
         Better,
         Incomparable,

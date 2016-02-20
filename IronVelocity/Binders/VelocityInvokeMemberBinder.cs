@@ -55,7 +55,7 @@ namespace IronVelocity.Binders
                 argTypeBuilder.Add(arg.Value == null ? null : arg.LimitType);
             }
                 
-            MethodInfo method;
+            OverloadResolutionData<MethodInfo> method;
             Expression result = null;
             bool isAmbigious = false;
             try

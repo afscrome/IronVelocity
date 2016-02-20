@@ -21,75 +21,71 @@ namespace IronVelocity.Reflection
             _argumentConverter = argumentConverter;
         }
 
-        public FunctionMemberData<T> Resolve<T>(IEnumerable<FunctionMemberData<T>> candidates, IImmutableList<Type> args)
+        public OverloadResolutionData<T> Resolve<T>(IEnumerable<FunctionMemberData<T>> candidates, IImmutableList<Type> args)
+            where T : MemberInfo
         {
+
             //	Given the set of applicable candidate function members, 
-            var aplicableCandidateFunctionMembers = candidates
-                .Where(x => IsApplicableFunctionMember(x.Parameters, args))
-                .ToImmutableList();
+            var applicableCandidateFunctionMembers = ImmutableList.CreateBuilder<OverloadResolutionData<T>>();
+            foreach (var candidate in candidates)
+            {
+                var result = IsApplicableFunctionMember(candidate, args);
+                if (result != null)
+                    applicableCandidateFunctionMembers.Add(result);
+            }
 
             //If the set contains only one function member, then that function member is the best function member
-            if (aplicableCandidateFunctionMembers.Count == 1)
-                return aplicableCandidateFunctionMembers.First();
+            if (applicableCandidateFunctionMembers.Count == 1)
+                return applicableCandidateFunctionMembers[0];
 
             //Otherwise, the best function member is the one function member that is better than all other function
             //members with respect to the given argument list, provided that each function member is compared to
             //all other function members using the rules in §7.5.3.2.
-            return GetBestFunctionMember(aplicableCandidateFunctionMembers);
+            return GetBestFunctionMember(applicableCandidateFunctionMembers.ToImmutable(), args);
         }
 
-        public IImmutableList<Expression> CreateParameterExpressions(ParameterInfo[] parameters, DynamicMetaObject[] args)
+        public IImmutableList<Expression> CreateParameterExpressions<T>(OverloadResolutionData<T> overload, DynamicMetaObject[] args)
+            where T : MemberInfo
         {
-            if (parameters == null)
-                throw new ArgumentNullException(nameof(parameters));
+            if (overload == null)
+                throw new ArgumentNullException(nameof(overload));
 
             if (args == null)
                 throw new ArgumentNullException(nameof(args));
 
-            var lastParameter = parameters.LastOrDefault();
-            bool hasParamsArray = IsParameterArrayArgument(lastParameter);
+            var parameters = overload.Parameters;
 
-            int trivialParams = hasParamsArray
+            bool isInExpandedForm = overload.ApplicableForm == ApplicableForm.Expanded;
+
+            int fixedParams = isInExpandedForm
                 ? parameters.Length - 1
                 : parameters.Length;
-
-            var argTypeArray = args
-                .Select(x => x.Value == null ? null : x.LimitType)
-                .ToArray();
 
 
             var argExpressionBuilder = ImmutableArray.CreateBuilder<Expression>(parameters.Length);
 
-            for (int i = 0; i < trivialParams; i++)
+            for (int i = 0; i < fixedParams; i++)
             {
                 var parameter = parameters[i];
                 argExpressionBuilder.Add(VelocityExpressions.ConvertParameterIfNeeded(args[i], parameter));
             }
-            if (hasParamsArray)
+            if (isInExpandedForm)
             {
-                int lastIndex = parameters.Length - 1;
-                //Check if the array has been explicitly passed, rather than as individual elements
-                if (args.Length == parameters.Length
-                    && _argumentConverter.CanBeConverted(argTypeArray.Last(), lastParameter.ParameterType)
-                    && argTypeArray.Last() != null)
-                {
-                    argExpressionBuilder.Add(VelocityExpressions.ConvertParameterIfNeeded(args[lastIndex], lastParameter));
-                }
-                else
-                {
-                    var elementType = lastParameter.ParameterType.GetElementType();
-                    argExpressionBuilder.Add(Expression.NewArrayInit(
-                        elementType,
-                        args.Skip(lastIndex)
-                            .Select(x => VelocityExpressions.ConvertIfNeeded(x, elementType))
-                        ));
-                }
+                var lastParameter = overload.Parameters.Last();
+
+                var elementType = lastParameter.ParameterType.GetElementType();
+                argExpressionBuilder.Add(Expression.NewArrayInit(
+                    elementType,
+                    args.Skip(fixedParams)
+                        .Select(x => VelocityExpressions.ConvertIfNeeded(x, elementType))
+                    ));
             }
 
             return argExpressionBuilder.ToImmutable();
         }
 
-        private FunctionMemberData<T> GetBestFunctionMember<T>(IImmutableList<FunctionMemberData<T>> candidates)
+        private OverloadResolutionData<T> GetBestFunctionMember<T>(IImmutableList<OverloadResolutionData<T>> candidates, IImmutableList<Type> args)
+            where T : MemberInfo
         {
             if (candidates == null)
                 throw new ArgumentNullException(nameof(candidates));
@@ -97,21 +93,20 @@ namespace IronVelocity.Reflection
             if (candidates.Count == 0)
                 return null;
 
-            var best = new List<FunctionMemberData<T>>();
+            var best = new List<OverloadResolutionData<T>>();
             foreach (var candidate in candidates)
             {
                 bool lessSpecific = false;
-                foreach (var better in best.ToArray())
+                foreach (var other in best.ToArray())
                 {
-                    switch (IsBetterFunctionMember(candidate.Parameters, better.Parameters))
+                    switch (IsBetterFunctionMember(args, candidate, other))
                     {
-                        //If the current candidate is better than the 'better', remove 'better' from
-                        case FunctionMemberComparisonResult.Better:
-                            best.Remove(better);
+                        case BetterResult.Better:
+                            best.Remove(other);
                             break;
-                        case FunctionMemberComparisonResult.Incomparable:
+                        case BetterResult.Incomparable:
                             break;
-                        case FunctionMemberComparisonResult.Worse:
+                        case BetterResult.Worse:
                             lessSpecific = true;
                             continue;
                         default:
@@ -134,89 +129,138 @@ namespace IronVelocity.Reflection
         }
 
 
-        public bool IsApplicableFunctionMember(ParameterInfo[] parameters, IImmutableList<Type> argumentList)
+        public OverloadResolutionData<T> IsApplicableFunctionMember<T>(FunctionMemberData<T> functionMember, IImmutableList<Type> argumentList)
+            where T : MemberInfo
         {
-            var lastArg = parameters.LastOrDefault();
-            ParameterInfo paramsArrayInfo = null;
-            if (IsParameterArrayArgument(lastArg))
-                    paramsArrayInfo = lastArg;
+            var parameters = functionMember.Parameters;
+            var lastParam = parameters.LastOrDefault();
+            var hasParamsArray = IsParameterArrayArgument(lastParam);
 
-            //If there is no params array, the argument count must match the parameter count
-            //This will not be true if we support default parameters
-            if (paramsArrayInfo == null && parameters.Length != argumentList.Count)
-                return false;
-            //If there is a params parameter, the argument list must not be shorter than the parameter list without the params parameter
-            else if (argumentList.Count < parameters.Length - 1)
-                return false;
+            int fixedParams = hasParamsArray
+                ? parameters.Length - 1
+                : parameters.Length;
 
-            for (int i = 0; i < argumentList.Count; i++)
+            if (!hasParamsArray && argumentList.Count != fixedParams)
+                return null;
+            else if (argumentList.Count < fixedParams)
+                return null;
+
+            // Each argument in A corresponds to a parameter in the function member declaration
+            for (int i = 0; i < fixedParams; i++)
             {
-                var paramToValidateAgainst = i >= parameters.Length
-                    ? paramsArrayInfo
-                    : parameters[i];
-
-                if (!IsArgumentCompatible(argumentList[i], paramToValidateAgainst))
-                    return false;
+                if (!_argumentConverter.CanBeConverted(argumentList[i], parameters[i].ParameterType))
+                    return null;
             }
 
-            return true;
+            ApplicableForm applicableForm;
+            if (!hasParamsArray)
+            {
+                applicableForm = ApplicableForm.Normal;
+            }
+            // For a function member that includes a parameter array, if the function member is applicable by the above rules, it is said to be applicable in its normal form. 
+            else if (argumentList.Count == parameters.Length && _argumentConverter.CanBeConverted(argumentList[fixedParams], parameters[fixedParams].ParameterType))
+            {
+                applicableForm = ApplicableForm.Normal;
+
+            }
+            // If a function member that includes a parameter array is not applicable in its normal form, the function member may instead be applicable in its expanded form
+            else
+            {
+                var paramArrayElementType = lastParam.ParameterType.GetElementType();
+                for (int i = fixedParams; i < argumentList.Count; i++)
+                {
+                    if (!_argumentConverter.CanBeConverted(argumentList[i], paramArrayElementType))
+                        return null;
+                }
+
+                applicableForm = ApplicableForm.Expanded;
+            }
+
+            return new OverloadResolutionData<T>(applicableForm, functionMember);
         }
 
-
-        public FunctionMemberComparisonResult IsBetterFunctionMember(ParameterInfo[] left, ParameterInfo[] right)
+        public BetterResult IsBetterFunctionMember<T>(IImmutableList<Type> arguments, OverloadResolutionData<T> left, OverloadResolutionData<T> right)
+            where T : MemberInfo
         {
+
             if (left == null)
                 throw new ArgumentNullException(nameof(left));
             if (right == null)
                 throw new ArgumentNullException(nameof(right));
 
+            // - for each argument, the implicit conversion from EX to QX is not better than the implicit conversion from EX to PX, and
+            // - for at least one argument, the conversion from EX to PX is better than the conversion from EX to QX.
+            bool leftIsBetter = false;
+            bool rightIsBetter = false;
 
-            if (left.Length > right.Length)
-                return FunctionMemberComparisonResult.Better;
-            else if (right.Length > left.Length)
-                return FunctionMemberComparisonResult.Worse;
-
-            bool leftMoreSpecific = false;
-            bool rightMoreSpecific = false;
-
-            for (int i = 0; i < left.Length; i++)
+            for (int i = 0; i < arguments.Count; i++)
             {
-                var leftType = left[i].ParameterType;
-                var rightType = right[i].ParameterType;
-                //If types the same, then neither is more specific
-                if (leftType != rightType)
-                {
-                    leftMoreSpecific |= _argumentConverter.CanBeConverted(leftType, rightType);
-                    rightMoreSpecific |= _argumentConverter.CanBeConverted(rightType, leftType);
-                }
+                var expressionType = arguments[i];
+                var leftParamType = left.GetExpandedParameterType(i);
+                var rightParamType = right.GetExpandedParameterType(i);
+
+                leftIsBetter |= IsBetterConversionFromExpression(expressionType, leftParamType, rightParamType);
+                rightIsBetter |= IsBetterConversionFromExpression(expressionType, rightParamType, leftParamType);
             }
 
-            //TODO: Implement Tie-break rules
+            if (leftIsBetter != rightIsBetter)
+            {
+                return leftIsBetter
+                    ? BetterResult.Better
+                    : BetterResult.Worse;
+            }
 
-            if (leftMoreSpecific == rightMoreSpecific)
-                return FunctionMemberComparisonResult.Incomparable;
-            else if (leftMoreSpecific)
-                return FunctionMemberComparisonResult.Better;
-            else if (rightMoreSpecific)
-                return FunctionMemberComparisonResult.Worse;
+            // Otherwise, if MP is applicable in its normal form and MQ has a params array and is applicable
+            // only in its expanded form, then MP is better than MQ.
+            if (left.ApplicableForm != right.ApplicableForm)
+            {
+                return left.ApplicableForm == ApplicableForm.Normal
+                    ? BetterResult.Better
+                    : BetterResult.Worse;
+            }
 
-            //Should be impossible to get here right??
-            throw new InvalidProgramException();
+            // Otherwise, if MP has more declared parameters than MQ, then MP is better than MQ. This can
+            // occur if both methods have params arrays and are applicable only in their expanded forms.
+            var leftParamCount = left.Parameters.Length;
+            var rightParamCount = right.Parameters.Length;
+            if (leftParamCount != rightParamCount)
+            {
+                return leftParamCount > rightParamCount
+                    ? BetterResult.Better
+                    : BetterResult.Worse;
+            }
+
+            return BetterResult.Incomparable;
         }
 
 
-        public bool IsArgumentCompatible(Type runtimeType, ParameterInfo parameter)
+        public bool IsBetterConversionFromExpression(Type expression, Type candidate, Type other)
         {
-            if (parameter == null)
-                throw new ArgumentNullException(nameof(parameter));
-
-            if (_argumentConverter.CanBeConverted(runtimeType, parameter.ParameterType))
+            // E has a type S and an identity conversion exists from S to T1 but not from S to T2
+            if (expression == candidate && expression != other)
                 return true;
 
-            return IsParameterArrayArgument(parameter)
-                && _argumentConverter.CanBeConverted(runtimeType, parameter.ParameterType.GetElementType());
+            //T1 is a better conversion target than T2 
+            return IsBetterConversionTarget(candidate, other);
         }
 
+        public bool IsBetterConversionTarget(Type candidate, Type other)
+        {
+            // Given two different types T1 and T2, T1 is a better conversion target than T2 if no implicit conversion from T2 to T1 exists, 
+            // and at least one of the following holds:
+            if (_argumentConverter.CanBeConverted(other, candidate))
+                return false;
+
+            // - An implicit conversion from T1 to T2 exists
+            if (_argumentConverter.CanBeConverted(candidate, other))
+                return true;
+
+            // - T1 is a signed integral type and T2 is an unsigned integral type
+            if (TypeHelper.IsSignedInteger(candidate) && TypeHelper.IsUnsignedInteger(other))
+                return true;
+
+            return false;
+        }
 
         public bool IsParameterArrayArgument(ParameterInfo parameter)
         {

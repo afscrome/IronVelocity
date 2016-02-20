@@ -20,15 +20,16 @@ namespace IronVelocity.Reflection
             _argumentConverter = argumentConverter;
         }
 
-        public Expression ConvertMethodParameters(MethodInfo method, Expression target, DynamicMetaObject[] args)//, Type[] argTypeArray)
+        public Expression ConvertMethodParameters(OverloadResolutionData<MethodInfo> resolvedMethod, Expression target, DynamicMetaObject[] args)//, Type[] argTypeArray)
         {
-            if (method == null)
-                throw new ArgumentNullException(nameof(method));
+            if (resolvedMethod == null)
+                throw new ArgumentNullException(nameof(resolvedMethod));
 
             if (args == null)
                 throw new ArgumentNullException(nameof(args));
 
-            var argExpressions = _overloadResolver.CreateParameterExpressions(method.GetParameters(), args);
+            var argExpressions = _overloadResolver.CreateParameterExpressions(resolvedMethod, args);
+            var method = resolvedMethod.FunctionMember;
 
             Expression result = Expression.Call(
                 VelocityExpressions.ConvertIfNeeded(target, method.DeclaringType),
@@ -50,7 +51,7 @@ namespace IronVelocity.Reflection
 
 
 
-        public MethodInfo ResolveMethod(TypeInfo type, string name, IImmutableList<Type> argTypes)
+        public OverloadResolutionData<MethodInfo> ResolveMethod(TypeInfo type, string name, IImmutableList<Type> argTypes)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
@@ -62,7 +63,7 @@ namespace IronVelocity.Reflection
             var candidates = GetCandidateMethods(type, name)
                 .Select(x => new FunctionMemberData<MethodInfo>(x, x.GetParameters()));
 
-            return _overloadResolver.Resolve(candidates, argTypes)?.FunctionMember;
+            return _overloadResolver.Resolve(candidates, argTypes);
         }
 
         public IEnumerable<MethodInfo> GetCandidateMethods(TypeInfo type, string name)
