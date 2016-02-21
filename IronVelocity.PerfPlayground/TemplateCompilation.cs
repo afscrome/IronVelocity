@@ -53,9 +53,8 @@ namespace IronVelocity.PerfPlayground
             {
                 var antlrDirectives = BlockDirectives
                     .Select(x => new AntlrBlockDirectiveBuilder(x))
-                    .ToImmutableList<CustomDirectiveBuilder>();
-                antlrDirectives.Add(new ForeachDirectiveBuilder());
-
+                    .Concat(new CustomDirectiveBuilder[] { new ForeachDirectiveBuilder() })
+                    .ToImmutableList();
 
                 var expressionTreeFactory = new VelocityExpressionFactory(_binderFactory);
                 var parser = new AntlrVelocityParser(antlrDirectives, expressionTreeFactory);

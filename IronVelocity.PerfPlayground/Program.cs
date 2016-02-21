@@ -19,6 +19,7 @@ namespace IronVelocity.PerfPlayground
 
             Environment.CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
+            generator.SetUp();
             var testCases = generator.CreateTemplateTestCases().ToList(); ;
 
             int passCount = 0;
