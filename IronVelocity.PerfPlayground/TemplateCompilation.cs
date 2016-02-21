@@ -28,7 +28,7 @@ namespace IronVelocity.PerfPlayground
         public ICollection<string> TemplateDirectories { get; } = new List<string>();
         public string TestNamePrefix { get; set; } = "Compilation";
         public ICollection<string> BlockDirectives { get; } = new List<string>();
-        private BinderFactory _binderFactory;
+        private ReusableBinderFactory _binderFactory;
 
         [TestFixtureSetUp]
         public void SetUp()
@@ -43,7 +43,7 @@ namespace IronVelocity.PerfPlayground
                 if (!Directory.Exists(OutputDir))
                     Directory.CreateDirectory(OutputDir);
             }
-            _binderFactory = new BinderFactory();
+            _binderFactory = new ReusableBinderFactory(new BinderFactory());
         }
 
         [TestCaseSource("CreateTemplateTestCases")]

@@ -18,7 +18,7 @@ namespace IronVelocity.Tests.Parser
             where T : RuleContext
         {
             var inputStream = new AntlrInputStream(input);
-            var expressionFactory = new VelocityExpressionFactory(new BinderFactory());
+            var expressionFactory = new VelocityExpressionFactory(new ReusableBinderFactory(new BinderFactory()));
             return new AntlrVelocityParser(expressionFactory)
                 .ParseTemplate(inputStream, Utility.GetName(), parseFunc, lexerMode);
         }

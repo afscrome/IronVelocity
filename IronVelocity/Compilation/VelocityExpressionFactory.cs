@@ -15,8 +15,8 @@ namespace IronVelocity.Compilation
 {
     public class VelocityExpressionFactory
     {
-        private readonly BinderFactory _binderFactory;
-        public VelocityExpressionFactory(BinderFactory binderFactory)
+        private readonly IBinderFactory _binderFactory;
+        public VelocityExpressionFactory(IBinderFactory binderFactory)
         {
             _binderFactory = binderFactory;
         }
@@ -53,7 +53,7 @@ namespace IronVelocity.Compilation
 
         private readonly IDictionary<string, Expression> _variableCache = new Dictionary<string, Expression>();
 
-        public StaticTypedVelocityExpressionFactory(BinderFactory binderFactory, IImmutableDictionary<string, object> globals)
+        public StaticTypedVelocityExpressionFactory(IBinderFactory binderFactory, IImmutableDictionary<string, object> globals)
             : base(binderFactory)
         {
             var nullGlobals = globals?.Where(x => x.Value == null);

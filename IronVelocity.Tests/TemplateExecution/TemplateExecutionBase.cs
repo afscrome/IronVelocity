@@ -95,8 +95,8 @@ namespace IronVelocity.Tests.TemplateExecution
             return new ExecutionResult(outputBuilder, context);
         }
 
-        protected virtual BinderFactory CreateBinderFactory()
-            => new BinderFactory();
+        protected virtual IBinderFactory CreateBinderFactory()
+            => new ReusableBinderFactory(new BinderFactory());
 
         private VelocityTemplateMethod CompileTemplate(string input, string fileName, IImmutableDictionary<string, object> globals, IImmutableList<CustomDirectiveBuilder> customDirectives)
         {
