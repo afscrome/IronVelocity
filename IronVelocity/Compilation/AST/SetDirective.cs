@@ -7,13 +7,13 @@ namespace IronVelocity.Compilation.AST
     public class SetDirective : VelocityBinaryExpression
     {
         private static readonly ParameterExpression _objectTemp = Expression.Parameter(typeof(object), "setDirectiveTemp");
-        private readonly BinderFactory _binderFactory;
+        private readonly IBinderFactory _binderFactory;
 
         public override Type Type => typeof(void);
         public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.SetDirective;
 
 
-        public SetDirective(Expression left, Expression right, SourceInfo sourceInfo, BinderFactory binderFactory)
+        public SetDirective(Expression left, Expression right, SourceInfo sourceInfo, IBinderFactory binderFactory)
             : base(left, right, sourceInfo)
         {
             _binderFactory = binderFactory;

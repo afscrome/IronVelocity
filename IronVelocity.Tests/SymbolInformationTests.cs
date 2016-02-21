@@ -13,7 +13,7 @@ namespace IronVelocity.Tests
     [TestFixture]
     public class SymbolInformationTests
     {
-        private IParser _parser = new AntlrVelocityParser(new VelocityExpressionFactory(new BinderFactory()));
+        private IParser _parser = new AntlrVelocityParser(new VelocityExpressionFactory(new ReusableBinderFactory(new BinderFactory())));
 
         [TestCase("4 + 47", TestName="ParsingAddExpression_DetectsCorrectLineInfo")]
         [TestCase("73 - 21", TestName="ParsingSubtractExpression_DetectsCorrectLineInfo")]

@@ -58,6 +58,8 @@
     <Compile Include="Binders\BigIntegerHelper.cs" />
     <Compile Include="Binders\BinderFactory.cs" />
     <Compile Include="Binders\BinderHelper.cs" />
+    <Compile Include="Binders\IBinderFactory.cs" />
+    <Compile Include="Binders\ReusableBinderFactory.cs" />
     <Compile Include="Binders\VelocityGetIndexBinder.cs" />
     <Compile Include="Binders\VelocitySetIndexBinder.cs" />
     <Compile Include="Compilation\AST\DirectiveWord.cs" />

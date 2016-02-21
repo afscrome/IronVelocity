@@ -2,6 +2,7 @@
 using IronVelocity.Reflection;
 using NUnit.Framework;
 using System.Dynamic;
+using System;
 
 namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {
@@ -10,23 +11,44 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
         //With globals, binders may not be used, so only test in AsProvided Mode
         protected BinderReuseTestBase() : base(StaticTypingMode.AsProvided) { }
 
-        public int CallSiteBindCount => DuplicateBinderHelper.CallSiteBindCount;
+        public int CallSiteBindCount => DuplcateBinderDetectionBinderFactory.CallSiteBindCount;
 
-        protected override BinderFactory CreateBinderFactory()
-            => new DuplicateBinderHelper();
+        protected override IBinderFactory CreateBinderFactory()
+            => new ReusableBinderFactory(new DuplcateBinderDetectionBinderFactory());
 
-        private class DuplicateBinderHelper : BinderFactory
+        private class DuplcateBinderDetectionBinderFactory : IBinderFactory
         {
             public static int CallSiteBindCount { get; set; }
+            private readonly ReusableBinderFactory _factory = new ReusableBinderFactory(new BinderFactory());
 
-            public DuplicateBinderHelper()
+            public DuplcateBinderDetectionBinderFactory()
             {
                 CallSiteBindCount = 0;
             }
 
-            protected override GetMemberBinder CreateGetMemberBinder(string memberName) => new DupDetectionGetMemberBinder(memberName);
-            protected override SetMemberBinder CreateSetMemberBinder(string memberName) => new DupDetectionSetMemberBinder(memberName);
-            protected override InvokeMemberBinder CreateInvokeMemberBinder(string name, int argumentCount) => new DupDetectionInvokeMemberBinder(name, new CallInfo(argumentCount));
+            public GetMemberBinder GetGetMemberBinder(string memberName) => new DupDetectionGetMemberBinder(memberName);
+            public SetMemberBinder GetSetMemberBinder(string memberName) => new DupDetectionSetMemberBinder(memberName);
+            public InvokeMemberBinder GetInvokeMemberBinder(string name, int argumentCount) => new DupDetectionInvokeMemberBinder(name, new CallInfo(argumentCount));
+
+            public GetIndexBinder GetGetIndexBinder(int argumentCount)
+            {
+                throw new NotImplementedException();
+            }
+
+            public SetIndexBinder GetSetIndexBinder(int argumentCount)
+            {
+                throw new NotImplementedException();
+            }
+
+            public VelocityComparisonOperationBinder GetComparisonOperationBinder(ComparisonOperation operation)
+            {
+                throw new NotImplementedException();
+            }
+
+            public VelocityMathematicalOperationBinder GetMathematicalOperationBinder(MathematicalOperation type)
+            {
+                throw new NotImplementedException();
+            }
 
             private class DupDetectionGetMemberBinder : VelocityGetMemberBinder
             {
