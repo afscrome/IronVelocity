@@ -14,7 +14,7 @@ namespace IronVelocity.Compilation
     /// </remarks>
     public static class VelocityStrings
     {
-        private static readonly MethodInfo _escapeQuoteMethodInfo = typeof(VelocityStrings).GetMethod("EscapeQuotes", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(char) }, null);
+        private static readonly MethodInfo _escapeQuoteMethodInfo = typeof(VelocityStrings).GetMethod(nameof(EscapeQuotes), BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(char) }, null);
         private static readonly Expression _singleQuote = Expression.Constant('\'');
         private static readonly Expression _doubleQuote = Expression.Constant('"');
 
