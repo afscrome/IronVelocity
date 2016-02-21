@@ -11,7 +11,12 @@ namespace IronVelocity.Tests.Binders
         private readonly OverloadResolver _methodResolver = new OverloadResolver(new ArgumentConverter());
 
         private bool IsMethodApplicable(MethodInfo method, params Type[] argTypes)
-            => _methodResolver.IsApplicableFunctionMember(method.GetParameters(), argTypes.ToImmutableArray());
+        {
+            var functionMember = new FunctionMemberData<MethodInfo>(method, method.GetParameters());
+            var result = _methodResolver.IsApplicableFunctionMember(functionMember, argTypes.ToImmutableArray());
+
+            return result != null;
+        }
 
         [Test]
         public void ParameterlessMethodIsApplicable()

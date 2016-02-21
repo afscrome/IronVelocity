@@ -9,8 +9,8 @@ namespace IronVelocity.Reflection
 
     public interface IMethodResolver
     {
-        MethodInfo ResolveMethod(TypeInfo type, string name, IImmutableList<Type> argTypes);
+        OverloadResolutionData<MethodInfo> ResolveMethod(TypeInfo type, string name, IImmutableList<Type> argTypes);
 
-        Expression ConvertMethodParameters(MethodInfo method, Expression target, DynamicMetaObject[] args);
+        Expression ConvertMethodParameters(OverloadResolutionData<MethodInfo> method, Expression target, DynamicMetaObject[] args);
     }
 }

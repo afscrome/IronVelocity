@@ -9,7 +9,9 @@ namespace IronVelocity.Reflection
 {
     public interface IOverloadResolver
     {
-        FunctionMemberData<T> Resolve<T>(IEnumerable<FunctionMemberData<T>> candidates, IImmutableList<Type> args);
-        IImmutableList<Expression> CreateParameterExpressions(ParameterInfo[] parameters, DynamicMetaObject[] args);
+        OverloadResolutionData<T> Resolve<T>(IEnumerable<FunctionMemberData<T>> candidates, IImmutableList<Type> args)
+            where T : MemberInfo;
+        IImmutableList<Expression> CreateParameterExpressions<T>(OverloadResolutionData<T> overload, DynamicMetaObject[] args)
+            where T : MemberInfo;
     }
 }

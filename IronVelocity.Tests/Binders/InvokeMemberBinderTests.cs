@@ -136,12 +136,19 @@ namespace IronVelocity.Tests.Binders
             Assert.AreEqual(2, result);
         }
 
-
         [Test]
-        public void ParamArrayWithOneNullArgument()
+        public void ParamArrayWithNullArgument()
         {
             var target = new MethodTests();
-            var result = test(target, "ParamArray", new object[] { null} );
+            var result = test(target, "ParamArray", new object[] { null });
+
+            Assert.IsNull(result);
+        }
+        [Test]
+        public void ParamArrayWithArrayWithOneNullArgument()
+        {
+            var target = new MethodTests();
+            var result = test(target, "ParamArray", new object[] { new object[1] });
 
             Assert.AreEqual(1, result);
         }
@@ -251,7 +258,7 @@ namespace IronVelocity.Tests.Binders
             private string TopSecret() => "The password is ********";
             internal string Internal() => "Access code: *****";
             public object OneParameter(object param) => "One Param Success";
-            public int ParamArray(params object[] values) => values.Length;
+            public int? ParamArray(params object[] values) => values?.Length;
             public string Property => "A property";
             public string Field = "Marshal";
         }
