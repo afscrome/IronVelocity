@@ -9,9 +9,6 @@ namespace IronVelocity.Compilation.AST
 {
     public class InterpolatedStringExpression : VelocityExpression
     {
-        private static MethodInfo _stringConcatMethodInfo = typeof(string).GetMethod("Concat", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object[]) }, null);
-
-
         public IImmutableList<Expression> Parts { get; set; }
 
         public override Type Type => typeof(string);
