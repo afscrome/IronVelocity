@@ -20,42 +20,35 @@ namespace IronVelocity.Binders
         {
             if (target == null)
                 throw new ArgumentNullException(nameof(target));
-
             if (value == null)
                 throw new ArgumentNullException(nameof(target));
 
-            //If any of the Dynamic Meta Objects don't yet have a value, defer until they have values.  Failure to do this may result in an infinite loop
-            if (!target.HasValue)
-                return Defer(target);
+            if (!target.HasValue || ! value.HasValue)
+                return Defer(target, value);
 
-            // If the target has a null value, then we won't be able to make an assignment
             if (target.Value == null)
-            {
-                return new DynamicMetaObject(
-                    Constants.NullExpression,
-                    BindingRestrictions.GetInstanceRestriction(target.Expression, null)
-                );
-            }
+                return BinderHelper.NullTargetResult(target, errorSuggestion);
+            if (value.Value == null)
+                return BinderHelper.SetNullValue(this, value);
 
-            var result = _memberResolver.MemberExpression(Name, target, Reflection.MemberAccessMode.Write);
 
-            if (result != null && result.Type.IsAssignableFrom(value.RuntimeType))
-                result = VelocityExpressions.BoxIfNeeded(
-                    Expression.Assign(
-                        result,
-                        VelocityExpressions.ConvertIfNeeded(value, result.Type)
-                    )
-                );
-            else
+            var memberAccess = _memberResolver.MemberExpression(Name, target, MemberAccessMode.Write);
+
+            var restrictions = BinderHelper.CreateCommonRestrictions(target);
+            if (memberAccess == null || !memberAccess.Type.IsAssignableFrom(value.RuntimeType))
             {
                 BindingEventSource.Log.SetMemberResolutionFailure(Name, target.RuntimeType.FullName, value.RuntimeType.FullName);
-                result = errorSuggestion?.Expression ?? Constants.VelocityUnresolvableResult;
+                return BinderHelper.UnresolveableResult(restrictions, errorSuggestion);
             }
 
-            return new DynamicMetaObject(
-                    result,
-                    BindingRestrictions.GetTypeRestriction(target.Expression, target.LimitType)
-                );
+            var result = VelocityExpressions.BoxIfNeeded(
+                Expression.Assign(
+                    memberAccess,
+                    VelocityExpressions.ConvertIfNeeded(value, memberAccess.Type)
+                )
+            );
+
+            return new DynamicMetaObject(result, restrictions);
         }
     }
 }

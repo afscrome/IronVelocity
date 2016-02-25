@@ -1,4 +1,5 @@
 ﻿using System.Dynamic;
+using System.Linq.Expressions;
 
 namespace IronVelocity.Binders
 {
@@ -6,16 +7,16 @@ namespace IronVelocity.Binders
     {
         public static BindingRestrictions CreateCommonRestrictions(DynamicMetaObject value)
         {
-            return value.HasValue && value.Value == null
+            var valueRestriction = value.HasValue && value.Value == null
                     ? BindingRestrictions.GetInstanceRestriction(value.Expression, null)
                     : BindingRestrictions.GetTypeRestriction(value.Expression, value.LimitType);
+
+            return valueRestriction.Merge(value.Restrictions);
         }
 
         public static BindingRestrictions CreateCommonRestrictions(DynamicMetaObject target, params DynamicMetaObject[] args)
         {
-            var restrictions = BindingRestrictions.Combine(args);
-            restrictions = restrictions.Merge(target.Restrictions)
-                .Merge(CreateCommonRestrictions(target));
+            var restrictions = CreateCommonRestrictions(target);
 
             foreach (var arg in args)
             {
@@ -44,6 +45,12 @@ namespace IronVelocity.Binders
             restrictions = restrictions.Merge(errorSuggestion.Restrictions);
 
             return new DynamicMetaObject(errorSuggestion.Expression, restrictions);
+        }
+
+        public static DynamicMetaObject SetNullValue(DynamicMetaObjectBinder binder, DynamicMetaObject value)
+        {
+            var restriction = BindingRestrictions.GetInstanceRestriction(value.Expression, null);
+            return new DynamicMetaObject(Expression.Default(binder.ReturnType), restriction); 
         }
 
     }

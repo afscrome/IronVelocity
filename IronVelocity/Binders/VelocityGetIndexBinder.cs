@@ -30,8 +30,6 @@ namespace IronVelocity.Binders
             if (!target.HasValue || indexes.Any(x => !x.HasValue))
                 return Defer(target, indexes);
 
-            // If the target has a null value, then we won't be able to get any fields or properties, so escape early
-            // Failure to escape early like this results in an infinite loop
             if (target.Value == null)
                 return BinderHelper.NullTargetResult(target,errorSuggestion);
 
