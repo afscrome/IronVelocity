@@ -51,7 +51,7 @@ mode DIRECTIVE_ARGUMENTS ;
 
 RightCurley : '}' ;
 WhitespaceA:  WHITESPACE_TEXT -> type(Whitespace);
-LeftParenthesis : '(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
+LeftParenthesis : '(' -> mode(DEFAULT_MODE), pushMode(EXPRESSION) ;
 TextFallback2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
@@ -86,7 +86,7 @@ mode REFERENCE ;
 
 Dot : '.' ;
 Identifier5: IDENTIFIER_TEXT -> type(Identifier) , mode(REFERENCE_MEMBER_ACCESS) ;
-LeftSquare5 : '[' -> type(LeftSquare), pushMode(ARGUMENTS);
+LeftSquare5 : '[' -> type(LeftSquare), pushMode(EXPRESSION);
 RightCurley5 : '}' ->  type(RightCurley), mode(DEFAULT_MODE);
 
 DotDotText5 : '..' -> type(Text), mode(DEFAULT_MODE) ;
@@ -99,30 +99,33 @@ TextFallback5 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 // Otherwise it is a property invocation and returns to the REFERENCE state.
 mode REFERENCE_MEMBER_ACCESS ;
 
-LeftParenthesis6 : '(' -> type(LeftParenthesis), mode(REFERENCE), pushMode(ARGUMENTS) ;
-LeftSquare6 : '[' -> type(LeftSquare), pushMode(ARGUMENTS);
+LeftParenthesis6 : '(' -> type(LeftParenthesis), mode(REFERENCE), pushMode(EXPRESSION) ;
+LeftSquare6 : '[' -> type(LeftSquare), pushMode(EXPRESSION);
 TextFallback6 : -> type(TRANSITION), channel(HIDDEN), mode(REFERENCE) ;
 
 
 //===================================
 // Used when parsing arguments in either a method call "$foo.bar(ARGUMENTS)",
 // or a directive #directive(ARGUMENTS)
-mode ARGUMENTS ;
+mode EXPRESSION ;
 
-Whitespace7 : WHITESPACE_TEXT -> type(Whitespace), channel(HIDDEN);
-Comma : ',' ;
 True : 'true' ;
 False : 'false' ;
 Number : NUMERIC_CHAR+ ;
-Dot7 : '.' -> type(Dot) ;
 String : '\'' (~('\'' | '\r' | '\n' ) | '\'\'' )* '\'' ;
 InterpolatedString : '"' (~('"' | '\r' | '\n' ) | '""')* '"' ;
-Dollar7 : '$' -> type(Dollar) ;
-Exclamation7 : '!' -> type(Exclamation) ;
+
+LeftParenthesis8 : '(' -> type(LeftParenthesis), pushMode(EXPRESSION);
+RightParenthesis : ')' -> popMode ;
 LeftCurley7 : '{' -> type(LeftCurley);
 RightCurley7 : '}' -> type(RightCurley);
+LeftSquare : '['  -> pushMode(EXPRESSION);
+RightSquare : ']' -> popMode ;
+
+Dot7 : '.' -> type(Dot) ;
+Exclamation7 : '!' -> type(Exclamation) ;
+
 DotDot : '..' ;
-Colon : ':' ;
 Assign : '=' ;
 Multiply : '*' ;
 Divide : '/' ;
@@ -137,9 +140,12 @@ Equal : '==' | 'eq' ;
 NotEqual : '!=' | 'ne' ;
 And : '&&' | 'and' ;
 Or : '||' | 'or' ;
+
+Dollar7 : '$' -> type(Dollar) ;
+Comma : ',' ;
+Colon : ':' ;
+Whitespace7 : WHITESPACE_TEXT -> type(Whitespace), channel(HIDDEN);
 Identifier7 : IDENTIFIER_TEXT -> type(Identifier) ;
-LeftParenthesis8 : '(' -> type(LeftParenthesis), pushMode(ARGUMENTS);
-RightParenthesis : ')' -> popMode ;
-LeftSquare : '['  -> pushMode(ARGUMENTS);
-RightSquare : ']' -> popMode ;
+
+//Error Recovery
 UnknownChar : .;

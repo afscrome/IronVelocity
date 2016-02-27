@@ -17,7 +17,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase(3, " 1 , 1 , 1 ")]
         public void ParseArgumentList(int argumentCount, string input)
         {
-            var result = Parse(input, x => x.argument_list(), VelocityLexer.ARGUMENTS);
+            var result = Parse(input, x => x.argument_list(), VelocityLexer.EXPRESSION);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetFullText(), Is.EqualTo(input.Trim()));
@@ -33,7 +33,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase(",1")]
         public void ParseInvalidArgumentList(string input)
         {
-            ParseShouldProduceError(input, x => x.argument_list(), VelocityLexer.ARGUMENTS);
+            ParseShouldProduceError(input, x => x.argument_list(), VelocityLexer.EXPRESSION);
         }
     }
 }

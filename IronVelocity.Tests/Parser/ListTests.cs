@@ -13,7 +13,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("[$a, 23, 'foo']", 3)]
         public void ParseList(string input, int argumentCount)
         {
-            var result = (VelocityParser.ListContext)Parse(input, x => x.expression(), VelocityLexer.ARGUMENTS);
+            var result = (VelocityParser.ListContext)Parse(input, x => x.expression(), VelocityLexer.EXPRESSION);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetFullText(), Is.EqualTo(input));

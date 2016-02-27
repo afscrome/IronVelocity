@@ -14,7 +14,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("[true..[]]", typeof(VelocityParser.BooleanLiteralContext), typeof(VelocityParser.ListContext))]
         public void ParseRangeExpression(string input, Type leftArgType, Type rightArgType)
         {
-            var result = (VelocityParser.RangeContext)Parse(input, x => x.expression(), VelocityLexer.ARGUMENTS);
+            var result = (VelocityParser.RangeContext)Parse(input, x => x.expression(), VelocityLexer.EXPRESSION);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.GetText(), Is.EqualTo(input));

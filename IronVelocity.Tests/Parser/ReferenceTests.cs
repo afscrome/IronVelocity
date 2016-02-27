@@ -9,7 +9,7 @@ namespace IronVelocity.Tests.Parser
     [TestFixture(VelocityLexer.POSSIBLE_REFERENCE)]
     [TestFixture(VelocityLexer.REFERENCE)]
     [TestFixture(VelocityLexer.REFERENCE_MEMBER_ACCESS)]
-    [TestFixture(VelocityLexer.ARGUMENTS)]
+    [TestFixture(VelocityLexer.EXPRESSION)]
     public class ReferenceTests : ParserTestBase
     {
         private readonly int LexerInitialState;
