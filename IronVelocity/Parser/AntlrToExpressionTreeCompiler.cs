@@ -55,9 +55,6 @@ namespace IronVelocity.Parser
 
                 switch (token.Type)
                 {
-                    case VelocityLexer.Whitespace:
-                    case VelocityLexer.Newline:
-                        goto default;
                     case VelocityLexer.EscapedDollar:
                         _textBuffer.Append('$');
                         break;

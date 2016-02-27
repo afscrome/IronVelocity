@@ -31,7 +31,7 @@ LiteralContent : '#[[' (~(']') | ']' ~(']'))* ']]' ;
 Dollar : '$' ->  mode(POSSIBLE_REFERENCE) ;
 Hash : '#' -> mode(POSSIBLE_CUSTOM_DIRECTIVE) ;
 
-Whitespace:  WHITESPACE_TEXT ;
+VerticalWhitespace:  WHITESPACE_TEXT ;
 Newline : '\r' | '\n' | '\r\n' ;
 EscapedDollar: '\\'+ '$' ;
 EscapedHash: '\\'+ '#' ;
@@ -50,9 +50,9 @@ TextFallback1 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 mode DIRECTIVE_ARGUMENTS ;
 
 RightCurley : '}' ;
-WhitespaceA:  WHITESPACE_TEXT -> type(Whitespace);
+VerticalWhitespaceA:  WHITESPACE_TEXT -> type(VerticalWhitespace);
 LeftParenthesis : '(' -> mode(DEFAULT_MODE), pushMode(EXPRESSION) ;
-TextFallback2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
+TextFallback2A : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
 //===================================
@@ -144,7 +144,7 @@ Or : '||' | 'or' ;
 Dollar7 : '$' -> type(Dollar) ;
 Comma : ',' ;
 Colon : ':' ;
-Whitespace7 : WHITESPACE_TEXT -> type(Whitespace), channel(HIDDEN);
+VerticalWhitespace7 : WHITESPACE_TEXT -> type(VerticalWhitespace), channel(HIDDEN);
 Identifier7 : IDENTIFIER_TEXT -> type(Identifier) ;
 
 //Error Recovery

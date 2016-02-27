@@ -16,24 +16,25 @@ block: (text | reference | comment | setDirective | ifBlock | customDirective | 
 // lexical state was entered, but did not move into the REFERENCE state
 // RIGHT_CURLEY required to cope with ${formal}}
 // DOT required to cope with "$name."
-text : (Text | Hash | Dollar (Exclamation | LeftCurley)* | RightCurley | Dot | Whitespace | Newline | EscapedDollar | EscapedHash | LoneEscape )+ ;
+text : (Text | Hash | Dollar (Exclamation | LeftCurley)* | RightCurley | Dot | VerticalWhitespace | Newline | EscapedDollar | EscapedHash | LoneEscape )+ ;
 
 
 comment : COMMENT (Newline | EOF) | blockComment;
 blockComment : BlockCommentStart (BlockCommentBody | blockComment)*  BlockCommentEnd ;
 
-directiveArguments: (Whitespace? LeftParenthesis directiveArgument* RightParenthesis)? ;
+directiveArguments: (VerticalWhitespace? LeftParenthesis directiveArgument* RightParenthesis)? ;
 directiveArgument : expression | directiveWord;
 directiveWord : Identifier;
 
-endOfLineWhitespace : Whitespace? Newline ;
+endOfLineWhitespace : VerticalWhitespace? Newline ;
 
 literal : LiteralContent;
-setDirective: Set Whitespace? LeftParenthesis assignment RightParenthesis endOfLineWhitespace?;
-ifBlock : If Whitespace? LeftParenthesis expression RightParenthesis endOfLineWhitespace? block ifElseifBlock* ifElseBlock? end ;
-ifElseifBlock : ElseIf Whitespace? LeftParenthesis expression RightParenthesis endOfLineWhitespace? block ;
+setDirective: Set VerticalWhitespace? LeftParenthesis assignment RightParenthesis endOfLineWhitespace?;
+ifBlock : If VerticalWhitespace? LeftParenthesis expression RightParenthesis endOfLineWhitespace? block ifElseifBlock* ifElseBlock? end ;
+ifElseifBlock : ElseIf VerticalWhitespace? LeftParenthesis expression RightParenthesis endOfLineWhitespace? block ;
 ifElseBlock : Else endOfLineWhitespace? block ;
 end: End endOfLineWhitespace? ;
+
 
 customDirective :
 	{ !IsBlockDirective()}?  Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveArguments endOfLineWhitespace?
