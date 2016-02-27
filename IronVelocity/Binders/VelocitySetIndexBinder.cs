@@ -26,18 +26,17 @@ namespace IronVelocity.Binders
             if (indexes == null)
                 throw new ArgumentNullException(nameof(indexes));
 
-            if (!target.HasValue || indexes.Any(x => !x.HasValue))
+            if (!target.HasValue || !value.HasValue || indexes.Any(x => !x.HasValue))
                 return Defer(target, indexes.Concat(new[] { value }).ToArray());
 
-            // If the target has a null value, then we won't be able to get any fields or properties, so escape early
-            // Failure to escape early like this results in an infinite loop
             if (target.Value == null)
                 return BinderHelper.NullTargetResult(target, errorSuggestion);
-
             if (value.Value == null)
-                return BinderHelper.NullTargetResult(value, errorSuggestion);
+                return BinderHelper.SetNullValue(this, value);
 
-            var restrictions = BinderHelper.CreateCommonRestrictions(target, indexes.Concat(new[] { value }).ToArray());
+            var restrictions = BinderHelper.CreateCommonRestrictions(target, indexes)
+                .Merge(BinderHelper.CreateCommonRestrictions(value));
+
             var index = _indexerResolver.WriteableIndexer(target, indexes);
 
             if (index == null || !index.Type.IsAssignableFrom(value.RuntimeType))
@@ -45,7 +44,7 @@ namespace IronVelocity.Binders
 
             var assignment = Expression.Assign(index, VelocityExpressions.ConvertIfNeeded(value.Expression, index.Type));
 
-            return new DynamicMetaObject(VelocityExpressions.ConvertIfNeeded(assignment, typeof(object)), restrictions);
+            return new DynamicMetaObject(VelocityExpressions.ConvertIfNeeded(assignment, ReturnType), restrictions);
         }
     }
 }

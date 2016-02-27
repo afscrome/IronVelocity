@@ -31,22 +31,12 @@ namespace IronVelocity.Binders
             if (args == null)
                 throw new ArgumentNullException(nameof(args));
 
-            //TODO: Support dictionary --> arguments
-            //TODO: Support optional params?  BindingFlags.OptionalParamBinding
+            if (!target.HasValue || args.Any(x => !x.HasValue))
+                return Defer(target, args);
 
-            //If any of the Dynamic Meta Objects don't yet have a value, defer until they have values.  Failure to do this may result in an infinite loop
-            if (!target.HasValue)
-                return Defer(target);
+            if (target == null)
+                return BinderHelper.NullTargetResult(target, errorSuggestion);
 
-            // If the target has a null value, then we won't be able to get any fields or properties, so escape early
-            // Failure to escape early like this results in an infinite loop
-            if (target.Value == null)
-            {
-                return new DynamicMetaObject(
-                    Constants.NullExpression,
-                    BindingRestrictions.GetInstanceRestriction(target.Expression, null)
-                );
-            }
 
             // If an argument has a null value, use a null type so that the resolution algorithm can do implicit null conversions
             var argTypeBuilder = ImmutableArray.CreateBuilder<Type>(args.Length);
@@ -56,7 +46,6 @@ namespace IronVelocity.Binders
             }
                 
             OverloadResolutionData<MethodInfo> method;
-            Expression result = null;
             bool isAmbigious = false;
             try
             {
@@ -68,6 +57,7 @@ namespace IronVelocity.Binders
                 method = null;
             }
 
+            var restrictions = BinderHelper.CreateCommonRestrictions(target, args);
             if (method == null)
             {
                 var log = BindingEventSource.Log;
@@ -80,26 +70,12 @@ namespace IronVelocity.Binders
                         log.InvokeMemberResolutionFailure(Name, target.LimitType.FullName, argTypeString);
                 }
 
-                result = errorSuggestion?.Expression ?? Constants.VelocityUnresolvableResult;
-            }
-            else
-            {
-                result = _methodResolver.ConvertMethodParameters(method, target.Expression, args);
+                return BinderHelper.UnresolveableResult(restrictions, errorSuggestion);
             }
 
-            var restrictions = BindingRestrictions.GetTypeRestriction(target.Expression, target.LimitType);
-
-            foreach (var arg in args)
-	        {
-                var argRestriction = arg.Value == null
-                    ? BindingRestrictions.GetInstanceRestriction(arg.Expression, null)
-                    : BindingRestrictions.GetTypeRestriction(arg.Expression, arg.LimitType);
-
-                restrictions = restrictions.Merge(argRestriction);
-	        }
-
+            var methodExpression = _methodResolver.ConvertMethodParameters(method, target.Expression, args);
             return new DynamicMetaObject(
-                VelocityExpressions.ConvertIfNeeded(result, ReturnType),
+                VelocityExpressions.ConvertIfNeeded(methodExpression, ReturnType),
                 restrictions
             );
         }
