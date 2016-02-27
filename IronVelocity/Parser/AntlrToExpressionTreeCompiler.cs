@@ -515,5 +515,10 @@ namespace IronVelocity.Parser
         {
             throw new NotImplementedException();
         }
+
+        public Expression VisitEndOfLineWhitespace([NotNull] VelocityParser.EndOfLineWhitespaceContext context)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -26,16 +26,18 @@ directiveArguments: (Whitespace? LeftParenthesis directiveArgument* RightParenth
 directiveArgument : expression | directiveWord;
 directiveWord : Identifier;
 
+endOfLineWhitespace : Whitespace? Newline ;
+
 literal : LiteralContent;
-setDirective: Set Whitespace? LeftParenthesis assignment RightParenthesis (Whitespace? Newline)?;
-ifBlock : If Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ifElseifBlock* ifElseBlock? end ;
-ifElseifBlock : ElseIf Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ;
-ifElseBlock : Else (Whitespace? Newline)? block ;
-end: End (Whitespace? Newline)? ;
+setDirective: Set Whitespace? LeftParenthesis assignment RightParenthesis endOfLineWhitespace?;
+ifBlock : If Whitespace? LeftParenthesis expression RightParenthesis endOfLineWhitespace? block ifElseifBlock* ifElseBlock? end ;
+ifElseifBlock : ElseIf Whitespace? LeftParenthesis expression RightParenthesis endOfLineWhitespace? block ;
+ifElseBlock : Else endOfLineWhitespace? block ;
+end: End endOfLineWhitespace? ;
 
 customDirective :
-	{ !IsBlockDirective()}?  Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveArguments (Whitespace? Newline)?
-	 |  {IsBlockDirective()}? Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveArguments (Whitespace? Newline)? block end ;
+	{ !IsBlockDirective()}?  Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveArguments endOfLineWhitespace?
+	 |  {IsBlockDirective()}? Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveArguments endOfLineWhitespace? block end ;
 
 
 reference : Dollar Exclamation? referenceBody
