@@ -5,8 +5,8 @@ using System.Linq;
 namespace IronVelocity.Tests.Parser
 {
     [TestFixture(VelocityLexer.DefaultMode)]
-    [TestFixture(VelocityLexer.HASH_SEEN)]
-    [TestFixture(VelocityLexer.DOLLAR_SEEN)]
+    [TestFixture(VelocityLexer.POSSIBLE_CUSTOM_DIRECTIVE)]
+    [TestFixture(VelocityLexer.POSSIBLE_REFERENCE)]
     [TestFixture(VelocityLexer.REFERENCE)]
     [TestFixture(VelocityLexer.REFERENCE_MEMBER_ACCESS)]
     [TestFixture(VelocityLexer.ARGUMENTS)]

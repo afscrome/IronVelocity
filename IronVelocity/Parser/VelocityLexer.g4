@@ -17,10 +17,20 @@ fragment WHITESPACE_TEXT : WHITESPACE_CHAR+ ;
 
 //===================================
 // Default mode used for parsing text
-// Moves to the HASH_SEEN or DOLLAR_SEEN states upon seeing '$' or '#' respectively
 Text : ~('$'| '#' | ' ' | '\t' | '\r' | '\n' | '\\' )+ ;
-Dollar : '$' ->  mode(DOLLAR_SEEN) ;
-Hash : '#' -> mode(HASH_SEEN) ;
+
+SingleLineComment : '##' ~('\r' | '\n')* -> type(COMMENT), mode(DEFAULT_MODE);
+BlockCommentStart : '#*' ->pushMode(BLOCK_COMMENT) ;
+Set : ( '#set' | '#{set}' ) -> mode(DIRECTIVE_ARGUMENTS) ;
+If : ( '#if' | '#{if}' ) -> mode(DIRECTIVE_ARGUMENTS) ;
+ElseIf : ( '#elseif' | '#elseif' ) -> mode(DIRECTIVE_ARGUMENTS);
+Else : ( '#else' | '#{else}' ) -> mode(DIRECTIVE_ARGUMENTS) ;
+End : ( '#end' | '#{end}' ) -> mode(DIRECTIVE_ARGUMENTS) ;
+LiteralContent : '#[[' (~(']') | ']' ~(']'))* ']]' ;
+
+Dollar : '$' ->  mode(POSSIBLE_REFERENCE) ;
+Hash : '#' -> mode(POSSIBLE_CUSTOM_DIRECTIVE) ;
+
 Whitespace:  WHITESPACE_TEXT ;
 Newline : '\r' | '\n' | '\r\n' ;
 EscapedDollar: '\\'+ '$' ;
@@ -30,29 +40,19 @@ LoneEscape : '\\' ;
 //===================================
 // The mode is for when a hash has been seen in a location that allows text so
 // the parser can distinguish between a textual '#', comments and directives
-mode HASH_SEEN ;
+mode POSSIBLE_CUSTOM_DIRECTIVE ;
 
 LeftCurley : '{';
-SingleLineComment : '#' ~('\r' | '\n')* -> type(COMMENT), mode(DEFAULT_MODE);
-//Need to switch to default mode before pushing so that when the the matching end tag pops, we end back in text mode.
-BlockCommentStart : '*' -> mode(DEFAULT_MODE), pushMode(BLOCK_COMMENT) ;
-
-Set : 'set' -> mode(DIRECTIVE_ARGUMENTS) ;
-If : 'if' -> mode(DIRECTIVE_ARGUMENTS) ;
-ElseIf : 'elseif' -> mode(DIRECTIVE_ARGUMENTS);
-Else : 'else' -> mode(DIRECTIVE_ARGUMENTS) ;
-End : 'end' -> mode(DIRECTIVE_ARGUMENTS) ;
 DirectiveName : DIRECTIVE_TEXT -> mode(DIRECTIVE_ARGUMENTS);
 
-LiteralContent : '[[' (~(']') | ']' ~(']'))* ']]' ;
-TextFallback2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
+TextFallback1 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 mode DIRECTIVE_ARGUMENTS ;
 
 RightCurley : '}' ;
 WhitespaceA:  WHITESPACE_TEXT -> type(Whitespace);
 LeftParenthesis : '(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
-TextFallback2A : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
+TextFallback2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
 //===================================
@@ -70,14 +70,13 @@ BlockCommentBody :  (~('#' | '*') | '#' ~'*' | '*' ~'#')+ ;
 //===================================
 // The mode is for when a dollar has been seen to parse a possible reference
 //
-mode DOLLAR_SEEN ;
+mode POSSIBLE_REFERENCE ;
 
-Identifier : IDENTIFIER_TEXT -> mode(REFERENCE) ;
 Exclamation : '!' ;
 LeftCurley4 : '{' -> type(LeftCurley);
+Identifier : IDENTIFIER_TEXT -> mode(REFERENCE) ;
 
 TextFallback4 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
-
 
 
 //===================================

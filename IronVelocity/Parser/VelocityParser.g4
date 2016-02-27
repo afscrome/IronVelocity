@@ -19,19 +19,19 @@ block: (text | reference | comment | setDirective | ifBlock | customDirective | 
 text : (Text | Hash | Dollar (Exclamation | LeftCurley)* | RightCurley | Dot | Whitespace | Newline | EscapedDollar | EscapedHash | LoneEscape )+ ;
 
 
-comment : Hash COMMENT (Newline | EOF) | Hash blockComment;
+comment : COMMENT (Newline | EOF) | blockComment;
 blockComment : BlockCommentStart (BlockCommentBody | blockComment)*  BlockCommentEnd ;
 
 directiveArguments: (Whitespace? LeftParenthesis directiveArgument* RightParenthesis)? ;
 directiveArgument : expression | directiveWord;
 directiveWord : Identifier;
 
-literal : Hash LiteralContent;
-setDirective: Hash (Set | LeftCurley Set RightCurley) Whitespace? LeftParenthesis assignment RightParenthesis (Whitespace? Newline)?;
-ifBlock : Hash (If | LeftCurley If RightCurley) Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ifElseifBlock* ifElseBlock? end ;
-ifElseifBlock : Hash (ElseIf | LeftCurley ElseIf RightCurley) Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ;
-ifElseBlock : Hash (Else | LeftCurley Else RightCurley) (Whitespace? Newline)? block ;
-end: Hash (End | LeftCurley End RightCurley) (Whitespace? Newline)? ;
+literal : LiteralContent;
+setDirective: Set Whitespace? LeftParenthesis assignment RightParenthesis (Whitespace? Newline)?;
+ifBlock : If Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ifElseifBlock* ifElseBlock? end ;
+ifElseifBlock : ElseIf Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ;
+ifElseBlock : Else (Whitespace? Newline)? block ;
+end: End (Whitespace? Newline)? ;
 
 customDirective :
 	{ !IsBlockDirective()}?  Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveArguments (Whitespace? Newline)?
