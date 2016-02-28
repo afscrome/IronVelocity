@@ -29,7 +29,7 @@ namespace IronVelocity.Tests.Parser.Combination
         public IEnumerable<TestCaseData> CommentCombinationTestCases()
         {
             var results = Enumerable.Empty<TestCaseData>();
-            foreach (var sampleType in new[] { SampleType.AmbigiousDelimiters, SampleType.ReferenceLikeText })
+            foreach (var sampleType in new[] { SampleType.AmbigiousDelimiters, SampleType.ReferenceLikeText, SampleType.Reference })
             {
                 results = results.Concat(EnumerateSampleCombinations(sampleType, SampleType.BlockComment))
                                  .Concat(EnumerateSampleCombinations(SampleType.BlockComment, sampleType));
@@ -50,7 +50,7 @@ namespace IronVelocity.Tests.Parser.Combination
 
                     var input = left + right;
                     yield return new TestCaseData(input, left, right, leftNodeType, rightNodeType )
-                            .SetName($"zCombination Test - {left}, {right} - {input}");
+                            .SetName($"zCombination Test - {leftType}, {rightType} - {input}");
                 }
             }
         }
