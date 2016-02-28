@@ -101,6 +101,8 @@
     </Compile>
     <Compile Include="Binders\ReflectionHelper\MethodResolverTests.cs" />
     <Compile Include="Binders\SetIndexBinderTests.cs" />
+    <Compile Include="Parser\Combination\CommentCombinationTests.cs" />
+    <Compile Include="Parser\Combination\TextCombinations.cs" />
     <Compile Include="Parser\DictionaryExpressionTests.cs" />
     <Compile Include="Parser\LiteralTests.cs" />
     <Compile Include="TemplateExecution\BinderReuse\BinderReuseTestBase.cs" />
@@ -122,14 +124,13 @@
     <Compile Include="Parser\AssignmentTests.cs" />
     <Compile Include="Parser\BadInput.cs" />
     <Compile Include="Parser\BooleanLiteralTests.cs" />
-    <Compile Include="Parser\CombinationTests.cs" />
     <Compile Include="Parser\CommentTests.cs" />
     <Compile Include="Parser\IntegerLiteralTests.cs" />
     <Compile Include="Parser\FloatLiteralTests.cs" />
     <Compile Include="Parser\InterpolatedStringTests.cs" />
     <Compile Include="Parser\ListTests.cs" />
     <Compile Include="Parser\ParserTestBase.cs" />
-    <Compile Include="Parser\MixedReferenceAndTextTests.cs" />
+    <Compile Include="Parser\Combination\ReferenceAndTextTests.cs" />
     <Compile Include="Parser\RangeTests.cs" />
     <Compile Include="Parser\ReferenceTests.cs" />
     <Compile Include="Parser\Samples.cs" />
