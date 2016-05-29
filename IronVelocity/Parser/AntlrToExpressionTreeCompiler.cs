@@ -21,11 +21,14 @@ namespace IronVelocity.Parser
         private readonly IImmutableList<CustomDirectiveBuilder> _customDirectives;
         private readonly VelocityExpressionFactory _expressionFactory;
 
-        public AntlrToExpressionTreeCompiler(AntlrVelocityParser parser, IImmutableList<CustomDirectiveBuilder> customDirectives, VelocityExpressionFactory expressionFactory)
+		public bool ReduceWhitespace { get; }
+
+        public AntlrToExpressionTreeCompiler(AntlrVelocityParser parser, IImmutableList<CustomDirectiveBuilder> customDirectives, VelocityExpressionFactory expressionFactory, bool reduceWhitespace)
         {
             _parser = parser;
             _customDirectives = customDirectives ?? ImmutableList<CustomDirectiveBuilder>.Empty;
             _expressionFactory = expressionFactory;
+			ReduceWhitespace = reduceWhitespace;
         }
 
         public Expression Visit(IParseTree tree) => tree.Accept(this);
@@ -45,7 +48,68 @@ namespace IronVelocity.Parser
 
         private readonly StringBuilder _textBuffer = new StringBuilder();
 
-        public Expression VisitText([NotNull] VelocityParser.TextContext context)
+
+		public Expression VisitText([NotNull] VelocityParser.TextContext context)
+		{
+			var rules = context.GetRuleContexts<ParserRuleContext>();
+			_textBuffer.Clear();
+
+			foreach (var rule in rules)
+			{
+				switch (rule.RuleIndex)
+				{
+					case VelocityParser.RULE_rawText:
+						for (int i = 0; i < rule.ChildCount; i++)
+						{
+							var token = ((ITerminalNode)rule.GetChild(i)).Symbol;
+
+							switch (token.Type)
+							{
+								case VelocityLexer.EscapedDollar:
+									_textBuffer.Append('$');
+									break;
+								case VelocityLexer.EscapedHash:
+									_textBuffer.Append('#');
+									break;
+								default:
+									_textBuffer.Append(token.Text);
+									break;
+							}
+						}
+						break;
+					case VelocityParser.RULE_whitespace:
+						if (ReduceWhitespace)
+						{
+							if (rule.GetToken(VelocityLexer.Newline, 0) != null)
+								_textBuffer.Append('\n');
+							else
+								_textBuffer.Append(' ');
+						}
+						else
+							_textBuffer.Append(rule.GetText());
+
+						break;
+					case VelocityParser.RULE_literal:
+						var interval = new Interval(context.start.StartIndex + 3, context.Stop.StopIndex - 2);
+						var literal = context.Start.InputStream.GetText(interval);
+						_textBuffer.Append(literal);
+						break;
+					default:
+						throw new Exception("Unknown Text Sub Rule" + rule.GetType().Name);
+				}
+			}
+			return Expression.Constant(_textBuffer.ToString());
+		}
+
+		public Expression VisitLiteral([NotNull] VelocityParser.LiteralContext context)
+		{
+			var interval = new Interval(context.start.StartIndex + 3, context.Stop.StopIndex - 2);
+			var content = context.Start.InputStream.GetText(interval);
+			return Expression.Constant(content);
+		}
+
+
+		public Expression VisitRawText([NotNull] VelocityParser.RawTextContext context)
         {
             _textBuffer.Clear();
 
@@ -83,13 +147,12 @@ namespace IronVelocity.Parser
         public Expression VisitReferenceBody([NotNull] VelocityParser.ReferenceBodyContext context)
         {
             var result = VisitVariable(context.variable());
-
             var further = context.GetRuleContexts<ParserRuleContext>();
 
-            for (int i = 1; i < further.Length; i++)
-            {
-                var innerContext = further[i];
-                var sourceInfo = GetSourceInfo(innerContext);
+			for (int i = 1; i < further.Length; i++)
+			{
+				var innerContext = further[i];
+				var sourceInfo = GetSourceInfo(innerContext);
 
                 switch (innerContext.RuleIndex)
                 {
@@ -420,13 +483,6 @@ namespace IronVelocity.Parser
         public Expression VisitDirectiveWord([NotNull] VelocityParser.DirectiveWordContext context)
             => new DirectiveWord(context.Identifier().GetText());
 
-        public Expression VisitLiteral([NotNull] VelocityParser.LiteralContext context)
-        {
-            var interval = new Interval(context.start.StartIndex + 3, context.Stop.StopIndex - 2);
-            var content = context.Start.InputStream.GetText(interval);
-            return Expression.Constant(content);
-        }
-
         private SourceInfo GetSourceInfo(ParserRuleContext context)
         {
             //N.B. the following assumes that the rule does not span multiple lines.
@@ -517,5 +573,11 @@ namespace IronVelocity.Parser
         {
             throw new NotImplementedException();
         }
-    }
+
+
+		public Expression VisitWhitespace([NotNull] VelocityParser.WhitespaceContext context)
+		{
+			throw new NotImplementedException();
+		}
+	}
 }

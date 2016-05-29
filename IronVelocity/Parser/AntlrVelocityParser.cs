@@ -22,15 +22,18 @@ namespace IronVelocity.Parser
         private readonly IImmutableList<CustomDirectiveBuilder> _customDirectives;
         private readonly VelocityExpressionFactory _expressionFactory;
 
+		public bool ReduceWhitespace { get; }
+
         public AntlrVelocityParser(VelocityExpressionFactory expressionFactory)
             : this(null, expressionFactory)
         {
         }
 
-        public AntlrVelocityParser(IImmutableList<CustomDirectiveBuilder> customDirectives, VelocityExpressionFactory expressionFactory)
+        public AntlrVelocityParser(IImmutableList<CustomDirectiveBuilder> customDirectives, VelocityExpressionFactory expressionFactory, bool reduceWhitespace = false)
         {
             _customDirectives = customDirectives ?? DefaultDirectives;
             _expressionFactory = expressionFactory;
+			ReduceWhitespace = reduceWhitespace;
         }
 
         public Expression<VelocityTemplateMethod> Parse(string input, string name)
@@ -118,7 +121,7 @@ namespace IronVelocity.Parser
 
         internal Expression<VelocityTemplateMethod> CompileToTemplateMethod(RuleContext parsed, string name)
         {
-            var visitor = new AntlrToExpressionTreeCompiler(this, _customDirectives, _expressionFactory);
+            var visitor = new AntlrToExpressionTreeCompiler(this, _customDirectives, _expressionFactory, ReduceWhitespace);
 
             TemplateGenerationEventSource.Log.ConvertToExpressionTreeStart(name);
             var body = visitor.Visit(parsed);

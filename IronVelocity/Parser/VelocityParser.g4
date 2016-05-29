@@ -10,14 +10,17 @@ template: block
 		| (end {NotifyErrorListeners("Unexpected #end"); } template)
 	) ;
 
-block: (text | reference | comment | setDirective | ifBlock | customDirective | literal)* ;
+block: (text | reference | setDirective | ifBlock | customDirective | comment)* ;
+
+text: (rawText | literal | whitespace)+ ;
 
 //"Dollar  (Exclamation | LeftCurley)*"" accounts for scenarios where the DOLLAR_SEEN
 // lexical state was entered, but did not move into the REFERENCE state
 // RIGHT_CURLEY required to cope with ${formal}}
 // DOT required to cope with "$name."
-text : (Text | Hash | Dollar (Exclamation | LeftCurley)* | RightCurley | Dot | VerticalWhitespace | Newline | EscapedDollar | EscapedHash | LoneEscape )+ ;
+rawText : (Text | Hash | Dollar (Exclamation | LeftCurley)* | RightCurley | Dot | EscapedDollar | EscapedHash | LoneEscape )+ ;
 
+whitespace: (VerticalWhitespace | Newline)+ ;
 
 comment : COMMENT (Newline | EOF) | blockComment;
 blockComment : BlockCommentStart (BlockCommentBody | blockComment)*  BlockCommentEnd ;
