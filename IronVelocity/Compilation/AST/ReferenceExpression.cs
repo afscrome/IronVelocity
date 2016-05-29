@@ -21,7 +21,7 @@ namespace IronVelocity.Compilation.AST
             Value = value;
             Raw = raw;
             IsSilent = isSilent;
-            IsFormal = IsFormal;
+            IsFormal = isFormal;
         }
 
         public override Type Type => Value.Type;

@@ -45,7 +45,7 @@ namespace IronVelocity.Tests.TemplateExecution
             var dynamic = new TestDynamicMetaObjectProvider();
             var context = new { Dynamic = dynamic };
 
-            var execution = ExecuteTemplate("#set($dynamic.Bar = 7.45)", context);
+            ExecuteTemplate("#set($dynamic.Bar = 7.45)", context);
 
             Assert.That(dynamic.SetValues.Keys, Contains.Item("Bar"));
             Assert.That(dynamic.SetValues["Bar"], Is.EqualTo(7.45f));
@@ -107,7 +107,7 @@ namespace IronVelocity.Tests.TemplateExecution
             var dynamic = new CustomDynamicObject();
 
             var context = new { Dynamic = dynamic };
-            var execution = ExecuteTemplate("#set($dynamic.SetMe = true)", context);
+            ExecuteTemplate("#set($dynamic.SetMe = true)", context);
 
             Assert.That(dynamic.SetMembers.Keys, Contains.Item("SetMe"));
             Assert.That(dynamic.SetMembers["SetMe"], Is.EqualTo(true));

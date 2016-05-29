@@ -68,8 +68,9 @@ namespace IronVelocity.PerfPlayground
 
                     if (SaveDlls || SaveIl)
                     {
-                        compiler = diskCompiler = new VelocityDiskCompiler(new AssemblyName(assemblyName), OutputDir);
-                    }
+                        diskCompiler = new VelocityDiskCompiler(new AssemblyName(assemblyName), OutputDir);
+						compiler = diskCompiler;
+					}
                     else
                     {
                         compiler = new VelocityCompiler(null);

@@ -37,12 +37,11 @@ namespace IronVelocity.Tests.TemplateExecution
             {
                 mock.Setup(x => x.One).InSequence(Times.Once());
                 mock.Setup(x => x.Two).InSequence(Times.Once());
-                var context = new Dictionary<string, object>
-                {
-                    ["helper"] = mock.Object
+                var context = new {
+                    Helper = mock.Object
                 };
 
-                var result = EvaluateExpression(input, context);
+                EvaluateExpression(input, context);
             }
 
             mock.Verify(x => x.One, Times.Once);

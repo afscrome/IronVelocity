@@ -14,7 +14,7 @@ namespace IronVelocity.Tests.Binders
         public void ClassPropertyNameIsExactMatch()
         {
             var input = new BasicClass();
-            var result = test(input, "Property");
+            var result = Get(input, "Property");
             Assert.AreEqual("Success!", result);
         }
 
@@ -22,7 +22,7 @@ namespace IronVelocity.Tests.Binders
         public void ClassPropertyNameDiffersInCase()
         {
             var input = new BasicClass();
-            var result = test(input, "pRoPeRtY");
+            var result = Get(input, "pRoPeRtY");
             Assert.AreEqual("Success!", result);
         }
 
@@ -30,7 +30,7 @@ namespace IronVelocity.Tests.Binders
         public void ClassPropertyDoesNotExist()
         {
             var input = new BasicClass();
-            var result = test(input, "BlahBlahBlah");
+            var result = Get(input, "BlahBlahBlah");
             Assert.Null(result);
         }
 
@@ -38,7 +38,7 @@ namespace IronVelocity.Tests.Binders
         public void StructPropertyNameIsExactMatch()
         {
             var input = new BasicStruct("Yeah!");
-            var result = test(input, "Property");
+            var result = Get(input, "Property");
             Assert.AreEqual("Yeah!", result);
         }
 
@@ -46,7 +46,7 @@ namespace IronVelocity.Tests.Binders
         public void StructPropertyNameDiffersInCase()
         {
             var input = new BasicStruct("Yeah!");
-            var result = test(input, "pRoPeRtY");
+            var result = Get(input, "pRoPeRtY");
             Assert.AreEqual("Yeah!", result);
         }
 
@@ -54,7 +54,7 @@ namespace IronVelocity.Tests.Binders
         public void StructPropertyDoesNotExist()
         {
             var input = new BasicStruct("Yeah!");
-            var result = test(input, "BlahBlahBlah");
+            var result = Get(input, "BlahBlahBlah");
             Assert.Null(result);
         }
 
@@ -67,7 +67,7 @@ namespace IronVelocity.Tests.Binders
                 potentially_ambigious_property = "bar",
             };
 
-            var result = test(input, "potentially_AMBIGIOUS_property");
+            var result = Get(input, "potentially_AMBIGIOUS_property");
             Assert.Null(result);
         }
 
@@ -80,7 +80,7 @@ namespace IronVelocity.Tests.Binders
                 potentially_ambigious_property = "bar",
             };
 
-            var result = test(input, "POTENTIALLY_AMBIGIOUS_PROPERTY");
+            var result = Get(input, "POTENTIALLY_AMBIGIOUS_PROPERTY");
             Assert.AreEqual("foo", result);
         }
 
@@ -93,7 +93,7 @@ namespace IronVelocity.Tests.Binders
                 potentially_ambigious_property = "chips",
             };
 
-            var result = test(input, "potentially_ambigious_property");
+            var result = Get(input, "potentially_ambigious_property");
             Assert.AreEqual("chips", result);
         }
 
@@ -102,7 +102,7 @@ namespace IronVelocity.Tests.Binders
         {
             var input = new PrivateMembers();
 
-            var result = test(input, "_privateProperty");
+            var result = Get(input, "_privateProperty");
             Assert.Null(result);
         }
 
@@ -111,7 +111,7 @@ namespace IronVelocity.Tests.Binders
         {
             var input = new StaticMembers();
 
-            var result = test(input, "StaticProperty");
+            var result = Get(input, "StaticProperty");
             Assert.Null(result);
         }
 
@@ -120,7 +120,7 @@ namespace IronVelocity.Tests.Binders
         {
             var input = new BasicClass();
 
-            var result = test(input, "Hidden");
+            var result = Get(input, "Hidden");
             Assert.Null(result);
         }
 
@@ -128,7 +128,7 @@ namespace IronVelocity.Tests.Binders
         public void ExplictInterfacePropertyWithConflicts()
         {
             var input = new BasicClass();
-            var result = test(input, "HiddenConflict");
+            var result = Get(input, "HiddenConflict");
 
             Assert.IsNull(result);
         }
@@ -140,7 +140,7 @@ namespace IronVelocity.Tests.Binders
         public void ClassFieldNameIsExactMatch()
         {
             var input = new BasicClass();
-            var result = test(input, "Field");
+            var result = Get(input, "Field");
             Assert.AreEqual("Success!", result);
         }
 
@@ -148,7 +148,7 @@ namespace IronVelocity.Tests.Binders
         public void ClassFieldNameDiffersInCase()
         {
             var input = new BasicClass();
-            var result = test(input, "Field");
+            var result = Get(input, "Field");
             Assert.AreEqual("Success!", result);
         }
 
@@ -156,7 +156,7 @@ namespace IronVelocity.Tests.Binders
         public void ClassFieldDoesNotExist()
         {
             var input = new BasicClass();
-            var result = test(input, "BlahBlahBlah");
+            var result = Get(input, "BlahBlahBlah");
             Assert.Null(result);
         }
 
@@ -164,7 +164,7 @@ namespace IronVelocity.Tests.Binders
         public void StructFieldNameIsExactMatch()
         {
             var input = new BasicStruct("Yeah!");
-            var result = test(input, "Field");
+            var result = Get(input, "Field");
             Assert.AreEqual("Yeah!", result);
         }
 
@@ -172,7 +172,7 @@ namespace IronVelocity.Tests.Binders
         public void StructFieldNameDiffersInCase()
         {
             var input = new BasicStruct("Yeah!");
-            var result = test(input, "Field");
+            var result = Get(input, "Field");
             Assert.AreEqual("Yeah!", result);
         }
 
@@ -180,7 +180,7 @@ namespace IronVelocity.Tests.Binders
         public void StructFieldDoesNotExist()
         {
             var input = new BasicStruct("Yeah!");
-            var result = test(input, "BlahBlahBlah");
+            var result = Get(input, "BlahBlahBlah");
             Assert.Null(result);
         }
 
@@ -193,7 +193,7 @@ namespace IronVelocity.Tests.Binders
                 potentially_ambigious_field = "bar",
             };
 
-            var result = test(input, "potentially_AMBIGIOUS_field");
+            var result = Get(input, "potentially_AMBIGIOUS_field");
             Assert.Null(result);
         }
 
@@ -206,7 +206,7 @@ namespace IronVelocity.Tests.Binders
                 potentially_ambigious_field = "bar",
             };
 
-            var result = test(input, "POTENTIALLY_AMBIGIOUS_FIELD");
+            var result = Get(input, "POTENTIALLY_AMBIGIOUS_FIELD");
             Assert.AreEqual("foo", result);
         }
 
@@ -219,7 +219,7 @@ namespace IronVelocity.Tests.Binders
                 potentially_ambigious_field = "chips",
             };
 
-            var result = test(input, "potentially_ambigious_field");
+            var result = Get(input, "potentially_ambigious_field");
             Assert.AreEqual("chips", result);
         }
 
@@ -228,7 +228,7 @@ namespace IronVelocity.Tests.Binders
         {
             var input = new PrivateMembers();
 
-            var result = test(input, "_privateField");
+            var result = Get(input, "_privateField");
             Assert.Null(result);
         }
         [Test]
@@ -236,7 +236,7 @@ namespace IronVelocity.Tests.Binders
         {
             var input = new StaticMembers();
 
-            var result = test(input, "StaticField");
+            var result = Get(input, "StaticField");
             Assert.Null(result);
         }
 
@@ -249,7 +249,7 @@ namespace IronVelocity.Tests.Binders
         {
             var input = new MethodsWith0Parameters();
 
-            var result = test(input, "DoSomething");
+            var result = Get(input, "DoSomething");
             Assert.AreEqual("Hello World", result);
         }
 
@@ -258,7 +258,7 @@ namespace IronVelocity.Tests.Binders
         {
             var input = new MethodsWith0Parameters();
 
-            var result = test(input, "Secret");
+            var result = Get(input, "Secret");
             Assert.IsNull(result);
         }
 
@@ -267,7 +267,7 @@ namespace IronVelocity.Tests.Binders
         {
             var input = new MethodsWith0Parameters();
 
-            var result = test(input, "Static");
+            var result = Get(input, "Static");
             Assert.IsNull(result);
         }
 
@@ -278,7 +278,7 @@ namespace IronVelocity.Tests.Binders
         public void NullInput()
         {
             object input = null;
-            var result = test(input, "Field");
+            var result = Get(input, "Field");
             Assert.Null(result);
         }
         
@@ -287,7 +287,7 @@ namespace IronVelocity.Tests.Binders
         public void ShouldReturnEnumValueWhenMemberOnEnumType()
         {
             var input = typeof(UriFormat);
-            var result = test(input, "Unescaped");
+            var result = Get(input, "Unescaped");
 
             Assert.That(result, Is.EqualTo(UriFormat.Unescaped));
         }
@@ -296,7 +296,7 @@ namespace IronVelocity.Tests.Binders
         public void ShouldGetPropetyWithGetterOnly()
         {
             var input = new FunkyProperties();
-            var result = test(input, nameof(input.GetterOnly));
+            var result = Get(input, nameof(input.GetterOnly));
 
             Assert.That(result, Is.EqualTo(3.142));
         }
@@ -305,7 +305,7 @@ namespace IronVelocity.Tests.Binders
         public void ShouldGetPropetyWithPublicGetPrivateSet()
         {
             var input = new FunkyProperties();
-            var result = test(input, nameof(input.PublicGetPrivateSetter));
+            var result = Get(input, nameof(input.PublicGetPrivateSetter));
 
             Assert.That(result, Is.EqualTo("original"));
         }
@@ -314,7 +314,7 @@ namespace IronVelocity.Tests.Binders
         public void ShouldIgnorePropetyWithPrivateGetPublicSet()
         {
             var input = new FunkyProperties();
-            var result = test(input, nameof(input.PrivateGetPublicSet));
+            var result = Get(input, nameof(input.PrivateGetPublicSet));
 
             Assert.That(result, Is.Null);
         }
@@ -323,13 +323,13 @@ namespace IronVelocity.Tests.Binders
         public void ShouldIgnorePropertyWithSetterOnly()
         {
             var input = new FunkyProperties();
-            var result = test(input, nameof(input.SetterOnly));
+            var result = Get(input, nameof(input.SetterOnly));
 
             Assert.That(result, Is.Null);
         }
 
 
-        private object test(object input, string memberName)
+        private object Get(object input, string memberName)
         {
             var binder = new VelocityGetMemberBinder(memberName, new MemberResolver());
             return InvokeBinder(binder, input);

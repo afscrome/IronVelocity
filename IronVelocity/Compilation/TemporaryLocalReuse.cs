@@ -24,9 +24,10 @@ namespace IronVelocity.Compilation
                 previousTemp = null;
             }
 
-            var newTemp = _replacements[node.Variable] = GetTemp(node.Variable);
+            var newTemp  = GetTemp(node.Variable);
+			_replacements[node.Variable] = newTemp;
 
-            var result = Visit(node.Body);
+			var result = Visit(node.Body);
 
             _replacements[node.Variable] = previousTemp;
             _avaialbleTemps[node.Variable.Type].Enqueue(newTemp);
@@ -51,8 +52,9 @@ namespace IronVelocity.Compilation
             Queue<ParameterExpression> tempQueue;
             if(!_avaialbleTemps.TryGetValue(variable.Type, out tempQueue))
             {
-                _avaialbleTemps[variable.Type] = tempQueue = new Queue<ParameterExpression>();
-            }
+                tempQueue = new Queue<ParameterExpression>();
+				_avaialbleTemps[variable.Type] = tempQueue;
+			}
 
             return tempQueue.Any()
                 ? tempQueue.Dequeue()

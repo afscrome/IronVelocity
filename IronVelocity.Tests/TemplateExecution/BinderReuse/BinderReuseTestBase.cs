@@ -83,7 +83,7 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
             private class DupDetectionInvokeMemberBinder : VelocityInvokeMemberBinder
             {
                 public DupDetectionInvokeMemberBinder(string name, CallInfo callInfo)
-                    : base(name, callInfo, new MethodResolver(new OverloadResolver(new ArgumentConverter()), new ArgumentConverter()))
+                    : base(name, callInfo, new MethodResolver(new OverloadResolver(new ArgumentConverter())))
                 {
                 }
 

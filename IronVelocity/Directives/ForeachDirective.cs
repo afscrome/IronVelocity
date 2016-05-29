@@ -11,7 +11,6 @@ namespace IronVelocity.Directives
     public class ForeachDirective : CustomDirectiveExpression
     {
         private readonly LabelTarget _break = Expression.Label("break");
-        //private readonly VelocityExpressionBuilder _builder;
 
         private static readonly Expression _nullEnumerable = Expression.Constant(null, typeof(IEnumerable));
 

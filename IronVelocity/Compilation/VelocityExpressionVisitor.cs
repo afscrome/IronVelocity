@@ -102,9 +102,10 @@ namespace IronVelocity.Compilation
 
 
 #if DEBUG
-        //For debugging purposes, it is useful to have - easier to identify where visiting is raising errors
+#pragma warning disable S1185
+		//For debugging purposes, it is useful to have - easier to identify where visiting is raising errors
 
-        protected override Expression VisitUnary(UnaryExpression node) => base.VisitUnary(node);
+		protected override Expression VisitUnary(UnaryExpression node) => base.VisitUnary(node);
         protected override Expression VisitConditional(ConditionalExpression node) => base.VisitConditional(node);
         public override Expression Visit(Expression node) => base.Visit(node);
         protected override Expression VisitBinary(BinaryExpression node) => base.VisitBinary(node);
@@ -138,7 +139,8 @@ namespace IronVelocity.Compilation
         protected override Expression VisitTypeBinary(TypeBinaryExpression node) => base.VisitTypeBinary(node);
         protected override Expression VisitDynamic(DynamicExpression node) => base.VisitDynamic(node);
         protected override Expression VisitNewArray(NewArrayExpression node) => base.VisitNewArray(node);
+#pragma warning restore S1185
 #endif
 
-    }
+	}
 }

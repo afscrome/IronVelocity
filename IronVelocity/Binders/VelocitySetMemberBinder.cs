@@ -8,7 +8,7 @@ namespace IronVelocity.Binders
 {
     public class VelocitySetMemberBinder : SetMemberBinder
     {
-        private IMemberResolver _memberResolver;
+        private readonly IMemberResolver _memberResolver;
 
         public VelocitySetMemberBinder(string name, IMemberResolver memberResolver)
             : base(name, ignoreCase: true)

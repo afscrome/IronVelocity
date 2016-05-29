@@ -16,7 +16,7 @@ namespace IronVelocity.Tests.Binders
         public void NullInput()
         {
             object input = null;
-            var result = test(input, "DoStuff");
+            var result = Invoke(input, "DoStuff");
             Assert.Null(result);
         }
 
@@ -26,7 +26,7 @@ namespace IronVelocity.Tests.Binders
         public void MethodOnPrimitive()
         {
             var input = 472;
-            var result = test(input, "ToString");
+            var result = Invoke(input, "ToString");
             Assert.AreEqual("472", result);
         }
 
@@ -34,7 +34,7 @@ namespace IronVelocity.Tests.Binders
         public void PrivateMethod()
         {
             object input = null;
-            var result = test(input, "TopSecret");
+            var result = Invoke(input, "TopSecret");
             Assert.Null(result);
         }
 
@@ -42,7 +42,7 @@ namespace IronVelocity.Tests.Binders
         public void InternalMethod()
         {
             object input = null;
-            var result = test(input, "Internal");
+            var result = Invoke(input, "Internal");
             Assert.Null(result);
         }
 
@@ -51,7 +51,7 @@ namespace IronVelocity.Tests.Binders
         public void MethodNameNotExist()
         {
             object input = null;
-            var result = test(input, "DoStuff");
+            var result = Invoke(input, "DoStuff");
             Assert.Null(result);
         }
 
@@ -59,7 +59,7 @@ namespace IronVelocity.Tests.Binders
         public void MethodNameExactMatch()
         {
             var input = new MethodTests();
-            var result = test(input, "StringResult");
+            var result = Invoke(input, "StringResult");
             Assert.AreEqual("hello world", result);
         }
 
@@ -67,7 +67,7 @@ namespace IronVelocity.Tests.Binders
         public void BasicMethodDiffersInCase()
         {
             var input = new MethodTests();
-            var result = test(input, "stringRESULT");
+            var result = Invoke(input, "stringRESULT");
             Assert.AreEqual("hello world", result);
         }
 
@@ -75,7 +75,7 @@ namespace IronVelocity.Tests.Binders
         public void MethodNamePartialMatch()
         {
             object input = null;
-            var result = test(input, "StringRes");
+            var result = Invoke(input, "StringRes");
             Assert.Null(result);
         }
 
@@ -84,7 +84,7 @@ namespace IronVelocity.Tests.Binders
         {
             var target = new MethodTests();
             var param1 = new object();
-            var result = test(target, "OneParameter", param1);
+            var result = Invoke(target, "OneParameter", param1);
 
             Assert.AreEqual("One Param Success", result);
         }
@@ -94,7 +94,7 @@ namespace IronVelocity.Tests.Binders
         {
             var target = new MethodTests();
             var param1 = "hello world";
-            var result = test(target, "OneParameter", param1);
+            var result = Invoke(target, "OneParameter", param1);
 
             Assert.AreEqual("One Param Success", result);
         }
@@ -103,7 +103,7 @@ namespace IronVelocity.Tests.Binders
         public void ParamArrayWithNoArguments()
         {
             var target = new MethodTests();
-            var result = test(target, "ParamArray");
+            var result = Invoke(target, "ParamArray");
 
             Assert.AreEqual(0, result);
         }
@@ -112,7 +112,7 @@ namespace IronVelocity.Tests.Binders
         public void ParamArrayWithOneArgument()
         {
             var target = new MethodTests();
-            var result = test(target, "ParamArray", "one");
+            var result = Invoke(target, "ParamArray", "one");
 
             Assert.AreEqual(1, result);
         }
@@ -121,7 +121,7 @@ namespace IronVelocity.Tests.Binders
         public void ParamArrayWithTwoArguments()
         {
             var target = new MethodTests();
-            var result = test(target, "ParamArray", "one", "two");
+            var result = Invoke(target, "ParamArray", "one", "two");
 
             Assert.AreEqual(2, result);
         }
@@ -131,7 +131,7 @@ namespace IronVelocity.Tests.Binders
         {
             var target = new MethodTests();
             var arg1 = new string[] {"one", "two"};
-            var result = test(target, "ParamArray", new[] { arg1 });
+            var result = Invoke(target, "ParamArray", new[] { arg1 });
 
             Assert.AreEqual(2, result);
         }
@@ -140,7 +140,7 @@ namespace IronVelocity.Tests.Binders
         public void ParamArrayWithNullArgument()
         {
             var target = new MethodTests();
-            var result = test(target, "ParamArray", new object[] { null });
+            var result = Invoke(target, "ParamArray", new object[] { null });
 
             Assert.IsNull(result);
         }
@@ -148,7 +148,7 @@ namespace IronVelocity.Tests.Binders
         public void ParamArrayWithArrayWithOneNullArgument()
         {
             var target = new MethodTests();
-            var result = test(target, "ParamArray", new object[] { new object[1] });
+            var result = Invoke(target, "ParamArray", new object[] { new object[1] });
 
             Assert.AreEqual(1, result);
         }
@@ -157,7 +157,7 @@ namespace IronVelocity.Tests.Binders
         public void ParamArrayWithTwoNullArguments()
         {
             var target = new MethodTests();
-            var result = test(target, "ParamArray", null, null);
+            var result = Invoke(target, "ParamArray", null, null);
 
             Assert.AreEqual(2, result);
         }
@@ -169,7 +169,7 @@ namespace IronVelocity.Tests.Binders
         public void PropertyInvokedForMethodWithNoArguments()
         {
             var target = new MethodTests();
-            var result = test(target, "Property");
+            var result = Invoke(target, "Property");
 
             Assert.AreEqual("A property", result);
         }
@@ -179,7 +179,7 @@ namespace IronVelocity.Tests.Binders
         public void FieldInvokedForMethodWithNoArguments()
         {
             var target = new MethodTests();
-            var result = test(target, "Field");
+            var result = Invoke(target, "Field");
 
             Assert.AreEqual("Marshal", result);
         }
@@ -188,9 +188,9 @@ namespace IronVelocity.Tests.Binders
         //null input returns null
         //Void returns null??
 
-        private object test(object input, string methodName, params object[] paramaters)
+        private object Invoke(object input, string methodName, params object[] paramaters)
         {
-            var binder = new VelocityInvokeMemberBinder(methodName, new CallInfo(paramaters.Length), new MethodResolver(new OverloadResolver(new ArgumentConverter()), new ArgumentConverter()));
+            var binder = new VelocityInvokeMemberBinder(methodName, new CallInfo(paramaters.Length), new MethodResolver(new OverloadResolver(new ArgumentConverter())));
 
             var args = new[] { input }.Concat(paramaters).ToArray();
 
@@ -237,7 +237,7 @@ namespace IronVelocity.Tests.Binders
             where T : new()
         {
             var input = new OverloadSuitability();
-            var result = test(input, "Overload", new T());
+            var result = Invoke(input, "Overload", new T());
 
             Assert.AreEqual(expectedResult, result);
         }

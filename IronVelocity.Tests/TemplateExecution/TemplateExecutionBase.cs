@@ -62,7 +62,7 @@ namespace IronVelocity.Tests.TemplateExecution
                 .ToDictionary(x => x.Name, x => x.GetValue(obj, null));
         }
 
-        public object EvaluateExpression(string input, IDictionary<string, object> locals = null)
+        public object EvaluateExpression(string input, object locals = null)
         {
             input = $"#set($result = {input})";
             var result = ExecuteTemplate(input, locals);
