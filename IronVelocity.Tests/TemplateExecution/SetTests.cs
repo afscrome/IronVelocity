@@ -134,7 +134,6 @@ namespace IronVelocity.Tests.TemplateExecution
         [TestCase("#set($undefined=$null)")]
         public void ShouldIgnoreNullAssignmentToNotPresentVariable(string input)
         {
-            var originalAlreadySetValue = new object();
             var context = new Dictionary<string, object>
             {
                 ["null"] = null

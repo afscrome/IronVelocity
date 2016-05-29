@@ -11,7 +11,7 @@ namespace IronVelocity.Binders
 {
     public class VelocityInvokeMemberBinder : InvokeMemberBinder
     {
-        private IMethodResolver _methodResolver;
+        private readonly IMethodResolver _methodResolver;
 
         public VelocityInvokeMemberBinder(string name, CallInfo callInfo, IMethodResolver methodResolver)
             : base(name, true, callInfo)

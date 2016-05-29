@@ -182,12 +182,7 @@ namespace IronVelocity.Tests.Binders
         public class BasicClass
         {
             public string Field = "Success!";
-            private string _property = "Success!";
-            public string Property
-            {
-                get { return _property; }
-                set { _property = value; }
-            }
+			public string Property = "Success!";
 
             public Guid ValueType { get; set; }
             public int Primitive { get; set; }
@@ -198,32 +193,15 @@ namespace IronVelocity.Tests.Binders
             public BasicStruct(string value)
             {
                 Field = value;
-                _property = value;
-                _valueType = Guid.Empty;
-                _primitive = 0;
+                Property = value;
+				ValueType = Guid.Empty;
+				Primitive = 0;
             }
 
             public string Field;
-            private string _property;
-            public string Property
-            {
-                get { return _property; }
-                set { _property = value; }
-            }
-
-            private int _primitive;
-            public int Primitive
-            {
-                get { return _primitive; }
-                set { _primitive = value; }
-            }
-
-            private Guid _valueType;
-            public Guid ValueType
-            {
-                get { return _valueType; }
-                set { _valueType = value; }
-            }
+            public string Property { get; set; }
+            public int Primitive { get; set; }
+            public Guid ValueType { get; set; }
         }
 
         public struct ConstantMembers

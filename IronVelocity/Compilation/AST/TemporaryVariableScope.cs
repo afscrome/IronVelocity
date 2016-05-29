@@ -20,8 +20,6 @@ namespace IronVelocity.Compilation.AST
 
             Variable = variable;
             Body = body;
-
-            var y = Expression.Parameter(typeof(Type), "test");
         }
 
         public override Expression Reduce() => Body;

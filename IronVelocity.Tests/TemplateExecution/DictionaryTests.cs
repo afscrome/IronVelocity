@@ -142,7 +142,6 @@ namespace IronVelocity.Tests.TemplateExecution
         public void ShouldProcessDictionaryWithIdentifierKey()
         {
             var input = "{ identifier : true}";
-            var context = new { Suffix = "Bar" };
 
             var result = EvaluateDictionary(input);
 

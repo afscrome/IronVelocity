@@ -95,7 +95,6 @@ namespace IronVelocity.Parser
 
                 template = parseFunc(parser);
                 Console.WriteLine("Fell back to full LL parsing");
-                //throw new Exception("TODO: Log that we've needed to fallback to full LL parsing.  If this happens a lot, may want to fallback to single phase parsing");
             }
 
             HandleFailures("Lexer error", lexerErrorListener);

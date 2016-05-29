@@ -7,7 +7,7 @@ namespace IronVelocity.Tests.Binders.ReflectionHelper
 {
     public class MethodResolverTests
     {
-        public MethodResolver _resolver = new MethodResolver(new OverloadResolver(new ArgumentConverter()), new ArgumentConverter());
+        public MethodResolver _resolver = new MethodResolver(new OverloadResolver(new ArgumentConverter()));
 
         [Test]
         public void MethodWithGenericSignatureIsNotApplicable()

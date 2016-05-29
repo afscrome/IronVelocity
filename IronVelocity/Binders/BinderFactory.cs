@@ -20,7 +20,7 @@ namespace IronVelocity.Binders
 
             _memberResolver = new MemberResolver();
             _indexResolver = new IndexResolver(overloadResolver);
-            _methodResolver = new MethodResolver(overloadResolver, _argumentConverter);
+            _methodResolver = new MethodResolver(overloadResolver);
         }
 
         public BinderFactory(IArgumentConverter argumentConverter, IMemberResolver memberResolver, IIndexResolver indexResolver, IMethodResolver methodResolver)

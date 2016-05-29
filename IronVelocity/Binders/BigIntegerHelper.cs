@@ -12,7 +12,6 @@ namespace IronVelocity.Binders
 {
     internal static class BigIntegerHelper
     {
-        private static readonly IArgumentConverter _argumentConverter = new ArgumentConverter();
         private static IImmutableDictionary<Type, ConstructorInfo> _bigIntConstructors = new Dictionary<Type, ConstructorInfo> {
             { typeof(byte), typeof(BigInteger).GetConstructor(new[] { typeof(int)})},
             { typeof(int), typeof(BigInteger).GetConstructor(new[] { typeof(int)})},

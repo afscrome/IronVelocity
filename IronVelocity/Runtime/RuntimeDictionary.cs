@@ -97,10 +97,10 @@ namespace IronVelocity.Runtime
 
         private class KeyComparer : IEqualityComparer<object>
         {
-            private IEqualityComparer _comparer = StringComparer.OrdinalIgnoreCase;
+            private static readonly IEqualityComparer Comparer = StringComparer.OrdinalIgnoreCase;
 
-            bool IEqualityComparer<object>.Equals(object x, object y) => _comparer.Equals(x, y);
-            int IEqualityComparer<object>.GetHashCode(object obj) => _comparer.GetHashCode(obj);
+            bool IEqualityComparer<object>.Equals(object x, object y) => Comparer.Equals(x, y);
+            int IEqualityComparer<object>.GetHashCode(object obj) => Comparer.GetHashCode(obj);
         }
 
     }

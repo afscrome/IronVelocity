@@ -37,7 +37,7 @@ namespace IronVelocity.Compilation.AST
             var left = Left;
             var right = Right;
 
-            if (left is ReferenceExpression || left is ReferenceExpression)
+            if (left is ReferenceExpression)
                 left = left.Reduce();
 
             if (left is GlobalVariableExpression)

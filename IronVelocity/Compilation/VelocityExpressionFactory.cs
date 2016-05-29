@@ -46,10 +46,10 @@ namespace IronVelocity.Compilation
 
     public class StaticTypedVelocityExpressionFactory : VelocityExpressionFactory
     {
-        private IImmutableDictionary<string, object> _globals;
+        private readonly IImmutableDictionary<string, object> _globals;
         private readonly IMemberResolver _memberResolver = new MemberResolver();
         private readonly IIndexResolver _indexResolver = new IndexResolver(new OverloadResolver(new ArgumentConverter()));
-        private readonly IMethodResolver _methodResolver = new MethodResolver(new OverloadResolver(new ArgumentConverter()), new ArgumentConverter());
+        private readonly IMethodResolver _methodResolver = new MethodResolver(new OverloadResolver(new ArgumentConverter()));
 
         private readonly IDictionary<string, Expression> _variableCache = new Dictionary<string, Expression>();
 
@@ -73,8 +73,10 @@ namespace IronVelocity.Compilation
                 object global = null;
                 if (_globals?.TryGetValue(name, out global) ?? false)
                 {
-                    _variableCache[name] = result = new GlobalVariableExpression(name, global);
-                }
+                    result = new GlobalVariableExpression(name, global);
+					_variableCache[name] = result;
+
+				}
                 else
                 {
                     result = base.Variable(name, sourceInfo);

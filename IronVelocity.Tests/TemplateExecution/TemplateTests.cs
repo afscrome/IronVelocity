@@ -15,7 +15,6 @@ namespace IronVelocity.Tests.TemplateExecution
         [TestCase("$('#some-id)")]
         public void ShouldRenderJQueryScriptAsIs(string input)
         {
-            var context = new { id = "myId" };
             var execution = ExecuteTemplate(input);
             Assert.That(execution.Output, Is.EqualTo(input));
         }

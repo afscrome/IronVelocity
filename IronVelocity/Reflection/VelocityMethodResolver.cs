@@ -12,12 +12,10 @@ namespace IronVelocity.Reflection
     public class MethodResolver : IMethodResolver
     {
         private readonly IOverloadResolver _overloadResolver;
-        private readonly IArgumentConverter _argumentConverter;
 
-        public MethodResolver(IOverloadResolver overloadResolver, IArgumentConverter argumentConverter)
+        public MethodResolver(IOverloadResolver overloadResolver)
         {
             _overloadResolver = overloadResolver;
-            _argumentConverter = argumentConverter;
         }
 
         public Expression ConvertMethodParameters(OverloadResolutionData<MethodInfo> resolvedMethod, Expression target, DynamicMetaObject[] args)//, Type[] argTypeArray)

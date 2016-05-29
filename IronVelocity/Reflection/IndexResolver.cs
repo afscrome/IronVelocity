@@ -12,7 +12,6 @@ namespace IronVelocity.Reflection
     public class IndexResolver : IIndexResolver
     {
         private readonly IOverloadResolver _overloadResolver;
-        private readonly IArgumentConverter _argumentConverter = new ArgumentConverter();
 
         public IndexResolver(IOverloadResolver overloadResolver)
         {
@@ -48,7 +47,6 @@ namespace IronVelocity.Reflection
             var type = target.LimitType;
             if (args.All(x => (typeof(int)).IsAssignableFrom(x.LimitType)))
             {
-                var rank = target.LimitType.GetArrayRank();
                 var targetExpression = VelocityExpressions.ConvertIfNeeded(target.Expression, type);
                 return Expression.ArrayAccess(targetExpression, args.Select(x => x.Expression));
             }

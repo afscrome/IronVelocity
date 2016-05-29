@@ -77,14 +77,14 @@ namespace IronVelocity.Tests.TemplateExecution
             Assert.That(result, Is.EqualTo(expectedResult));
         }
 
-        [Test]
+		[Test]
         public void OrSecondOperandNotEvaluatedIfFirstIsTrue()
         {
-            var context = new Dictionary<string, object>{
-                ["helper" ] = new ShortCircuitHelper()
-            };
+			var context = new {
+				helper = new ShortCircuitHelper()
+			};
 
-            var result = EvaluateExpression("true || $helper.Fail()");
+			var result = EvaluateExpression("true || $helper.Fail()", context);
 
             Assert.That(result, Is.True);
         }
@@ -92,12 +92,11 @@ namespace IronVelocity.Tests.TemplateExecution
         [Test]
         public void AndSecondOperandNotEvaluatedIfFirstIsFalse()
         {
-            var context = new Dictionary<string, object>
-            {
-                ["helper"] = new ShortCircuitHelper()
-            };
+			var context = new {
+				helper = new ShortCircuitHelper()
+			};
 
-            var result = EvaluateExpression("false && $helper.Fail()");
+            var result = EvaluateExpression("false && $helper.Fail()", context);
 
             Assert.That(result, Is.False);
         }
