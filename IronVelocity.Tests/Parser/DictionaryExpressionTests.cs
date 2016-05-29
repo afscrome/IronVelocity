@@ -17,7 +17,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("{ key : $value, key2 : $value2, foo : $bar, baz : $bizz}", 4)]
         public void ShouldParseDictionaryExpression(string input, int itemCount)
         {
-            var result = (VelocityParser.DictionaryExpressionContext)Parse(input, x => x.expression(), VelocityLexer.ARGUMENTS);
+            var result = (VelocityParser.DictionaryExpressionContext)Parse(input, x => x.expression(), VelocityLexer.EXPRESSION);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.dictionaryEntry(), Has.Length.EqualTo(itemCount));
@@ -29,7 +29,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("\"interpolatedString\" : true", "\"interpolatedString\"", "true")]
         public void ShouldParseDictionaryEntry(string input, string key, string value)
         {
-            var result = Parse(input, x => x.dictionaryEntry(), VelocityLexer.ARGUMENTS);
+            var result = Parse(input, x => x.dictionaryEntry(), VelocityLexer.EXPRESSION);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.dictionaryKey().GetText(), Is.EqualTo(key));

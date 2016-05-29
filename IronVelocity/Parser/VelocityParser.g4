@@ -10,32 +10,38 @@ template: block
 		| (end {NotifyErrorListeners("Unexpected #end"); } template)
 	) ;
 
-block: (text | reference | comment | setDirective | ifBlock | customDirective | literal)* ;
+block: (text | reference | setDirective | ifBlock | customDirective | comment)* ;
+
+text: (rawText | literal | whitespace)+ ;
 
 //"Dollar  (Exclamation | LeftCurley)*"" accounts for scenarios where the DOLLAR_SEEN
 // lexical state was entered, but did not move into the REFERENCE state
 // RIGHT_CURLEY required to cope with ${formal}}
 // DOT required to cope with "$name."
-text : (Text | Hash | Dollar (Exclamation | LeftCurley)* | RightCurley | Dot | Whitespace | Newline | EscapedDollar | EscapedHash | LoneEscape )+ ;
+rawText : (Text | Hash | Dollar (Exclamation | LeftCurley)* | RightCurley | Dot | EscapedDollar | EscapedHash | LoneEscape )+ ;
 
+whitespace: (VerticalWhitespace | Newline)+ ;
 
-comment : Hash COMMENT (Newline | EOF) | Hash blockComment;
+comment : COMMENT (Newline | EOF) | blockComment;
 blockComment : BlockCommentStart (BlockCommentBody | blockComment)*  BlockCommentEnd ;
 
-directiveArguments: (Whitespace? LeftParenthesis directiveArgument* RightParenthesis)? ;
+directiveArguments: (VerticalWhitespace? LeftParenthesis directiveArgument* RightParenthesis)? ;
 directiveArgument : expression | directiveWord;
 directiveWord : Identifier;
 
-literal : Hash LiteralContent;
-setDirective: Hash (Set | LeftCurley Set RightCurley) Whitespace? LeftParenthesis assignment RightParenthesis (Whitespace? Newline)?;
-ifBlock : Hash (If | LeftCurley If RightCurley) Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ifElseifBlock* ifElseBlock? end ;
-ifElseifBlock : Hash (ElseIf | LeftCurley ElseIf RightCurley) Whitespace? LeftParenthesis expression RightParenthesis (Whitespace? Newline)? block ;
-ifElseBlock : Hash (Else | LeftCurley Else RightCurley) (Whitespace? Newline)? block ;
-end: Hash (End | LeftCurley End RightCurley) (Whitespace? Newline)? ;
+endOfLineWhitespace : VerticalWhitespace? Newline ;
+
+literal : LiteralContent;
+setDirective: Set VerticalWhitespace? LeftParenthesis assignment RightParenthesis endOfLineWhitespace?;
+ifBlock : If VerticalWhitespace? LeftParenthesis expression RightParenthesis endOfLineWhitespace? block ifElseifBlock* ifElseBlock? end ;
+ifElseifBlock : ElseIf VerticalWhitespace? LeftParenthesis expression RightParenthesis endOfLineWhitespace? block ;
+ifElseBlock : Else endOfLineWhitespace? block ;
+end: End endOfLineWhitespace? ;
+
 
 customDirective :
-	{ !IsBlockDirective()}?  Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveArguments (Whitespace? Newline)?
-	 |  {IsBlockDirective()}? Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveArguments (Whitespace? Newline)? block end ;
+	{ !IsBlockDirective()}?  Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveArguments endOfLineWhitespace?
+	 |  {IsBlockDirective()}? Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveArguments endOfLineWhitespace? block end ;
 
 
 reference : Dollar Exclamation? referenceBody

@@ -17,11 +17,21 @@ fragment WHITESPACE_TEXT : WHITESPACE_CHAR+ ;
 
 //===================================
 // Default mode used for parsing text
-// Moves to the HASH_SEEN or DOLLAR_SEEN states upon seeing '$' or '#' respectively
 Text : ~('$'| '#' | ' ' | '\t' | '\r' | '\n' | '\\' )+ ;
-Dollar : '$' ->  mode(DOLLAR_SEEN) ;
-Hash : '#' -> mode(HASH_SEEN) ;
-Whitespace:  WHITESPACE_TEXT ;
+
+SingleLineComment : '##' ~('\r' | '\n')* -> type(COMMENT), mode(DEFAULT_MODE);
+BlockCommentStart : '#*' ->pushMode(BLOCK_COMMENT) ;
+Set : ( '#set' | '#{set}' ) -> mode(DIRECTIVE_ARGUMENTS) ;
+If : ( '#if' | '#{if}' ) -> mode(DIRECTIVE_ARGUMENTS) ;
+ElseIf : ( '#elseif' | '#elseif' ) -> mode(DIRECTIVE_ARGUMENTS);
+Else : ( '#else' | '#{else}' ) -> mode(DIRECTIVE_ARGUMENTS) ;
+End : ( '#end' | '#{end}' ) -> mode(DIRECTIVE_ARGUMENTS) ;
+LiteralContent : '#[[' (~(']') | ']' ~(']'))* ']]' ;
+
+Dollar : '$' ->  mode(POSSIBLE_REFERENCE) ;
+Hash : '#' -> mode(POSSIBLE_CUSTOM_DIRECTIVE) ;
+
+VerticalWhitespace:  WHITESPACE_TEXT ;
 Newline : '\r' | '\n' | '\r\n' ;
 EscapedDollar: '\\'+ '$' ;
 EscapedHash: '\\'+ '#' ;
@@ -30,28 +40,18 @@ LoneEscape : '\\' ;
 //===================================
 // The mode is for when a hash has been seen in a location that allows text so
 // the parser can distinguish between a textual '#', comments and directives
-mode HASH_SEEN ;
+mode POSSIBLE_CUSTOM_DIRECTIVE ;
 
 LeftCurley : '{';
-SingleLineComment : '#' ~('\r' | '\n')* -> type(COMMENT), mode(DEFAULT_MODE);
-//Need to switch to default mode before pushing so that when the the matching end tag pops, we end back in text mode.
-BlockCommentStart : '*' -> mode(DEFAULT_MODE), pushMode(BLOCK_COMMENT) ;
-
-Set : 'set' -> mode(DIRECTIVE_ARGUMENTS) ;
-If : 'if' -> mode(DIRECTIVE_ARGUMENTS) ;
-ElseIf : 'elseif' -> mode(DIRECTIVE_ARGUMENTS);
-Else : 'else' -> mode(DIRECTIVE_ARGUMENTS) ;
-End : 'end' -> mode(DIRECTIVE_ARGUMENTS) ;
 DirectiveName : DIRECTIVE_TEXT -> mode(DIRECTIVE_ARGUMENTS);
 
-LiteralContent : '[[' (~(']') | ']' ~(']'))* ']]' ;
-TextFallback2 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
+TextFallback1 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 mode DIRECTIVE_ARGUMENTS ;
 
 RightCurley : '}' ;
-WhitespaceA:  WHITESPACE_TEXT -> type(Whitespace);
-LeftParenthesis : '(' -> mode(DEFAULT_MODE), pushMode(ARGUMENTS) ;
+VerticalWhitespaceA:  WHITESPACE_TEXT -> type(VerticalWhitespace);
+LeftParenthesis : '(' -> mode(DEFAULT_MODE), pushMode(EXPRESSION) ;
 TextFallback2A : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 
 
@@ -70,14 +70,13 @@ BlockCommentBody :  (~('#' | '*') | '#' ~'*' | '*' ~'#')+ ;
 //===================================
 // The mode is for when a dollar has been seen to parse a possible reference
 //
-mode DOLLAR_SEEN ;
+mode POSSIBLE_REFERENCE ;
 
-Identifier : IDENTIFIER_TEXT -> mode(REFERENCE) ;
 Exclamation : '!' ;
 LeftCurley4 : '{' -> type(LeftCurley);
+Identifier : IDENTIFIER_TEXT -> mode(REFERENCE) ;
 
 TextFallback4 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
-
 
 
 //===================================
@@ -87,7 +86,7 @@ mode REFERENCE ;
 
 Dot : '.' ;
 Identifier5: IDENTIFIER_TEXT -> type(Identifier) , mode(REFERENCE_MEMBER_ACCESS) ;
-LeftSquare5 : '[' -> type(LeftSquare), pushMode(ARGUMENTS);
+LeftSquare5 : '[' -> type(LeftSquare), pushMode(EXPRESSION);
 RightCurley5 : '}' ->  type(RightCurley), mode(DEFAULT_MODE);
 
 DotDotText5 : '..' -> type(Text), mode(DEFAULT_MODE) ;
@@ -100,30 +99,33 @@ TextFallback5 : -> type(TRANSITION), channel(HIDDEN), mode(DEFAULT_MODE) ;
 // Otherwise it is a property invocation and returns to the REFERENCE state.
 mode REFERENCE_MEMBER_ACCESS ;
 
-LeftParenthesis6 : '(' -> type(LeftParenthesis), mode(REFERENCE), pushMode(ARGUMENTS) ;
-LeftSquare6 : '[' -> type(LeftSquare), pushMode(ARGUMENTS);
+LeftParenthesis6 : '(' -> type(LeftParenthesis), mode(REFERENCE), pushMode(EXPRESSION) ;
+LeftSquare6 : '[' -> type(LeftSquare), pushMode(EXPRESSION);
 TextFallback6 : -> type(TRANSITION), channel(HIDDEN), mode(REFERENCE) ;
 
 
 //===================================
 // Used when parsing arguments in either a method call "$foo.bar(ARGUMENTS)",
 // or a directive #directive(ARGUMENTS)
-mode ARGUMENTS ;
+mode EXPRESSION ;
 
-Whitespace7 : WHITESPACE_TEXT -> type(Whitespace), channel(HIDDEN);
-Comma : ',' ;
 True : 'true' ;
 False : 'false' ;
 Number : NUMERIC_CHAR+ ;
-Dot7 : '.' -> type(Dot) ;
 String : '\'' (~('\'' | '\r' | '\n' ) | '\'\'' )* '\'' ;
 InterpolatedString : '"' (~('"' | '\r' | '\n' ) | '""')* '"' ;
-Dollar7 : '$' -> type(Dollar) ;
-Exclamation7 : '!' -> type(Exclamation) ;
+
+LeftParenthesis8 : '(' -> type(LeftParenthesis), pushMode(EXPRESSION);
+RightParenthesis : ')' -> popMode ;
 LeftCurley7 : '{' -> type(LeftCurley);
 RightCurley7 : '}' -> type(RightCurley);
+LeftSquare : '['  -> pushMode(EXPRESSION);
+RightSquare : ']' -> popMode ;
+
+Dot7 : '.' -> type(Dot) ;
+Exclamation7 : '!' -> type(Exclamation) ;
+
 DotDot : '..' ;
-Colon : ':' ;
 Assign : '=' ;
 Multiply : '*' ;
 Divide : '/' ;
@@ -138,9 +140,12 @@ Equal : '==' | 'eq' ;
 NotEqual : '!=' | 'ne' ;
 And : '&&' | 'and' ;
 Or : '||' | 'or' ;
+
+Dollar7 : '$' -> type(Dollar) ;
+Comma : ',' ;
+Colon : ':' ;
+VerticalWhitespace7 : WHITESPACE_TEXT -> type(VerticalWhitespace), channel(HIDDEN);
 Identifier7 : IDENTIFIER_TEXT -> type(Identifier) ;
-LeftParenthesis8 : '(' -> type(LeftParenthesis), pushMode(ARGUMENTS);
-RightParenthesis : ')' -> popMode ;
-LeftSquare : '['  -> pushMode(ARGUMENTS);
-RightSquare : ']' -> popMode ;
+
+//Error Recovery
 UnknownChar : .;

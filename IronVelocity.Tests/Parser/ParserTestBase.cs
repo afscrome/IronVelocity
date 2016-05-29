@@ -58,7 +58,7 @@ namespace IronVelocity.Tests.Parser
 
         protected void ParseBinaryExpressionTest(string input, string left, string right, int operatorTokenKind, Func<VelocityParser, ParserRuleContext> parseFunc)
         {
-            var parsed = Parse(input, parseFunc, VelocityLexer.ARGUMENTS);
+            var parsed = Parse(input, parseFunc, VelocityLexer.EXPRESSION);
             Assert.That(parsed, Is.Not.Null);
             Assert.That(parsed.GetFullText(), Is.EqualTo(input.Trim()));
             Assert.That(parsed.ChildCount, Is.EqualTo(3));
@@ -72,7 +72,7 @@ namespace IronVelocity.Tests.Parser
 
         protected void ParseTernaryExpressionWithEqualPrecedenceTest(string input, int leftOperatorKind, int rightOperatorKind, Func<VelocityParser, ParserRuleContext> parseFunc)
         {
-            var parsed = Parse(input, parseFunc, VelocityLexer.ARGUMENTS);
+            var parsed = Parse(input, parseFunc, VelocityLexer.EXPRESSION);
             Assert.That(parsed, Is.Not.Null);
 
             Assert.That(parsed.GetFullText(), Is.EqualTo(input));

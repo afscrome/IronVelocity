@@ -71,7 +71,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
 
-        public ExecutionResult ExecuteTemplate(string input, object locals = null, object globals = null, IReadOnlyList<CustomDirectiveBuilder> customDirectives = null, string fileName = null)
+        public ExecutionResult ExecuteTemplate(string input, object locals = null, object globals = null, IReadOnlyList<CustomDirectiveBuilder> customDirectives = null, string fileName = null, bool reduceWhitespace = false)
         {
             var localsDictionary = ConvertToDictionary(locals);
             var globalsDictionary = ConvertToDictionary(globals)?.ToImmutableDictionary();
@@ -81,7 +81,7 @@ namespace IronVelocity.Tests.TemplateExecution
 
             fileName = fileName ?? Utility.GetName();
 
-            var template = CompileTemplate(input, fileName, globalsDictionary, customDirectives?.ToImmutableList());
+            var template = CompileTemplate(input, fileName, globalsDictionary, customDirectives?.ToImmutableList(), reduceWhitespace);
 
             var context = new VelocityContext(localsDictionary);
 
@@ -98,7 +98,7 @@ namespace IronVelocity.Tests.TemplateExecution
         protected virtual IBinderFactory CreateBinderFactory()
             => new ReusableBinderFactory(new BinderFactory());
 
-        private VelocityTemplateMethod CompileTemplate(string input, string fileName, IImmutableDictionary<string, object> globals, IImmutableList<CustomDirectiveBuilder> customDirectives)
+        private VelocityTemplateMethod CompileTemplate(string input, string fileName, IImmutableDictionary<string, object> globals, IImmutableList<CustomDirectiveBuilder> customDirectives, bool reduceWhitespace)
         {
             //This is for debugging - change it with the Immediate window if you need to dump a test to disk for further investigation.
             bool saveDllAndExtractIlForTroubleshooting = false;
@@ -108,7 +108,7 @@ namespace IronVelocity.Tests.TemplateExecution
                 ? new VelocityExpressionFactory(binderFactory)
                 : new StaticTypedVelocityExpressionFactory(binderFactory, globals);
 
-            var parser = new AntlrVelocityParser(customDirectives, expressionFactory);
+            var parser = new AntlrVelocityParser(customDirectives, expressionFactory, reduceWhitespace);
 
             VelocityDiskCompiler diskCompiler = null;
 

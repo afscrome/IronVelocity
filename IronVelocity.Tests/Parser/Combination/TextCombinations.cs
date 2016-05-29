@@ -11,7 +11,7 @@ namespace IronVelocity.Tests.Parser.Combination
         [TestCaseSource(nameof(TextCombinationTestCases))]
         public void TextCombinationTest(string input, Type expectedNodeType, string expectedText)
         {
-            var result = Parse(input, x => x.block());
+            var result = Parse(input, x => x.text());
 
             Assert.That(result.ChildCount, Is.EqualTo(1));
 
@@ -37,8 +37,8 @@ namespace IronVelocity.Tests.Parser.Combination
                                 continue;
 
                             var input = left + right;
-                            yield return new TestCaseData(input, typeof(VelocityParser.TextContext), input)
-                                .SetName($"zCombination Test - {leftType}, {rightType} - {input}");
+                            yield return new TestCaseData(input, typeof(VelocityParser.RawTextContext), input)
+                                .SetName($"zText Combination Test - {input}");
                         }
                     }
                 }

@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace IronVelocity.Tests.Parser
 {
     [TestFixture(VelocityLexer.DefaultMode)]
-    [TestFixture(VelocityLexer.DOLLAR_SEEN)]
+    [TestFixture(VelocityLexer.POSSIBLE_REFERENCE)]
     [TestFixture(VelocityLexer.REFERENCE)]
     [TestFixture(VelocityLexer.REFERENCE_MEMBER_ACCESS)]
 

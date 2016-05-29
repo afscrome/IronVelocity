@@ -13,7 +13,7 @@ namespace IronVelocity.Tests.Parser
         [TestCase("-8765432109")]
         public void ParseIntegerLiteral(string input)
         {
-            var result = Parse(input, x => x.expression(), VelocityLexer.ARGUMENTS);
+            var result = Parse(input, x => x.expression(), VelocityLexer.EXPRESSION);
 
             Assert.That(result, Is.InstanceOf<VelocityParser.IntegerLiteralContext>());
             Assert.That(result.GetText(), Is.EqualTo(input));

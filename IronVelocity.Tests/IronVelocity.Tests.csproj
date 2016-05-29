@@ -105,6 +105,7 @@
     <Compile Include="Parser\Combination\TextCombinations.cs" />
     <Compile Include="Parser\DictionaryExpressionTests.cs" />
     <Compile Include="Parser\LiteralTests.cs" />
+    <Compile Include="Parser\WhitespaceTests.cs" />
     <Compile Include="TemplateExecution\BinderReuse\BinderReuseTestBase.cs" />
     <Compile Include="TemplateExecution\BinderReuse\GetMemberReuseTests.cs" />
     <Compile Include="TemplateExecution\BinderReuse\InvokeMemberReuseTests.cs" />
@@ -174,6 +175,7 @@
     <Compile Include="TemplateExecution\TemplateExecutionBase.cs" />
     <Compile Include="TemplateExecution\OutputTests.cs" />
     <Compile Include="TemplateExecution\TemplateTests.cs" />
+    <Compile Include="TemplateExecution\WhitespaceReductionTests.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
   <ItemGroup>
