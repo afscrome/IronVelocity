@@ -33,7 +33,7 @@ namespace IronVelocity.Compilation
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
 
-            return ConvertIfNeeded(obj.Expression, obj.LimitType ?? typeof(object));
+            return ConvertIfNeeded(obj.Expression, obj.LimitType);
         }
 
         public static Expression ConvertIfNeeded(DynamicMetaObject obj, Type to)
