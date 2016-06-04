@@ -79,8 +79,8 @@ namespace IronVelocity.Binders
             }
             if (restrictions == null)
             {
-                restrictions = BindingRestrictions.GetTypeRestriction(target.Expression, target.RuntimeType)
-                        .Merge(BindingRestrictions.GetTypeRestriction(arg.Expression, arg.RuntimeType));
+                restrictions = BindingRestrictions.GetTypeRestriction(target.Expression, target.LimitType)
+                        .Merge(BindingRestrictions.GetTypeRestriction(arg.Expression, arg.LimitType));
             }
 
 
@@ -172,9 +172,9 @@ namespace IronVelocity.Binders
 
             // We only support mathematical operations on value types.
             // Using a restriction against Reference Types helps stop us generating a large number of rules for different type combinations
-            if (!left.RuntimeType.IsValueType)
+            if (!left.LimitType.IsValueType)
                 return GetNotValueTypeRestrictions(left.Expression);
-            else if (!right.RuntimeType.IsValueType)
+            else if (!right.LimitType.IsValueType)
                 return GetNotValueTypeRestrictions(right.Expression);
 
             return null;

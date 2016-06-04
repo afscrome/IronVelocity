@@ -58,7 +58,7 @@ namespace IronVelocity.Binders
 
             var left = VelocityExpressions.ConvertIfNeeded(target);
             var right = VelocityExpressions.ConvertIfNeeded(arg);
-            _argumentConverter.MakeBinaryOperandsCompatible(target.RuntimeType ?? typeof(object), arg.RuntimeType ?? typeof(object), ref left, ref right);
+            _argumentConverter.MakeBinaryOperandsCompatible(target.LimitType, arg.LimitType, ref left, ref right);
 
 
             bool isEqualityTest = generator == Expression.Equal || generator == Expression.NotEqual;
