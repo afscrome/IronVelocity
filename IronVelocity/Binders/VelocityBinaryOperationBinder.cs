@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace IronVelocity.Binders
 {
-	public class VelocityBinaryOperationBinder : BinaryOperationBinder
+	public partial class VelocityBinaryOperationBinder : BinaryOperationBinder
 	{
 		private readonly IOverloadResolver _overloadResolver = new OverloadResolver(new ArgumentConverter());
 
@@ -67,7 +67,24 @@ namespace IronVelocity.Binders
 			var targetExpr = VelocityExpressions.ConvertIfNeeded(target, op.Parameters[0]);
 			var argExpr = VelocityExpressions.ConvertIfNeeded(arg, op.Parameters[1]);
 
-			Expression operation = Expression.AddChecked(targetExpr, argExpr, op.FunctionMember);
+			Func<Expression, Expression, MethodInfo, Expression> operationFunc;
+
+			switch (Operation)
+			{
+				case ExpressionType.Add:
+					operationFunc = Expression.AddChecked;
+					break;
+				case ExpressionType.Subtract:
+					operationFunc = Expression.SubtractChecked;
+					break;
+				case ExpressionType.Multiply:
+					operationFunc = Expression.MultiplyChecked;
+					break;
+				default:
+					throw new InvalidOperationException();
+			}
+
+			Expression operation = operationFunc(targetExpr, argExpr, op.FunctionMember);
 
 			if (op.FunctionMember == null)
 				operation = AddOverflowHandling(operation, target.Expression, arg.Expression);
@@ -77,31 +94,40 @@ namespace IronVelocity.Binders
 			return new DynamicMetaObject(operation, restrictions);
 		}
 
+
 		private Expression AddOverflowHandling(Expression operation, Expression left, Expression right)
 		{
+			if (!TypeHelper.IsInteger(left.Type) || !TypeHelper.IsInteger(right.Type))
+				return operation;
 
-			Expression oveflowHandler;
+			Func<Expression, Expression, Expression> overflowHandler;
 
 
 			switch (Operation)
 			{
 				case ExpressionType.Add:
-					if (!TypeHelper.IsInteger(left.Type) || !TypeHelper.IsInteger(right.Type))
-						goto default;
-
-					left = BigIntegerHelper.ConvertToBigInteger(left);
-					right = BigIntegerHelper.ConvertToBigInteger(right);
-
-					oveflowHandler = Expression.AddChecked(left, right);
+					overflowHandler = Expression.Add;
+					break;
+				case ExpressionType.Subtract:
+					overflowHandler = Expression.Subtract;
+					break;
+				case ExpressionType.Multiply:
+					overflowHandler = Expression.Multiply;
 					break;
 				default:
 					return operation;
 			}
 
+			var overflowExpression = overflowHandler(
+				BigIntegerHelper.ConvertToBigInteger(left),
+				BigIntegerHelper.ConvertToBigInteger(right)
+			);
+
+
 			var useSignedIntegerTypes = TypeHelper.IsSignedInteger(left.Type);
 			//Pass the final result into ReduceBigInteger(...) to return a more recognizable primitive
 			var overflowFallback = VelocityExpressions.ConvertIfNeeded(
-					Expression.Call(MethodHelpers.ReduceBigIntegerMethodInfo, oveflowHandler, Expression.Constant(useSignedIntegerTypes)),
+					Expression.Call(MethodHelpers.ReduceBigIntegerMethodInfo, overflowExpression, Expression.Constant(useSignedIntegerTypes)),
 					ReturnType
 			);
 			return Expression.TryCatch(
@@ -179,6 +205,10 @@ namespace IronVelocity.Binders
 			{
 				case ExpressionType.Add:
 					return _builtInAdditionOperators;
+				case ExpressionType.Subtract:
+					return _builtInSubtractionOperators;
+				case ExpressionType.Multiply:
+					return _builtInMultiplicationOperators;
 				default:
 					throw new Exception();
 			}
@@ -190,16 +220,21 @@ namespace IronVelocity.Binders
 			switch (Operation)
 			{
 				case ExpressionType.Add:
-					return AdditionOperatorName;
+					return AdditionMethodName;
+				case ExpressionType.Subtract:
+					return SubtractionMethodName;
+				case ExpressionType.Multiply:
+					return MultiplicationMethodNameName;
 				default:
 					throw new Exception();
 			}
 
 		}
 
-		private const string AdditionOperatorName = "op_Addition";
+		private const string AdditionMethodName = "op_Addition";
+		private const string SubtractionMethodName = "op_Subtraction";
+		private const string MultiplicationMethodNameName = "op_Multiply";
 
-		//TODO: Should the following go in another class / file?
 
 		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>> _builtInAdditionOperators = ImmutableArray.Create(
 				ClrIntrinsic<int, int>(),
@@ -208,10 +243,30 @@ namespace IronVelocity.Binders
 				ClrIntrinsic<ulong, ulong>(),
 				ClrIntrinsic<float, float>(),
 				ClrIntrinsic<double, double>(),
-				BuiltInOperator<decimal, decimal>(AdditionOperatorName),
+				BuiltInOperator<decimal, decimal>(AdditionMethodName),
 				VelocityIntrinsic<string, string>(typeof(string).GetMethod("Concat", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(string), typeof(string) }, null)),
 				VelocityIntrinsic<string, object>(typeof(string).GetMethod("Concat", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(object) }, null)),
 				VelocityIntrinsic<object, string>(typeof(string).GetMethod("Concat", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(object) }, null))
+			);
+
+		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>> _builtInSubtractionOperators = ImmutableArray.Create(
+				ClrIntrinsic<int, int>(),
+				ClrIntrinsic<uint, uint>(),
+				ClrIntrinsic<long, long>(),
+				ClrIntrinsic<ulong, ulong>(),
+				ClrIntrinsic<float, float>(),
+				ClrIntrinsic<double, double>(),
+				BuiltInOperator<decimal, decimal>(SubtractionMethodName)
+			);
+
+		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>> _builtInMultiplicationOperators = ImmutableArray.Create(
+				ClrIntrinsic<int, int>(),
+				ClrIntrinsic<uint, uint>(),
+				ClrIntrinsic<long, long>(),
+				ClrIntrinsic<ulong, ulong>(),
+				ClrIntrinsic<float, float>(),
+				ClrIntrinsic<double, double>(),
+				BuiltInOperator<decimal, decimal>(MultiplicationMethodNameName)
 			);
 
 		private static FunctionMemberData<MethodInfo> ClrIntrinsic<TLeft, TRight>()

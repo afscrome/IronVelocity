@@ -3,38 +3,13 @@ using IronVelocity.Reflection;
 using NUnit.Framework;
 using System;
 using System.Linq.Expressions;
+using OverloadedMaths = IronVelocity.Tests.Binders.BinaryOperationBinderTestBase.OverloadedMaths;
 
 namespace IronVelocity.Tests.Binders
 {
     [TestFixture]
     public class MathematicalOperationBinderTests : BinderTestBase
     {
-
-
-
-
-
-		[TestCase(5, 3, 2, typeof(int), TestName = "Subtraction Positive Integer")]
-        [TestCase(-5, -3, -2, typeof(int), TestName = "Subtraction Negative Integer")]
-        [TestCase(5, -3, 8, typeof(int), TestName = "Subtraction Mixed Integers")]
-        [TestCase(null, 5, null, null,TestName = "Subtraction Null Left")]
-        [TestCase(2, null, null, null, TestName = "Subtraction Null Right")]
-        [TestCase(null, null, null, null, TestName = "Subtraction Null Both")]
-        [TestCase(1f, 4, -3f, typeof(float), TestName = "Subtraction Integer Float")]
-        [TestCase(2.5d, 4, -1.5d, typeof(double), TestName = "Subtraction Integer Double")]
-        [TestCase(2, 5f, -3f, typeof(float), TestName = "Subtraction Float Integer")]
-        [TestCase(7.65f, 3.45f, 4.2f, typeof(float), TestName = "Subtraction Float Float")]
-        [TestCase(3.5f, 2d, 1.5d, typeof(double), TestName = "Addition Float Double")]
-        [TestCase(2147483647, -1, 2147483648, typeof(long), TestName = "Subtraction Integer Overflow")]
-        [TestCase(-2147483648, 1, -2147483649, typeof(long), TestName = "Subtraction Integer Underflow")]
-        [TestCase(9223372036854775807, -1, 9223372036854775808f, typeof(float), TestName = "Subtraction Long Overflow")]
-        [TestCase(-9223372036854775808, 1, -9223372036854775809f, typeof(float), TestName = "Subtraction Long Underflow")]
-        public void SubtractionTest(object left, object right, object expectedValue, Type expectedType)
-        {
-            MathTest(left, right, MathematicalOperation.Subtract, expectedValue, expectedType);
-        }
-
-
         [TestCase(5, 3, 15, typeof(int), TestName = "Multiplication Positive Integer")]
         [TestCase(-5, -3, 15, typeof(int), TestName = "Multiplication Negative Integer")]
         [TestCase(5, -3, -15, typeof(int), TestName = "Multiplication Mixed Integers")]
@@ -89,9 +64,7 @@ namespace IronVelocity.Tests.Binders
             MathTest(left, right, MathematicalOperation.Modulo, expected, expectedType);
         }
 
-        [TestCase(MathematicalOperation.Add)]
-        [TestCase(MathematicalOperation.Subtract)]
-        [TestCase(MathematicalOperation.Multiply)]
+
         [TestCase(MathematicalOperation.Divide)]
         [TestCase(MathematicalOperation.Modulo)]
         public void OverloadedMathematicalOperation(MathematicalOperation operation)
@@ -114,36 +87,6 @@ namespace IronVelocity.Tests.Binders
             Assert.AreEqual(expectedValue, result);
         }
 
-		public class OverloadedMaths
-        {
-            public int Value { get; }
-            public OverloadedMaths(int value)
-            {
-                Value = value;
-            }
 
-            public static OverloadedMaths operator +(OverloadedMaths left, OverloadedMaths right)
-                => new OverloadedMaths(left.Value + right.Value);
-
-            public static OverloadedMaths operator -(OverloadedMaths left, OverloadedMaths right)
-                => new OverloadedMaths(left.Value - right.Value);
-
-            public static OverloadedMaths operator *(OverloadedMaths left, OverloadedMaths right)
-                => new OverloadedMaths(left.Value * right.Value);
-
-            public static OverloadedMaths operator /(OverloadedMaths left, OverloadedMaths right)
-                => new OverloadedMaths(left.Value / right.Value);
-
-            public static OverloadedMaths operator %(OverloadedMaths left, OverloadedMaths right)
-                => new OverloadedMaths(left.Value % right.Value);
-
-
-			public override string ToString()
-				=> "OverloadedMath " + Value;
-
-			public override bool Equals(object obj)
-				=>((OverloadedMaths)obj)?.Value == Value;
-
-		}
 	}
 }
