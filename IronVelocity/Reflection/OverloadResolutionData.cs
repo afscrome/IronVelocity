@@ -5,7 +5,7 @@ using System.Reflection;
 namespace IronVelocity.Reflection
 {
     public class OverloadResolutionData<T>
-        where T : MemberInfo
+		where T : MemberInfo
     {
         public OverloadResolutionData(ApplicableForm applicableForm, FunctionMemberData<T> functionMember)
         {
@@ -16,14 +16,14 @@ namespace IronVelocity.Reflection
 
         public ApplicableForm ApplicableForm { get; }
         public T FunctionMember { get; }
-        public ParameterInfo[] Parameters { get; }
+        public Type[] Parameters { get; }
 
         public Type GetExpandedParameterType(int index)
         {
             if (ApplicableForm == ApplicableForm.Normal || index < Parameters.Length - 1)
-                return Parameters[index].ParameterType;
+                return Parameters[index];
 
-            return Parameters.Last().ParameterType.GetElementType();
+            return Parameters.Last().GetElementType();
         }
 
     }

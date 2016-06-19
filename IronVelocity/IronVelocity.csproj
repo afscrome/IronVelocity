@@ -60,6 +60,7 @@
     <Compile Include="Binders\BinderHelper.cs" />
     <Compile Include="Binders\IBinderFactory.cs" />
     <Compile Include="Binders\ReusableBinderFactory.cs" />
+    <Compile Include="Binders\VelocityBinaryOperationBinder.cs" />
     <Compile Include="Binders\VelocityGetIndexBinder.cs" />
     <Compile Include="Binders\VelocitySetIndexBinder.cs" />
     <Compile Include="Compilation\AST\DirectiveWord.cs" />

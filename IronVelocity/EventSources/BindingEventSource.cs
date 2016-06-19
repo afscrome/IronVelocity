@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Binders;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Diagnostics.Tracing;
 using System.Linq.Expressions;
@@ -40,16 +41,25 @@ namespace IronVelocity
             WriteEvent(5, memberName, targetType, valueType);
         }
 
-        [Event(6, Opcode = EventOpcode.Info, Level = EventLevel.Warning, Keywords = Keywords.Comparison)]
+		[Event(6, Opcode = EventOpcode.Info, Level = EventLevel.Warning, Keywords = Keywords.BinaryOperation)]
+		public void BinaryOperationResolutionFailure(ExpressionType operation, string leftType, string rightType)
+		{
+			WriteEvent(6, operation, leftType, rightType);
+		}
+
+
+		[Obsolete]
+        [Event(999, Opcode = EventOpcode.Info, Level = EventLevel.Warning)]
         public void ComparisonResolutionFailure(ComparisonOperation comparisonOperation, string leftType, string rightType)
         {
-            WriteEvent(6, comparisonOperation, leftType, rightType);
+            WriteEvent(999, comparisonOperation, leftType, rightType);
         }
 
-        [Event(7, Opcode = EventOpcode.Info, Level = EventLevel.Warning, Keywords = Keywords.Mathematical)]
+		[Obsolete]
+		[Event(998, Opcode = EventOpcode.Info, Level = EventLevel.Warning)]
         public void MathematicalResolutionFailure(ExpressionType expressionType, string leftType, string rightType)
         {
-            WriteEvent(7, expressionType, leftType, rightType);
+            WriteEvent(998, expressionType, leftType, rightType);
         }
 
 
@@ -59,8 +69,7 @@ namespace IronVelocity
             public const EventKeywords GetMember = (EventKeywords)1;
             public const EventKeywords SetMember = (EventKeywords)2;
             public const EventKeywords InvokeMember = (EventKeywords)4;
-            public const EventKeywords Comparison = (EventKeywords)8;
-            public const EventKeywords Mathematical = (EventKeywords)16;
+            public const EventKeywords BinaryOperation = (EventKeywords)8;
         }
     }
 }
