@@ -91,6 +91,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Binders\BinaryOperationBinderTests.Division.cs" />
     <Compile Include="Binders\BinaryOperationBinderTests.Addition.cs" />
     <Compile Include="Binders\BinaryOperationBinderTestBase.cs" />
     <Compile Include="Binders\BinderTestBase.cs" />

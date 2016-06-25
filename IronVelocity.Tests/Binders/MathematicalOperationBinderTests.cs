@@ -10,26 +10,6 @@ namespace IronVelocity.Tests.Binders
     [TestFixture]
     public class MathematicalOperationBinderTests : BinderTestBase
     {
-        [TestCase(5, 3, 15, typeof(int), TestName = "Multiplication Positive Integer")]
-        [TestCase(-5, -3, 15, typeof(int), TestName = "Multiplication Negative Integer")]
-        [TestCase(5, -3, -15, typeof(int), TestName = "Multiplication Mixed Integers")]
-        [TestCase(null, 5, null, null, TestName = "Multiplication Null Left")]
-        [TestCase(2, null, null, null, TestName = "Multiplication Null Right")]
-        [TestCase(null, null, null, null, TestName = "Multiplication Null Both")]
-        [TestCase(1.5f, 4, 6f, typeof(float), TestName = "Multiplication Integer Float")]
-        [TestCase(2.5d, 4, 10d, typeof(double), TestName = "Multiplication Integer Double")]
-        [TestCase(2, 4.5f, 9f, typeof(float), TestName = "Multiplication Float Integer")]
-        [TestCase(5.12f, -2.76f, -14.1312f, typeof(float), TestName = "Multiplication Float Float")]
-        [TestCase(3.5f, 2d, 7d, typeof(double), TestName = "Multiplication Float Double")]
-        [TestCase(2147483647, 2, 4294967294, typeof(long), TestName = "Multiplication Integer Overflow")]
-        [TestCase(-2147483648, 3, -6442450944, typeof(long), TestName = "Multiplication Integer Underflow")]
-        [TestCase(9223372036854775807, -2, -18446744073709551614d, typeof(float), TestName = "Multiply Long Overflow")]
-        [TestCase(-9223372036854775808, -2, 18446744073709551616d, typeof(float), TestName = "Multiply Long Underflow")]
-        public void BasicMultiplicationTest(object left, object right, object expectedValue, Type expectedType)
-        {
-            MathTest(left, right, MathematicalOperation.Multiply, expectedValue, expectedType);
-        }
-
         [TestCase(5, 3, 1, typeof(int), TestName = "Division Positive Integer")]
         [TestCase(-5, -3, 1, typeof(int), TestName = "Division Negative Integer")]
         [TestCase(5, -3, -1, typeof(int), TestName = "Division Mixed Integers")]

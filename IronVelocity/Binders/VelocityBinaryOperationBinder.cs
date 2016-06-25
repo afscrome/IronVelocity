@@ -55,15 +55,29 @@ namespace IronVelocity.Binders
 
 			var op = _overloadResolver.Resolve(candidates, ImmutableList.Create(targetType, argType));
 
-
-			var restrictions = BinderHelper.CreateCommonRestrictions(target, arg);
-
 			if (op == null)
 			{
+				var restrictions = BinderHelper.CreateCommonRestrictions(target, arg);
 				BindingEventSource.Log.BinaryOperationResolutionFailure(Operation, target.LimitType.FullName, arg.LimitType.FullName);
 				return BinderHelper.UnresolveableResult(restrictions, errorSuggestion);
 			}
 
+			switch (Operation)
+			{
+				case ExpressionType.Add:
+				case ExpressionType.Subtract:
+				case ExpressionType.Multiply:
+					return AddSubtractMultiply(op, target, arg);
+				case ExpressionType.Divide:
+					return Division(op, target, arg);
+				default:
+					throw new InvalidOperationException();
+			}
+
+		}
+
+		private DynamicMetaObject AddSubtractMultiply(OverloadResolutionData<MethodInfo> op, DynamicMetaObject target, DynamicMetaObject arg)
+		{
 			var targetExpr = VelocityExpressions.ConvertIfNeeded(target, op.Parameters[0]);
 			var argExpr = VelocityExpressions.ConvertIfNeeded(arg, op.Parameters[1]);
 
@@ -80,6 +94,9 @@ namespace IronVelocity.Binders
 				case ExpressionType.Multiply:
 					operationFunc = Expression.MultiplyChecked;
 					break;
+				case ExpressionType.Divide:
+					operationFunc = Expression.Divide;
+					break;
 				default:
 					throw new InvalidOperationException();
 			}
@@ -91,9 +108,164 @@ namespace IronVelocity.Binders
 
 			operation = VelocityExpressions.ConvertIfNeeded(operation, ReturnType);
 
+			var restrictions = BinderHelper.CreateCommonRestrictions(target, arg);
 			return new DynamicMetaObject(operation, restrictions);
 		}
 
+		private readonly ConstantExpression _zeroSByte = Expression.Constant((sbyte)0);
+		private readonly ConstantExpression _zeroShort = Expression.Constant((short)0);
+		private readonly ConstantExpression _zeroInt = Expression.Constant((int)0);
+		private readonly ConstantExpression _zeroLong = Expression.Constant((long)0);
+		private readonly ConstantExpression _zeroByte = Expression.Constant((byte)0);
+		private readonly ConstantExpression _zeroUShort = Expression.Constant((ushort)0);
+		private readonly ConstantExpression _zeroUInt = Expression.Constant((uint)0);
+		private readonly ConstantExpression _zeroULong = Expression.Constant((ulong)0);
+		private readonly ConstantExpression _zeroDecimal = Expression.Constant((decimal)0);
+
+		private ConstantExpression GetZeroExpression(DynamicMetaObject obj)
+		{
+			switch (Type.GetTypeCode(obj.RuntimeType))
+			{
+				case TypeCode.SByte:
+					return _zeroSByte;
+				case TypeCode.Byte:
+					return _zeroByte;
+				case TypeCode.Int16:
+					return _zeroShort;
+				case TypeCode.UInt16:
+					return _zeroUShort;
+				case TypeCode.Int32:
+					return _zeroInt;
+				case TypeCode.UInt32:
+					return _zeroUInt;
+				case TypeCode.Int64:
+					return _zeroLong;
+				case TypeCode.UInt64:
+					return _zeroULong;
+				case TypeCode.Decimal:
+					return _zeroDecimal;
+				default:
+					return null;
+			}
+		}
+
+		private readonly ConstantExpression _negativeOneSByte = Expression.Constant((sbyte)-1);
+		private readonly ConstantExpression _negativeOneShort = Expression.Constant((short)-1);
+		private readonly ConstantExpression _negativeOneInt = Expression.Constant((int)-1);
+		private readonly ConstantExpression _negativeOneLong = Expression.Constant((long)-1);
+
+		private ConstantExpression GetNegativeOneExpression(DynamicMetaObject obj)
+		{
+			switch (Type.GetTypeCode(obj.RuntimeType))
+			{
+				case TypeCode.SByte:
+					return _negativeOneSByte;
+				case TypeCode.Int16:
+					return _negativeOneShort;
+				case TypeCode.Int32:
+					return _negativeOneInt;
+				case TypeCode.Int64:
+					return _negativeOneLong;
+				default:
+					return null;
+			}
+		}
+		private readonly ConstantExpression _maxInt = Expression.Constant(int.MinValue);
+		private readonly ConstantExpression _maxLong = Expression.Constant(long.MinValue);
+
+		private DynamicMetaObject Division(OverloadResolutionData<MethodInfo> op, DynamicMetaObject target, DynamicMetaObject arg)
+		{
+			var restrictions = BinderHelper.CreateCommonRestrictions(target, arg);
+
+			Expression result = null;
+
+			// For signed integers, Division can fail in two ways
+			// 1. Divide by Zero: RHS = 0 (Divide by Zero)
+			// 2. Overflow - RHS = -1 && LHS = int.MinValue (or long.MinValue)
+			// Rather than catching an exception as we do for Add & Subtract, we can detect these cases directly, avoiding
+			// exception handling
+			// Floating-point division can't fail
+			// Decimal division can overflow, so needs an exception handler
+			if (op.FunctionMember == null)
+			{
+				//Divide by Zero
+				var argZero = GetZeroExpression(arg);
+				if (argZero != null)
+				{
+					BindingRestrictions zeroRestriction;
+					if (argZero.Value.Equals(arg.Value))
+					{
+						zeroRestriction = BindingRestrictions.GetExpressionRestriction(Expression.Equal(arg.Expression, argZero));
+						result = Constants.VelocityUnresolvableResult;
+					}
+					else
+					{
+						zeroRestriction = BindingRestrictions.GetExpressionRestriction(Expression.NotEqual(arg.Expression, argZero));
+					}
+					restrictions = restrictions.Merge(zeroRestriction);
+				}
+
+				//Overflow
+				ConstantExpression lhsMax = null;
+				if (target.RuntimeType == typeof(int))
+					lhsMax = _maxInt;
+
+				if (target.RuntimeType == typeof(long))
+					lhsMax = _maxLong;
+
+				if (lhsMax != null)
+				{
+					var negativeOne = GetNegativeOneExpression(arg);
+
+					if (negativeOne != null)
+					{
+						BindingRestrictions overflowRestrictions;
+						if (target.Value.Equals(lhsMax.Value) && arg.Value.Equals(negativeOne.Value))
+						{
+							result = Constants.VelocityUnresolvableResult;
+							overflowRestrictions = BindingRestrictions.GetExpressionRestriction(
+									Expression.AndAlso(
+										Expression.Equal(target.Expression, lhsMax),
+										Expression.Equal(arg.Expression, negativeOne)
+									)
+								);
+						}
+						else
+						{
+							overflowRestrictions = BindingRestrictions.GetExpressionRestriction(
+									Expression.OrElse(
+										Expression.NotEqual(target.Expression, lhsMax),
+										Expression.NotEqual(arg.Expression, negativeOne)
+									)
+								);
+						}
+						restrictions = restrictions.Merge(overflowRestrictions);
+					}
+				}
+
+			}
+
+			if (result == null)
+			{
+				var targetExpr = VelocityExpressions.ConvertIfNeeded(target, op.Parameters[0]);
+				var argExpr = VelocityExpressions.ConvertIfNeeded(arg, op.Parameters[1]);
+				result = Expression.Divide(targetExpr, argExpr, op.FunctionMember);
+			}
+
+			if (op.Parameters[0] == typeof(decimal) && op.Parameters[1] == typeof(decimal))
+			{
+				result = Expression.TryCatch(
+					VelocityExpressions.ConvertIfNeeded(result, ReturnType),
+					Expression.Catch(typeof(ArithmeticException),
+						Constants.VelocityUnresolvableResult
+					)
+				);
+			}
+
+			var operation = VelocityExpressions.ConvertIfNeeded(result, ReturnType);
+
+			return new DynamicMetaObject(operation, restrictions);
+		}
 
 		private Expression AddOverflowHandling(Expression operation, Expression left, Expression right)
 		{
@@ -132,7 +304,7 @@ namespace IronVelocity.Binders
 			);
 			return Expression.TryCatch(
 				VelocityExpressions.ConvertIfNeeded(operation, ReturnType),
-				Expression.Catch(typeof(OverflowException),
+				Expression.Catch(typeof(ArithmeticException),
 					overflowFallback
 				)
 			);
@@ -141,7 +313,7 @@ namespace IronVelocity.Binders
 		private IImmutableList<FunctionMemberData<MethodInfo>> GetCandidateOperators(Type left, Type right)
 		{
 			var userDefinedCandidates = GetCandidateUserDefinedOperators(left, right);
-			
+
 			return userDefinedCandidates.Any()
 				? userDefinedCandidates
 				: GetBuiltInOperators();
@@ -209,6 +381,8 @@ namespace IronVelocity.Binders
 					return _builtInSubtractionOperators;
 				case ExpressionType.Multiply:
 					return _builtInMultiplicationOperators;
+				case ExpressionType.Divide:
+					return _builtInDivisionOperators;
 				default:
 					throw new Exception();
 			}
@@ -224,7 +398,9 @@ namespace IronVelocity.Binders
 				case ExpressionType.Subtract:
 					return SubtractionMethodName;
 				case ExpressionType.Multiply:
-					return MultiplicationMethodNameName;
+					return MultiplicationMethodName;
+				case ExpressionType.Divide:
+					return DivisionMethodName;
 				default:
 					throw new Exception();
 			}
@@ -233,41 +409,39 @@ namespace IronVelocity.Binders
 
 		private const string AdditionMethodName = "op_Addition";
 		private const string SubtractionMethodName = "op_Subtraction";
-		private const string MultiplicationMethodNameName = "op_Multiply";
+		private const string MultiplicationMethodName = "op_Multiply";
+		private const string DivisionMethodName = "op_Division";
 
 
-		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>> _builtInAdditionOperators = ImmutableArray.Create(
+
+		static VelocityBinaryOperationBinder()
+		{
+			var commonMathBuiltInOperators = ImmutableArray.Create(
 				ClrIntrinsic<int, int>(),
 				ClrIntrinsic<uint, uint>(),
 				ClrIntrinsic<long, long>(),
 				ClrIntrinsic<ulong, ulong>(),
 				ClrIntrinsic<float, float>(),
-				ClrIntrinsic<double, double>(),
+				ClrIntrinsic<double, double>()
+				);
+
+			_builtInAdditionOperators = commonMathBuiltInOperators.AddRange(new[] {
 				BuiltInOperator<decimal, decimal>(AdditionMethodName),
 				VelocityIntrinsic<string, string>(typeof(string).GetMethod("Concat", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(string), typeof(string) }, null)),
 				VelocityIntrinsic<string, object>(typeof(string).GetMethod("Concat", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(object) }, null)),
 				VelocityIntrinsic<object, string>(typeof(string).GetMethod("Concat", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(object) }, null))
-			);
+			});
 
-		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>> _builtInSubtractionOperators = ImmutableArray.Create(
-				ClrIntrinsic<int, int>(),
-				ClrIntrinsic<uint, uint>(),
-				ClrIntrinsic<long, long>(),
-				ClrIntrinsic<ulong, ulong>(),
-				ClrIntrinsic<float, float>(),
-				ClrIntrinsic<double, double>(),
-				BuiltInOperator<decimal, decimal>(SubtractionMethodName)
-			);
+			_builtInSubtractionOperators = commonMathBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(SubtractionMethodName));
+			_builtInMultiplicationOperators = commonMathBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(MultiplicationMethodName));
+			_builtInDivisionOperators = commonMathBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(DivisionMethodName));
 
-		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>> _builtInMultiplicationOperators = ImmutableArray.Create(
-				ClrIntrinsic<int, int>(),
-				ClrIntrinsic<uint, uint>(),
-				ClrIntrinsic<long, long>(),
-				ClrIntrinsic<ulong, ulong>(),
-				ClrIntrinsic<float, float>(),
-				ClrIntrinsic<double, double>(),
-				BuiltInOperator<decimal, decimal>(MultiplicationMethodNameName)
-			);
+		}
+
+		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>> _builtInAdditionOperators;
+		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>> _builtInSubtractionOperators;
+		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>> _builtInMultiplicationOperators;
+		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>> _builtInDivisionOperators;
 
 		private static FunctionMemberData<MethodInfo> ClrIntrinsic<TLeft, TRight>()
 			=> new FunctionMemberData<MethodInfo>(null, typeof(TLeft), typeof(TRight));
@@ -282,7 +456,7 @@ namespace IronVelocity.Binders
 
 		private static FunctionMemberData<MethodInfo> BuiltInOperator<TLeft, TRight>(string operatorName)
 		{
-			var types = new[] { typeof(TLeft), typeof(TRight)};
+			var types = new[] { typeof(TLeft), typeof(TRight) };
 			var method = typeof(TLeft).GetTypeInfo().GetMethod(operatorName, BindingFlags.Static, null, types, null);
 			return new FunctionMemberData<MethodInfo>(method, types);
 		}
