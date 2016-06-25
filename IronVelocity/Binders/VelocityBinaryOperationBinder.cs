@@ -69,6 +69,7 @@ namespace IronVelocity.Binders
 				case ExpressionType.Multiply:
 					return AddSubtractMultiply(op, target, arg);
 				case ExpressionType.Divide:
+				case ExpressionType.Modulo:
 					return Division(op, target, arg);
 				default:
 					throw new InvalidOperationException();
@@ -93,9 +94,6 @@ namespace IronVelocity.Binders
 					break;
 				case ExpressionType.Multiply:
 					operationFunc = Expression.MultiplyChecked;
-					break;
-				case ExpressionType.Divide:
-					operationFunc = Expression.Divide;
 					break;
 				default:
 					throw new InvalidOperationException();
@@ -249,7 +247,12 @@ namespace IronVelocity.Binders
 			{
 				var targetExpr = VelocityExpressions.ConvertIfNeeded(target, op.Parameters[0]);
 				var argExpr = VelocityExpressions.ConvertIfNeeded(arg, op.Parameters[1]);
-				result = Expression.Divide(targetExpr, argExpr, op.FunctionMember);
+				if (Operation == ExpressionType.Divide)
+					result = Expression.Divide(targetExpr, argExpr, op.FunctionMember);
+				else if (Operation == ExpressionType.Modulo)
+					result = Expression.Modulo(targetExpr, argExpr, op.FunctionMember);
+				else
+					throw new InvalidOperationException();
 			}
 
 			if (op.Parameters[0] == typeof(decimal) && op.Parameters[1] == typeof(decimal))
@@ -383,8 +386,10 @@ namespace IronVelocity.Binders
 					return _builtInMultiplicationOperators;
 				case ExpressionType.Divide:
 					return _builtInDivisionOperators;
+				case ExpressionType.Modulo:
+					return _builtInModulusOperators;
 				default:
-					throw new Exception();
+					throw new InvalidOperationException();
 			}
 
 		}
@@ -401,8 +406,10 @@ namespace IronVelocity.Binders
 					return MultiplicationMethodName;
 				case ExpressionType.Divide:
 					return DivisionMethodName;
+				case ExpressionType.Modulo:
+					return ModuloMethodName;
 				default:
-					throw new Exception();
+					throw new InvalidOperationException();
 			}
 
 		}
@@ -411,6 +418,7 @@ namespace IronVelocity.Binders
 		private const string SubtractionMethodName = "op_Subtraction";
 		private const string MultiplicationMethodName = "op_Multiply";
 		private const string DivisionMethodName = "op_Division";
+		private const string ModuloMethodName = "op_Modulus";
 
 
 
@@ -435,13 +443,11 @@ namespace IronVelocity.Binders
 			_builtInSubtractionOperators = commonMathBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(SubtractionMethodName));
 			_builtInMultiplicationOperators = commonMathBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(MultiplicationMethodName));
 			_builtInDivisionOperators = commonMathBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(DivisionMethodName));
-
+			_builtInModulusOperators = commonMathBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(ModuloMethodName));
 		}
 
-		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>> _builtInAdditionOperators;
-		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>> _builtInSubtractionOperators;
-		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>> _builtInMultiplicationOperators;
-		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>> _builtInDivisionOperators;
+		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>>
+			_builtInAdditionOperators, _builtInSubtractionOperators, _builtInMultiplicationOperators ,_builtInDivisionOperators, _builtInModulusOperators;
 
 		private static FunctionMemberData<MethodInfo> ClrIntrinsic<TLeft, TRight>()
 			=> new FunctionMemberData<MethodInfo>(null, typeof(TLeft), typeof(TRight));

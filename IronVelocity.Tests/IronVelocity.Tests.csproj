@@ -91,12 +91,12 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Binders\BinaryOperationBinderTests.Modulo.cs" />
     <Compile Include="Binders\BinaryOperationBinderTests.Division.cs" />
     <Compile Include="Binders\BinaryOperationBinderTests.Addition.cs" />
     <Compile Include="Binders\BinaryOperationBinderTestBase.cs" />
     <Compile Include="Binders\BinderTestBase.cs" />
     <Compile Include="Binders\GetIndexerBinderTests.cs" />
-    <Compile Include="Binders\MathematicalOperationBinderTests.cs" />
     <Compile Include="Binders\ReflectionHelper\IsBetterConversionTargetTests.cs" />
     <Compile Include="Binders\ReflectionHelper\IsNullableTypeTests.cs" />
     <Compile Include="Binders\ComparisonBinderTests.cs">
