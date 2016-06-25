@@ -2,11 +2,11 @@
 using System;
 using System.Collections.Concurrent;
 using System.Dynamic;
+using System.Linq.Expressions;
 
 namespace IronVelocity.Binders
 {
-    public class BinderFactory
-        : IBinderFactory
+    public class BinderFactory : IBinderFactory
     {
         private readonly IArgumentConverter _argumentConverter;
         private readonly IMemberResolver _memberResolver;
@@ -47,8 +47,8 @@ namespace IronVelocity.Binders
         public InvokeMemberBinder GetInvokeMemberBinder(string name, int argumentCount)
             => new VelocityInvokeMemberBinder(name, new CallInfo(argumentCount), _methodResolver);
 
-        public VelocityMathematicalOperationBinder GetMathematicalOperationBinder(MathematicalOperation operation)
-            => new VelocityMathematicalOperationBinder(operation, _argumentConverter);
+        public BinaryOperationBinder GetBinaryOperationBinder(ExpressionType type)
+            => new VelocityBinaryOperationBinder(type);
 
         public VelocityComparisonOperationBinder GetComparisonOperationBinder(ComparisonOperation operation)
             => new VelocityComparisonOperationBinder(operation, _argumentConverter);

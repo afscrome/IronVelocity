@@ -82,7 +82,6 @@
     <Compile Include="Directives\ForeachSection.cs" />
     <Compile Include="EventSources\BindingEventSource.cs" />
     <Compile Include="Binders\VelocityComparisonOperationBinder.cs" />
-    <Compile Include="Binders\VelocityBinaryMathematicalOperationBinder.cs" />
     <Compile Include="Binders\VelocitySetMemberBinder.cs" />
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />

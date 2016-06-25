@@ -3,6 +3,7 @@ using IronVelocity.Reflection;
 using NUnit.Framework;
 using System.Dynamic;
 using System;
+using System.Linq.Expressions;
 
 namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {
@@ -45,7 +46,7 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
                 throw new NotImplementedException();
             }
 
-            public VelocityMathematicalOperationBinder GetMathematicalOperationBinder(MathematicalOperation type)
+            public BinaryOperationBinder GetBinaryOperationBinder(ExpressionType type)
             {
                 throw new NotImplementedException();
             }

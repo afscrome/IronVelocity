@@ -1,4 +1,5 @@
 ﻿using System.Dynamic;
+using System.Linq.Expressions;
 
 namespace IronVelocity.Binders
 {
@@ -10,6 +11,6 @@ namespace IronVelocity.Binders
         SetIndexBinder GetSetIndexBinder(int argumentCount);
         InvokeMemberBinder GetInvokeMemberBinder(string name, int argumentCount);
         VelocityComparisonOperationBinder GetComparisonOperationBinder(ComparisonOperation operation);
-        VelocityMathematicalOperationBinder GetMathematicalOperationBinder(MathematicalOperation type);
+        BinaryOperationBinder GetBinaryOperationBinder(ExpressionType type);
     }
 }

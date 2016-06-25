@@ -193,12 +193,12 @@ namespace IronVelocity.Binders
 					BindingRestrictions zeroRestriction;
 					if (argZero.Value.Equals(arg.Value))
 					{
-						zeroRestriction = BindingRestrictions.GetExpressionRestriction(Expression.Equal(arg.Expression, argZero));
+						zeroRestriction = BindingRestrictions.GetExpressionRestriction(Expression.Equal(argZero, VelocityExpressions.ConvertIfNeeded(arg.Expression, argZero.Type)));
 						result = Constants.VelocityUnresolvableResult;
 					}
 					else
 					{
-						zeroRestriction = BindingRestrictions.GetExpressionRestriction(Expression.NotEqual(arg.Expression, argZero));
+						zeroRestriction = BindingRestrictions.GetExpressionRestriction(Expression.NotEqual(argZero, VelocityExpressions.ConvertIfNeeded(arg.Expression, argZero.Type)));
 					}
 					restrictions = restrictions.Merge(zeroRestriction);
 				}
@@ -232,8 +232,8 @@ namespace IronVelocity.Binders
 						{
 							overflowRestrictions = BindingRestrictions.GetExpressionRestriction(
 									Expression.OrElse(
-										Expression.NotEqual(target.Expression, lhsMax),
-										Expression.NotEqual(arg.Expression, negativeOne)
+										Expression.NotEqual(lhsMax, VelocityExpressions.ConvertIfNeeded(target.Expression, lhsMax.Type)),
+										Expression.NotEqual(negativeOne, VelocityExpressions.ConvertIfNeeded(arg.Expression, lhsMax.Type))
 									)
 								);
 						}

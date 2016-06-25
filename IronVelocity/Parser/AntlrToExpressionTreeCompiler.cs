@@ -369,23 +369,23 @@ namespace IronVelocity.Parser
 
         private Expression VisitMathematicalExpression(IToken operationToken, VelocityParser.ExpressionContext left, VelocityParser.ExpressionContext right, VelocityParser.ExpressionContext context)
         {
-            MathematicalOperation operation;
+            ExpressionType operation;
             switch (operationToken.Type)
             {
                 case VelocityLexer.Plus:
-                    operation = MathematicalOperation.Add;
+                    operation = ExpressionType.Add;
                     break;
                 case VelocityLexer.Minus:
-                    operation = MathematicalOperation.Subtract;
+                    operation = ExpressionType.Subtract;
                     break;
                 case VelocityLexer.Multiply:
-                    operation = MathematicalOperation.Multiply;
+                    operation = ExpressionType.Multiply;
                     break;
                 case VelocityLexer.Divide:
-                    operation = MathematicalOperation.Divide;
+                    operation = ExpressionType.Divide;
                     break;
                 case VelocityLexer.Modulo:
-                    operation = MathematicalOperation.Modulo;
+                    operation = ExpressionType.Modulo;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(operationToken));
@@ -395,7 +395,7 @@ namespace IronVelocity.Parser
             var visitedRight = Visit(right);
             var sourceInfo = GetSourceInfo(context);
 
-            return _expressionFactory.Maths(visitedLeft, visitedRight, sourceInfo, operation);
+            return _expressionFactory.Binary(visitedLeft, visitedRight, sourceInfo, operation);
         }
 
         public Expression VisitRelationalExpression([NotNull] VelocityParser.RelationalExpressionContext context)
