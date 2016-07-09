@@ -19,9 +19,10 @@ namespace IronVelocity.Binders
 		{
 			switch (expressionType)
 			{
-				//Relational
+				//Equality
 				case ExpressionType.Equal:
 				case ExpressionType.NotEqual:
+				//Relational
 				case ExpressionType.GreaterThan:
 				case ExpressionType.GreaterThanOrEqual:
 				case ExpressionType.LessThan:
@@ -32,6 +33,7 @@ namespace IronVelocity.Binders
 				case ExpressionType.Multiply:
 				case ExpressionType.Divide:
 				case ExpressionType.Modulo:
+
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(expressionType));
@@ -71,9 +73,64 @@ namespace IronVelocity.Binders
 				case ExpressionType.Divide:
 				case ExpressionType.Modulo:
 					return Division(op, target, arg);
+				case ExpressionType.Equal:
+				case ExpressionType.NotEqual:
+					return Equality(op, target, arg);
+				case ExpressionType.GreaterThan:
+				case ExpressionType.GreaterThanOrEqual:
+				case ExpressionType.LessThan:
+				case ExpressionType.LessThanOrEqual:
+					return Relational(op, target, arg);
 				default:
-					throw new InvalidOperationException();
+					throw new ArgumentOutOfRangeException(nameof(Operation));
 			}
+
+		}
+
+
+		private DynamicMetaObject Equality(OverloadResolutionData<MethodInfo> op, DynamicMetaObject left, DynamicMetaObject right)
+		{
+			var leftExpr = VelocityExpressions.ConvertIfNeeded(left.Expression, op.Parameters[0]);
+			var rightExpr = VelocityExpressions.ConvertIfNeeded(right.Expression, op.Parameters[1]);
+
+			Expression result = Operation == ExpressionType.Equal
+				? Expression.Equal(leftExpr, rightExpr, false, op.FunctionMember)
+				: Expression.NotEqual(leftExpr, rightExpr, false, op.FunctionMember);
+
+			var restrictions = BinderHelper.CreateCommonRestrictions(left, right);
+			result = VelocityExpressions.ConvertIfNeeded(result, ReturnType);
+
+			return new DynamicMetaObject(result, restrictions);
+		}
+
+		private DynamicMetaObject Relational(OverloadResolutionData<MethodInfo> op, DynamicMetaObject left, DynamicMetaObject right)
+		{
+			var leftExpr = VelocityExpressions.ConvertIfNeeded(left.Expression, op.Parameters[0]);
+			var rightExpr = VelocityExpressions.ConvertIfNeeded(right.Expression, op.Parameters[1]);
+
+			Expression result;
+			switch (Operation)
+			{
+				case ExpressionType.GreaterThan:
+					result = Expression.GreaterThan(leftExpr, rightExpr, false, op.FunctionMember);
+					break;
+				case ExpressionType.GreaterThanOrEqual:
+					result = Expression.GreaterThanOrEqual(leftExpr, rightExpr, false, op.FunctionMember);
+					break;
+				case ExpressionType.LessThan:
+					result = Expression.LessThan(leftExpr, rightExpr, false, op.FunctionMember);
+					break;
+				case ExpressionType.LessThanOrEqual:
+					result = Expression.LessThanOrEqual(leftExpr, rightExpr, false, op.FunctionMember);
+					break;
+				default:
+					throw new ArgumentOutOfRangeException(nameof(Operation));
+			}
+
+			var restrictions = BinderHelper.CreateCommonRestrictions(left, right);
+			result = VelocityExpressions.ConvertIfNeeded(result, ReturnType);
+
+			return new DynamicMetaObject(result, restrictions);
 
 		}
 
@@ -388,8 +445,20 @@ namespace IronVelocity.Binders
 					return _builtInDivisionOperators;
 				case ExpressionType.Modulo:
 					return _builtInModulusOperators;
+				case ExpressionType.Equal:
+					return _builtInEqualityOperators;
+				case ExpressionType.NotEqual:
+					return _builtInInequalityOperators;
+				case ExpressionType.GreaterThan:
+					return _builtInGreaterThanOperators;
+				case ExpressionType.GreaterThanOrEqual:
+					return _builtInGreaterThanOrEqualOperators;
+				case ExpressionType.LessThan:
+					return _builtInLessThanOperators;
+				case ExpressionType.LessThanOrEqual:
+					return _builtInLessThanOrEqualOperators;
 				default:
-					throw new InvalidOperationException();
+					throw new ArgumentOutOfRangeException(nameof(Operation));
 			}
 
 		}
@@ -408,8 +477,20 @@ namespace IronVelocity.Binders
 					return DivisionMethodName;
 				case ExpressionType.Modulo:
 					return ModuloMethodName;
+				case ExpressionType.Equal:
+					return EqualityMethodName;
+				case ExpressionType.NotEqual:
+					return InequalityMethodName;
+				case ExpressionType.GreaterThan:
+					return GreaterThanMethodName;
+				case ExpressionType.GreaterThanOrEqual:
+					return GreaterThanOrEqualMethodName;
+				case ExpressionType.LessThan:
+					return LessThanMethodName;
+				case ExpressionType.LessThanOrEqual:
+					return LessThanOrEqualMethodName;
 				default:
-					throw new InvalidOperationException();
+					throw new ArgumentOutOfRangeException(nameof(Operation));
 			}
 
 		}
@@ -419,12 +500,18 @@ namespace IronVelocity.Binders
 		private const string MultiplicationMethodName = "op_Multiply";
 		private const string DivisionMethodName = "op_Division";
 		private const string ModuloMethodName = "op_Modulus";
+		private const string EqualityMethodName = "op_Equality";
+		private const string InequalityMethodName = "op_Inequality";
+		private const string GreaterThanMethodName = "op_GreaterThan";
+		private const string GreaterThanOrEqualMethodName = "op_GreaterThanOrEqual";
+		private const string LessThanMethodName = "op_LessThan";
+		private const string LessThanOrEqualMethodName = "op_LessThanOrEqual";
 
 
 
 		static VelocityBinaryOperationBinder()
 		{
-			var commonMathBuiltInOperators = ImmutableArray.Create(
+			var commonBuiltInOperators = ImmutableArray.Create(
 				ClrIntrinsic<int, int>(),
 				ClrIntrinsic<uint, uint>(),
 				ClrIntrinsic<long, long>(),
@@ -433,21 +520,42 @@ namespace IronVelocity.Binders
 				ClrIntrinsic<double, double>()
 				);
 
-			_builtInAdditionOperators = commonMathBuiltInOperators.AddRange(new[] {
+			var commonEquality = commonBuiltInOperators.Add(ClrIntrinsic<bool, bool>());
+
+
+			_builtInAdditionOperators = commonBuiltInOperators.AddRange(new[] {
 				BuiltInOperator<decimal, decimal>(AdditionMethodName),
 				VelocityIntrinsic<string, string>(typeof(string).GetMethod("Concat", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(string), typeof(string) }, null)),
 				VelocityIntrinsic<string, object>(typeof(string).GetMethod("Concat", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(object) }, null)),
 				VelocityIntrinsic<object, string>(typeof(string).GetMethod("Concat", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(object) }, null))
 			});
 
-			_builtInSubtractionOperators = commonMathBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(SubtractionMethodName));
-			_builtInMultiplicationOperators = commonMathBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(MultiplicationMethodName));
-			_builtInDivisionOperators = commonMathBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(DivisionMethodName));
-			_builtInModulusOperators = commonMathBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(ModuloMethodName));
+			_builtInSubtractionOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(SubtractionMethodName));
+			_builtInMultiplicationOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(MultiplicationMethodName));
+			_builtInDivisionOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(DivisionMethodName));
+			_builtInModulusOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(ModuloMethodName));
+
+			_builtInGreaterThanOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(GreaterThanMethodName));
+			_builtInGreaterThanOrEqualOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(GreaterThanOrEqualMethodName));
+			_builtInLessThanOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(LessThanMethodName));
+			_builtInLessThanOrEqualOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(LessThanOrEqualMethodName));
+
+			_builtInEqualityOperators = commonEquality.AddRange(new[] {
+				BuiltInOperator<decimal, decimal>(EqualityMethodName),
+				BuiltInOperator<string, string>(EqualityMethodName),
+			});
+			_builtInInequalityOperators = commonEquality.AddRange(new[] {
+				BuiltInOperator<decimal, decimal>(InequalityMethodName),
+				BuiltInOperator<string, string>(InequalityMethodName),
+			});
 		}
 
 		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>>
-			_builtInAdditionOperators, _builtInSubtractionOperators, _builtInMultiplicationOperators ,_builtInDivisionOperators, _builtInModulusOperators;
+			_builtInAdditionOperators, _builtInSubtractionOperators,
+			_builtInMultiplicationOperators ,_builtInDivisionOperators, _builtInModulusOperators,
+			_builtInEqualityOperators, _builtInInequalityOperators,
+			_builtInGreaterThanOperators, _builtInGreaterThanOrEqualOperators,
+			_builtInLessThanOperators, _builtInLessThanOrEqualOperators;
 
 		private static FunctionMemberData<MethodInfo> ClrIntrinsic<TLeft, TRight>()
 			=> new FunctionMemberData<MethodInfo>(null, typeof(TLeft), typeof(TRight));
