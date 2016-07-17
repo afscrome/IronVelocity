@@ -12,7 +12,7 @@ namespace IronVelocity.Compilation.AST
     {
         private static readonly Type _dictionaryType = typeof(RuntimeDictionary);
         private static readonly ConstructorInfo _dictionaryConstructorInfo = _dictionaryType.GetConstructor(new[] { typeof(int) });
-        private static readonly MethodInfo _dictionaryAddMemberInfo = _dictionaryType.GetMethod("Add", BindingFlags.Public | BindingFlags.Instance, null, new Type[] { typeof(string), typeof(object) }, null);
+        private static readonly MethodInfo _dictionaryAddMemberInfo = _dictionaryType.GetMethod(nameof(IDictionary<string,string>.Add), MethodHelpers.PublicInstance, null, new Type[] { typeof(string), typeof(object) }, null);
 
         public IImmutableDictionary<Expression, Expression> Values { get; }
         public override Type Type => typeof(RuntimeDictionary);

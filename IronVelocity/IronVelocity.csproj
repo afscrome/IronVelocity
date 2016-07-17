@@ -118,6 +118,7 @@
     <Compile Include="Parser\ErrorListener.cs" />
     <Compile Include="Parser\ParserRuleContextExtensions.cs" />
     <Compile Include="Parser\VelocityParser.cs" />
+    <Compile Include="Reflection\IOperatorResolver.cs" />
     <Compile Include="Reflection\OperatorResolver.cs" />
     <Compile Include="Reflection\OverloadResolutionData.cs" />
     <Compile Include="Reflection\ApplicableForm.cs" />
@@ -136,6 +137,7 @@
     <Compile Include="Reflection\MemberResolver.cs" />
     <Compile Include="Reflection\OverloadResolution.cs" />
     <Compile Include="Reflection\VelocityMethodResolver.cs" />
+    <Compile Include="Reflection\VelocityOperator.cs" />
     <Compile Include="Runtime\BigIntegerSimplifier.cs" />
     <Compile Include="Runtime\BooleanCoercion.cs" />
     <Compile Include="Runtime\EnumStringEqualityComparer.cs" />

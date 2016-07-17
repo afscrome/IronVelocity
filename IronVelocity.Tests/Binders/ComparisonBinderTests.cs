@@ -98,9 +98,9 @@ namespace IronVelocity.Tests.Binders
 
         private void ComparisonTest(object left, object right, VelocityOperator operation, bool? expected, string message = null)
         {
-            var binder = new VelocityBinaryOperationBinder(operation);
+            var binder = new VelocityBinaryOperationBinder(operation, new OperatorResolver(new OverloadResolver(new ArgumentConverter())));
 
-            var result = InvokeBinder(binder, left, right);
+			var result = InvokeBinder(binder, left, right);
 
             Assert.AreEqual(expected, result);
         }

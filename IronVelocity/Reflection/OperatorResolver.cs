@@ -3,33 +3,14 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace IronVelocity.Reflection
 {
-	public enum VelocityOperator
-	{
-		Equal,
-		NotEqual,
-		GreaterThan,
-		GreaterThanOrEqual,
-		LessThan,
-		LessThanOrEqual,
-		Add,
-		Subtract,
-		Multiply,
-		Divide,
-		Modulo,
-	}
-
-	public interface IOperatorResolver
-	{
-		OverloadResolutionData<MethodInfo> Resolve(VelocityOperator operatorType, Type left, Type right);
-	}
-
 	public class OperatorResolver : IOperatorResolver
 	{
+		private readonly IOverloadResolver _overloadResolver;
+
 		private const string AdditionMethodName = "op_Addition";
 		private const string SubtractionMethodName = "op_Subtraction";
 		private const string MultiplicationMethodName = "op_Multiply";
@@ -42,7 +23,6 @@ namespace IronVelocity.Reflection
 		private const string LessThanMethodName = "op_LessThan";
 		private const string LessThanOrEqualMethodName = "op_LessThanOrEqual";
 
-		private readonly IOverloadResolver _overloadResolver = new OverloadResolver(new ArgumentConverter());
 		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>>
 			_builtInAdditionOperators, _builtInSubtractionOperators,
 			_builtInMultiplicationOperators, _builtInDivisionOperators, _builtInModulusOperators,
@@ -100,6 +80,11 @@ namespace IronVelocity.Reflection
 				VelocityIntrinsic<string, object>(typeof(string).GetMethod(nameof(String.Concat), BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(string), typeof(object) }, null)),
 				VelocityIntrinsic<object, string>(typeof(string).GetMethod(nameof(String.Concat), BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(string) }, null)),
 			});
+		}
+
+		public OperatorResolver(IOverloadResolver overloadResolver)
+		{
+			_overloadResolver = overloadResolver;
 		}
 
 		private static ImmutableArray<FunctionMemberData<MethodInfo>> AddDecimalOperators(ImmutableArray<FunctionMemberData<MethodInfo>> common, string operatorName)

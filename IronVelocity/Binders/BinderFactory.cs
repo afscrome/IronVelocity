@@ -12,6 +12,7 @@ namespace IronVelocity.Binders
         private readonly IMemberResolver _memberResolver;
         private readonly IIndexResolver _indexResolver;
         private readonly IMethodResolver _methodResolver;
+		private readonly IOperatorResolver _operatorResolver;
 
         public BinderFactory()
         {
@@ -21,6 +22,7 @@ namespace IronVelocity.Binders
             _memberResolver = new MemberResolver();
             _indexResolver = new IndexResolver(overloadResolver);
             _methodResolver = new MethodResolver(overloadResolver);
+			_operatorResolver = new OperatorResolver(overloadResolver);
         }
 
         public BinderFactory(IArgumentConverter argumentConverter, IMemberResolver memberResolver, IIndexResolver indexResolver, IMethodResolver methodResolver)
@@ -48,6 +50,6 @@ namespace IronVelocity.Binders
             => new VelocityInvokeMemberBinder(name, new CallInfo(argumentCount), _methodResolver);
 
         public BinaryOperationBinder GetBinaryOperationBinder(VelocityOperator type)
-            => new VelocityBinaryOperationBinder(type);
+            => new VelocityBinaryOperationBinder(type, _operatorResolver);
     }
 }

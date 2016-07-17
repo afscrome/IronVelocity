@@ -13,11 +13,12 @@ namespace IronVelocity.Binders
 {
 	public partial class VelocityBinaryOperationBinder : BinaryOperationBinder
 	{
-		private readonly IOperatorResolver _operatorResolver = new OperatorResolver();
+		private readonly IOperatorResolver _operatorResolver;
 
-		public VelocityBinaryOperationBinder(VelocityOperator op)
+		public VelocityBinaryOperationBinder(VelocityOperator op, IOperatorResolver operatorResolver)
 			: base(VelocityOperatorToExpressionType(op))
 		{
+			_operatorResolver = operatorResolver;
 		}
 
 		private static ExpressionType VelocityOperatorToExpressionType(VelocityOperator op)
@@ -111,10 +112,6 @@ namespace IronVelocity.Binders
 			return result;
 		}
 
-
-		private static readonly MethodInfo ObjectEquals = typeof(object).GetMethod(nameof(object.Equals), BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object), typeof(object) }, null);
-		private static readonly MethodInfo StringEnumCompare = typeof(StringEnumComparer).GetMethod(nameof(StringEnumComparer.AreEqual), BindingFlags.Public | BindingFlags.Static);
-
 		private DynamicMetaObject Equality(VelocityOperator operatorType, DynamicMetaObject left, DynamicMetaObject right, DynamicMetaObject errorSuggestion)
 		{
 			var op = _operatorResolver.Resolve(operatorType, left.RuntimeType, right.RuntimeType);
@@ -130,14 +127,14 @@ namespace IronVelocity.Binders
 			}
 			else if (left.RuntimeType == typeof(string) && (right.RuntimeType?.IsEnum ?? false))
 			{
-				var method = StringEnumCompare.MakeGenericMethod(right.RuntimeType);
+				var method = MethodHelpers.GenericStringEnumComparer.MakeGenericMethod(right.RuntimeType);
 				result = Expression.Equal(right.Expression, left.Expression, false, method);
 				if (operatorType == VelocityOperator.NotEqual)
 					result = Expression.Not(result);
 			}
 			else if (right.RuntimeType == typeof(string) && (left.RuntimeType?.IsEnum ?? false))
 			{
-				var method = StringEnumCompare.MakeGenericMethod(left.RuntimeType);
+				var method = MethodHelpers.GenericStringEnumComparer.MakeGenericMethod(left.RuntimeType);
 				result = Expression.Equal(left.Expression, right.Expression, false, method);
 				if (operatorType == VelocityOperator.NotEqual)
 					result = Expression.Not(result);
@@ -149,7 +146,7 @@ namespace IronVelocity.Binders
 				var leftExpr = VelocityExpressions.ConvertIfNeeded(left.Expression, typeof(object));
 				var rightExpr = VelocityExpressions.ConvertIfNeeded(right.Expression, typeof(object));
 
-				result = Expression.Equal(leftExpr, rightExpr, false, ObjectEquals);
+				result = Expression.Equal(leftExpr, rightExpr, false, MethodHelpers.ObjectEquals);
 				if (operatorType == VelocityOperator.NotEqual)
 					result = Expression.Not(result);
 			}
