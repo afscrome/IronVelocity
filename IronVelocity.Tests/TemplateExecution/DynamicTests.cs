@@ -85,7 +85,6 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         [Test]
-        [Ignore("Issue #52")]
         public void ShouldInvokeInvokeMemberOnDynamicObject()
         {
             var dynamic = new CustomDynamicObject();
@@ -93,7 +92,7 @@ namespace IronVelocity.Tests.TemplateExecution
             var context = new { Dynamic = dynamic };
             var execution = ExecuteTemplate("$dynamic.Double(87)", context);
 
-            Assert.That(execution.Output, Is.EqualTo("174"));
+            Assert.That(execution.Output, Is.EqualTo("DO InvokeMember Double: (87)"));
         }
 
         [Test]

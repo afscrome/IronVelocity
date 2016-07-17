@@ -45,20 +45,21 @@ namespace IronVelocity.Reflection
 
             return result;
         }
-
-
-
+	
 
         public OverloadResolutionData<MethodInfo> ResolveMethod(TypeInfo type, string name, IImmutableList<Type> argTypes)
         {
             if (type == null)
                 throw new ArgumentNullException(nameof(type));
 
-            // Loosely based on C# resolution algorithm
-            // C# 1.0 resolution algorithm at http://msdn.microsoft.com/en-us/library/aa691336(v=vs.71).aspx
-            // C# 5.0 algorithm in section 7.5.3 of spec - http://www.microsoft.com/en-gb/download/details.aspx?id=7029
+			IEnumerable<MethodInfo> candidateMethods;
 
-            var candidates = GetCandidateMethods(type, name)
+			if (typeof(Delegate).IsAssignableFrom(type))
+				candidateMethods = new[] { type.GetMethod("Invoke") };
+			else
+				candidateMethods = GetCandidateMethods(type, name);
+
+			var candidates = candidateMethods
                 .Select(x => new FunctionMemberData<MethodInfo>(x, x.GetParameters()));
 
             return _overloadResolver.Resolve(candidates, argTypes);

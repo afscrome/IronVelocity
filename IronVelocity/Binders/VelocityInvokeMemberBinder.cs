@@ -19,9 +19,13 @@ namespace IronVelocity.Binders
             _methodResolver = methodResolver;
         }
 
-        //Don't support static invocation
         public override DynamicMetaObject FallbackInvoke(DynamicMetaObject target, DynamicMetaObject[] args, DynamicMetaObject errorSuggestion)
-            => errorSuggestion;
+		{
+			if (!target.HasValue)
+				return Defer(target, args);
+
+			return errorSuggestion;
+		}
 
 
         public override DynamicMetaObject FallbackInvokeMember(DynamicMetaObject target, DynamicMetaObject[] args, DynamicMetaObject errorSuggestion)
@@ -38,24 +42,10 @@ namespace IronVelocity.Binders
                 return BinderHelper.NullTargetResult(target, errorSuggestion);
 
 
-            // If an argument has a null value, use a null type so that the resolution algorithm can do implicit null conversions
-            var argTypeBuilder = ImmutableArray.CreateBuilder<Type>(args.Length);
-            foreach (var arg in args)
-            {
-                argTypeBuilder.Add(arg.Value == null ? null : arg.LimitType);
-            }
+			// If an argument has a null value, use a null type so that the resolution algorithm can do implicit null conversions
+			var argTypes = args.Select(x => x.Value == null ? null : x.RuntimeType).ToImmutableList();
                 
-            OverloadResolutionData<MethodInfo> method;
-            bool isAmbigious = false;
-            try
-            {
-                method = _methodResolver.ResolveMethod(target.LimitType.GetTypeInfo(), Name, argTypeBuilder.ToImmutable());
-            }
-            catch (AmbiguousMatchException)
-            {
-                isAmbigious = true;
-                method = null;
-            }
+            OverloadResolutionData<MethodInfo> method = _methodResolver.ResolveMethod(target.LimitType.GetTypeInfo(), Name, argTypes);
 
             var restrictions = BinderHelper.CreateCommonRestrictions(target, args);
             if (method == null)
@@ -63,11 +53,8 @@ namespace IronVelocity.Binders
                 var log = BindingEventSource.Log;
                 if (log.IsEnabled())
                 {
-                    var argTypeString = string.Join(",", argTypeBuilder.Select(x => x.FullName).ToArray());
-                    if (isAmbigious)
-                        log.InvokeMemberResolutionAmbiguous(Name, target.LimitType.FullName, argTypeString);
-                    else
-                        log.InvokeMemberResolutionFailure(Name, target.LimitType.FullName, argTypeString);
+                    var argTypeString = string.Join(",", argTypes.Select(x => x.FullName).ToArray());
+                    log.InvokeMemberResolutionFailure(Name, target.LimitType.FullName, argTypeString);
                 }
 
                 return BinderHelper.UnresolveableResult(restrictions, errorSuggestion);

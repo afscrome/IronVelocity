@@ -162,9 +162,18 @@ namespace IronVelocity.Tests.Binders
             Assert.AreEqual(2, result);
         }
 
+		[Test]
+		public void ShouldInvokeMemberOnDynamicObject()
+		{
+			dynamic input = new ExpandoObject();
+			input.Double = new Func<int, int>(x => x * 2);
+
+			var result = Invoke(input, "Double", 123);
+			Assert.That(result, Is.EqualTo(246));
+		}
 
 
-        [Test]
+		[Test]
         [Ignore("NVelocity Specific functionality")]
         public void PropertyInvokedForMethodWithNoArguments()
         {
