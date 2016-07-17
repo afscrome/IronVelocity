@@ -12,7 +12,7 @@ namespace IronVelocity.Binders
 {
 	public partial class VelocityBinaryOperationBinder : BinaryOperationBinder
 	{
-		private readonly IOverloadResolver _overloadResolver = new OverloadResolver(new ArgumentConverter());
+		private readonly IOperatorResolver _operatorResolver = new OperatorResolver();
 
 		public VelocityBinaryOperationBinder(ExpressionType expressionType)
 			: base(expressionType)
@@ -50,52 +50,81 @@ namespace IronVelocity.Binders
 			if (!target.HasValue || !arg.HasValue)
 				return Defer(target, arg);
 
-			var targetType = target.LimitType;
-			var argType = arg.LimitType;
-
-			var candidates = GetCandidateOperators(targetType, argType);
-
-			var op = _overloadResolver.Resolve(candidates, ImmutableList.Create(targetType, argType));
-
-			if (op == null)
-			{
-				var restrictions = BinderHelper.CreateCommonRestrictions(target, arg);
-				BindingEventSource.Log.BinaryOperationResolutionFailure(Operation, target.LimitType.FullName, arg.LimitType.FullName);
-				return BinderHelper.UnresolveableResult(restrictions, errorSuggestion);
-			}
+			DynamicMetaObject result;
 
 			switch (Operation)
 			{
 				case ExpressionType.Add:
+					result = AddSubtractMultiply(VelocityOperator.Add, target, arg);
+					break;
 				case ExpressionType.Subtract:
+					result = AddSubtractMultiply(VelocityOperator.Subtract, target, arg);
+					break;
 				case ExpressionType.Multiply:
-					return AddSubtractMultiply(op, target, arg);
+					result = AddSubtractMultiply(VelocityOperator.Multiply, target, arg);
+					break;
 				case ExpressionType.Divide:
+					result = Division(VelocityOperator.Divide, target, arg);
+					break;
 				case ExpressionType.Modulo:
-					return Division(op, target, arg);
+					result = Division(VelocityOperator.Modulo, target, arg);
+					break;
 				case ExpressionType.Equal:
+					result = Equality(VelocityOperator.Equal, target, arg);
+					break;
 				case ExpressionType.NotEqual:
-					return Equality(op, target, arg);
+					result = Equality(VelocityOperator.NotEqual, target, arg);
+					break;
 				case ExpressionType.GreaterThan:
+					result = Relational(VelocityOperator.GreaterThan, target, arg);
+					break;
 				case ExpressionType.GreaterThanOrEqual:
+					result = Relational(VelocityOperator.GreaterThanOrEqual, target, arg);
+					break;
 				case ExpressionType.LessThan:
+					result = Relational(VelocityOperator.LessThan, target, arg);
+					break;
 				case ExpressionType.LessThanOrEqual:
-					return Relational(op, target, arg);
+					result = Relational(VelocityOperator.LessThanOrEqual, target, arg);
+					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(Operation));
 			}
 
+			if (result == null)
+			{
+				var restrictions = BinderHelper.CreateCommonRestrictions(target, arg);
+				BindingEventSource.Log.BinaryOperationResolutionFailure(Operation, target.LimitType.FullName, arg.LimitType.FullName);
+				result = BinderHelper.UnresolveableResult(restrictions, errorSuggestion);
+			}
+			return result;
 		}
 
 
-		private DynamicMetaObject Equality(OverloadResolutionData<MethodInfo> op, DynamicMetaObject left, DynamicMetaObject right)
-		{
-			var leftExpr = VelocityExpressions.ConvertIfNeeded(left.Expression, op.Parameters[0]);
-			var rightExpr = VelocityExpressions.ConvertIfNeeded(right.Expression, op.Parameters[1]);
+		private static readonly MethodInfo ObjectEquals = typeof(object).GetMethod("Equals", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object), typeof(object) }, null);
 
-			Expression result = Operation == ExpressionType.Equal
-				? Expression.Equal(leftExpr, rightExpr, false, op.FunctionMember)
-				: Expression.NotEqual(leftExpr, rightExpr, false, op.FunctionMember);
+		private DynamicMetaObject Equality(VelocityOperator operatorType, DynamicMetaObject left, DynamicMetaObject right)
+		{
+			var op = _operatorResolver.Resolve(operatorType, left.RuntimeType, right.RuntimeType);
+			Expression result;
+			if (op != null)
+			{
+				var leftExpr = VelocityExpressions.ConvertIfNeeded(left.Expression, op.Parameters[0]);
+				var rightExpr = VelocityExpressions.ConvertIfNeeded(right.Expression, op.Parameters[1]);
+
+				result = operatorType == VelocityOperator.Equal
+					? Expression.Equal(leftExpr, rightExpr, false, op.FunctionMember)
+					: Expression.NotEqual(leftExpr, rightExpr, false, op.FunctionMember);
+			}
+			else
+			{
+				var leftExpr = VelocityExpressions.ConvertIfNeeded(left.Expression, typeof(object));
+				var rightExpr = VelocityExpressions.ConvertIfNeeded(right.Expression, typeof(object));
+
+				result = Expression.Equal(leftExpr, rightExpr, false, ObjectEquals);
+				if (operatorType == VelocityOperator.NotEqual)
+					result = Expression.Not(result);
+			}
 
 			var restrictions = BinderHelper.CreateCommonRestrictions(left, right);
 			result = VelocityExpressions.ConvertIfNeeded(result, ReturnType);
@@ -103,24 +132,36 @@ namespace IronVelocity.Binders
 			return new DynamicMetaObject(result, restrictions);
 		}
 
-		private DynamicMetaObject Relational(OverloadResolutionData<MethodInfo> op, DynamicMetaObject left, DynamicMetaObject right)
+
+
+		private DynamicMetaObject Relational(VelocityOperator operatorType, DynamicMetaObject left, DynamicMetaObject right)
 		{
+			var op = _operatorResolver.Resolve(operatorType, left.RuntimeType, right.RuntimeType);
+			if (op == null)
+			{
+				if (operatorType == VelocityOperator.GreaterThanOrEqual || operatorType == VelocityOperator.LessThanOrEqual)
+					return Equality(VelocityOperator.Equal, left, right);
+				else
+					return null;
+			}
+
+
 			var leftExpr = VelocityExpressions.ConvertIfNeeded(left.Expression, op.Parameters[0]);
 			var rightExpr = VelocityExpressions.ConvertIfNeeded(right.Expression, op.Parameters[1]);
 
 			Expression result;
-			switch (Operation)
+			switch (operatorType)
 			{
-				case ExpressionType.GreaterThan:
+				case VelocityOperator.GreaterThan:
 					result = Expression.GreaterThan(leftExpr, rightExpr, false, op.FunctionMember);
 					break;
-				case ExpressionType.GreaterThanOrEqual:
+				case VelocityOperator.GreaterThanOrEqual:
 					result = Expression.GreaterThanOrEqual(leftExpr, rightExpr, false, op.FunctionMember);
 					break;
-				case ExpressionType.LessThan:
+				case VelocityOperator.LessThan:
 					result = Expression.LessThan(leftExpr, rightExpr, false, op.FunctionMember);
 					break;
-				case ExpressionType.LessThanOrEqual:
+				case VelocityOperator.LessThanOrEqual:
 					result = Expression.LessThanOrEqual(leftExpr, rightExpr, false, op.FunctionMember);
 					break;
 				default:
@@ -134,22 +175,26 @@ namespace IronVelocity.Binders
 
 		}
 
-		private DynamicMetaObject AddSubtractMultiply(OverloadResolutionData<MethodInfo> op, DynamicMetaObject target, DynamicMetaObject arg)
+		private DynamicMetaObject AddSubtractMultiply(VelocityOperator operatorType, DynamicMetaObject left, DynamicMetaObject right)
 		{
-			var targetExpr = VelocityExpressions.ConvertIfNeeded(target, op.Parameters[0]);
-			var argExpr = VelocityExpressions.ConvertIfNeeded(arg, op.Parameters[1]);
+			var op = _operatorResolver.Resolve(operatorType, left.RuntimeType, right.RuntimeType);
+			if (op == null)
+				return null;
+
+			var targetExpr = VelocityExpressions.ConvertIfNeeded(left, op.Parameters[0]);
+			var argExpr = VelocityExpressions.ConvertIfNeeded(right, op.Parameters[1]);
 
 			Func<Expression, Expression, MethodInfo, Expression> operationFunc;
 
-			switch (Operation)
+			switch (operatorType)
 			{
-				case ExpressionType.Add:
+				case VelocityOperator.Add:
 					operationFunc = Expression.AddChecked;
 					break;
-				case ExpressionType.Subtract:
+				case VelocityOperator.Subtract:
 					operationFunc = Expression.SubtractChecked;
 					break;
-				case ExpressionType.Multiply:
+				case VelocityOperator.Multiply:
 					operationFunc = Expression.MultiplyChecked;
 					break;
 				default:
@@ -159,11 +204,11 @@ namespace IronVelocity.Binders
 			Expression operation = operationFunc(targetExpr, argExpr, op.FunctionMember);
 
 			if (op.FunctionMember == null)
-				operation = AddOverflowHandling(operation, target.Expression, arg.Expression);
+				operation = AddOverflowHandling(operation, left.Expression, right.Expression);
 
 			operation = VelocityExpressions.ConvertIfNeeded(operation, ReturnType);
 
-			var restrictions = BinderHelper.CreateCommonRestrictions(target, arg);
+			var restrictions = BinderHelper.CreateCommonRestrictions(left, right);
 			return new DynamicMetaObject(operation, restrictions);
 		}
 
@@ -228,9 +273,13 @@ namespace IronVelocity.Binders
 		private readonly ConstantExpression _maxInt = Expression.Constant(int.MinValue);
 		private readonly ConstantExpression _maxLong = Expression.Constant(long.MinValue);
 
-		private DynamicMetaObject Division(OverloadResolutionData<MethodInfo> op, DynamicMetaObject target, DynamicMetaObject arg)
+		private DynamicMetaObject Division(VelocityOperator operatorType, DynamicMetaObject left, DynamicMetaObject right)
 		{
-			var restrictions = BinderHelper.CreateCommonRestrictions(target, arg);
+			var op = _operatorResolver.Resolve(operatorType, left.RuntimeType, right.RuntimeType);
+			if (op == null)
+				return null;
+
+			var restrictions = BinderHelper.CreateCommonRestrictions(left, right);
 
 			Expression result = null;
 
@@ -244,44 +293,44 @@ namespace IronVelocity.Binders
 			if (op.FunctionMember == null)
 			{
 				//Divide by Zero
-				var argZero = GetZeroExpression(arg);
+				var argZero = GetZeroExpression(right);
 				if (argZero != null)
 				{
 					BindingRestrictions zeroRestriction;
-					if (argZero.Value.Equals(arg.Value))
+					if (argZero.Value.Equals(right.Value))
 					{
-						zeroRestriction = BindingRestrictions.GetExpressionRestriction(Expression.Equal(argZero, VelocityExpressions.ConvertIfNeeded(arg.Expression, argZero.Type)));
+						zeroRestriction = BindingRestrictions.GetExpressionRestriction(Expression.Equal(argZero, VelocityExpressions.ConvertIfNeeded(right.Expression, argZero.Type)));
 						result = Constants.VelocityUnresolvableResult;
 					}
 					else
 					{
-						zeroRestriction = BindingRestrictions.GetExpressionRestriction(Expression.NotEqual(argZero, VelocityExpressions.ConvertIfNeeded(arg.Expression, argZero.Type)));
+						zeroRestriction = BindingRestrictions.GetExpressionRestriction(Expression.NotEqual(argZero, VelocityExpressions.ConvertIfNeeded(right.Expression, argZero.Type)));
 					}
 					restrictions = restrictions.Merge(zeroRestriction);
 				}
 
 				//Overflow
 				ConstantExpression lhsMax = null;
-				if (target.RuntimeType == typeof(int))
+				if (left.RuntimeType == typeof(int))
 					lhsMax = _maxInt;
 
-				if (target.RuntimeType == typeof(long))
+				if (left.RuntimeType == typeof(long))
 					lhsMax = _maxLong;
 
 				if (lhsMax != null)
 				{
-					var negativeOne = GetNegativeOneExpression(arg);
+					var negativeOne = GetNegativeOneExpression(right);
 
 					if (negativeOne != null)
 					{
 						BindingRestrictions overflowRestrictions;
-						if (target.Value.Equals(lhsMax.Value) && arg.Value.Equals(negativeOne.Value))
+						if (left.Value.Equals(lhsMax.Value) && right.Value.Equals(negativeOne.Value))
 						{
 							result = Constants.VelocityUnresolvableResult;
 							overflowRestrictions = BindingRestrictions.GetExpressionRestriction(
 									Expression.AndAlso(
-										Expression.Equal(target.Expression, lhsMax),
-										Expression.Equal(arg.Expression, negativeOne)
+										Expression.Equal(left.Expression, lhsMax),
+										Expression.Equal(right.Expression, negativeOne)
 									)
 								);
 						}
@@ -289,8 +338,8 @@ namespace IronVelocity.Binders
 						{
 							overflowRestrictions = BindingRestrictions.GetExpressionRestriction(
 									Expression.OrElse(
-										Expression.NotEqual(lhsMax, VelocityExpressions.ConvertIfNeeded(target.Expression, lhsMax.Type)),
-										Expression.NotEqual(negativeOne, VelocityExpressions.ConvertIfNeeded(arg.Expression, lhsMax.Type))
+										Expression.NotEqual(lhsMax, VelocityExpressions.ConvertIfNeeded(left.Expression, lhsMax.Type)),
+										Expression.NotEqual(negativeOne, VelocityExpressions.ConvertIfNeeded(right.Expression, lhsMax.Type))
 									)
 								);
 						}
@@ -302,8 +351,8 @@ namespace IronVelocity.Binders
 
 			if (result == null)
 			{
-				var targetExpr = VelocityExpressions.ConvertIfNeeded(target, op.Parameters[0]);
-				var argExpr = VelocityExpressions.ConvertIfNeeded(arg, op.Parameters[1]);
+				var targetExpr = VelocityExpressions.ConvertIfNeeded(left, op.Parameters[0]);
+				var argExpr = VelocityExpressions.ConvertIfNeeded(right, op.Parameters[1]);
 				if (Operation == ExpressionType.Divide)
 					result = Expression.Divide(targetExpr, argExpr, op.FunctionMember);
 				else if (Operation == ExpressionType.Modulo)
@@ -370,210 +419,7 @@ namespace IronVelocity.Binders
 			);
 		}
 
-		private IImmutableList<FunctionMemberData<MethodInfo>> GetCandidateOperators(Type left, Type right)
-		{
-			var userDefinedCandidates = GetCandidateUserDefinedOperators(left, right);
 
-			return userDefinedCandidates.Any()
-				? userDefinedCandidates
-				: GetBuiltInOperators();
-
-		}
-
-		private IImmutableList<FunctionMemberData<MethodInfo>> GetCandidateUserDefinedOperators(Type left, Type right)
-		{
-			var operatorName = GetOperatorName();
-
-			// The set of candidate user-defined operators provided by X and Y for the operation operator op(x, y) is determined.
-			//The set consists of the union of the candidate operators provided by X and the candidate operators provided by Y
-			var candidates = GetCandidateOperatorsForType(operatorName, left);
-
-			//If X and Y are the same type, or if X and Y are derived from a common base type, then shared candidate operators only occur in the combined set once.
-			if (left != right)
-				candidates = candidates.Union(GetCandidateOperatorsForType(operatorName, right));
-
-			return candidates.Select(x => new FunctionMemberData<MethodInfo>(x, x.GetParameters()))
-				.ToImmutableList();
-		}
-
-
-		private IEnumerable<MethodInfo> GetCandidateOperatorsForType(string operatorName, Type type)
-		{
-			//Given a type T and an operation operator op(A), where op is an overloadable operator and A is an argument list,
-			//the set of candidate user-defined operators provided by T for operator op(A) is determined as follows:
-
-			while (type != null)
-			{
-				//Determine the type T0. If T is a nullable type, T0 is its underlying type, otherwise T0 is equal to T.
-				type = TypeHelper.LiftIfNullable(type);
-
-				//For all operator op declarations in T0 and all lifted forms of such operators, if at least one operator is
-				// applicable (§7.5.3.1) with respect to the argument list A, then the set of candidate operators consists
-				// of all such applicable operators in T0.
-				var candidates = type.GetRuntimeMethods()
-					.Where(x => x.IsPublic && x.IsStatic)
-					.Where(x => x.DeclaringType == type)
-					.Where(x => x.Name == operatorName);
-
-				if (candidates.Any())
-					return candidates;
-
-				//Otherwise, if T0 is object, the set of candidate operators is empty.
-				if (type == typeof(object))
-					return ImmutableList<MethodInfo>.Empty;
-
-				//Otherwise, the set of candidate operators provided by T0 is the set of candidate operators provided by the direct base class of T0
-				//or the effective base class of T0 if T0 is a type parameter.
-				type = type.BaseType.GetTypeInfo();
-			}
-
-			return Enumerable.Empty<MethodInfo>();
-		}
-
-
-		private IImmutableList<FunctionMemberData<MethodInfo>> GetBuiltInOperators()
-		{
-			switch (Operation)
-			{
-				case ExpressionType.Add:
-					return _builtInAdditionOperators;
-				case ExpressionType.Subtract:
-					return _builtInSubtractionOperators;
-				case ExpressionType.Multiply:
-					return _builtInMultiplicationOperators;
-				case ExpressionType.Divide:
-					return _builtInDivisionOperators;
-				case ExpressionType.Modulo:
-					return _builtInModulusOperators;
-				case ExpressionType.Equal:
-					return _builtInEqualityOperators;
-				case ExpressionType.NotEqual:
-					return _builtInInequalityOperators;
-				case ExpressionType.GreaterThan:
-					return _builtInGreaterThanOperators;
-				case ExpressionType.GreaterThanOrEqual:
-					return _builtInGreaterThanOrEqualOperators;
-				case ExpressionType.LessThan:
-					return _builtInLessThanOperators;
-				case ExpressionType.LessThanOrEqual:
-					return _builtInLessThanOrEqualOperators;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(Operation));
-			}
-
-		}
-
-		private string GetOperatorName()
-		{
-			switch (Operation)
-			{
-				case ExpressionType.Add:
-					return AdditionMethodName;
-				case ExpressionType.Subtract:
-					return SubtractionMethodName;
-				case ExpressionType.Multiply:
-					return MultiplicationMethodName;
-				case ExpressionType.Divide:
-					return DivisionMethodName;
-				case ExpressionType.Modulo:
-					return ModuloMethodName;
-				case ExpressionType.Equal:
-					return EqualityMethodName;
-				case ExpressionType.NotEqual:
-					return InequalityMethodName;
-				case ExpressionType.GreaterThan:
-					return GreaterThanMethodName;
-				case ExpressionType.GreaterThanOrEqual:
-					return GreaterThanOrEqualMethodName;
-				case ExpressionType.LessThan:
-					return LessThanMethodName;
-				case ExpressionType.LessThanOrEqual:
-					return LessThanOrEqualMethodName;
-				default:
-					throw new ArgumentOutOfRangeException(nameof(Operation));
-			}
-
-		}
-
-		private const string AdditionMethodName = "op_Addition";
-		private const string SubtractionMethodName = "op_Subtraction";
-		private const string MultiplicationMethodName = "op_Multiply";
-		private const string DivisionMethodName = "op_Division";
-		private const string ModuloMethodName = "op_Modulus";
-		private const string EqualityMethodName = "op_Equality";
-		private const string InequalityMethodName = "op_Inequality";
-		private const string GreaterThanMethodName = "op_GreaterThan";
-		private const string GreaterThanOrEqualMethodName = "op_GreaterThanOrEqual";
-		private const string LessThanMethodName = "op_LessThan";
-		private const string LessThanOrEqualMethodName = "op_LessThanOrEqual";
-
-
-
-		static VelocityBinaryOperationBinder()
-		{
-			var commonBuiltInOperators = ImmutableArray.Create(
-				ClrIntrinsic<int, int>(),
-				ClrIntrinsic<uint, uint>(),
-				ClrIntrinsic<long, long>(),
-				ClrIntrinsic<ulong, ulong>(),
-				ClrIntrinsic<float, float>(),
-				ClrIntrinsic<double, double>()
-				);
-
-			var commonEquality = commonBuiltInOperators.Add(ClrIntrinsic<bool, bool>());
-
-
-			_builtInAdditionOperators = commonBuiltInOperators.AddRange(new[] {
-				BuiltInOperator<decimal, decimal>(AdditionMethodName),
-				VelocityIntrinsic<string, string>(typeof(string).GetMethod("Concat", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(string), typeof(string) }, null)),
-				VelocityIntrinsic<string, object>(typeof(string).GetMethod("Concat", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(object) }, null)),
-				VelocityIntrinsic<object, string>(typeof(string).GetMethod("Concat", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(object) }, null))
-			});
-
-			_builtInSubtractionOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(SubtractionMethodName));
-			_builtInMultiplicationOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(MultiplicationMethodName));
-			_builtInDivisionOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(DivisionMethodName));
-			_builtInModulusOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(ModuloMethodName));
-
-			_builtInGreaterThanOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(GreaterThanMethodName));
-			_builtInGreaterThanOrEqualOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(GreaterThanOrEqualMethodName));
-			_builtInLessThanOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(LessThanMethodName));
-			_builtInLessThanOrEqualOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(LessThanOrEqualMethodName));
-
-			_builtInEqualityOperators = commonEquality.AddRange(new[] {
-				BuiltInOperator<decimal, decimal>(EqualityMethodName),
-				BuiltInOperator<string, string>(EqualityMethodName),
-			});
-			_builtInInequalityOperators = commonEquality.AddRange(new[] {
-				BuiltInOperator<decimal, decimal>(InequalityMethodName),
-				BuiltInOperator<string, string>(InequalityMethodName),
-			});
-		}
-
-		private static readonly ImmutableArray<FunctionMemberData<MethodInfo>>
-			_builtInAdditionOperators, _builtInSubtractionOperators,
-			_builtInMultiplicationOperators ,_builtInDivisionOperators, _builtInModulusOperators,
-			_builtInEqualityOperators, _builtInInequalityOperators,
-			_builtInGreaterThanOperators, _builtInGreaterThanOrEqualOperators,
-			_builtInLessThanOperators, _builtInLessThanOrEqualOperators;
-
-		private static FunctionMemberData<MethodInfo> ClrIntrinsic<TLeft, TRight>()
-			=> new FunctionMemberData<MethodInfo>(null, typeof(TLeft), typeof(TRight));
-
-		private static FunctionMemberData<MethodInfo> VelocityIntrinsic<TLeft, TRight>(MethodInfo method)
-		{
-			if (method == null)
-				throw new ArgumentNullException(nameof(method));
-
-			return new FunctionMemberData<MethodInfo>(method, typeof(TLeft), typeof(TRight));
-		}
-
-		private static FunctionMemberData<MethodInfo> BuiltInOperator<TLeft, TRight>(string operatorName)
-		{
-			var types = new[] { typeof(TLeft), typeof(TRight) };
-			var method = typeof(TLeft).GetTypeInfo().GetMethod(operatorName, BindingFlags.Static, null, types, null);
-			return new FunctionMemberData<MethodInfo>(method, types);
-		}
 
 	}
 }
