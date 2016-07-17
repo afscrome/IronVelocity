@@ -140,6 +140,7 @@
     <Compile Include="Reflection\VelocityMethodResolver.cs" />
     <Compile Include="Runtime\BigIntegerSimplifier.cs" />
     <Compile Include="Runtime\BooleanCoercion.cs" />
+    <Compile Include="Runtime\EnumStringEqualityComparer.cs" />
     <Compile Include="Runtime\IntegerRange.cs" />
     <Compile Include="Runtime\RuntimeDictionary.cs" />
     <Compile Include="Compilation\Scope.cs" />

@@ -1,5 +1,6 @@
 ﻿using IronVelocity.Compilation;
 using IronVelocity.Reflection;
+using IronVelocity.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -101,7 +102,8 @@ namespace IronVelocity.Binders
 		}
 
 
-		private static readonly MethodInfo ObjectEquals = typeof(object).GetMethod("Equals", BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object), typeof(object) }, null);
+		private static readonly MethodInfo ObjectEquals = typeof(object).GetMethod(nameof(object.Equals), BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object), typeof(object) }, null);
+		private static readonly MethodInfo StringEnumCompare = typeof(StringEnumComparer).GetMethod(nameof(StringEnumComparer.AreEqual), BindingFlags.Public | BindingFlags.Static);
 
 		private DynamicMetaObject Equality(VelocityOperator operatorType, DynamicMetaObject left, DynamicMetaObject right)
 		{
@@ -115,6 +117,20 @@ namespace IronVelocity.Binders
 				result = operatorType == VelocityOperator.Equal
 					? Expression.Equal(leftExpr, rightExpr, false, op.FunctionMember)
 					: Expression.NotEqual(leftExpr, rightExpr, false, op.FunctionMember);
+			}
+			else if (left.RuntimeType == typeof(string) && (right.RuntimeType?.IsEnum ?? false))
+			{
+				var method = StringEnumCompare.MakeGenericMethod(right.RuntimeType);
+				result = Expression.Equal(right.Expression, left.Expression, false, method);
+				if (operatorType == VelocityOperator.NotEqual)
+					result = Expression.Not(result);
+			}
+			else if (right.RuntimeType == typeof(string) && (left.RuntimeType?.IsEnum ?? false))
+			{
+				var method = StringEnumCompare.MakeGenericMethod(left.RuntimeType);
+				result = Expression.Equal(left.Expression, right.Expression, false, method);
+				if (operatorType == VelocityOperator.NotEqual)
+					result = Expression.Not(result);
 			}
 			else
 			{

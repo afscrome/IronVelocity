@@ -35,7 +35,7 @@ namespace IronVelocity.Tests.Binders
                 GenerateTestCaseData(1, TestEnum.Red, false, null, null, "Equal Integer Enum"),
                 GenerateTestCaseData(TestEnum.Green, 2, false, null, null, "Equal Enum Integer"),
                 GenerateTestCaseData(TestEnum.Blue, "Blue", true, null, null, "Equal Enum Identical Case String"),
-                GenerateTestCaseData(TestEnum.Blue, "BLUE", false, null, null, "Equal Enum Differing Case String"),
+                GenerateTestCaseData(TestEnum.Blue, "BLUE", true, null, null, "Equal Enum Differing Case String"),
                 GenerateTestCaseData(TestEnum.Green, 1, false, null, null, "GreaterThan Enum"),
                 GenerateTestCaseData(7, 7L, true, false, false, "NotEqual Enum String"),
                 GenerateTestCaseData(true, true, true, null, null, "True True"),
