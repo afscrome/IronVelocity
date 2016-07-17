@@ -60,10 +60,11 @@
     <Compile Include="Binders\BinderHelper.cs" />
     <Compile Include="Binders\IBinderFactory.cs" />
     <Compile Include="Binders\ReusableBinderFactory.cs" />
+    <Compile Include="Binders\VelocityBinaryOperationBinder.cs" />
     <Compile Include="Binders\VelocityGetIndexBinder.cs" />
     <Compile Include="Binders\VelocitySetIndexBinder.cs" />
     <Compile Include="Compilation\AST\DirectiveWord.cs" />
-    <Compile Include="Compilation\AST\MathematicalExpression.cs" />
+    <Compile Include="Compilation\AST\BinaryOperationExpression.cs" />
     <Compile Include="Compilation\AST\IndexInvocationExpression.cs" />
     <Compile Include="Compilation\AST\ReferenceExpression.cs" />
     <Compile Include="Compilation\AST\RenderableExpression.cs" />
@@ -80,13 +81,10 @@
     <Compile Include="Directives\ForeachDirectiveBuilder.cs" />
     <Compile Include="Directives\ForeachSection.cs" />
     <Compile Include="EventSources\BindingEventSource.cs" />
-    <Compile Include="Binders\VelocityComparisonOperationBinder.cs" />
-    <Compile Include="Binders\VelocityBinaryMathematicalOperationBinder.cs" />
     <Compile Include="Binders\VelocitySetMemberBinder.cs" />
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />
     <Compile Include="Compilation\AST\TemplatedForeachExpression.cs" />
-    <Compile Include="Compilation\AST\ComparisonExpression.cs" />
     <Compile Include="Compilation\AST\CoerceToBooleanExpression.cs" />
     <Compile Include="Compilation\AST\DictionaryExpression.cs" />
     <Compile Include="Compilation\AST\ForeachExpression.cs" />
@@ -120,6 +118,8 @@
     <Compile Include="Parser\ErrorListener.cs" />
     <Compile Include="Parser\ParserRuleContextExtensions.cs" />
     <Compile Include="Parser\VelocityParser.cs" />
+    <Compile Include="Reflection\IOperatorResolver.cs" />
+    <Compile Include="Reflection\OperatorResolver.cs" />
     <Compile Include="Reflection\OverloadResolutionData.cs" />
     <Compile Include="Reflection\ApplicableForm.cs" />
     <Compile Include="Reflection\ArgumentConverter.cs" />
@@ -137,8 +137,10 @@
     <Compile Include="Reflection\MemberResolver.cs" />
     <Compile Include="Reflection\OverloadResolution.cs" />
     <Compile Include="Reflection\VelocityMethodResolver.cs" />
+    <Compile Include="Reflection\VelocityOperator.cs" />
     <Compile Include="Runtime\BigIntegerSimplifier.cs" />
     <Compile Include="Runtime\BooleanCoercion.cs" />
+    <Compile Include="Runtime\EnumStringEqualityComparer.cs" />
     <Compile Include="Runtime\IntegerRange.cs" />
     <Compile Include="Runtime\RuntimeDictionary.cs" />
     <Compile Include="Compilation\Scope.cs" />

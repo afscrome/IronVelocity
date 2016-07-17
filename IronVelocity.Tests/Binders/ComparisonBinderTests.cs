@@ -4,6 +4,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 
 namespace IronVelocity.Tests.Binders
 {
@@ -11,7 +12,7 @@ namespace IronVelocity.Tests.Binders
     public class ComparisonBinderTests : BinderTestBase
     {
         [TestCaseSource("TestCases")]
-        public void Test(object left, object right, ComparisonOperation operation, bool expected)
+        public void Test(object left, object right, VelocityOperator operation, bool? expected)
         {
             ComparisonTest(left, right, operation, expected);
         }
@@ -31,75 +32,75 @@ namespace IronVelocity.Tests.Binders
                 GenerateTestCaseData(1, 1, true, false, false, "Equal Integers"),
                 GenerateTestCaseData(3, 3F, true, false, false, "Equal Integer Float"),
                 GenerateTestCaseData(7, 7L, true, false, false, "Equal Integer Long"),
-                GenerateTestCaseData(1, TestEnum.Red, false, false, false, "Equal Integer Enum"),
-                GenerateTestCaseData(TestEnum.Green, 2, false, false, false, "Equal Enum Integer"),
-                GenerateTestCaseData(TestEnum.Blue, "Blue", true, false, false, "Equal Enum Identical Case String"),
-                GenerateTestCaseData(TestEnum.Blue, "BLUE", false, false, false, "Equal Enum Differing Case String"),
-                GenerateTestCaseData(TestEnum.Green, 1, false, false, false, "GreaterThan Enum"),
+                GenerateTestCaseData(1, TestEnum.Red, false, null, null, "Equal Integer Enum"),
+                GenerateTestCaseData(TestEnum.Green, 2, false, null, null, "Equal Enum Integer"),
+                GenerateTestCaseData(TestEnum.Blue, "Blue", true, null, null, "Equal Enum Identical Case String"),
+                GenerateTestCaseData(TestEnum.Blue, "BLUE", true, null, null, "Equal Enum Differing Case String"),
+                GenerateTestCaseData(TestEnum.Green, 1, false, null, null, "GreaterThan Enum"),
                 GenerateTestCaseData(7, 7L, true, false, false, "NotEqual Enum String"),
-                GenerateTestCaseData(true, true, true, false, false, "True True"),
-                GenerateTestCaseData(true, false, false, false, false, "True False"),
-                GenerateTestCaseData(false, true, false, false, false, "False True"),
-                GenerateTestCaseData(false, false, true, false, false, "False False"),
-                GenerateTestCaseData(null, null, true, false, false, "null null"),
-                GenerateTestCaseData("foo", null, false, false, false, "object null"),
-                GenerateTestCaseData(null, "bar", false, false, false, "null object"),
-                GenerateTestCaseData("Hello World!", "Hello World!", true, false, false, "Identical Case Strings"),
-                GenerateTestCaseData("HELLO WORLD!", "hello world!", false, false, false, "Differing Case Strings"),
+                GenerateTestCaseData(true, true, true, null, null, "True True"),
+                GenerateTestCaseData(true, false, false, null, null, "True False"),
+                GenerateTestCaseData(false, true, false, null, null, "False True"),
+                GenerateTestCaseData(false, false, true, null, null, "False False"),
+                GenerateTestCaseData(null, null, true, null, null, "null null"),
+                GenerateTestCaseData("foo", null, false, null, null, "object null"),
+                GenerateTestCaseData(null, "bar", false, null, null, "null object"),
+                GenerateTestCaseData("Hello World!", "Hello World!", true, null, null, "Identical Case Strings"),
+                GenerateTestCaseData("HELLO WORLD!", "hello world!", false, null, null, "Differing Case Strings"),
                 GenerateTestCaseData(DateTime.Now.AddMinutes(-1), DateTime.Now, false, false, true, "DateTime"),
-                GenerateTestCaseData(objectReference, objectReference, true, false, false, "Object Identical References"),
+                GenerateTestCaseData(objectReference, objectReference, true, null, null, "Object Identical References"),
                 GenerateTestCaseData(TimeSpan.FromSeconds(10), TimeSpan.FromMilliseconds(50), false, true, false, "TimeSpan"),
-                GenerateTestCaseData(guid1, guid2, true, false, false, "Structs with same values but different instances"),
-                GenerateTestCaseData(new OverloadedEquals(), new OverloadedEquals(), true, false, false, "Object with Overloaded Equality Operators"),
+                GenerateTestCaseData(guid1, guid2, true, null, null, "Structs with same values but different instances"),
+                GenerateTestCaseData(new OverloadedEquals(), new OverloadedEquals(), true, null, null, "Object with Overloaded Equality Operators"),
             }.SelectMany(x => x);
         }
 
 
-        private IEnumerable<TestCaseData> GenerateTestCaseData(object left, object right, bool areEqual, bool isGreaterThan, bool isLessThan, string testNamePrefix)
+        private IEnumerable<TestCaseData> GenerateTestCaseData(object left, object right, bool areEqual, bool? isGreaterThan, bool? isLessThan, string testNamePrefix)
         {
-            if (isGreaterThan && isLessThan)
+            if ((isGreaterThan ?? false) && (isLessThan ?? false))
                 throw new InvalidOperationException("Two objects cannot be both greater & less than each other - " + testNamePrefix);
-            if (areEqual && isGreaterThan)
+            if (areEqual && (isGreaterThan ?? false))
                 throw new InvalidOperationException("Two equal objects cannot be greater than each other - " + testNamePrefix);
-            if (areEqual && isLessThan)
+            if (areEqual && (isLessThan ?? false))
                 throw new InvalidOperationException("Two equal objects cannot be less than each other - " + testNamePrefix);
 
             testNamePrefix = "ComparisonBinderTest - " + testNamePrefix;
 
-            yield return new TestCaseData(left, right, ComparisonOperation.Equal, areEqual)
+            yield return new TestCaseData(left, right, VelocityOperator.Equal, areEqual)
                 .SetName(testNamePrefix + " - Equal");
-            yield return new TestCaseData(left, right, ComparisonOperation.NotEqual, !areEqual)
+            yield return new TestCaseData(left, right, VelocityOperator.NotEqual, !areEqual)
                 .SetName(testNamePrefix + " - NotEqual");
-            yield return new TestCaseData(left, right, ComparisonOperation.GreaterThan, isGreaterThan)
+            yield return new TestCaseData(left, right, VelocityOperator.GreaterThan, isGreaterThan)
                 .SetName(testNamePrefix + " - GreaterThan");
-            yield return new TestCaseData(left, right, ComparisonOperation.LessThan, isLessThan)
+            yield return new TestCaseData(left, right, VelocityOperator.LessThan, isLessThan)
                 .SetName(testNamePrefix + " - LessThan");
-            yield return new TestCaseData(left, right, ComparisonOperation.GreaterThanOrEqual, isGreaterThan || areEqual)
+            yield return new TestCaseData(left, right, VelocityOperator.GreaterThanOrEqual, (isGreaterThan ?? false) || areEqual)
                 .SetName(testNamePrefix + " - GreaterThanOrEqual");
-            yield return new TestCaseData(left, right, ComparisonOperation.LessThanOrEqual, isLessThan || areEqual)
+            yield return new TestCaseData(left, right, VelocityOperator.LessThanOrEqual, (isLessThan ?? false) || areEqual)
                 .SetName(testNamePrefix + " - LessThanOrEqual");
 
             //Comparison operations are commutative, so test the reverse direction
-            yield return new TestCaseData(right, left, ComparisonOperation.Equal, areEqual)
+            yield return new TestCaseData(right, left, VelocityOperator.Equal, areEqual)
                 .SetName(testNamePrefix + " - Reverse Equal");
-            yield return new TestCaseData(right, left, ComparisonOperation.NotEqual, !areEqual)
+            yield return new TestCaseData(right, left, VelocityOperator.NotEqual, !areEqual)
                 .SetName(testNamePrefix + " - Reverse NotEqual");
-            yield return new TestCaseData(right, left, ComparisonOperation.GreaterThan, isLessThan)
+            yield return new TestCaseData(right, left, VelocityOperator.GreaterThan, isLessThan)
                 .SetName(testNamePrefix + " - Reverse GreaterThan");
-            yield return new TestCaseData(right, left, ComparisonOperation.LessThan, isGreaterThan)
+            yield return new TestCaseData(right, left, VelocityOperator.LessThan, isGreaterThan)
                 .SetName(testNamePrefix + " - Reverse LessThan");
-            yield return new TestCaseData(right, left, ComparisonOperation.GreaterThanOrEqual, isLessThan || areEqual)
+            yield return new TestCaseData(right, left, VelocityOperator.GreaterThanOrEqual, (isLessThan ?? false) || areEqual)
                 .SetName(testNamePrefix + " - Reverse GreaterThanOrEqual");
-            yield return new TestCaseData(right, left, ComparisonOperation.LessThanOrEqual, isGreaterThan || areEqual)
+            yield return new TestCaseData(right, left, VelocityOperator.LessThanOrEqual, (isGreaterThan ?? false) || areEqual)
                 .SetName(testNamePrefix + " - Reverse LessThanOrEqual");
         }
 
 
-        private void ComparisonTest(object left, object right, ComparisonOperation operation, bool expected, string message = null)
+        private void ComparisonTest(object left, object right, VelocityOperator operation, bool? expected, string message = null)
         {
-            var binder = new VelocityComparisonOperationBinder(operation, new ArgumentConverter());
+            var binder = new VelocityBinaryOperationBinder(operation, new OperatorResolver(new OverloadResolver(new ArgumentConverter())));
 
-            var result = InvokeBinder(binder, left, right);
+			var result = InvokeBinder(binder, left, right);
 
             Assert.AreEqual(expected, result);
         }

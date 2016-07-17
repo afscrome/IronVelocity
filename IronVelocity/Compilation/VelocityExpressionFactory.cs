@@ -33,11 +33,8 @@ namespace IronVelocity.Compilation
         public virtual Expression Index(Expression target, IImmutableList<Expression> args, SourceInfo sourceInfo)
             => new IndexInvocationExpression(target, args, sourceInfo, _binderFactory.GetGetIndexBinder(args.Count));
 
-        public virtual Expression Comparison(Expression left, Expression right, ComparisonOperation operation, SourceInfo sourceInfo)
-            => new ComparisonExpression(left, right, sourceInfo, _binderFactory.GetComparisonOperationBinder(operation));
-
-        public virtual Expression Maths(Expression left, Expression right, SourceInfo sourceInfo, MathematicalOperation operation)
-            => new MathematicalExpression(left, right, sourceInfo, operation, _binderFactory.GetMathematicalOperationBinder(operation));
+        public virtual Expression Binary(Expression left, Expression right, SourceInfo sourceInfo, VelocityOperator type)
+            => new BinaryOperationExpression(left, right, sourceInfo, _binderFactory.GetBinaryOperationBinder(type));
 
         public virtual Expression Assign(Expression target, Expression value, SourceInfo sourceInfo)
             => new SetDirective(target, value, sourceInfo, _binderFactory);
@@ -128,22 +125,13 @@ namespace IronVelocity.Compilation
             return base.Method(target, name, args, sourceInfo);
         }
 
-        public override Expression Comparison(Expression left, Expression right, ComparisonOperation operation, SourceInfo sourceInfo)
+        public override Expression Binary(Expression left, Expression right, SourceInfo sourceInfo, VelocityOperator type)
         {
             if (IsConstantType(left) && IsConstantType(right))
             {
                 //TODO: If types are static, we can optimise here with a static expression, rather than dynamic
             }
-            return base.Comparison(left, right, operation, sourceInfo);
-        }
-
-        public override Expression Maths(Expression left, Expression right, SourceInfo sourceInfo, MathematicalOperation operation)
-        {
-            if (IsConstantType(left) && IsConstantType(right))
-            {
-                //TODO: If types are static, we can optimise here with a static expression, rather than dynamic
-            }
-            return base.Maths(left, right, sourceInfo, operation);
+            return base.Binary(left, right, sourceInfo, type);
         }
 
         public override Expression Assign(Expression target, Expression value, SourceInfo sourceInfo)

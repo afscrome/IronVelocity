@@ -3,6 +3,7 @@ using IronVelocity.Reflection;
 using NUnit.Framework;
 using System.Dynamic;
 using System;
+using System.Linq.Expressions;
 
 namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {
@@ -40,12 +41,7 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
                 throw new NotImplementedException();
             }
 
-            public VelocityComparisonOperationBinder GetComparisonOperationBinder(ComparisonOperation operation)
-            {
-                throw new NotImplementedException();
-            }
-
-            public VelocityMathematicalOperationBinder GetMathematicalOperationBinder(MathematicalOperation type)
+            public BinaryOperationBinder GetBinaryOperationBinder(VelocityOperator op)
             {
                 throw new NotImplementedException();
             }
@@ -92,20 +88,6 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
                 {
                     CallSiteBindCount++;
                     return base.FallbackInvokeMember(target, args, errorSuggestion);
-                }
-            }
-
-            private class DupDetectionComparisonOperationBinder : VelocityComparisonOperationBinder
-            {
-                public DupDetectionComparisonOperationBinder(ComparisonOperation type)
-                    : base(type, new ArgumentConverter())
-                {
-                }
-
-                public override DynamicMetaObject FallbackBinaryOperation(DynamicMetaObject target, DynamicMetaObject arg, DynamicMetaObject errorSuggestion)
-                {
-                    CallSiteBindCount++;
-                    return base.FallbackBinaryOperation(target, arg, errorSuggestion);
                 }
             }
 

@@ -38,10 +38,10 @@ namespace IronVelocity.Reflection
             if (applicableCandidateFunctionMembers.Count == 1)
                 return applicableCandidateFunctionMembers[0];
 
-            //Otherwise, the best function member is the one function member that is better than all other function
-            //members with respect to the given argument list, provided that each function member is compared to
-            //all other function members using the rules in §7.5.3.2.
-            return GetBestFunctionMember(applicableCandidateFunctionMembers.ToImmutable(), args);
+			//Otherwise, the best function member is the one function member that is better than all other function
+			//members with respect to the given argument list, provided that each function member is compared to
+			//all other function members using the rules in §7.5.3.2.
+			return GetBestFunctionMember(applicableCandidateFunctionMembers.ToImmutable(), args);
         }
 
         public IImmutableList<Expression> CreateParameterExpressions<T>(OverloadResolutionData<T> overload, DynamicMetaObject[] args)
@@ -67,13 +67,13 @@ namespace IronVelocity.Reflection
             for (int i = 0; i < fixedParams; i++)
             {
                 var parameter = parameters[i];
-                argExpressionBuilder.Add(VelocityExpressions.ConvertParameterIfNeeded(args[i], parameter));
+                argExpressionBuilder.Add(VelocityExpressions.ConvertIfNeeded(args[i], parameter));
             }
             if (isInExpandedForm)
             {
                 var lastParameter = overload.Parameters.Last();
 
-                var elementType = lastParameter.ParameterType.GetElementType();
+                var elementType = lastParameter.GetElementType();
                 argExpressionBuilder.Add(Expression.NewArrayInit(
                     elementType,
                     args.Skip(fixedParams)
@@ -123,9 +123,9 @@ namespace IronVelocity.Reflection
             if (best.Count == 1)
                 return best[0];
 
-            //If there is not exactly one function member that is better than all other function members, then the
-            //function member invocation is ambiguous and a compile-time error occurs.
-            throw new AmbiguousMatchException();
+			//If there is not exactly one function member that is better than all other function members, then the
+			//function member invocation is ambiguous.
+			return null;
         }
 
 
@@ -134,7 +134,7 @@ namespace IronVelocity.Reflection
         {
             var parameters = functionMember.Parameters;
             var lastParam = parameters.LastOrDefault();
-            var hasParamsArray = IsParameterArrayArgument(lastParam);
+            var hasParamsArray = functionMember.HasParamsArray;
 
             int fixedParams = hasParamsArray
                 ? parameters.Length - 1
@@ -148,7 +148,7 @@ namespace IronVelocity.Reflection
             // Each argument in A corresponds to a parameter in the function member declaration
             for (int i = 0; i < fixedParams; i++)
             {
-                if (!_argumentConverter.CanBeConverted(argumentList[i], parameters[i].ParameterType))
+                if (!_argumentConverter.CanBeConverted(argumentList[i], parameters[i]))
                     return null;
             }
 
@@ -158,7 +158,7 @@ namespace IronVelocity.Reflection
                 applicableForm = ApplicableForm.Normal;
             }
             // For a function member that includes a parameter array, if the function member is applicable by the above rules, it is said to be applicable in its normal form. 
-            else if (argumentList.Count == parameters.Length && _argumentConverter.CanBeConverted(argumentList[fixedParams], parameters[fixedParams].ParameterType))
+            else if (argumentList.Count == parameters.Length && _argumentConverter.CanBeConverted(argumentList[fixedParams], parameters[fixedParams]))
             {
                 applicableForm = ApplicableForm.Normal;
 
@@ -166,7 +166,7 @@ namespace IronVelocity.Reflection
             // If a function member that includes a parameter array is not applicable in its normal form, the function member may instead be applicable in its expanded form
             else
             {
-                var paramArrayElementType = lastParam.ParameterType.GetElementType();
+                var paramArrayElementType = lastParam.GetElementType();
                 for (int i = fixedParams; i < argumentList.Count; i++)
                 {
                     if (!_argumentConverter.CanBeConverted(argumentList[i], paramArrayElementType))
@@ -262,11 +262,7 @@ namespace IronVelocity.Reflection
             return false;
         }
 
-        public bool IsParameterArrayArgument(ParameterInfo parameter)
-        {
-            return parameter != null
-                && parameter.GetCustomAttributes<ParamArrayAttribute>().Any();
-        }
+
 
     }
 }

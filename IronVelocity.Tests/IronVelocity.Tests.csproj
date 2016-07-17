@@ -91,9 +91,12 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Binders\BinaryOperationBinderTests.Modulo.cs" />
+    <Compile Include="Binders\BinaryOperationBinderTests.Division.cs" />
+    <Compile Include="Binders\BinaryOperationBinderTests.Addition.cs" />
+    <Compile Include="Binders\BinaryOperationBinderTestBase.cs" />
     <Compile Include="Binders\BinderTestBase.cs" />
     <Compile Include="Binders\GetIndexerBinderTests.cs" />
-    <Compile Include="Binders\MathematicalOperationBinderTests.cs" />
     <Compile Include="Binders\ReflectionHelper\IsBetterConversionTargetTests.cs" />
     <Compile Include="Binders\ReflectionHelper\IsNullableTypeTests.cs" />
     <Compile Include="Binders\ComparisonBinderTests.cs">
@@ -101,6 +104,7 @@
     </Compile>
     <Compile Include="Binders\ReflectionHelper\MethodResolverTests.cs" />
     <Compile Include="Binders\SetIndexBinderTests.cs" />
+    <Compile Include="Binders\BinaryOperationBinderTests.Multiply.cs" />
     <Compile Include="Parser\Combination\CommentCombinationTests.cs" />
     <Compile Include="Parser\Combination\TextCombinations.cs" />
     <Compile Include="Parser\DictionaryExpressionTests.cs" />
@@ -292,7 +296,9 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="Binders\BinaryOperationBinderTests.Subtraction.cs" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

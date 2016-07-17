@@ -26,7 +26,7 @@ namespace IronVelocity.Tests
             var expectedSymbol = new SourceInfo(1, 11, 1, 11 + expression.Length - 1);
 
             var expressionTree = _parser.Parse(input, "test");
-            var node = expressionTree.Flatten().OfType<MathematicalExpression>().Single();
+            var node = expressionTree.Flatten().OfType<BinaryOperationExpression>().Single();
 
             Assert.That(node.SourceInfo, Is.EqualTo(expectedSymbol));
         }
@@ -44,7 +44,7 @@ namespace IronVelocity.Tests
             var expectedSymbol = new SourceInfo(1, 5, 1, 5 + expression.Length - 1);
 
             var expressionTree = _parser.Parse(input, "test");
-            var node = expressionTree.Flatten().OfType<ComparisonExpression>().Single();
+            var node = expressionTree.Flatten().OfType<VelocityBinaryExpression>().Single();
 
             Assert.That(node.SourceInfo, Is.EqualTo(expectedSymbol));
         }

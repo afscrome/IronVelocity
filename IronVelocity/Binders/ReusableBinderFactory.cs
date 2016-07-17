@@ -1,6 +1,8 @@
-﻿using System;
+﻿using IronVelocity.Reflection;
+using System;
 using System.Collections.Concurrent;
 using System.Dynamic;
+using System.Linq.Expressions;
 
 namespace IronVelocity.Binders
 {
@@ -17,8 +19,7 @@ namespace IronVelocity.Binders
         private readonly ConcurrentDictionary<int, GetIndexBinder> _getIndexBinders = new ConcurrentDictionary<int, GetIndexBinder>();
         private readonly ConcurrentDictionary<int, SetIndexBinder> _setIndexBinders = new ConcurrentDictionary<int, SetIndexBinder>();
         private readonly ConcurrentDictionary<Tuple<string, int>, InvokeMemberBinder> _invokeMemberBinders = new ConcurrentDictionary<Tuple<string, int>, InvokeMemberBinder>();
-        private readonly ConcurrentDictionary<MathematicalOperation, VelocityMathematicalOperationBinder> _mathsBinders = new ConcurrentDictionary<MathematicalOperation, VelocityMathematicalOperationBinder>();
-        private readonly ConcurrentDictionary<ComparisonOperation, VelocityComparisonOperationBinder> _comparisonBinders = new ConcurrentDictionary<ComparisonOperation, VelocityComparisonOperationBinder>();
+        private readonly ConcurrentDictionary<VelocityOperator, BinaryOperationBinder> _binaryOperationBinders = new ConcurrentDictionary<VelocityOperator, BinaryOperationBinder>();
 
         private readonly IBinderFactory _rawBinderFactory;
         public ReusableBinderFactory(IBinderFactory factory)
@@ -46,11 +47,8 @@ namespace IronVelocity.Binders
             );
         }
 
-        public VelocityComparisonOperationBinder GetComparisonOperationBinder(ComparisonOperation operation)
-            => _comparisonBinders.GetOrAdd(operation, _rawBinderFactory.GetComparisonOperationBinder);
-
-        public VelocityMathematicalOperationBinder GetMathematicalOperationBinder(MathematicalOperation operation)
-            => _mathsBinders.GetOrAdd(operation, _rawBinderFactory.GetMathematicalOperationBinder);
+        public BinaryOperationBinder GetBinaryOperationBinder(VelocityOperator type)
+            => _binaryOperationBinders.GetOrAdd(type, _rawBinderFactory.GetBinaryOperationBinder);
     }
 
 }

@@ -43,5 +43,10 @@ namespace IronVelocity
 
             return !(type.IsValueType && Nullable.GetUnderlyingType(type) == null);
         }
+
+		public static Type LiftIfNullable(Type type)
+		{
+			return Nullable.GetUnderlyingType(type) ?? type;
+		}
     }
 }

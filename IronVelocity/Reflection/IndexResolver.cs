@@ -55,7 +55,7 @@ namespace IronVelocity.Reflection
 
         private IEnumerable<PropertyInfo> GetCandidateIndexers(TypeInfo targetType)
         {
-            return targetType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            return targetType.GetProperties(MethodHelpers.PublicInstance)
                 .Where(x => x.Name == "Item");
         }
 

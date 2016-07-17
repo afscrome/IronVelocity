@@ -2,16 +2,17 @@
 using System;
 using System.Collections.Concurrent;
 using System.Dynamic;
+using System.Linq.Expressions;
 
 namespace IronVelocity.Binders
 {
-    public class BinderFactory
-        : IBinderFactory
+    public class BinderFactory : IBinderFactory
     {
         private readonly IArgumentConverter _argumentConverter;
         private readonly IMemberResolver _memberResolver;
         private readonly IIndexResolver _indexResolver;
         private readonly IMethodResolver _methodResolver;
+		private readonly IOperatorResolver _operatorResolver;
 
         public BinderFactory()
         {
@@ -21,6 +22,7 @@ namespace IronVelocity.Binders
             _memberResolver = new MemberResolver();
             _indexResolver = new IndexResolver(overloadResolver);
             _methodResolver = new MethodResolver(overloadResolver);
+			_operatorResolver = new OperatorResolver(overloadResolver);
         }
 
         public BinderFactory(IArgumentConverter argumentConverter, IMemberResolver memberResolver, IIndexResolver indexResolver, IMethodResolver methodResolver)
@@ -47,10 +49,7 @@ namespace IronVelocity.Binders
         public InvokeMemberBinder GetInvokeMemberBinder(string name, int argumentCount)
             => new VelocityInvokeMemberBinder(name, new CallInfo(argumentCount), _methodResolver);
 
-        public VelocityMathematicalOperationBinder GetMathematicalOperationBinder(MathematicalOperation operation)
-            => new VelocityMathematicalOperationBinder(operation, _argumentConverter);
-
-        public VelocityComparisonOperationBinder GetComparisonOperationBinder(ComparisonOperation operation)
-            => new VelocityComparisonOperationBinder(operation, _argumentConverter);
+        public BinaryOperationBinder GetBinaryOperationBinder(VelocityOperator type)
+            => new VelocityBinaryOperationBinder(type, _operatorResolver);
     }
 }

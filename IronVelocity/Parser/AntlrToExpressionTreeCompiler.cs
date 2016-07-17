@@ -12,6 +12,7 @@ using IronVelocity.Directives;
 using System.Text;
 using System.Dynamic;
 using System.Collections.Immutable;
+using IronVelocity.Reflection;
 
 namespace IronVelocity.Parser
 {
@@ -369,23 +370,23 @@ namespace IronVelocity.Parser
 
         private Expression VisitMathematicalExpression(IToken operationToken, VelocityParser.ExpressionContext left, VelocityParser.ExpressionContext right, VelocityParser.ExpressionContext context)
         {
-            MathematicalOperation operation;
+			VelocityOperator operation;
             switch (operationToken.Type)
             {
                 case VelocityLexer.Plus:
-                    operation = MathematicalOperation.Add;
+                    operation = VelocityOperator.Add;
                     break;
                 case VelocityLexer.Minus:
-                    operation = MathematicalOperation.Subtract;
+                    operation = VelocityOperator.Subtract;
                     break;
                 case VelocityLexer.Multiply:
-                    operation = MathematicalOperation.Multiply;
+                    operation = VelocityOperator.Multiply;
                     break;
                 case VelocityLexer.Divide:
-                    operation = MathematicalOperation.Divide;
+                    operation = VelocityOperator.Divide;
                     break;
                 case VelocityLexer.Modulo:
-                    operation = MathematicalOperation.Modulo;
+                    operation = VelocityOperator.Modulo;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(operationToken));
@@ -395,7 +396,7 @@ namespace IronVelocity.Parser
             var visitedRight = Visit(right);
             var sourceInfo = GetSourceInfo(context);
 
-            return _expressionFactory.Maths(visitedLeft, visitedRight, sourceInfo, operation);
+            return _expressionFactory.Binary(visitedLeft, visitedRight, sourceInfo, operation);
         }
 
         public Expression VisitRelationalExpression([NotNull] VelocityParser.RelationalExpressionContext context)
@@ -406,26 +407,26 @@ namespace IronVelocity.Parser
 
         private Expression VisitComparisonExpression(IToken operationToken, VelocityParser.ExpressionContext left, VelocityParser.ExpressionContext right, VelocityParser.ExpressionContext context)
         {
-            ComparisonOperation operation;
+			VelocityOperator operation;
             switch (operationToken.Type)
             {
                 case VelocityLexer.LessThan:
-                    operation = ComparisonOperation.LessThan;
+                    operation = VelocityOperator.LessThan;
                     break;
                 case VelocityLexer.GreaterThan:
-                    operation = ComparisonOperation.GreaterThan;
+                    operation = VelocityOperator.GreaterThan;
                     break;
                 case VelocityLexer.LessThanOrEqual:
-                    operation = ComparisonOperation.LessThanOrEqual;
+                    operation = VelocityOperator.LessThanOrEqual;
                     break;
                 case VelocityLexer.GreaterThanOrEqual:
-                    operation = ComparisonOperation.GreaterThanOrEqual;
+                    operation = VelocityOperator.GreaterThanOrEqual;
                     break;
                 case VelocityLexer.Equal:
-                    operation = ComparisonOperation.Equal;
+                    operation = VelocityOperator.Equal;
                     break;
                 case VelocityLexer.NotEqual:
-                    operation = ComparisonOperation.NotEqual;
+                    operation = VelocityOperator.NotEqual;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(operationToken));
@@ -435,7 +436,7 @@ namespace IronVelocity.Parser
             var visitedRight = Visit(right);
             var sourceInfo = GetSourceInfo(context);
 
-            return _expressionFactory.Comparison(visitedLeft, visitedRight, operation, sourceInfo);
+            return _expressionFactory.Binary(visitedLeft, visitedRight,sourceInfo, operation);
         }
 
         public Expression VisitAndExpression([NotNull] VelocityParser.AndExpressionContext context)
