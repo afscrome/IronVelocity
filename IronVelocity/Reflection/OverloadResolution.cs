@@ -38,10 +38,10 @@ namespace IronVelocity.Reflection
             if (applicableCandidateFunctionMembers.Count == 1)
                 return applicableCandidateFunctionMembers[0];
 
-            //Otherwise, the best function member is the one function member that is better than all other function
-            //members with respect to the given argument list, provided that each function member is compared to
-            //all other function members using the rules in §7.5.3.2.
-            return GetBestFunctionMember(applicableCandidateFunctionMembers.ToImmutable(), args);
+			//Otherwise, the best function member is the one function member that is better than all other function
+			//members with respect to the given argument list, provided that each function member is compared to
+			//all other function members using the rules in §7.5.3.2.
+			return GetBestFunctionMember(applicableCandidateFunctionMembers.ToImmutable(), args);
         }
 
         public IImmutableList<Expression> CreateParameterExpressions<T>(OverloadResolutionData<T> overload, DynamicMetaObject[] args)
@@ -123,9 +123,9 @@ namespace IronVelocity.Reflection
             if (best.Count == 1)
                 return best[0];
 
-            //If there is not exactly one function member that is better than all other function members, then the
-            //function member invocation is ambiguous and a compile-time error occurs.
-            throw new AmbiguousMatchException();
+			//If there is not exactly one function member that is better than all other function members, then the
+			//function member invocation is ambiguous.
+			return null;
         }
 
 

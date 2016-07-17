@@ -25,12 +25,12 @@ namespace IronVelocity.Tests.Binders
             ImplicitConversionTest(type, type, true);
         }
 
-        //6.1.2 - Implicit numeric conversions - At end of file.
+		//6.1.2 - Implicit numeric conversions - At end of file.
 
-        //6.1.3 - Enumeration conversions
-        //WRONG - not how the C# spec states.  However should we work this way in Velocity since
-        //VTL doesn't have a concept of enums?  Better to support conversion of string to enum?
-        /*
+		//6.1.3 - Enumeration conversions
+		//WRONG - not how the C# spec states.  However should we work this way in Velocity since
+		//VTL doesn't have a concept of enums?  Better to support conversion of string to enum?
+		/*
         [TestCase(typeof(EnvironmentVariableTarget), typeof(int), true)]
         [TestCase(typeof(int), typeof(EnvironmentVariableTarget), false)]
         [TestCase(typeof(EnvironmentVariableTarget), typeof(long), true)]
@@ -42,8 +42,11 @@ namespace IronVelocity.Tests.Binders
         }
         */
 
-        //6.1.4 Implicit nullable conversions
-        [TestCase(typeof(int?), typeof(long?), true)]
+		//6.1.4 Implicit nullable conversions
+		[TestCase(null, typeof(int?), true)]
+		[TestCase(typeof(int), typeof(int?), true)]
+		[TestCase(typeof(int?), typeof(int), false)]
+		[TestCase(typeof(int?), typeof(long?), true)]
         [TestCase(typeof(long?), typeof(int?), false)]
         [TestCase(typeof(int), typeof(long?), true)]
         [TestCase(typeof(long), typeof(int?), false)]
@@ -254,7 +257,6 @@ namespace IronVelocity.Tests.Binders
         {
             ImplicitConversionTest(from, to, isConvertable);
         }
-
 
         private void ImplicitConversionTest(Type from, Type to, bool isConvertable)
         {

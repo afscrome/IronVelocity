@@ -59,37 +59,54 @@ namespace IronVelocity.Reflection
 				ClrIntrinsic<long, long>(),
 				ClrIntrinsic<ulong, ulong>(),
 				ClrIntrinsic<float, float>(),
-				ClrIntrinsic<double, double>()
+				ClrIntrinsic<double, double>(),
+				ClrIntrinsic<int?, int?>(),
+				ClrIntrinsic<uint?, uint?>(),
+				ClrIntrinsic<long?, long?>(),
+				ClrIntrinsic<ulong?, ulong?>(),
+				ClrIntrinsic<float?, float?>(),
+				ClrIntrinsic<double?, double?>()
 				);
 
 			//Equality
 			var commonEquality = commonBuiltInOperators.Add(ClrIntrinsic<bool, bool>());
 			_builtInEqualityOperators = commonEquality.AddRange(new[] {
 				BuiltInOperator<decimal, decimal>(EqualityMethodName),
+				BuiltInOperator<decimal?, decimal?>(InequalityMethodName),
 				BuiltInOperator<string, string>(EqualityMethodName),
 			});
 			_builtInInequalityOperators = commonEquality.AddRange(new[] {
 				BuiltInOperator<decimal, decimal>(InequalityMethodName),
+				BuiltInOperator<decimal?, decimal?>(InequalityMethodName),
 				BuiltInOperator<string, string>(InequalityMethodName),
 			});
 
 			//Relational
-			_builtInGreaterThanOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(GreaterThanMethodName));
-			_builtInGreaterThanOrEqualOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(GreaterThanOrEqualMethodName));
-			_builtInLessThanOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(LessThanMethodName));
-			_builtInLessThanOrEqualOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(LessThanOrEqualMethodName));
+			_builtInGreaterThanOperators = AddDecimalOperators(commonBuiltInOperators, GreaterThanMethodName);
+			_builtInGreaterThanOrEqualOperators = AddDecimalOperators(commonBuiltInOperators, GreaterThanOrEqualMethodName);
+			_builtInLessThanOperators = AddDecimalOperators(commonBuiltInOperators, LessThanMethodName);
+			_builtInLessThanOrEqualOperators = AddDecimalOperators(commonBuiltInOperators, LessThanOrEqualMethodName);
 
 
 			//Maths
-			_builtInSubtractionOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(SubtractionMethodName));
-			_builtInMultiplicationOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(MultiplicationMethodName));
-			_builtInDivisionOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(DivisionMethodName));
-			_builtInModulusOperators = commonBuiltInOperators.Add(BuiltInOperator<decimal, decimal>(ModuloMethodName));
+			_builtInSubtractionOperators = AddDecimalOperators(commonBuiltInOperators, SubtractionMethodName);
+			_builtInMultiplicationOperators = AddDecimalOperators(commonBuiltInOperators, MultiplicationMethodName);
+			_builtInDivisionOperators = AddDecimalOperators(commonBuiltInOperators, DivisionMethodName);
+			_builtInModulusOperators = AddDecimalOperators(commonBuiltInOperators, ModuloMethodName);
 			_builtInAdditionOperators = commonBuiltInOperators.AddRange(new[] {
 				BuiltInOperator<decimal, decimal>(AdditionMethodName),
+				BuiltInOperator<decimal?, decimal?>(AdditionMethodName),
 				VelocityIntrinsic<string, string>(typeof(string).GetMethod(nameof(String.Concat), BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(string), typeof(string) }, null)),
-				VelocityIntrinsic<string, object>(typeof(string).GetMethod(nameof(String.Concat), BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(object) }, null)),
-				VelocityIntrinsic<object, string>(typeof(string).GetMethod(nameof(String.Concat), BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(object) }, null))
+				VelocityIntrinsic<string, object>(typeof(string).GetMethod(nameof(String.Concat), BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(string), typeof(object) }, null)),
+				VelocityIntrinsic<object, string>(typeof(string).GetMethod(nameof(String.Concat), BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(object), typeof(string) }, null)),
+			});
+		}
+
+		private static ImmutableArray<FunctionMemberData<MethodInfo>> AddDecimalOperators(ImmutableArray<FunctionMemberData<MethodInfo>> common, string operatorName)
+		{
+			return common.AddRange(new[] {
+				BuiltInOperator<decimal?, decimal?>(operatorName),
+				BuiltInOperator<decimal?, decimal?>(operatorName)
 			});
 		}
 

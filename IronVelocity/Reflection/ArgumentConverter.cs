@@ -35,13 +35,16 @@ namespace IronVelocity.Reflection
             if (to == null)
                 throw new ArgumentNullException(nameof(to));
 
-            if (from == null)
-                return to.IsValueType
-                    ? null
-                    : _implicitConverter;
+			if (from == null)
+			{
+				return TypeHelper.IsNullableType(to)
+					? _implicitConverter
+					: null;
+			}
 
             if (to.IsAssignableFrom(from))
                 return _implicitConverter;
+
 
             /*
             if (from.IsEnum)
