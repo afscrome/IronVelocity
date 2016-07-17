@@ -64,7 +64,7 @@
     <Compile Include="Binders\VelocityGetIndexBinder.cs" />
     <Compile Include="Binders\VelocitySetIndexBinder.cs" />
     <Compile Include="Compilation\AST\DirectiveWord.cs" />
-    <Compile Include="Compilation\AST\MathematicalExpression.cs" />
+    <Compile Include="Compilation\AST\BinaryOperationExpression.cs" />
     <Compile Include="Compilation\AST\IndexInvocationExpression.cs" />
     <Compile Include="Compilation\AST\ReferenceExpression.cs" />
     <Compile Include="Compilation\AST\RenderableExpression.cs" />
@@ -81,12 +81,10 @@
     <Compile Include="Directives\ForeachDirectiveBuilder.cs" />
     <Compile Include="Directives\ForeachSection.cs" />
     <Compile Include="EventSources\BindingEventSource.cs" />
-    <Compile Include="Binders\VelocityComparisonOperationBinder.cs" />
     <Compile Include="Binders\VelocitySetMemberBinder.cs" />
     <Compile Include="Binders\VelocityGetMemberBinder.cs" />
     <Compile Include="Binders\VelocityInvokeMemberBinder.cs" />
     <Compile Include="Compilation\AST\TemplatedForeachExpression.cs" />
-    <Compile Include="Compilation\AST\ComparisonExpression.cs" />
     <Compile Include="Compilation\AST\CoerceToBooleanExpression.cs" />
     <Compile Include="Compilation\AST\DictionaryExpression.cs" />
     <Compile Include="Compilation\AST\ForeachExpression.cs" />

@@ -6,6 +6,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
+using IronVelocity.Reflection;
 
 namespace IronVelocity.Tests.Binders
 {
@@ -13,7 +14,7 @@ namespace IronVelocity.Tests.Binders
 	public class AdditionTests : BinaryOperationBinderTestBase
 	{
 
-		public override ExpressionType Operation => ExpressionType.Add;
+		public override VelocityOperator Operation => VelocityOperator.Add;
 
 		[TestCase(3, 5, 8)]
 		[TestCase(-3, -5, -8)]

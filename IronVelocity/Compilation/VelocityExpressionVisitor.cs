@@ -21,8 +21,6 @@ namespace IronVelocity.Compilation
             {
                 case VelocityExpressionType.CoerceToBoolean:
                     return VisitCoerceToBoolean((CoerceToBooleanExpression)node);
-                case VelocityExpressionType.Comparison:
-                    return VisitComparison((ComparisonExpression)node);
                 case VelocityExpressionType.CustomDirective:
                     return VisitCustomDirective((CustomDirectiveExpression)node);
                 case VelocityExpressionType.Dictionary:
@@ -43,8 +41,8 @@ namespace IronVelocity.Compilation
                     return VisitIntegerRange((IntegerRangeExpression)node);
                 case VelocityExpressionType.InterpolatedString:
                     return VisitInterpolatedString((InterpolatedStringExpression)node);
-                case VelocityExpressionType.Mathematical:
-                    return VisitMathematical((MathematicalExpression)node);
+                case VelocityExpressionType.Binary:
+                    return VisitBinaryOperation((BinaryOperationExpression)node);
                 case VelocityExpressionType.MethodInvocation:
                     return VisitMethodInvocation((MethodInvocationExpression)node);
                 case VelocityExpressionType.ObjectArray:
@@ -75,7 +73,6 @@ namespace IronVelocity.Compilation
         }
 
         protected virtual Expression VisitCoerceToBoolean(CoerceToBooleanExpression node) => base.VisitExtension(node);
-        protected virtual Expression VisitComparison(ComparisonExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitCustomDirective(CustomDirectiveExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitDictionary(DictionaryExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitDictionaryString(DictionaryStringExpression node) => base.VisitExtension(node);
@@ -86,7 +83,7 @@ namespace IronVelocity.Compilation
         protected virtual Expression VisitIndexInvocation(IndexInvocationExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitIntegerRange(IntegerRangeExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitInterpolatedString(InterpolatedStringExpression node) => base.VisitExtension(node);
-        protected virtual Expression VisitMathematical(MathematicalExpression node) => base.VisitExtension(node);
+        protected virtual Expression VisitBinaryOperation(BinaryOperationExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitMethodInvocation(MethodInvocationExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitObjectArray(ObjectArrayExpression node) => base.VisitExtension(node);
         protected virtual Expression VisitPropertyAccess(PropertyAccessExpression node) => base.VisitExtension(node);

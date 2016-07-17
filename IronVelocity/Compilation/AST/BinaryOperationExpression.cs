@@ -1,18 +1,18 @@
 ﻿using IronVelocity.Binders;
 using System;
+using System.Dynamic;
 using System.Linq.Expressions;
 
 namespace IronVelocity.Compilation.AST
 {
-    public class ComparisonExpression : VelocityBinaryExpression
+    public class BinaryOperationExpression : VelocityBinaryExpression
     {
-        private readonly VelocityComparisonOperationBinder _binder;
-        public ComparisonOperation Operation => _binder.Operation;
+        private readonly BinaryOperationBinder _binder;
+        public ExpressionType ExpressionType => _binder.Operation;
 
-        public override Type Type => _binder.ReturnType;
-        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.Comparison;
+        public override VelocityExpressionType VelocityExpressionType => VelocityExpressionType.Binary;
 
-        public ComparisonExpression(Expression left, Expression right, SourceInfo sourceInfo, VelocityComparisonOperationBinder binder)
+        public BinaryOperationExpression(Expression left, Expression right, SourceInfo sourceInfo, BinaryOperationBinder binder)
             : base(left, right, sourceInfo)
         {
             _binder = binder;
@@ -33,7 +33,7 @@ namespace IronVelocity.Compilation.AST
             if (Left == left && Right == right)
                 return this;
             else
-                return new ComparisonExpression(left, right, SourceInfo, _binder);
+                return new BinaryOperationExpression(left, right, SourceInfo, _binder);
         }
     }
 }

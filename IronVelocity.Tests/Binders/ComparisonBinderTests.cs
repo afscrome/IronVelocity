@@ -12,7 +12,7 @@ namespace IronVelocity.Tests.Binders
     public class ComparisonBinderTests : BinderTestBase
     {
         [TestCaseSource("TestCases")]
-        public void Test(object left, object right, ExpressionType operation, bool? expected)
+        public void Test(object left, object right, VelocityOperator operation, bool? expected)
         {
             ComparisonTest(left, right, operation, expected);
         }
@@ -67,36 +67,36 @@ namespace IronVelocity.Tests.Binders
 
             testNamePrefix = "ComparisonBinderTest - " + testNamePrefix;
 
-            yield return new TestCaseData(left, right, ExpressionType.Equal, areEqual)
+            yield return new TestCaseData(left, right, VelocityOperator.Equal, areEqual)
                 .SetName(testNamePrefix + " - Equal");
-            yield return new TestCaseData(left, right, ExpressionType.NotEqual, !areEqual)
+            yield return new TestCaseData(left, right, VelocityOperator.NotEqual, !areEqual)
                 .SetName(testNamePrefix + " - NotEqual");
-            yield return new TestCaseData(left, right, ExpressionType.GreaterThan, isGreaterThan)
+            yield return new TestCaseData(left, right, VelocityOperator.GreaterThan, isGreaterThan)
                 .SetName(testNamePrefix + " - GreaterThan");
-            yield return new TestCaseData(left, right, ExpressionType.LessThan, isLessThan)
+            yield return new TestCaseData(left, right, VelocityOperator.LessThan, isLessThan)
                 .SetName(testNamePrefix + " - LessThan");
-            yield return new TestCaseData(left, right, ExpressionType.GreaterThanOrEqual, (isGreaterThan ?? false) || areEqual)
+            yield return new TestCaseData(left, right, VelocityOperator.GreaterThanOrEqual, (isGreaterThan ?? false) || areEqual)
                 .SetName(testNamePrefix + " - GreaterThanOrEqual");
-            yield return new TestCaseData(left, right, ExpressionType.LessThanOrEqual, (isLessThan ?? false) || areEqual)
+            yield return new TestCaseData(left, right, VelocityOperator.LessThanOrEqual, (isLessThan ?? false) || areEqual)
                 .SetName(testNamePrefix + " - LessThanOrEqual");
 
             //Comparison operations are commutative, so test the reverse direction
-            yield return new TestCaseData(right, left, ExpressionType.Equal, areEqual)
+            yield return new TestCaseData(right, left, VelocityOperator.Equal, areEqual)
                 .SetName(testNamePrefix + " - Reverse Equal");
-            yield return new TestCaseData(right, left, ExpressionType.NotEqual, !areEqual)
+            yield return new TestCaseData(right, left, VelocityOperator.NotEqual, !areEqual)
                 .SetName(testNamePrefix + " - Reverse NotEqual");
-            yield return new TestCaseData(right, left, ExpressionType.GreaterThan, isLessThan)
+            yield return new TestCaseData(right, left, VelocityOperator.GreaterThan, isLessThan)
                 .SetName(testNamePrefix + " - Reverse GreaterThan");
-            yield return new TestCaseData(right, left, ExpressionType.LessThan, isGreaterThan)
+            yield return new TestCaseData(right, left, VelocityOperator.LessThan, isGreaterThan)
                 .SetName(testNamePrefix + " - Reverse LessThan");
-            yield return new TestCaseData(right, left, ExpressionType.GreaterThanOrEqual, (isLessThan ?? false) || areEqual)
+            yield return new TestCaseData(right, left, VelocityOperator.GreaterThanOrEqual, (isLessThan ?? false) || areEqual)
                 .SetName(testNamePrefix + " - Reverse GreaterThanOrEqual");
-            yield return new TestCaseData(right, left, ExpressionType.LessThanOrEqual, (isGreaterThan ?? false) || areEqual)
+            yield return new TestCaseData(right, left, VelocityOperator.LessThanOrEqual, (isGreaterThan ?? false) || areEqual)
                 .SetName(testNamePrefix + " - Reverse LessThanOrEqual");
         }
 
 
-        private void ComparisonTest(object left, object right, ExpressionType operation, bool? expected, string message = null)
+        private void ComparisonTest(object left, object right, VelocityOperator operation, bool? expected, string message = null)
         {
             var binder = new VelocityBinaryOperationBinder(operation);
 

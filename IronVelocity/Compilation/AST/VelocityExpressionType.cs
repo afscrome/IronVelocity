@@ -2,8 +2,8 @@
 {
     public enum VelocityExpressionType
     {
-        CoerceToBoolean,
-        Comparison,
+		Binary,
+		CoerceToBoolean,
         CustomDirective,
         Dictionary,
         DictionaryString,
@@ -13,7 +13,6 @@
         IndexInvocation,
         IntegerRange,
         InterpolatedString,
-        Mathematical,
         MethodInvocation,
         ObjectArray,
         PropertyAccess,

@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using IronVelocity.Reflection;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace IronVelocity.Tests.Binders
 {
 	public class SubtractionTests : BinaryOperationBinderTestBase
 	{
-		public override ExpressionType Operation => ExpressionType.Subtract;
+		public override VelocityOperator Operation => VelocityOperator.Subtract;
 
 		[TestCase(5, 3, 2)]
 		[TestCase(-5, -3, -2)]

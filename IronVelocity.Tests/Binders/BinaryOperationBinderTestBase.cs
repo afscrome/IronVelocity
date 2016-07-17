@@ -1,4 +1,5 @@
 ﻿using IronVelocity.Binders;
+using IronVelocity.Reflection;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -11,7 +12,7 @@ namespace IronVelocity.Tests.Binders
 {
 	public abstract class BinaryOperationBinderTestBase : BinderTestBase
 	{
-		public abstract ExpressionType Operation { get; }
+		public abstract VelocityOperator Operation { get; }
 
 		protected VelocityBinaryOperationBinder CreateBinder() => new VelocityBinaryOperationBinder(Operation);
 

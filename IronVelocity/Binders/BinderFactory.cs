@@ -47,10 +47,7 @@ namespace IronVelocity.Binders
         public InvokeMemberBinder GetInvokeMemberBinder(string name, int argumentCount)
             => new VelocityInvokeMemberBinder(name, new CallInfo(argumentCount), _methodResolver);
 
-        public BinaryOperationBinder GetBinaryOperationBinder(ExpressionType type)
+        public BinaryOperationBinder GetBinaryOperationBinder(VelocityOperator type)
             => new VelocityBinaryOperationBinder(type);
-
-        public VelocityComparisonOperationBinder GetComparisonOperationBinder(ComparisonOperation operation)
-            => new VelocityComparisonOperationBinder(operation, _argumentConverter);
     }
 }

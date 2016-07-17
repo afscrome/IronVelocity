@@ -48,21 +48,6 @@ namespace IronVelocity
 		}
 
 
-		[Obsolete]
-        [Event(999, Opcode = EventOpcode.Info, Level = EventLevel.Warning)]
-        public void ComparisonResolutionFailure(ComparisonOperation comparisonOperation, string leftType, string rightType)
-        {
-            WriteEvent(999, comparisonOperation, leftType, rightType);
-        }
-
-		[Obsolete]
-		[Event(998, Opcode = EventOpcode.Info, Level = EventLevel.Warning)]
-        public void MathematicalResolutionFailure(ExpressionType expressionType, string leftType, string rightType)
-        {
-            WriteEvent(998, expressionType, leftType, rightType);
-        }
-
-
         [SuppressMessage("Microsoft.Design", "CA1034:NestedTypesShouldNotBeVisible", Justification = "Required to be public by ETW")]
         public static class Keywords
         {

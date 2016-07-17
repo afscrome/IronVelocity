@@ -15,29 +15,39 @@ namespace IronVelocity.Binders
 	{
 		private readonly IOperatorResolver _operatorResolver = new OperatorResolver();
 
-		public VelocityBinaryOperationBinder(ExpressionType expressionType)
-			: base(expressionType)
+		public VelocityBinaryOperationBinder(VelocityOperator op)
+			: base(VelocityOperatorToExpressionType(op))
 		{
-			switch (expressionType)
-			{
-				//Equality
-				case ExpressionType.Equal:
-				case ExpressionType.NotEqual:
-				//Relational
-				case ExpressionType.GreaterThan:
-				case ExpressionType.GreaterThanOrEqual:
-				case ExpressionType.LessThan:
-				case ExpressionType.LessThanOrEqual:
-				//Math
-				case ExpressionType.Add:
-				case ExpressionType.Subtract:
-				case ExpressionType.Multiply:
-				case ExpressionType.Divide:
-				case ExpressionType.Modulo:
+		}
 
-					break;
+		private static ExpressionType VelocityOperatorToExpressionType(VelocityOperator op)
+		{
+			switch (op)
+			{
+				case VelocityOperator.Equal:
+					return ExpressionType.Equal;
+				case VelocityOperator.NotEqual:
+					return ExpressionType.NotEqual;
+				case VelocityOperator.GreaterThan:
+					return ExpressionType.GreaterThan;
+				case VelocityOperator.GreaterThanOrEqual:
+					return ExpressionType.GreaterThanOrEqual;
+				case VelocityOperator.LessThan:
+					return ExpressionType.LessThan;
+				case VelocityOperator.LessThanOrEqual:
+					return ExpressionType.LessThanOrEqual;
+				case VelocityOperator.Add:
+					return ExpressionType.Add;
+				case VelocityOperator.Subtract:
+					return ExpressionType.Subtract;
+				case VelocityOperator.Multiply:
+					return ExpressionType.Multiply;
+				case VelocityOperator.Divide:
+					return ExpressionType.Divide;
+				case VelocityOperator.Modulo:
+					return ExpressionType.Modulo;
 				default:
-					throw new ArgumentOutOfRangeException(nameof(expressionType));
+					throw new ArgumentOutOfRangeException(nameof(op));
 			}
 		}
 
@@ -71,22 +81,22 @@ namespace IronVelocity.Binders
 					result = Division(VelocityOperator.Modulo, target, arg);
 					break;
 				case ExpressionType.Equal:
-					result = Equality(VelocityOperator.Equal, target, arg);
+					result = Equality(VelocityOperator.Equal, target, arg, errorSuggestion);
 					break;
 				case ExpressionType.NotEqual:
-					result = Equality(VelocityOperator.NotEqual, target, arg);
+					result = Equality(VelocityOperator.NotEqual, target, arg, errorSuggestion);
 					break;
 				case ExpressionType.GreaterThan:
-					result = Relational(VelocityOperator.GreaterThan, target, arg);
+					result = Relational(VelocityOperator.GreaterThan, target, arg, errorSuggestion);
 					break;
 				case ExpressionType.GreaterThanOrEqual:
-					result = Relational(VelocityOperator.GreaterThanOrEqual, target, arg);
+					result = Relational(VelocityOperator.GreaterThanOrEqual, target, arg, errorSuggestion);
 					break;
 				case ExpressionType.LessThan:
-					result = Relational(VelocityOperator.LessThan, target, arg);
+					result = Relational(VelocityOperator.LessThan, target, arg, errorSuggestion);
 					break;
 				case ExpressionType.LessThanOrEqual:
-					result = Relational(VelocityOperator.LessThanOrEqual, target, arg);
+					result = Relational(VelocityOperator.LessThanOrEqual, target, arg, errorSuggestion);
 					break;
 				default:
 					throw new ArgumentOutOfRangeException(nameof(Operation));
@@ -105,7 +115,7 @@ namespace IronVelocity.Binders
 		private static readonly MethodInfo ObjectEquals = typeof(object).GetMethod(nameof(object.Equals), BindingFlags.Public | BindingFlags.Static, null, new[] { typeof(object), typeof(object) }, null);
 		private static readonly MethodInfo StringEnumCompare = typeof(StringEnumComparer).GetMethod(nameof(StringEnumComparer.AreEqual), BindingFlags.Public | BindingFlags.Static);
 
-		private DynamicMetaObject Equality(VelocityOperator operatorType, DynamicMetaObject left, DynamicMetaObject right)
+		private DynamicMetaObject Equality(VelocityOperator operatorType, DynamicMetaObject left, DynamicMetaObject right, DynamicMetaObject errorSuggestion)
 		{
 			var op = _operatorResolver.Resolve(operatorType, left.RuntimeType, right.RuntimeType);
 			Expression result;
@@ -132,7 +142,9 @@ namespace IronVelocity.Binders
 				if (operatorType == VelocityOperator.NotEqual)
 					result = Expression.Not(result);
 			}
-			else
+			else if (errorSuggestion != null)
+				return null;
+			else if (left.LimitType.IsAssignableFrom(right.LimitType) || right.LimitType.IsAssignableFrom(left.LimitType))
 			{
 				var leftExpr = VelocityExpressions.ConvertIfNeeded(left.Expression, typeof(object));
 				var rightExpr = VelocityExpressions.ConvertIfNeeded(right.Expression, typeof(object));
@@ -140,6 +152,12 @@ namespace IronVelocity.Binders
 				result = Expression.Equal(leftExpr, rightExpr, false, ObjectEquals);
 				if (operatorType == VelocityOperator.NotEqual)
 					result = Expression.Not(result);
+			}
+			else
+			{
+				result = operatorType == VelocityOperator.Equal
+					? Constants.False
+					: Constants.True;
 			}
 
 			var restrictions = BinderHelper.CreateCommonRestrictions(left, right);
@@ -150,13 +168,13 @@ namespace IronVelocity.Binders
 
 
 
-		private DynamicMetaObject Relational(VelocityOperator operatorType, DynamicMetaObject left, DynamicMetaObject right)
+		private DynamicMetaObject Relational(VelocityOperator operatorType, DynamicMetaObject left, DynamicMetaObject right, DynamicMetaObject errorSuggestion)
 		{
 			var op = _operatorResolver.Resolve(operatorType, left.RuntimeType, right.RuntimeType);
 			if (op == null)
 			{
 				if (operatorType == VelocityOperator.GreaterThanOrEqual || operatorType == VelocityOperator.LessThanOrEqual)
-					return Equality(VelocityOperator.Equal, left, right);
+					return Equality(VelocityOperator.Equal, left, right, errorSuggestion);
 				else
 					return null;
 			}
