@@ -41,7 +41,7 @@ namespace IronVelocity.Compilation
 
     }
 
-    public class StaticTypedVelocityExpressionFactory : VelocityExpressionFactory
+    public class ConstantTypeOptimisingVelocityExpressionFactory : VelocityExpressionFactory
     {
         private readonly IImmutableDictionary<string, object> _globals;
         private readonly IMemberResolver _memberResolver = new MemberResolver();
@@ -50,7 +50,7 @@ namespace IronVelocity.Compilation
 
         private readonly IDictionary<string, Expression> _variableCache = new Dictionary<string, Expression>();
 
-        public StaticTypedVelocityExpressionFactory(IBinderFactory binderFactory, IImmutableDictionary<string, object> globals)
+        public ConstantTypeOptimisingVelocityExpressionFactory(IBinderFactory binderFactory, IImmutableDictionary<string, object> globals)
             : base(binderFactory)
         {
             var nullGlobals = globals?.Where(x => x.Value == null);

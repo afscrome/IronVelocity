@@ -71,7 +71,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
 
-        public ExecutionResult ExecuteTemplate(string input, object locals = null, object globals = null, IReadOnlyList<CustomDirectiveBuilder> customDirectives = null, string fileName = null, bool reduceWhitespace = false)
+        public ExecutionResult ExecuteTemplate(string input, object locals = null, object globals = null, IList<CustomDirectiveBuilder> customDirectives = null, string fileName = null, bool reduceWhitespace = false)
         {
             var localsDictionary = ConvertToDictionary(locals);
             var globalsDictionary = ConvertToDictionary(globals)?.ToImmutableDictionary();
@@ -81,7 +81,7 @@ namespace IronVelocity.Tests.TemplateExecution
 
             fileName = fileName ?? Utility.GetName();
 
-            var template = CompileTemplate(input, fileName, globalsDictionary, customDirectives?.ToImmutableList(), reduceWhitespace);
+            var template = CompileTemplate(input, fileName, globalsDictionary, customDirectives, reduceWhitespace);
 
             var context = new VelocityContext(localsDictionary);
 
@@ -95,38 +95,25 @@ namespace IronVelocity.Tests.TemplateExecution
             return new ExecutionResult(outputBuilder, context);
         }
 
-        protected virtual IBinderFactory CreateBinderFactory()
-            => new ReusableBinderFactory(new BinderFactory());
+		protected virtual IBinderFactory CreateBinderFactory() => null;
 
-        private VelocityTemplateMethod CompileTemplate(string input, string fileName, IImmutableDictionary<string, object> globals, IImmutableList<CustomDirectiveBuilder> customDirectives, bool reduceWhitespace)
-        {
-            //This is for debugging - change it with the Immediate window if you need to dump a test to disk for further investigation.
-            bool saveDllAndExtractIlForTroubleshooting = false;
+		private VelocityTemplateMethod CompileTemplate(string input, string fileName, IDictionary<string, object> globals, IList<CustomDirectiveBuilder> directives, bool reduceWhitespace)
+		{
+			var options = new VelocityRuntimeOptions
+			{
+				Globals = globals,
+				Directives = directives,
+				ReduceWhitespace = reduceWhitespace,
+				BinderFactory = CreateBinderFactory(),
+				OptimizeConstantTypes = StaticTypingMode == StaticTypingMode.PromoteContextToGlobals
+			};
 
-            var binderFactory = CreateBinderFactory();
-            var expressionFactory = StaticTypingMode == StaticTypingMode.AsProvided
-                ? new VelocityExpressionFactory(binderFactory)
-                : new StaticTypedVelocityExpressionFactory(binderFactory, globals);
-
-            var parser = new AntlrVelocityParser(customDirectives, expressionFactory, reduceWhitespace);
-
-            VelocityDiskCompiler diskCompiler = null;
-
-            if (saveDllAndExtractIlForTroubleshooting)
-            {
-                var assemblyName = Path.GetFileName(fileName);
-                diskCompiler = new VelocityDiskCompiler(new AssemblyName(assemblyName), ".");
-            }
-            var runtime = new VelocityRuntime(parser, diskCompiler);
-
-            var template = runtime.CompileTemplate(input, Utility.GetName(), fileName, true);
-
-            if (saveDllAndExtractIlForTroubleshooting)
-            {
-                diskCompiler.SaveDll();
-                diskCompiler.SaveIl();
-            }
-            return template;
-        }
+			var runtime = new VelocityRuntime(options);
+			using (var reader = new StringReader(input))
+			{
+				var template = runtime.CompileTemplate(reader, Utility.GetName(), fileName);
+				return template;
+			}
+		}
     }
 }

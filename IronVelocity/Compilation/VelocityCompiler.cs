@@ -1,8 +1,6 @@
 ﻿using IronVelocity.Runtime;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -18,9 +16,11 @@ namespace IronVelocity.Compilation
         private static readonly ConstructorInfo _debugAttributeConstructorInfo = typeof(DebuggableAttribute).GetConstructor(new Type[] { typeof(DebuggableAttribute.DebuggingModes) });
 
         private readonly AssemblyName _assemblyName;
+		protected readonly bool DebugMode;
 
-        public VelocityCompiler(string assemblyName = null)
+        public VelocityCompiler(string assemblyName = null, bool debugMode = false)
         {
+			DebugMode = debugMode;
             _assemblyName = string.IsNullOrEmpty(assemblyName)
                 ? new AssemblyName("IronVelocityTemplate")
                 : new AssemblyName(assemblyName);
@@ -28,27 +28,24 @@ namespace IronVelocity.Compilation
 
 
 
-        protected virtual ModuleBuilder CreateModuleBuilder(bool debugMode)
+        protected virtual ModuleBuilder CreateModuleBuilder()
         {
             var assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(_assemblyName, AssemblyBuilderAccess.RunAndCollect);
-
             var moduleBuilder = assemblyBuilder.DefineDynamicModule(_assemblyName.Name, true);
 
-            if (debugMode)
-            {
+            if (DebugMode)
                 AddDebugAttributes(assemblyBuilder, moduleBuilder);
-            }
 
             return moduleBuilder;
         }
 
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters", Justification = "Final cast will fail if the Expression does not conform to VelocityTemplateMethod's signature")]
-        public VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, bool debugMode, string fileName)
+        public VelocityTemplateMethod CompileWithSymbols(Expression<VelocityTemplateMethod> expressionTree, string name, string fileName)
         {
             var log = TemplateGenerationEventSource.Log;
             log.LogParsedExpressionTree(name, expressionTree);
-            var moduleBuilder = CreateModuleBuilder(debugMode);
+            var moduleBuilder = CreateModuleBuilder();
 
             var typeBuilder = moduleBuilder.DefineType(name, TypeAttributes.Public | TypeAttributes.Sealed | TypeAttributes.BeforeFieldInit);
 
