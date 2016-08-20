@@ -14,44 +14,31 @@ namespace IronVelocity.Parser
 {
     public class AntlrVelocityParser : IParser
     {
-        public static IImmutableList<CustomDirectiveBuilder> DefaultDirectives { get; } = new CustomDirectiveBuilder[]
-        {
-            new ForeachDirectiveBuilder()
-        }.ToImmutableList();
-
-        private readonly IImmutableList<CustomDirectiveBuilder> _customDirectives;
-        private readonly VelocityExpressionFactory _expressionFactory;
-
-		public bool ReduceWhitespace { get; }
-
-        public AntlrVelocityParser(VelocityExpressionFactory expressionFactory)
-            : this(null, expressionFactory)
-        {
-        }
+		private readonly IImmutableList<CustomDirectiveBuilder> _customDirectives;
+		private readonly IImmutableList<string> _blockDirectives;
+		private readonly IImmutableList<string> _singleLineDirectives;
+		private readonly VelocityExpressionFactory _expressionFactory;
+		private readonly bool _reduceWhitespace;
 
         public AntlrVelocityParser(IImmutableList<CustomDirectiveBuilder> customDirectives, VelocityExpressionFactory expressionFactory, bool reduceWhitespace = false)
         {
-            _customDirectives = customDirectives ?? DefaultDirectives;
+			if (expressionFactory == null)
+				throw new ArgumentNullException(nameof(expressionFactory));
+
+			_customDirectives = customDirectives ?? ImmutableList<CustomDirectiveBuilder>.Empty;
             _expressionFactory = expressionFactory;
-			ReduceWhitespace = reduceWhitespace;
-        }
+			_reduceWhitespace = reduceWhitespace;
+			_blockDirectives = _customDirectives.Where(x => x.IsBlockDirective).Select(x => x.Name).ToImmutableList();
+			_singleLineDirectives = _customDirectives.Where(x => !x.IsBlockDirective).Select(x => x.Name).ToImmutableList();
+		}
 
-        public Expression<VelocityTemplateMethod> Parse(string input, string name)
+		public Expression<VelocityTemplateMethod> Parse(TextReader input, string name)
         {
             var charStream = new AntlrInputStream(input);
 
             var template = ParseTemplate(charStream, name, x => x.template());
             return CompileToTemplateMethod(template, name);
         }
-
-        public Expression<VelocityTemplateMethod> Parse(Stream input, string name)
-        {
-            var charStream = new AntlrInputStream(input);
-
-            var template = ParseTemplate(charStream, name, x => x.template());
-            return CompileToTemplateMethod(template, name);
-        }
-
 
 
         internal T ParseTemplate<T>(ICharStream input, string name, Func<VelocityParser, T> parseFunc, int? lexerMode = null)
@@ -62,7 +49,10 @@ namespace IronVelocity.Parser
 
             var lexer = new VelocityLexer(input);
             var tokenStream = new CommonTokenStream(lexer);
-            var parser = new VelocityParser(tokenStream);
+			var parser = new VelocityParser(tokenStream) {
+				BlockDirectives = _blockDirectives,
+				SingleLineDirectives = _singleLineDirectives
+			};
 
             lexer.RemoveErrorListeners();
             lexer.AddErrorListener(lexerErrorListener);
@@ -73,7 +63,6 @@ namespace IronVelocity.Parser
 
             var originalErrorStrategy = parser.ErrorHandler;
             parser.ErrorHandler = new BailErrorStrategy();
-            parser.BlockDirectives = _customDirectives.Where(x => x.IsBlockDirective).Select(x => x.Name).ToImmutableList();
 
             if (lexerMode.HasValue)
                 lexer.Mode(lexerMode.Value);
@@ -120,7 +109,7 @@ namespace IronVelocity.Parser
 
         internal Expression<VelocityTemplateMethod> CompileToTemplateMethod(RuleContext parsed, string name)
         {
-            var visitor = new AntlrToExpressionTreeCompiler(this, _customDirectives, _expressionFactory, ReduceWhitespace);
+            var visitor = new AntlrToExpressionTreeCompiler(this, _customDirectives, _expressionFactory, _reduceWhitespace);
 
             TemplateGenerationEventSource.Log.ConvertToExpressionTreeStart(name);
             var body = visitor.Visit(parsed);

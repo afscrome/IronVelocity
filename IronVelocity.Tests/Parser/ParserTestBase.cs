@@ -7,6 +7,7 @@ using Antlr4.Runtime.Misc;
 using System.Diagnostics;
 using IronVelocity.Compilation;
 using IronVelocity.Binders;
+using System.Collections.Immutable;
 
 namespace IronVelocity.Tests.Parser
 {
@@ -19,7 +20,7 @@ namespace IronVelocity.Tests.Parser
         {
             var inputStream = new AntlrInputStream(input);
             var expressionFactory = new VelocityExpressionFactory(new ReusableBinderFactory(new BinderFactory()));
-            return new AntlrVelocityParser(expressionFactory)
+            return new AntlrVelocityParser(null, expressionFactory)
                 .ParseTemplate(inputStream, Utility.GetName(), parseFunc, lexerMode);
         }
 

@@ -5,6 +5,7 @@ using IronVelocity.Parser;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 
@@ -13,38 +14,34 @@ namespace IronVelocity.Tests
     [TestFixture]
     public class SymbolInformationTests
     {
-        private readonly IParser _parser = new AntlrVelocityParser(new VelocityExpressionFactory(new ReusableBinderFactory(new BinderFactory())));
+        private readonly IParser _parser = new AntlrVelocityParser(null, new VelocityExpressionFactory(new ReusableBinderFactory(new BinderFactory())));
+
+		private Expression<VelocityTemplateMethod> Parse(string input)
+		{
+			using (var reader = new StringReader(input))
+			{
+				return _parser.Parse(reader, "test");
+			}
+		}
 
         [TestCase("4 + 47", TestName="ParsingAddExpression_DetectsCorrectLineInfo")]
         [TestCase("73 - 21", TestName="ParsingSubtractExpression_DetectsCorrectLineInfo")]
         [TestCase("4 * 4", TestName = "ParsingMultiplyExpression_DetectsCorrectLineInfo")]
         [TestCase("87 / 3", TestName = "ParsingDivideExpression_DetectsCorrectLineInfo")]
         [TestCase("25 % 3", TestName = "ParsingModuloExpression_DetectsCorrectLineInfo")]
-        public void MathematicalExpression(string expression)
-        {
-            var input = $"#set($x = {expression})";
-            var expectedSymbol = new SourceInfo(1, 11, 1, 11 + expression.Length - 1);
-
-            var expressionTree = _parser.Parse(input, "test");
-            var node = expressionTree.Flatten().OfType<BinaryOperationExpression>().Single();
-
-            Assert.That(node.SourceInfo, Is.EqualTo(expectedSymbol));
-        }
-
-
         [TestCase("$cash > 827", TestName = "ParsingGreaterThanExpression_DetectsCorrectLineInfo")]
         [TestCase("$dosh >= 823", TestName = "ParsingGreaterThanOrEqualExpression_DetectsCorrectLineInfo")]
         [TestCase("$dough < 038", TestName = "ParsingLessThanExpression_DetectsCorrectLineInfo")]
         [TestCase("$coin >= 23", TestName = "ParsingLessThanOrEqualExpression_DetectsCorrectLineInfo")]
         [TestCase("$note == 'test'", TestName = "ParsingEqualityExpression_DetectsCorrectLineInfo")]
         [TestCase("$card != 123", TestName = "ParsingInequalityExpression_DetectsCorrectLineInfo")]
-        public void ComparisonExpression(string expression)
+        public void BinaryExpression(string expression)
         {
             var input = $"#if({expression})Boo#end";
             var expectedSymbol = new SourceInfo(1, 5, 1, 5 + expression.Length - 1);
 
-            var expressionTree = _parser.Parse(input, "test");
-            var node = expressionTree.Flatten().OfType<VelocityBinaryExpression>().Single();
+            var expressionTree = Parse(input);
+            var node = expressionTree.Flatten().OfType<BinaryOperationExpression>().Single();
 
             Assert.That(node.SourceInfo, Is.EqualTo(expectedSymbol));
         }
@@ -54,7 +51,7 @@ namespace IronVelocity.Tests
         public void ParsingDottedExpression_DetectsCorrectLineInfo()
         {
             var input = "#set($x = $user.Balance.Add($deposit))";
-            var expressionTree = _parser.Parse(input, "test");
+            var expressionTree = Parse(input);
 
             var setDirective = expressionTree.Flatten().OfType<SetDirective>().Single();
             var innerExpression = setDirective.Right;

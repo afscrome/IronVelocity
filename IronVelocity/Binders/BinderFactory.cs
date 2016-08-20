@@ -8,7 +8,6 @@ namespace IronVelocity.Binders
 {
     public class BinderFactory : IBinderFactory
     {
-        private readonly IArgumentConverter _argumentConverter;
         private readonly IMemberResolver _memberResolver;
         private readonly IIndexResolver _indexResolver;
         private readonly IMethodResolver _methodResolver;
@@ -16,8 +15,7 @@ namespace IronVelocity.Binders
 
         public BinderFactory()
         {
-            _argumentConverter = new ArgumentConverter();
-            var overloadResolver = new OverloadResolver(_argumentConverter);
+            var overloadResolver = new OverloadResolver(new ArgumentConverter());
 
             _memberResolver = new MemberResolver();
             _indexResolver = new IndexResolver(overloadResolver);
@@ -25,12 +23,12 @@ namespace IronVelocity.Binders
 			_operatorResolver = new OperatorResolver(overloadResolver);
         }
 
-        public BinderFactory(IArgumentConverter argumentConverter, IMemberResolver memberResolver, IIndexResolver indexResolver, IMethodResolver methodResolver)
+        public BinderFactory(IMemberResolver memberResolver, IIndexResolver indexResolver, IMethodResolver methodResolver, IOperatorResolver operatorResolver)
         {
-            _argumentConverter = argumentConverter;
             _memberResolver = memberResolver;
             _indexResolver = indexResolver;
             _methodResolver = methodResolver;
+			_operatorResolver = operatorResolver;
         }
 
 

@@ -6,16 +6,20 @@ namespace IronVelocity.Parser
 {
     public partial class VelocityParser
     {
-        public IImmutableList<string> BlockDirectives { get; set; }
+		public IImmutableList<string> BlockDirectives { get; set; }
+		public IImmutableList<string> SingleLineDirectives { get; set; }
 
-        private bool IsBlockDirective()
-        {
-            var directiveName = _input.Lt(2).Text;
-            if (directiveName == "{")
-                directiveName = _input.Lt(3).Text;
+		private bool IsBlockDirective() => BlockDirectives.Contains(GetDirectiveName());
+		private bool IsSingleLineDirective() => BlockDirectives.Contains(GetDirectiveName());
 
-            return BlockDirectives.Contains(directiveName);
-        }
+		private string GetDirectiveName()
+		{
+			var directiveName = _input.Lt(2).Text;
+			if (directiveName == "{")
+				directiveName = _input.Lt(3).Text;
 
-    }
+			return directiveName;
+		}
+
+	}
 }

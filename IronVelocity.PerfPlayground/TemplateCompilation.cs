@@ -49,56 +49,57 @@ namespace IronVelocity.PerfPlayground
         [TestCaseSource("CreateTemplateTestCases")]
         public void TemplateCompilationTests(string path, string assemblyName)
         {
-            using (var file = File.OpenRead(path))
-            {
-                var antlrDirectives = BlockDirectives
-                    .Select(x => new AntlrBlockDirectiveBuilder(x))
-                    .Concat(new CustomDirectiveBuilder[] { new ForeachDirectiveBuilder() })
-                    .ToImmutableList();
+			using (var file = File.OpenRead(path))
+			using (var reader = new StreamReader(file))
+			{
+				var antlrDirectives = BlockDirectives
+					.Select(x => new AntlrBlockDirectiveBuilder(x))
+					.Concat(new CustomDirectiveBuilder[] { new ForeachDirectiveBuilder() })
+					.ToImmutableList();
 
-                var expressionTreeFactory = new VelocityExpressionFactory(_binderFactory);
-                var parser = new AntlrVelocityParser(antlrDirectives, expressionTreeFactory);
+				var expressionTreeFactory = new VelocityExpressionFactory(_binderFactory);
+				var parser = new AntlrVelocityParser(antlrDirectives, expressionTreeFactory);
 
 
-                var expressionTree = parser.Parse(file, assemblyName);
-                if (Compile || ExecuteTemplate)
-                {
-                    VelocityDiskCompiler diskCompiler = null;
-                    VelocityCompiler compiler;
+				var expressionTree = parser.Parse(reader, assemblyName);
+				if (Compile || ExecuteTemplate)
+				{
+					VelocityDiskCompiler diskCompiler = null;
+					VelocityCompiler compiler;
 
-                    if (SaveDlls || SaveIl)
-                    {
-                        diskCompiler = new VelocityDiskCompiler(new AssemblyName(assemblyName), OutputDir);
+					if (SaveDlls || SaveIl)
+					{
+						diskCompiler = new VelocityDiskCompiler(new AssemblyName(assemblyName), OutputDir);
 						compiler = diskCompiler;
 					}
-                    else
-                    {
-                        compiler = new VelocityCompiler(null);
-                    }
+					else
+					{
+						compiler = new VelocityCompiler();
+					}
 
-                    var result = compiler.CompileWithSymbols(expressionTree, assemblyName, true, path);
+					var result = compiler.CompileWithSymbols(expressionTree, assemblyName, path);
 
-                    if (ExecuteTemplate)
-                    {
-                        var context = new VelocityContext();
-                        using (var writer = new StringWriter())
-                        {
-                            var output = new VelocityOutput(writer);
-                            result(context, output);
-                        }
-                    }
+					if (ExecuteTemplate)
+					{
+						var context = new VelocityContext();
+						using (var writer = new StringWriter())
+						{
+							var output = new VelocityOutput(writer);
+							result(context, output);
+						}
+					}
 
-                    if (SaveDlls || SaveIl)
-                    {
-                        diskCompiler.SaveDll();
+					if (SaveDlls || SaveIl)
+					{
+						diskCompiler.SaveDll();
 
-                        if (SaveIl)
-                        {
-                            diskCompiler.SaveIl();
-                        }
-                    }
-                }
-            }
+						if (SaveIl)
+						{
+							diskCompiler.SaveIl();
+						}
+					}
+				}
+			}
         }
 
         public IEnumerable<TestCaseData> CreateTemplateTestCases()

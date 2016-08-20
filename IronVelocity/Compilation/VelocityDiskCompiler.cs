@@ -22,15 +22,13 @@ namespace IronVelocity.Compilation
             _assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(_assemblyName, AssemblyBuilderAccess.RunAndSave, outputDir);
         }
 
-        protected override ModuleBuilder CreateModuleBuilder(bool debugMode)
+        protected override ModuleBuilder CreateModuleBuilder()
         {
             var name = _assemblyName.Name;
             var moduleBuilder = _assemblyBuilder.DefineDynamicModule(name, name + ".dll", true);
 
-            if (debugMode)
-            {
+            if (DebugMode)
                 AddDebugAttributes(_assemblyBuilder, moduleBuilder);
-            }
 
             return moduleBuilder;
         }
