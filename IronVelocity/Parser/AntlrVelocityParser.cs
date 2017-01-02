@@ -15,8 +15,6 @@ namespace IronVelocity.Parser
     public class AntlrVelocityParser : IParser
     {
 		private readonly IImmutableList<CustomDirectiveBuilder> _customDirectives;
-		private readonly IImmutableList<string> _blockDirectives;
-		private readonly IImmutableList<string> _singleLineDirectives;
 		private readonly VelocityExpressionFactory _expressionFactory;
 		private readonly bool _reduceWhitespace;
 
@@ -28,8 +26,6 @@ namespace IronVelocity.Parser
 			_customDirectives = customDirectives ?? ImmutableList<CustomDirectiveBuilder>.Empty;
             _expressionFactory = expressionFactory;
 			_reduceWhitespace = reduceWhitespace;
-			_blockDirectives = _customDirectives.Where(x => x.IsBlockDirective).Select(x => x.Name).ToImmutableList();
-			_singleLineDirectives = _customDirectives.Where(x => !x.IsBlockDirective).Select(x => x.Name).ToImmutableList();
 		}
 
 		public Expression<VelocityTemplateMethod> Parse(TextReader input, string name)
@@ -50,8 +46,7 @@ namespace IronVelocity.Parser
             var lexer = new VelocityLexer(input);
             var tokenStream = new CommonTokenStream(lexer);
 			var parser = new VelocityParser(tokenStream) {
-				BlockDirectives = _blockDirectives,
-				SingleLineDirectives = _singleLineDirectives
+				DirectiveBuilders = _customDirectives,
 			};
 
             lexer.RemoveErrorListeners();

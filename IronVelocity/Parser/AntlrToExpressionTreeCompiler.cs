@@ -19,7 +19,6 @@ namespace IronVelocity.Parser
     public class AntlrToExpressionTreeCompiler : IVelocityParserVisitor<Expression>
     {
         private readonly AntlrVelocityParser _parser;
-        private readonly IImmutableList<CustomDirectiveBuilder> _customDirectives;
         private readonly VelocityExpressionFactory _expressionFactory;
 
 		public bool ReduceWhitespace { get; }
@@ -27,7 +26,6 @@ namespace IronVelocity.Parser
         public AntlrToExpressionTreeCompiler(AntlrVelocityParser parser, IImmutableList<CustomDirectiveBuilder> customDirectives, VelocityExpressionFactory expressionFactory, bool reduceWhitespace)
         {
             _parser = parser;
-            _customDirectives = customDirectives ?? ImmutableList<CustomDirectiveBuilder>.Empty;
             _expressionFactory = expressionFactory;
 			ReduceWhitespace = reduceWhitespace;
         }
@@ -458,15 +456,18 @@ namespace IronVelocity.Parser
         public Expression VisitCustomDirective([NotNull] VelocityParser.CustomDirectiveContext context)
         {
             var name = context.DirectiveName().GetText();
-            var handler = _customDirectives.SingleOrDefault(x => x.Name == name);
+
+			var handler = context.Builder;
 
             if (handler == null)
                 return new UnrecognisedDirective(name, context.GetFullText());
 
-            var args = VisitMany(context.directiveArguments()?.directiveArgument());
+			var directiveBody = context.directiveBody();
+
+            var args = VisitMany(directiveBody.directiveArguments()?.directiveArgument());
 
             var body = handler.IsBlockDirective
-                ? VisitBlock(context.block())
+                ? VisitBlock(directiveBody.block())
                 : null;
 
             return handler.Build(args, body);
@@ -580,5 +581,11 @@ namespace IronVelocity.Parser
 		{
 			throw new NotImplementedException();
 		}
+
+		public Expression VisitDirectiveBody([NotNull] VelocityParser.DirectiveBodyContext context)
+		{
+			throw new NotImplementedException();
+		}
+
 	}
 }

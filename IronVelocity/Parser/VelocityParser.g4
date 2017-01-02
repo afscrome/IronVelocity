@@ -40,8 +40,13 @@ end: End endOfLineWhitespace? ;
 
 
 customDirective :
-	{ !IsBlockDirective()}?  Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveArguments endOfLineWhitespace?
-	 |  {IsBlockDirective()}? Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveArguments endOfLineWhitespace? block end ;
+	Hash (DirectiveName | LeftCurley DirectiveName RightCurley) directiveBody ;
+
+directiveBody
+	: { IsSingleLineDirective() }? directiveArguments endOfLineWhitespace?
+	| { IsBlockDirective() }? directiveArguments endOfLineWhitespace?  block end
+	| { IsUnknownDirective() }? 
+	;
 
 
 reference : Dollar Exclamation? referenceBody

@@ -10,5 +10,7 @@ namespace IronVelocity.Directives
         public abstract bool IsBlockDirective { get; }
 
         public abstract Expression Build(IImmutableList<Expression> arguments, Expression body);
+
+		public virtual CustomDirectiveBuilder NestedBuilder(string name) => null;
     }
 }

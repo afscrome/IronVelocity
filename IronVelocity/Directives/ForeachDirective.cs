@@ -52,15 +52,11 @@ namespace IronVelocity.Directives
 
             foreach (var expression in body)
             {
-                var seperator = expression as UnrecognisedDirective;
+                var seperator = expression as ForeachSeperator;
                 if (seperator != null)
                 {
-                    ForeachSection section;
-                    if (Enum.TryParse(seperator.Name, true, out section))
-                    {
-                        currentSection = section;
-                        continue;
-                    }
+                    currentSection = seperator.Section;
+                    continue;
                 }
                 if (parts[(int)currentSection] == null)
                     parts[(int)currentSection] = ImmutableList.CreateBuilder<Expression>();

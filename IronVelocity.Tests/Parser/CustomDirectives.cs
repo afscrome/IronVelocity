@@ -1,15 +1,21 @@
 ﻿using NUnit.Framework;
 using IronVelocity.Parser;
 using System.Collections.Immutable;
+using IronVelocity.Directives;
+using System;
+using System.Linq.Expressions;
 
 namespace IronVelocity.Tests.Parser
 {
     public class CustomDirectives : ParserTestBase
     {
-
         private VelocityParser.CustomDirectiveContext ParseBlockDirective(VelocityParser parser)
         {
-            parser.BlockDirectives = new[] { "multiLine" }.ToImmutableList();
+			parser.DirectiveBuilders = new CustomDirectiveBuilder[] {
+					new TestDirectiveBuilder("test", false),
+					new TestDirectiveBuilder("custom", false),
+					new TestDirectiveBuilder("multiLine", true),
+				}.ToImmutableList();
             return parser.customDirective();
         }
 
@@ -17,11 +23,14 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#{test}")]
         public void ShouldParseLineCustomDirectiveWithNoArguments(string input)
         {
-            var result = Parse(input, x => x.customDirective());
+            var result = Parse(input, ParseBlockDirective);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("test"));
-            Assert.That(result.block(), Is.Null);
+
+			var directiveBody = result.directiveBody();
+			Assert.That(directiveBody, Is.Not.Null);
+			Assert.That(directiveBody.block(), Is.Null);
         }
 
         [TestCase("#custom()")]
@@ -30,13 +39,15 @@ namespace IronVelocity.Tests.Parser
         [TestCase("#{custom}()")]
         public void ShouldParseLineCustomDirectiveWithArguments(string input)
         {
-            var result = Parse(input, x => x.customDirective());
+            var result = Parse(input, ParseBlockDirective);
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("custom"));
 
-            Assert.That(result.directiveArguments(), Is.Not.Null);
-            Assert.That(result.block(), Is.Null);
+			var directiveBody = result.directiveBody();
+			Assert.That(directiveBody, Is.Not.Null);
+			Assert.That(directiveBody.directiveArguments(), Is.Not.Null);
+            Assert.That(directiveBody.block(), Is.Null);
         }
 
         [TestCase("#multiLine()#end")]
@@ -49,8 +60,11 @@ namespace IronVelocity.Tests.Parser
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("multiLine"));
-            Assert.That(result.directiveArguments(), Is.Not.Null);
-            Assert.That(result.block(), Is.Not.Null);
+
+			var directiveBody = result.directiveBody();
+			Assert.That(directiveBody, Is.Not.Null);
+			Assert.That(directiveBody.directiveArguments(), Is.Not.Null);
+            Assert.That(directiveBody.block(), Is.Not.Null);
         }
 
         [TestCase("#multiLine\r\nHello\r\n#end")]
@@ -61,8 +75,11 @@ namespace IronVelocity.Tests.Parser
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("multiLine"));
-            Assert.That(result.block(), Is.Not.Null);
-            Assert.That(result.directiveArguments(), Is.Not.Null);
+
+			var directiveBody = result.directiveBody();
+			Assert.That(directiveBody, Is.Not.Null);
+			Assert.That(directiveBody.block(), Is.Not.Null);
+			Assert.That(directiveBody.directiveArguments(), Is.Not.Null);
         }
 
         [Test]
@@ -73,19 +90,36 @@ namespace IronVelocity.Tests.Parser
 
             Assert.That(result, Is.Not.Null);
             Assert.That(result.DirectiveName()?.GetText(), Is.EqualTo("multiLine"));
-            Assert.That(result.block(), Is.Not.Null);
-            Assert.That(result.directiveArguments(), Is.Not.Null);
+
+
+			var directiveBody = result.directiveBody();
+			Assert.That(directiveBody, Is.Not.Null);
+            Assert.That(directiveBody.block(), Is.Not.Null);
+            Assert.That(directiveBody.directiveArguments(), Is.Not.Null);
         }
 
         [Test]
         public void ShouldNotParseBlockDirectiveWithoutEnd()
         {
             var input = "#multiLine ABC123";
-            ParseShouldProduceError(input, x => {
-                x.BlockDirectives = new[] { "multiLine" }.ToImmutableList();
-                return x.template();
-            });
+            ParseShouldProduceError(input, ParseBlockDirective);
         }
 
-    }
+
+		private class TestDirectiveBuilder : CustomDirectiveBuilder
+		{
+			public override bool IsBlockDirective { get; }
+			public override string Name { get; }
+
+			public TestDirectiveBuilder(string name, bool isBlock)
+			{
+				Name = name;
+				IsBlockDirective = isBlock;
+			}
+
+
+			public override Expression Build(IImmutableList<Expression> arguments, Expression body) => null;
+		}
+
+	}
 }
