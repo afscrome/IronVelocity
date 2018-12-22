@@ -1,0 +1,32 @@
+name: $(BuildDefinitionName)_$(Year:yyyy).$(Month).$(DayOfMonth)$(Rev:.r)
+pool:
+  vmImage: vs2017-win2016
+  
+variables:
+  BuildConfiguration: Release
+  TestProjects: test/**/*.[Tt]ests.csproj
+  PackProjects: src/IronVelocity.csproj
+
+steps:
+- task: DotNetCoreCLI@2 
+  displayName: Build
+  inputs:
+    command: build
+    arguments: --configuration $(BuildConfiguration)
+
+- task: DotNetCoreCLI@2 
+  displayName: Test
+  inputs:
+    command: test
+    nobuild: true
+    projects: $(TestProjects)
+    arguments: --configuration $(BuildConfiguration)
+
+- task: DotNetCoreCLI@2 
+  displayName: Package
+  inputs:
+    command: pack
+    nobuild: true
+    packDirectory: $BUILD_ARTIFACTSTAGINGDIRECTORY
+    projects: $(PackProjects)
+    arguments: --configuration $(BuildConfiguration)

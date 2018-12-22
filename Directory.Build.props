@@ -1,0 +1,14 @@
+<Project>
+    <PropertyGroup>
+        <TargetFramework>net452</TargetFramework>
+        <LangVersion>7.3</LangVersion>
+        <Deterministic>true</Deterministic>
+    </PropertyGroup>
+    <PropertyGroup>
+        <Copyright>Copyright © AlexCrome 2013</Copyright>
+        <Authors>Alex Crome</Authors>
+        <PackageLicenseUrl>https://github.com/afscrome/IronVelocity/blob/master/License.md</PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/afscrome/IronVelocity</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/afscrome/IronVelocity</RepositoryUrl>
+    </PropertyGroup>
+</Project>
