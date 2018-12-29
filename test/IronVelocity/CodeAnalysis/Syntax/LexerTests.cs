@@ -29,6 +29,14 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
             [TestCaseSource(typeof(TokenSamples), nameof(TokenSamples.Literal))]
             public void Lexes_Literal(string input)
                 => AssertFirstToken(input, SyntaxKind.Literal);
+
+            [TestCaseSource(typeof(TokenSamples), nameof(TokenSamples.HorizontalWhitespace))]
+            public void Lexes_Horizontal_Whitespace(string input)
+                => AssertFirstToken(input, SyntaxKind.HorizontalWhitespace);
+
+            [TestCaseSource(typeof(TokenSamples), nameof(TokenSamples.VerticalWhitespace))]
+            public void Lexes_Vertical_Whitespace(string input)
+                => AssertFirstToken(input, SyntaxKind.VerticalWhitespace);
         }
 
         public class TokenCombinations
@@ -75,15 +83,30 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
 
             private static bool CanCombineTokenTypes(SyntaxKind left, SyntaxKind right)
             {
+                //Nothing can come after end of file
                 if (left == SyntaxKind.EndOfFile)
                 {
                     return false;
                 }
 
+                //If the start is a single line comment, anything that isn't a new line becomes part of the comment
                 if (left == SyntaxKind.SingleLineComment)
                 {
-                    return false;
+                    return right != SyntaxKind.HorizontalWhitespace;
                 }
+
+                //If left and right are the same kind, concatenating the input will
+                //sometimes result in one bigger token, rather than two seperate ones
+                if (left == right)
+                {
+                    switch(left)
+                    {
+                        case SyntaxKind.HorizontalWhitespace:
+                        case SyntaxKind.VerticalWhitespace:
+                            return false;
+                    }
+                }
+
 
                 return true;
             }
