@@ -43,6 +43,9 @@ namespace IronVelocity.CodeAnalysis.Syntax
                     return SingleLineComment();
                 case '#' when LookAhead == '*':
                     return BlockComment();
+                case '#' when LookAhead == '[' && Peek(2) == '[':
+                    return Literal();
+
                 default:
                     kind = SyntaxKind.BadToken;
                     text = Current.ToString();
@@ -51,6 +54,30 @@ namespace IronVelocity.CodeAnalysis.Syntax
 
             _position += text.Length;
             return new SyntaxToken(kind, startPosition, text);
+        }
+
+        private SyntaxToken TokenSincePosition(SyntaxKind kind, int start)
+        {
+            var length = _position - start;
+
+            var commentText = _text.Substring(start, length);
+
+            return new SyntaxToken(kind, start, commentText);
+        }
+
+
+        private SyntaxToken Literal()
+        {
+            int start = _position;
+            _position += 3;
+            while (!(Current == ']' && LookAhead == ']'))
+            {
+                _position++;
+            }
+
+            _position += 2;
+
+            return TokenSincePosition(SyntaxKind.Literal, start);
         }
 
         private SyntaxToken SingleLineComment()
@@ -62,29 +89,22 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 _position++;
             }
 
-            var length = _position - start;
-
-            var commentText = _text.Substring(start, length);
-
-            return new SyntaxToken(SyntaxKind.Comment, start, commentText);
+            return TokenSincePosition(SyntaxKind.Comment, start);
         }
+
 
         private SyntaxToken BlockComment()
         {
             int start = _position;
             _position += 2;
-            while (Current != '*' && LookAhead != '#')
+            while (!(Current == '*' && LookAhead == '#'))
             {
                 _position++;
             }
 
             _position += 2;
 
-            var length = _position - start;
-
-            var commentText = _text.Substring(start, length);
-
-            return new SyntaxToken(SyntaxKind.Comment, start, commentText);
+            return TokenSincePosition(SyntaxKind.Comment, start);
         }
 
     }

@@ -7,67 +7,51 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
     {
         [Test]
         public void Lexes_BadToken_For_Unrecognised_Character()
+            => AssertFirstToken("?", SyntaxKind.BadToken);
+
+        [Test]
+        public void Lexes_EndOfFile_At_End_Of_Input()
+            => AssertFirstToken("", SyntaxKind.EndOfFile, "\0");
+
+        [TestCase("##")]
+        [TestCase("##foo")]
+        [TestCase("##foo\r", "##foo")]
+        public void Lexes_Single_Line_Comment(string input, string expectedText = null)
         {
-            var input = "?";
+            expectedText = expectedText ?? input;
+
+            AssertFirstToken(input, SyntaxKind.Comment, expectedText);
+        }
+
+
+        [TestCase("#*Hello World*#")]
+        [TestCase("#**#")]
+        [TestCase("#***#")]
+        [TestCase("#*#*#")]
+        [TestCase("#**Hello \r\n \r \n World**#")]
+        public void Lexes_Block_Comment(string input)
+            => AssertFirstToken(input, SyntaxKind.Comment);
+
+        [TestCase("#[[]]")]
+        [TestCase("#[[Hello World]]")]
+        [TestCase("#[[$]]")]
+        [TestCase("#[[#]]")]
+        [TestCase(@"#[[\]]")]
+        public void Lexes_Literal(string input)
+            => AssertFirstToken(input, SyntaxKind.Literal);
+
+
+        private static void AssertFirstToken(string input, SyntaxKind kind) => AssertFirstToken(input, kind, input);
+        private static void AssertFirstToken(string input, SyntaxKind kind, string expectedTokenText, object value = null)
+        {
             var lexer = new Lexer(input);
 
             var token = lexer.NextToken();
 
-            Assert.That(token.Kind, Is.EqualTo(SyntaxKind.BadToken));
+            Assert.That(token.Kind, Is.EqualTo(kind));
             Assert.That(token.Position, Is.EqualTo(0));
-            Assert.That(token.Text, Is.EqualTo(input));
-        }
-
-        [Test]
-        public void Lexes_EndOfFile_At_End_Of_Input()
-        {
-            var lexer = new Lexer("");
-
-            var token = lexer.NextToken();
-
-            Assert.That(token.Kind, Is.EqualTo(SyntaxKind.EndOfFile));
-            Assert.That(token.Position, Is.EqualTo(0));
-            Assert.That(token.Text, Is.EqualTo("\0"));
-        }
-
-        public class Comments
-        {
-            [Test]
-            public void LexesSingleLineCommentWithNoText()
-                => LexComment("##", "##");
-
-            [Test]
-            public void LexesSingleLineCommentAtEndOfFile()
-                => LexComment("##foo", "##foo");
-
-            [Test]
-            public void LexesSingleLineCommentWithNewLineAfter()
-                => LexComment("##foo\r", "##foo");
-
-            [Test]
-            public void LexesBlockCommentWithNoText()
-                => LexComment("#**#", "#**#");
-
-            [Test]
-            public void LexesBlockCommentWithText()
-                => LexComment("#*Hello World*#", "#*Hello World*#");
-
-            [Test]
-            public void LexesBlockCommentWithNewLines()
-                => LexComment("#*Hello \r\n \r \n World*#", "#*Hello \r\n \r \n World*#");
-
-
-            private void LexComment(string input, string expectedText)
-            {
-                var lexer = new Lexer(input);
-
-                var token = lexer.NextToken();
-
-                Assert.That(token.Kind, Is.EqualTo(SyntaxKind.Comment));
-                Assert.That(token.Position, Is.EqualTo(0));
-                Assert.That(token.Text, Is.EqualTo(expectedText));
-                Assert.Null(token.Value);
-            }
+            Assert.That(token.Text, Is.EqualTo(expectedTokenText));
+            Assert.That(token.Value, Is.EqualTo(value));
         }
 
     }
