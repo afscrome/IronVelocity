@@ -45,6 +45,12 @@ namespace IronVelocity.CodeAnalysis.Syntax
                     return BlockComment();
                 case '#' when LookAhead == '[' && Peek(2) == '[':
                     return Literal();
+                case ' ':
+                case '\t':
+                    return HorizontalWhitesapce();
+                case '\r':
+                case '\n':
+                    return VerticalWhitesapce();
 
                 default:
                     kind = SyntaxKind.BadToken;
@@ -107,6 +113,29 @@ namespace IronVelocity.CodeAnalysis.Syntax
             return TokenSincePosition(SyntaxKind.BlockComment, start);
         }
 
+        private SyntaxToken HorizontalWhitesapce()
+        {
+            int start = _position;
+            _position++;
+            while (Current == ' ' || Current == '\t')
+            {
+                _position++;
+            }
+
+            return TokenSincePosition(SyntaxKind.HorizontalWhitespace, start);
+        }
+
+        private SyntaxToken VerticalWhitesapce()
+        {
+            int start = _position;
+            _position++;
+            while (Current == '\n' || Current == '\r')
+            {
+                _position++;
+            }
+
+            return TokenSincePosition(SyntaxKind.VerticalWhitespace, start);
+        }
     }
 
 }

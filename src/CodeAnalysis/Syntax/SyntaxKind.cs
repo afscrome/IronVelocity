@@ -8,5 +8,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
         SingleLineComment,
         BlockComment,
         Literal,
+        HorizontalWhitespace,
+        VerticalWhitespace
     }
 }

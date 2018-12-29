@@ -20,6 +20,10 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
                     return BlockComment;
                 case SyntaxKind.Literal:
                     return Literal;
+                case SyntaxKind.HorizontalWhitespace:
+                    return HorizontalWhitespace;
+                case SyntaxKind.VerticalWhitespace:
+                    return VerticalWhitespace;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, $"No samples defined for SyntaxKind.{kind}");
             }
@@ -29,12 +33,14 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
         public static readonly IReadOnlyCollection<string> BadToken = new[] { "?" };
         public static readonly IReadOnlyCollection<string> EndOfFile = new[] { "\0" };
 
-        public static readonly IReadOnlyCollection<string> SingleLineComment = new[] {
+        public static readonly IReadOnlyCollection<string> SingleLineComment = new[]
+        {
             "##",
             "##foo"
         };
 
-        public static readonly IReadOnlyCollection<string> BlockComment = new[] {
+        public static readonly IReadOnlyCollection<string> BlockComment = new[]
+        {
             "#**#",
             "#*foo*#",
             "#* * *#",
@@ -50,5 +56,24 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
             "#[[#]]",
             @"#[[\]]"
         };
-}
+
+        public static readonly IReadOnlyCollection<string> HorizontalWhitespace = new[]
+        {
+            " ",
+            "\t",
+            "   ",
+            "\t\t\t",
+            " \t \t \t"
+        };
+
+        public static readonly IReadOnlyCollection<string> VerticalWhitespace = new[]
+        {
+            "\r",
+            "\n",
+            "\r\n",
+            "\r\r\r",
+            "\n\n\n",
+            "\r\n\r\n\r\n",
+        };
+    }
 }
