@@ -13,7 +13,7 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
                 case SyntaxKind.BadToken:
                     return BadToken;
                 case SyntaxKind.EndOfFile:
-                    return EndOfFile;
+                    return new[] { EndOfFile };
                 case SyntaxKind.SingleLineComment:
                     return SingleLineComment;
                 case SyntaxKind.BlockComment:
@@ -24,14 +24,20 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
                     return HorizontalWhitespace;
                 case SyntaxKind.VerticalWhitespace:
                     return VerticalWhitespace;
+                case SyntaxKind.Dollar:
+                    return new[] { Dollar };
+                case SyntaxKind.Hash:
+                    return new[] { Hash };
                 default:
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, $"No samples defined for SyntaxKind.{kind}");
             }
         }
 
+        public static string EndOfFile = "\0";
+        public static string Dollar = "$";
+        public static string Hash = "#";
 
         public static readonly IReadOnlyCollection<string> BadToken = new[] { "?" };
-        public static readonly IReadOnlyCollection<string> EndOfFile = new[] { "\0" };
 
         public static readonly IReadOnlyCollection<string> SingleLineComment = new[]
         {
