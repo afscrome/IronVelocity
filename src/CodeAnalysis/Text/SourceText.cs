@@ -15,6 +15,9 @@ namespace IronVelocity.CodeAnalysis.Text
             Lines = ParseLines(text);
         }
 
+        public char this[int index] => _text[index];
+        public int Length => _text.Length;
+
         public int GetLineIndex(int position)
         {
             if (position >= _text.Length)
