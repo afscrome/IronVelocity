@@ -9,6 +9,8 @@ namespace IronVelocity.CodeAnalysis.Syntax
         BlockComment,
         Literal,
         HorizontalWhitespace,
-        VerticalWhitespace
+        VerticalWhitespace,
+        Hash,
+        Dollar
     }
 }

@@ -40,15 +40,25 @@ namespace IronVelocity.CodeAnalysis.Syntax
                     text = "\0";
                     break;
 
-                case '#' when LookAhead == '#':
-                    return SingleLineComment();
+                case '$':
+                    kind = SyntaxKind.Dollar;
+                    text = "$";
+                    break;
 
-                case '#' when LookAhead == '*':
-                    return BlockComment();
-
-                case '#' when LookAhead == '[' && Peek(2) == '[':
-                    return Literal();
-
+                case '#':
+                    if (LookAhead == '#')
+                        return SingleLineComment();
+                    else if (LookAhead == '*')
+                        return BlockComment();
+                    else if (LookAhead == '[' && Peek(2) == '[')
+                        return Literal();
+                    else
+                    {
+                        kind = SyntaxKind.Hash;
+                        text = "#";
+                        break;
+                    }
+                
                 case ' ':
                 case '\t':
                     return HorizontalWhitesapce();
