@@ -103,6 +103,7 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
                     {
                         case SyntaxKind.HorizontalWhitespace:
                         case SyntaxKind.VerticalWhitespace:
+                        case SyntaxKind.SingleLineComment:
                             return false;
                     }
                 }

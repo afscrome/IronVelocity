@@ -39,15 +39,20 @@ namespace IronVelocity.CodeAnalysis.Syntax
                     kind = SyntaxKind.EndOfFile;
                     text = "\0";
                     break;
+
                 case '#' when LookAhead == '#':
                     return SingleLineComment();
+
                 case '#' when LookAhead == '*':
                     return BlockComment();
+
                 case '#' when LookAhead == '[' && Peek(2) == '[':
                     return Literal();
+
                 case ' ':
                 case '\t':
                     return HorizontalWhitesapce();
+
                 case '\r':
                 case '\n':
                     return VerticalWhitesapce();
