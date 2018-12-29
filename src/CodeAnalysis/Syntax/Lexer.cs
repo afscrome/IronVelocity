@@ -1,4 +1,5 @@
 
+using System;
 using IronVelocity.CodeAnalysis.Text;
 
 namespace IronVelocity.CodeAnalysis.Syntax
@@ -38,6 +39,10 @@ namespace IronVelocity.CodeAnalysis.Syntax
                     kind = SyntaxKind.EndOfFile;
                     text = "\0";
                     break;
+                case '#' when LookAhead == '#':
+                    return SingleLineComment();
+                case '#' when LookAhead == '*':
+                    return BlockComment();
                 default:
                     kind = SyntaxKind.BadToken;
                     text = Current.ToString();
@@ -46,6 +51,40 @@ namespace IronVelocity.CodeAnalysis.Syntax
 
             _position += text.Length;
             return new SyntaxToken(kind, startPosition, text);
+        }
+
+        private SyntaxToken SingleLineComment()
+        {
+            int start = _position;
+            _position += 2;
+            while (Current != '\r' && Current != '\n' && Current != '\0')
+            {
+                _position++;
+            }
+
+            var length = _position - start;
+
+            var commentText = _text.Substring(start, length);
+
+            return new SyntaxToken(SyntaxKind.Comment, start, commentText);
+        }
+
+        private SyntaxToken BlockComment()
+        {
+            int start = _position;
+            _position += 2;
+            while (Current != '*' && LookAhead != '#')
+            {
+                _position++;
+            }
+
+            _position += 2;
+
+            var length = _position - start;
+
+            var commentText = _text.Substring(start, length);
+
+            return new SyntaxToken(SyntaxKind.Comment, start, commentText);
         }
 
     }

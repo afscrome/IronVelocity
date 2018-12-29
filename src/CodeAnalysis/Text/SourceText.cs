@@ -91,5 +91,7 @@ namespace IronVelocity.CodeAnalysis.Text
             return textLines.ToImmutable();
 
         }
+
+        public string Substring(int start, int length) => _text.Substring(start, length);
     }
 }
