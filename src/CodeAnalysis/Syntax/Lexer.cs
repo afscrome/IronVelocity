@@ -89,7 +89,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 _position++;
             }
 
-            return TokenSincePosition(SyntaxKind.Comment, start);
+            return TokenSincePosition(SyntaxKind.SingleLineComment, start);
         }
 
 
@@ -104,7 +104,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
 
             _position += 2;
 
-            return TokenSincePosition(SyntaxKind.Comment, start);
+            return TokenSincePosition(SyntaxKind.BlockComment, start);
         }
 
     }
