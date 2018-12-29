@@ -8,114 +8,107 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
 {
     public class LexerTests
     {
-        public class IndividualTokens
+        [Test]
+        public void Lexes_EndOfFile_At_End_Of_Input()
+            => AssertFirstToken("", SyntaxKind.EndOfFile, "\0");
+
+        [TestCaseSource(nameof(SingleTokens))]
+        public void Lexes_Single_Token(SyntaxKind kind, string input)
+            => AssertFirstToken(input, kind);
+
+        [TestCaseSource(nameof(GetTokenCombinations))]
+        public void Lexes_Token_Combination(SyntaxKind leftKind, SyntaxKind rightKind, string leftText, string rightText)
         {
-            [Test]
-            public void Lexes_EndOfFile_At_End_Of_Input()
-                => AssertFirstToken("", SyntaxKind.EndOfFile, "\0");
+            var input = leftText + rightText;
+            var lexer = new Lexer(input);
 
-            [TestCaseSource(typeof(TokenSamples), nameof(TokenSamples.BadToken))]
-            public void Lexes_BadToken(string input)
-                => AssertFirstToken("?", SyntaxKind.BadToken);
+            var firstToken = lexer.NextToken();
+            AssertToken(firstToken, leftKind, 0, leftText);
 
-            [TestCaseSource(typeof(TokenSamples), nameof(TokenSamples.SingleLineComment))]
-            public void Lexes_Single_Line_Comment(string input)
-                => AssertFirstToken(input, SyntaxKind.SingleLineComment);
-
-            [TestCaseSource(typeof(TokenSamples), nameof(TokenSamples.BlockComment))]
-            public void Lexes_Block_Comment(string input)
-                => AssertFirstToken(input, SyntaxKind.BlockComment);
-
-            [TestCaseSource(typeof(TokenSamples), nameof(TokenSamples.Literal))]
-            public void Lexes_Literal(string input)
-                => AssertFirstToken(input, SyntaxKind.Literal);
-
-            [TestCaseSource(typeof(TokenSamples), nameof(TokenSamples.HorizontalWhitespace))]
-            public void Lexes_Horizontal_Whitespace(string input)
-                => AssertFirstToken(input, SyntaxKind.HorizontalWhitespace);
-
-            [TestCaseSource(typeof(TokenSamples), nameof(TokenSamples.VerticalWhitespace))]
-            public void Lexes_Vertical_Whitespace(string input)
-                => AssertFirstToken(input, SyntaxKind.VerticalWhitespace);
+            var secondToken = lexer.NextToken();
+            AssertToken(secondToken, rightKind, leftText.Length, rightText);
         }
 
-        public class TokenCombinations
+        private static IEnumerable<object[]> SingleTokens()
         {
-            [TestCaseSource(nameof(GetTokenCombinations))]
-            public void Lexes_Token_Combination(SyntaxKind leftKind, SyntaxKind rightKind, string leftText, string rightText)
+            var results = new List<object[]>();
+            var tokenKinds = Enum.GetValues(typeof(SyntaxKind)).Cast<SyntaxKind>().ToArray();
+
+            foreach (var kind in tokenKinds)
             {
-                var input = leftText + rightText;
-                var lexer = new Lexer(input);
-
-                var firstToken = lexer.NextToken();
-                AssertToken(firstToken, leftKind, 0, leftText);
-
-                var secondToken = lexer.NextToken();
-                AssertToken(secondToken, rightKind, leftText.Length, rightText);
-            }
-
-            private static IEnumerable<object[]> GetTokenCombinations()
-            {
-                var results = new List<object[]>();
-                var tokenKinds = Enum.GetValues(typeof(SyntaxKind)).Cast<SyntaxKind>().ToArray();
-
-                foreach (var leftKind in tokenKinds)
+                foreach (var sample in TokenSamples.GetSamplesForKind(kind))
                 {
-                    foreach (var rightKind in tokenKinds)
-                    {
-                        if (!CanCombineTokenTypes(leftKind, rightKind))
-                        {
-                            continue;
-                        }
-
-                        foreach (var leftSample in TokenSamples.GetSamplesForKind(leftKind))
-                        {
-                            foreach (var rightSample in TokenSamples.GetSamplesForKind(rightKind))
-                            {
-                                results.Add(new object[] { leftKind, rightKind, leftSample, rightSample });
-                            }
-                        }
-
-                    }
+                    yield return new object[] { kind, sample };
                 }
-                return results;
-            }
-
-            private static bool CanCombineTokenTypes(SyntaxKind left, SyntaxKind right)
-            {
-                //Nothing can come after end of file
-                if (left == SyntaxKind.EndOfFile)
-                {
-                    return false;
-                }
-
-                //If the start is a single line comment, anything that isn't a new line becomes part of the comment
-                if (left == SyntaxKind.SingleLineComment)
-                {
-                    return right != SyntaxKind.HorizontalWhitespace;
-                }
-
-                //If left and right are the same kind, concatenating the input will
-                //sometimes result in one bigger token, rather than two seperate ones
-                if (left == right)
-                {
-                    switch(left)
-                    {
-                        case SyntaxKind.HorizontalWhitespace:
-                        case SyntaxKind.VerticalWhitespace:
-                        case SyntaxKind.SingleLineComment:
-                            return false;
-                    }
-                }
-
-
-                return true;
             }
         }
 
+        private static IEnumerable<object[]> GetTokenCombinations()
+        {
+            var results = new List<object[]>();
+            var tokenKinds = Enum.GetValues(typeof(SyntaxKind)).Cast<SyntaxKind>().ToArray();
+
+            foreach (var leftKind in tokenKinds)
+            {
+                foreach (var rightKind in tokenKinds)
+                {
+                    if (!CanCombineTokenTypes(leftKind, rightKind))
+                    {
+                        continue;
+                    }
+
+                    foreach (var leftSample in TokenSamples.GetSamplesForKind(leftKind))
+                    {
+                        foreach (var rightSample in TokenSamples.GetSamplesForKind(rightKind))
+                        {
+                            results.Add(new object[] { leftKind, rightKind, leftSample, rightSample });
+                        }
+                    }
+
+                }
+            }
+            return results;
+        }
+
+        private static bool CanCombineTokenTypes(SyntaxKind left, SyntaxKind right)
+        {
+            //Nothing can come after end of file
+            if (left == SyntaxKind.EndOfFile)
+            {
+                return false;
+            }
+
+            //If the start is a single line comment, anything that isn't a new line becomes part of the comment
+            if (left == SyntaxKind.SingleLineComment)
+            {
+                return right == SyntaxKind.VerticalWhitespace;
+            }
+
+            //If the left is a hash, any token on the right starting with a hash will become a comment
+            if (left == SyntaxKind.Hash)
+            {
+                return right != SyntaxKind.SingleLineComment
+                    && right != SyntaxKind.BlockComment
+                    && right != SyntaxKind.Literal
+                    && right != SyntaxKind.Hash;
+            }
+
+            //If left and right are the same kind, concatenating the input will
+            //sometimes result in one bigger token, rather than two seperate ones
+            if (left == right)
+            {
+                switch(left)
+                {
+                    case SyntaxKind.HorizontalWhitespace:
+                    case SyntaxKind.VerticalWhitespace:
+                    case SyntaxKind.SingleLineComment:
+                        return false;
+                }
+            }
 
 
-
+            return true;
+        }
 
         private static void AssertFirstToken(string input, SyntaxKind expectedKind) => AssertFirstToken(input, expectedKind, input);
         private static void AssertFirstToken(string input, SyntaxKind expectedKind, string expectedTokenText, object expectedValue = null)
