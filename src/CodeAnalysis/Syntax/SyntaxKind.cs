@@ -5,6 +5,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
     {
         BadToken,
         EndOfFile,
+        Comment,
     }
 
 
