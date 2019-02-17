@@ -30,34 +30,22 @@ namespace IronVelocity.CodeAnalysis.Syntax
 
         public SyntaxToken NextToken()
         {
-            SyntaxKind kind;
-            string text;
-            int startPosition = _position;
             switch (Current)
             {
                 case '\0':
-                    kind = SyntaxKind.EndOfFile;
-                    text = "\0";
-                    break;
+                    return BasicToken(SyntaxKind.EndOfFile, "\0");
 
                 case '$':
-                    kind = SyntaxKind.Dollar;
-                    text = "$";
-                    break;
+                    return BasicToken(SyntaxKind.Dollar, "$");
 
+                case '#' when LookAhead == '#':
+                    return SingleLineComment();
+                case '#' when LookAhead == '*':
+                    return BlockComment();
+                case '#' when LookAhead == '[' && Peek(2) == '[':
+                    return Literal();
                 case '#':
-                    if (LookAhead == '#')
-                        return SingleLineComment();
-                    else if (LookAhead == '*')
-                        return BlockComment();
-                    else if (LookAhead == '[' && Peek(2) == '[')
-                        return Literal();
-                    else
-                    {
-                        kind = SyntaxKind.Hash;
-                        text = "#";
-                        break;
-                    }
+                    return BasicToken(SyntaxKind.Hash, "#");
                 
                 case ' ':
                 case '\t':
@@ -68,14 +56,16 @@ namespace IronVelocity.CodeAnalysis.Syntax
                     return VerticalWhitesapce();
 
                 default:
-                    kind = SyntaxKind.BadToken;
-                    text = Current.ToString();
-                    break;
+                    return BasicToken(SyntaxKind.BadToken, Current.ToString());
             }
+        }
 
+        private SyntaxToken BasicToken(SyntaxKind kind, string text) {
+            int startPosition = _position;
             _position += text.Length;
             return new SyntaxToken(kind, startPosition, text);
         }
+
 
         private SyntaxToken TokenSincePosition(SyntaxKind kind, int start)
         {
