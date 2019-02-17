@@ -2,11 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace IronVelocity.Tests.CodeAnalysis.Syntax
 {
     public static class TokenSamples
     {
+        public static ImmutableArray<SyntaxKind> LexerTokenKinds { get; } = Enum
+            .GetValues(typeof(SyntaxKind))
+            .Cast<SyntaxKind>()
+            .Where(x => !x.ToString().EndsWith("Expression"))
+            .ToImmutableArray();
+
         public static IReadOnlyCollection<string> GetSamplesForKind(SyntaxKind kind)
         {
             switch (kind)

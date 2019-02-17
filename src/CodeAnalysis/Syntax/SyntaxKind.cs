@@ -18,5 +18,6 @@ namespace IronVelocity.CodeAnalysis.Syntax
         StarToken,
         SlashToken,
         ModuloToken,
+        LiteralExpression,
     }
 }
