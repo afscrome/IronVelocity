@@ -33,10 +33,10 @@ namespace IronVelocity.CodeAnalysis.Syntax
             switch (Current)
             {
                 case '\0':
-                    return BasicToken(SyntaxKind.EndOfFile, "\0");
+                    return BasicToken(SyntaxKind.EndOfFileToken, "\0");
 
                 case '$':
-                    return BasicToken(SyntaxKind.Dollar, "$");
+                    return BasicToken(SyntaxKind.DollarToken, "$");
 
                 case '#' when LookAhead == '#':
                     return SingleLineComment();
@@ -45,7 +45,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 case '#' when LookAhead == '[' && Peek(2) == '[':
                     return Literal();
                 case '#':
-                    return BasicToken(SyntaxKind.Hash, "#");
+                    return BasicToken(SyntaxKind.HashToken, "#");
                
                 case ' ':
                 case '\t':
@@ -56,15 +56,15 @@ namespace IronVelocity.CodeAnalysis.Syntax
                     return VerticalWhitesapce();
 
                 case '+':
-                    return BasicToken(SyntaxKind.Plus, "+");
+                    return BasicToken(SyntaxKind.PlusToken, "+");
                 case '-':
-                    return BasicToken(SyntaxKind.Minus, "-");
+                    return BasicToken(SyntaxKind.MinusToken, "-");
                 case '*':
-                    return BasicToken(SyntaxKind.Star, "*");
+                    return BasicToken(SyntaxKind.StarToken, "*");
                 case '/':
-                    return BasicToken(SyntaxKind.Slash, "/");
+                    return BasicToken(SyntaxKind.SlashToken, "/");
                 case '%':
-                    return BasicToken(SyntaxKind.Modulo, "%");
+                    return BasicToken(SyntaxKind.ModuloToken, "%");
 
 
                 default:
@@ -100,7 +100,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
 
             _position += 2;
 
-            return TokenSincePosition(SyntaxKind.Literal, start);
+            return TokenSincePosition(SyntaxKind.LiteralToken, start);
         }
 
         private SyntaxToken SingleLineComment()
@@ -139,7 +139,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 _position++;
             }
 
-            return TokenSincePosition(SyntaxKind.HorizontalWhitespace, start);
+            return TokenSincePosition(SyntaxKind.HorizontalWhitespaceToken, start);
         }
 
         private SyntaxToken VerticalWhitesapce()
@@ -151,7 +151,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 _position++;
             }
 
-            return TokenSincePosition(SyntaxKind.VerticalWhitespace, start);
+            return TokenSincePosition(SyntaxKind.VerticalWhitespaceToken, start);
         }
     }
 

@@ -12,31 +12,31 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
             {
                 case SyntaxKind.BadToken:
                     return BadToken;
-                case SyntaxKind.EndOfFile:
+                case SyntaxKind.EndOfFileToken:
                     return new[] { EndOfFile };
                 case SyntaxKind.SingleLineComment:
                     return SingleLineComment;
                 case SyntaxKind.BlockComment:
                     return BlockComment;
-                case SyntaxKind.Literal:
+                case SyntaxKind.LiteralToken:
                     return Literal;
-                case SyntaxKind.HorizontalWhitespace:
+                case SyntaxKind.HorizontalWhitespaceToken:
                     return HorizontalWhitespace;
-                case SyntaxKind.VerticalWhitespace:
+                case SyntaxKind.VerticalWhitespaceToken:
                     return VerticalWhitespace;
-                case SyntaxKind.Dollar:
+                case SyntaxKind.DollarToken:
                     return new[] { Dollar };
-                case SyntaxKind.Hash:
+                case SyntaxKind.HashToken:
                     return new[] { Hash };
-                case SyntaxKind.Plus:
+                case SyntaxKind.PlusToken:
                     return new[] { Plus };
-                case SyntaxKind.Minus:
+                case SyntaxKind.MinusToken:
                     return new[] { Minus };
-                case SyntaxKind.Star:
+                case SyntaxKind.StarToken:
                     return new[] { Star };
-                case SyntaxKind.Slash:
+                case SyntaxKind.SlashToken:
                     return new[] { Slash };
-                case SyntaxKind.Modulo:
+                case SyntaxKind.ModuloToken:
                     return new[] { Modulo };
                 default:
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, $"No samples defined for SyntaxKind.{kind}");

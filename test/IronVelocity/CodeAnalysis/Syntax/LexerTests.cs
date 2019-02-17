@@ -10,7 +10,7 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
     {
         [Test]
         public void Lexes_EndOfFile_At_End_Of_Input()
-            => AssertFirstToken("", SyntaxKind.EndOfFile, "\0");
+            => AssertFirstToken("", SyntaxKind.EndOfFileToken, "\0");
 
         [TestCaseSource(nameof(SingleTokens))]
         public void Lexes_Single_Token(SyntaxKind kind, string input)
@@ -73,7 +73,7 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
         private static bool CanCombineTokenTypes(SyntaxKind left, SyntaxKind right)
         {
             //Nothing can come after end of file
-            if (left == SyntaxKind.EndOfFile)
+            if (left == SyntaxKind.EndOfFileToken)
             {
                 return false;
             }
@@ -81,17 +81,17 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
             //If the start is a single line comment, anything that isn't a new line becomes part of the comment
             if (left == SyntaxKind.SingleLineComment)
             {
-                return right == SyntaxKind.VerticalWhitespace;
+                return right == SyntaxKind.VerticalWhitespaceToken;
             }
 
             //If the left is a hash, any token on the right starting with a hash  or star will become a comment
-            if (left == SyntaxKind.Hash)
+            if (left == SyntaxKind.HashToken)
             {
                 return right != SyntaxKind.SingleLineComment
                     && right != SyntaxKind.BlockComment
-                    && right != SyntaxKind.Literal
-                    && right != SyntaxKind.Hash
-                    && right != SyntaxKind.Star;
+                    && right != SyntaxKind.LiteralToken
+                    && right != SyntaxKind.HashToken
+                    && right != SyntaxKind.StarToken;
             }
 
             //If left and right are the same kind, concatenating the input will
@@ -100,8 +100,8 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
             {
                 switch(left)
                 {
-                    case SyntaxKind.HorizontalWhitespace:
-                    case SyntaxKind.VerticalWhitespace:
+                    case SyntaxKind.HorizontalWhitespaceToken:
+                    case SyntaxKind.VerticalWhitespaceToken:
                     case SyntaxKind.SingleLineComment:
                         return false;
                 }

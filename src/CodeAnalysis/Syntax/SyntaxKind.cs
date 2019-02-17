@@ -4,18 +4,18 @@ namespace IronVelocity.CodeAnalysis.Syntax
     public enum SyntaxKind
     {
         BadToken,
-        EndOfFile,
+        EndOfFileToken,
         SingleLineComment,
         BlockComment,
-        Literal,
-        HorizontalWhitespace,
-        VerticalWhitespace,
-        Hash,
-        Dollar,
-        Plus,
-        Minus,
-        Star,
-        Slash,
-        Modulo
+        LiteralToken,
+        HorizontalWhitespaceToken,
+        VerticalWhitespaceToken,
+        HashToken,
+        DollarToken,
+        PlusToken,
+        MinusToken,
+        StarToken,
+        SlashToken,
+        ModuloToken
     }
 }
