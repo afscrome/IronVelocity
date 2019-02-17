@@ -84,13 +84,14 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
                 return right == SyntaxKind.VerticalWhitespace;
             }
 
-            //If the left is a hash, any token on the right starting with a hash will become a comment
+            //If the left is a hash, any token on the right starting with a hash  or star will become a comment
             if (left == SyntaxKind.Hash)
             {
                 return right != SyntaxKind.SingleLineComment
                     && right != SyntaxKind.BlockComment
                     && right != SyntaxKind.Literal
-                    && right != SyntaxKind.Hash;
+                    && right != SyntaxKind.Hash
+                    && right != SyntaxKind.Star;
             }
 
             //If left and right are the same kind, concatenating the input will
