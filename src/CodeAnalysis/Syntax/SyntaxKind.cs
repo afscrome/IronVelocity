@@ -8,6 +8,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
         SingleLineComment,
         BlockComment,
         LiteralToken,
+        NumberToken,
         HorizontalWhitespaceToken,
         VerticalWhitespaceToken,
         HashToken,
@@ -16,6 +17,6 @@ namespace IronVelocity.CodeAnalysis.Syntax
         MinusToken,
         StarToken,
         SlashToken,
-        ModuloToken
+        ModuloToken,
     }
 }
