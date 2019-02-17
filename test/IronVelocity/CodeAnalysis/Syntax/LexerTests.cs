@@ -42,9 +42,8 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
         private static IEnumerable<object[]> SingleTokens()
         {
             var results = new List<object[]>();
-            var tokenKinds = Enum.GetValues(typeof(SyntaxKind)).Cast<SyntaxKind>().ToArray();
 
-            foreach (var kind in tokenKinds)
+            foreach (var kind in TokenSamples.LexerTokenKinds)
             {
                 foreach (var sample in TokenSamples.GetSamplesForKind(kind))
                 {
@@ -56,11 +55,10 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
         private static IEnumerable<object[]> GetTokenCombinations()
         {
             var results = new List<object[]>();
-            var tokenKinds = Enum.GetValues(typeof(SyntaxKind)).Cast<SyntaxKind>().ToArray();
 
-            foreach (var leftKind in tokenKinds)
+            foreach (var leftKind in TokenSamples.LexerTokenKinds)
             {
-                foreach (var rightKind in tokenKinds)
+                foreach (var rightKind in TokenSamples.LexerTokenKinds)
                 {
                     if (!CanCombineTokenTypes(leftKind, rightKind))
                     {
