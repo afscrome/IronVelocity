@@ -27,7 +27,6 @@ namespace IronVelocity.CodeAnalysis.Syntax
             return _text[index];
         }
 
-
         public SyntaxToken NextToken()
         {
             switch (Current)
@@ -66,13 +65,17 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 case '%':
                     return BasicToken(SyntaxKind.ModuloToken, "%");
 
+                case '0': case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8': case '9':
+                    return Number();
 
                 default:
                     return BasicToken(SyntaxKind.BadToken, Current.ToString());
             }
         }
 
-        private SyntaxToken BasicToken(SyntaxKind kind, string text) {
+        private SyntaxToken BasicToken(SyntaxKind kind, string text)
+        {
             int startPosition = _position;
             _position += text.Length;
             return new SyntaxToken(kind, startPosition, text);
@@ -88,6 +91,17 @@ namespace IronVelocity.CodeAnalysis.Syntax
             return new SyntaxToken(kind, start, commentText);
         }
 
+        private SyntaxToken Number()
+        {
+            int start = _position;
+
+            while (Current >= '0' && Current <='9')
+            {
+                _position++;
+            }
+
+            return TokenSincePosition(SyntaxKind.NumberToken, start);
+        }
 
         private SyntaxToken Literal()
         {

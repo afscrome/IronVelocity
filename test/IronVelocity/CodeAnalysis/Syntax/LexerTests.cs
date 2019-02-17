@@ -22,11 +22,21 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
             var input = leftText + rightText;
             var lexer = new Lexer(input);
 
-            var firstToken = lexer.NextToken();
-            AssertToken(firstToken, leftKind, 0, leftText);
+            var tokens = new List<SyntaxToken>();
 
-            var secondToken = lexer.NextToken();
-            AssertToken(secondToken, rightKind, leftText.Length, rightText);
+            while(true)
+            {
+                var token = lexer.NextToken();
+                if (token.Kind == SyntaxKind.EndOfFileToken)
+                    break;
+
+                tokens.Add(token);               
+            }
+
+            Assert.That(tokens, Has.Count.EqualTo(2));
+
+            AssertToken(tokens[0], leftKind, 0, leftText);
+            AssertToken(tokens[1], rightKind, leftText.Length, rightText);
         }
 
         private static IEnumerable<object[]> SingleTokens()
@@ -72,8 +82,8 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
 
         private static bool CanCombineTokenTypes(SyntaxKind left, SyntaxKind right)
         {
-            //Nothing can come after end of file
-            if (left == SyntaxKind.EndOfFileToken)
+            //Two numbers in a row are a single larger number
+            if (left == SyntaxKind.NumberToken && right == SyntaxKind.NumberToken)
             {
                 return false;
             }
