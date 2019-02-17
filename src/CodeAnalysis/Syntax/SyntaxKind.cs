@@ -11,6 +11,11 @@ namespace IronVelocity.CodeAnalysis.Syntax
         HorizontalWhitespace,
         VerticalWhitespace,
         Hash,
-        Dollar
+        Dollar,
+        Plus,
+        Minus,
+        Star,
+        Slash,
+        Modulo
     }
 }

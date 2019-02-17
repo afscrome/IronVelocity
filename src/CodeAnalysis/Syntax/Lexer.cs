@@ -46,7 +46,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
                     return Literal();
                 case '#':
                     return BasicToken(SyntaxKind.Hash, "#");
-                
+               
                 case ' ':
                 case '\t':
                     return HorizontalWhitesapce();
@@ -54,6 +54,18 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 case '\r':
                 case '\n':
                     return VerticalWhitesapce();
+
+                case '+':
+                    return BasicToken(SyntaxKind.Plus, "+");
+                case '-':
+                    return BasicToken(SyntaxKind.Minus, "-");
+                case '*':
+                    return BasicToken(SyntaxKind.Star, "*");
+                case '/':
+                    return BasicToken(SyntaxKind.Slash, "/");
+                case '%':
+                    return BasicToken(SyntaxKind.Modulo, "%");
+
 
                 default:
                     return BasicToken(SyntaxKind.BadToken, Current.ToString());

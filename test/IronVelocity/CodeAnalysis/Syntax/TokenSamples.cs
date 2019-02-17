@@ -28,6 +28,16 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
                     return new[] { Dollar };
                 case SyntaxKind.Hash:
                     return new[] { Hash };
+                case SyntaxKind.Plus:
+                    return new[] { Plus };
+                case SyntaxKind.Minus:
+                    return new[] { Minus };
+                case SyntaxKind.Star:
+                    return new[] { Star };
+                case SyntaxKind.Slash:
+                    return new[] { Slash };
+                case SyntaxKind.Modulo:
+                    return new[] { Modulo };
                 default:
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, $"No samples defined for SyntaxKind.{kind}");
             }
@@ -36,6 +46,11 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
         public static string EndOfFile = "\0";
         public static string Dollar = "$";
         public static string Hash = "#";
+        public static string Plus = "+";
+        public static string Minus = "-";
+        public static string Star = "*";
+        public static string Slash = "/";
+        public static string Modulo = "%";
 
         public static readonly IReadOnlyCollection<string> BadToken = new[] { "?" };
 
