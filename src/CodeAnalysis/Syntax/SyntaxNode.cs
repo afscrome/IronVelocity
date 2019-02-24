@@ -7,5 +7,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
         public abstract SyntaxKind Kind { get; }
 
         public abstract ImmutableArray<SyntaxNode> GetChildren();
+
+        public override string ToString() => ParseTreePrinter.PrettyPrint(this);
     }    
 }
