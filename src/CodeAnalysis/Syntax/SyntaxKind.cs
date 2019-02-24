@@ -19,5 +19,6 @@ namespace IronVelocity.CodeAnalysis.Syntax
         SlashToken,
         ModuloToken,
         LiteralExpression,
+        BinaryExpression,
     }
 }
