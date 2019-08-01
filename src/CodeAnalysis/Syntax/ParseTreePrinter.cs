@@ -1,4 +1,5 @@
 
+using System;
 using System.IO;
 using System.Linq;
 
@@ -6,6 +7,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
 {
     public static class ParseTreePrinter
     {
+
         public static string PrettyPrint(SyntaxNode node)
         {
             using(var writer = new StringWriter())
@@ -19,11 +21,11 @@ namespace IronVelocity.CodeAnalysis.Syntax
         public static void PrettyPrint(SyntaxNode node, TextWriter writer, string firstLinePrefix = "", string furtherLinePrefix = "")
         {
             writer.Write(firstLinePrefix);
-            writer.Write(node.Kind);
+            TryPrintWithColour(writer, ConsoleColor.DarkCyan, node.Kind);
             if(node is SyntaxToken token && token.Value != null)
             {
                 writer.Write(": ");
-                writer.Write(token.Value);
+                TryPrintWithColour(writer, ConsoleColor.DarkGreen, token.Value);
             }
             else
             {
@@ -37,6 +39,22 @@ namespace IronVelocity.CodeAnalysis.Syntax
                     var furtherPrefix = isLast ? "   " : " │ ";
                     PrettyPrint(child, writer, furtherLinePrefix + firstPrefix, furtherLinePrefix + furtherPrefix);
                 }
+            }
+        }
+
+        private static void TryPrintWithColour(TextWriter writer, ConsoleColor colour, object text)
+        {
+            bool isWritingToConsole = writer == Console.Out;
+
+            if (isWritingToConsole)
+            {
+                Console.ForegroundColor = colour;
+                writer.Write(text);
+                Console.ResetColor();
+            }
+            else
+            {
+                writer.Write(text);
             }
         }
 
