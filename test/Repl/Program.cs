@@ -10,6 +10,10 @@ namespace IronVelocity.Repl
 {
     class Program
     {
+
+        private static bool _printTokens = false;
+        private static bool _printTree = false;
+
         static void Main(string[] args)
         {
             while (true)
@@ -22,84 +26,118 @@ namespace IronVelocity.Repl
                     return;
                 }
 
-                var lexer = new Lexer(line);
-                var tokens = lexer.ReadAllTokens();
-
-                PrintTokens(tokens);
-
-                if (lexer.Diagnostics.Any())
+                switch(line.ToLower())
                 {
-                    PrintErrors(lexer.Diagnostics);
+                    case "#showtokens":
+                        _printTokens = !_printTokens;
+                        WriteLineToConsole(ConsoleColor.DarkGray, "Print Tokens: " + _printTokens);
+                        break;
+
+                    case "#showtree":
+                        _printTree = !_printTree;
+                        WriteLineToConsole(ConsoleColor.DarkGray, "Print Tree: " + _printTree);
+                        break;
+
+                    case var x when string.IsNullOrWhiteSpace(line):
+                        return;
+
+                    default:
+                        EvaluateLine(line);
+                        break;
+                }
+                Console.WriteLine();
+            }
+
+        }
+
+        private static void EvaluateLine(string line)
+        {
+            var lexer = new Lexer(line);
+            var tokens = lexer.ReadAllTokens();
+
+            if (lexer.Diagnostics.Any())
+            {
+                PrintErrors(lexer.Diagnostics);
+                PrintTokens(tokens);
+            }
+            else
+            {
+                if (_printTokens)
+                {
+                    PrintTokens(tokens);
+                }
+
+
+                var parser = new IronVelocity.CodeAnalysis.Syntax.Parser(tokens);
+                var syntaxTree = parser.Parse();
+                if (syntaxTree.Diagnostics.Any())
+                {
+                    PrintErrors(syntaxTree.Diagnostics);
+                    PrintParseTree(syntaxTree);
                 }
                 else
                 {
-                    Console.WriteLine();
+                    if (_printTree)
+                    {
+                        PrintParseTree(syntaxTree);
+                    }
 
-                    var parser = new IronVelocity.CodeAnalysis.Syntax.Parser(tokens);
-                    var syntaxTree = parser.Parse();
-                    PrintParseTree(syntaxTree);
-                    if (syntaxTree.Diagnostics.Any())
-                    {
-                        PrintErrors(syntaxTree.Diagnostics);
-                    }
-                    else
-                    {
-                        var evaluator = new Evaluator(syntaxTree);
-                        Console.WriteLine(evaluator.Evaluate());
-                    }
+                    var evaluator = new Evaluator(syntaxTree);
+                    WriteLineToConsole(ConsoleColor.DarkGreen, evaluator.Evaluate());
                 }
-                Console.WriteLine();
-                Console.WriteLine();
-
             }
-
         }
 
         private static void PrintErrors(IEnumerable<string> errors)
         {
-            Console.ForegroundColor = ConsoleColor.Red;
             foreach(var error in errors)
             {
-                Console.WriteLine(error);
+                WriteLineToConsole(ConsoleColor.Red, error);
             }
-            Console.ResetColor();
         }
 
         private static void PrintTokens(IEnumerable<SyntaxToken> tokens)
         {
-            WriteToConsole("Tokens:", ConsoleColor.DarkGray);
+            WriteToConsole(ConsoleColor.DarkGray, "Tokens:");
             Console.WriteLine();
 
-            foreach(var token in tokens)
+            foreach (var token in tokens)
             {
-                WriteToConsole(token.Position.ToString().PadLeft(3,' ') + ": ", ConsoleColor.DarkGray);
-                WriteToConsole("<" + token.Kind + ">", ConsoleColor.DarkCyan);
-                WriteToConsole(" ", ConsoleColor.DarkGray);
-                WriteToConsole("'" + token.Text + "'", ConsoleColor.DarkMagenta);
+                WriteToConsole(ConsoleColor.DarkGray, token.Position.ToString().PadLeft(3, ' ') + ": ");
+                WriteToConsole(ConsoleColor.DarkCyan, "<" + token.Kind + ">");
+                WriteToConsole(ConsoleColor.DarkGray, " ");
+                WriteToConsole(ConsoleColor.DarkMagenta, "'" + token.Text + "'");
 
                 if (token.Value != null)
                 {
-                    WriteToConsole(" " + token.Value, ConsoleColor.DarkGreen);
+                    WriteToConsole(ConsoleColor.DarkGreen, " " + token.Value);
                 }
                 Console.WriteLine();
             }
-            Console.ResetColor();
         }
 
         private static void PrintParseTree(SyntaxTree syntaxTree)
         {
-            Console.ForegroundColor = ConsoleColor.DarkGray;
-            Console.WriteLine("Parse Tree:");
-            ParseTreePrinter.PrettyPrint(syntaxTree.Root, Console.Out, firstLinePrefix: "    ", furtherLinePrefix: "    ");
-
+            WriteToConsole(ConsoleColor.DarkGray, "Parse Tree:");
             Console.WriteLine();
-            Console.ResetColor();
+
+            ParseTreePrinter.PrettyPrint(syntaxTree.Root, Console.Out, firstLinePrefix: "    ", furtherLinePrefix: "    ");
+            Console.WriteLine();
         }
 
-        private static void WriteToConsole(object text, ConsoleColor color)
+        private static void WriteToConsole(ConsoleColor color, object text)
         {
             Console.ForegroundColor = color;
             Console.Write(text);
+            Console.ResetColor();
         }
+
+        private static void WriteLineToConsole(ConsoleColor color, object text)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(text);
+            Console.ResetColor();
+        }
+
     }
 }
