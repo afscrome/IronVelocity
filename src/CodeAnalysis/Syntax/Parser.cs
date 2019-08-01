@@ -47,15 +47,33 @@ namespace IronVelocity.CodeAnalysis.Syntax
             return new SyntaxTree(Diagnostics, expression);
         }
 
-        public ExpressionSyntax ParseExpression()
+        public ExpressionSyntax ParseExpression() => ParseAdditiveExpression();
+
+        public ExpressionSyntax ParseMultiplicativeExpression()
         {
             var left = ParsePrimaryExpression();
 
-            while(Current.Kind == SyntaxKind.PlusToken
-                || Current.Kind == SyntaxKind.MinusToken)
+            while(Current.Kind == SyntaxKind.StarToken
+                || Current.Kind == SyntaxKind.SlashToken)
             {
                 var operatorToken = NextToken();
                 var right = ParsePrimaryExpression();
+                left = new BinaryExpressionSyntax(left, operatorToken, right);
+            }
+
+            return left;
+        }
+
+
+        public ExpressionSyntax ParseAdditiveExpression()
+        {
+            var left = ParseMultiplicativeExpression();
+
+            while (Current.Kind == SyntaxKind.PlusToken
+                || Current.Kind == SyntaxKind.MinusToken)
+            {
+                var operatorToken = NextToken();
+                var right = ParseMultiplicativeExpression();
                 left = new BinaryExpressionSyntax(left, operatorToken, right);
             }
 

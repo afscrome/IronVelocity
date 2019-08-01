@@ -16,18 +16,6 @@ namespace IronVelocity.CodeAnalysis.Syntax
             _text = new SourceText(text);
         }
 
-        private char Current => Peek(0);
-        private char LookAhead => Peek(1);
-
-        private char Peek(int offset)
-        {
-            var index = _position + offset;
-
-            if (index >= _text.Length)
-                return '\0';
-
-            return _text[index];
-        }
         public ImmutableArray<SyntaxToken> ReadAllTokens()
         {
             var builder = ImmutableArray.CreateBuilder<SyntaxToken>();
@@ -41,6 +29,20 @@ namespace IronVelocity.CodeAnalysis.Syntax
             }
 
             return builder.ToImmutable();
+        }
+
+
+        private char Current => Peek(0);
+        private char LookAhead => Peek(1);
+
+        private char Peek(int offset)
+        {
+            var index = _position + offset;
+
+            if (index >= _text.Length)
+                return '\0';
+
+            return _text[index];
         }
 
         public SyntaxToken NextToken()
