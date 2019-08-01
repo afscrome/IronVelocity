@@ -97,8 +97,6 @@ namespace IronVelocity.CodeAnalysis.Syntax
                     ReportError($"ERROR: Unexpected Token <{Current.Kind}>, expected <NumberToken> or <OpenParenthesisToken>");
                     return new LiteralExpressionSyntax(new SyntaxToken(SyntaxKind.BadToken, Current.Position, null), null);
             }
-
-            var token = Match(SyntaxKind.NumberToken);
         }
 
         private SyntaxToken Match(SyntaxKind kind)
