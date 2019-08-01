@@ -55,7 +55,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 || Current.Kind == SyntaxKind.MinusToken)
             {
                 var operatorToken = NextToken();
-                var right = ParseExpression();
+                var right = ParsePrimaryExpression();
                 left = new BinaryExpressionSyntax(left, operatorToken, right);
             }
 

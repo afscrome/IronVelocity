@@ -28,6 +28,20 @@ namespace IronVelocity.CodeAnalysis.Syntax
 
             return _text[index];
         }
+        public ImmutableArray<SyntaxToken> ReadAllTokens()
+        {
+            var builder = ImmutableArray.CreateBuilder<SyntaxToken>();
+
+            while (true)
+            {
+                var token = NextToken();
+                builder.Add(token);
+                if (token.Kind == SyntaxKind.EndOfFileToken)
+                    break;
+            }
+
+            return builder.ToImmutable();
+        }
 
         public SyntaxToken NextToken()
         {
