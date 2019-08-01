@@ -20,25 +20,27 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 case LiteralExpressionSyntax n:
                     return (int)n.LiteralToken.Value;
 
-                case BinaryExpressionSyntax b:
-                    {
-                        var left = EvaluateExpression(b.Left);
-                        var right = EvaluateExpression(b.Right);
+                case ParenthesisedExpressionSyntax p:
+                    return EvaluateExpression(p.Expression);
 
-                        switch(b.OperatorToken.Kind)
-                        {
-                            case SyntaxKind.PlusToken:
-                                return left + right;
-                            case SyntaxKind.MinusToken:
-                                return left - right;
-                            case SyntaxKind.StarToken:
-                                return left * right;
-                            case SyntaxKind.SlashToken:
-                                return left / right;
-                            default:
-                                throw new Exception($"Unexpected binary operator {b.OperatorToken.Kind}");
-                        }
+                case BinaryExpressionSyntax b:
+                    var left = EvaluateExpression(b.Left);
+                    var right = EvaluateExpression(b.Right);
+
+                    switch(b.OperatorToken.Kind)
+                    {
+                        case SyntaxKind.PlusToken:
+                            return left + right;
+                        case SyntaxKind.MinusToken:
+                            return left - right;
+                        case SyntaxKind.StarToken:
+                            return left * right;
+                        case SyntaxKind.SlashToken:
+                            return left / right;
+                        default:
+                            throw new Exception($"Unexpected binary operator {b.OperatorToken.Kind}");
                     }
+
                 default:
                     throw new Exception($"Unexpected expression kind {expression.Kind}");
 

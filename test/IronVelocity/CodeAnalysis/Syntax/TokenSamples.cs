@@ -38,6 +38,10 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
                     return new[] { Dollar };
                 case SyntaxKind.HashToken:
                     return new[] { Hash };
+                case SyntaxKind.OpenParenthesisToken:
+                    return new[] { OpenParenthesis };
+                case SyntaxKind.CloseParenthesisToken:
+                    return new[] { CloseParenthesis };
                 case SyntaxKind.PlusToken:
                     return new[] { Plus };
                 case SyntaxKind.MinusToken:
@@ -55,6 +59,8 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
 
         public static string Dollar = "$";
         public static string Hash = "#";
+        public static string OpenParenthesis = "(";
+        public static string CloseParenthesis = ")";
         public static string Plus = "+";
         public static string Minus = "-";
         public static string Star = "*";

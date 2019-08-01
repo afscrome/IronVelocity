@@ -19,6 +19,8 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
         [TestCase("8/4*2", 4)]
         [TestCase("3+7*1", 10)]
         [TestCase("3*7+1", 22)]
+        [TestCase("(0)", 0)]
+        [TestCase("3*(4+5)", 27)]
         public void BasicTest(string input, int expectedValue)
         {
             var lexer = new Lexer(input);

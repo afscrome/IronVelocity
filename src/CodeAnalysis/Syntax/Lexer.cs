@@ -72,6 +72,10 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 case '\n':
                     return VerticalWhitesapce();
 
+                case '(':
+                    return BasicToken(SyntaxKind.OpenParenthesisToken, "(");
+                case ')':
+                    return BasicToken(SyntaxKind.CloseParenthesisToken, ")");
                 case '+':
                     return BasicToken(SyntaxKind.PlusToken, "+");
                 case '-':

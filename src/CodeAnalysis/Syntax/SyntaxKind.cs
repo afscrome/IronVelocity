@@ -13,6 +13,8 @@ namespace IronVelocity.CodeAnalysis.Syntax
         VerticalWhitespaceToken,
         HashToken,
         DollarToken,
+        OpenParenthesisToken,
+        CloseParenthesisToken,
         PlusToken,
         MinusToken,
         StarToken,
@@ -20,5 +22,6 @@ namespace IronVelocity.CodeAnalysis.Syntax
         ModuloToken,
         LiteralExpression,
         BinaryExpression,
+        ParenthesisedExpression,
     }
 }

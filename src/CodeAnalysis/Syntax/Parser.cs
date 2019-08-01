@@ -82,8 +82,23 @@ namespace IronVelocity.CodeAnalysis.Syntax
 
         public ExpressionSyntax ParsePrimaryExpression()
         {
-            var token = Match(SyntaxKind.LiteralToken);
-            return new LiteralExpressionSyntax(token, token.Value);
+            switch(Current.Kind)
+            {
+                case SyntaxKind.NumberToken:
+                    var numberToken = NextToken();
+                    return new LiteralExpressionSyntax(numberToken, numberToken.Value);
+                case SyntaxKind.OpenParenthesisToken:
+                    var open = NextToken();
+                    var expression = ParseExpression();
+                    var close = Match(SyntaxKind.CloseParenthesisToken);
+                    return new ParenthesisedExpressionSyntax(open, expression, close);
+                default:
+                    //TODO: Better error handling
+                    ReportError($"ERROR: Unexpected Token <{Current.Kind}>, expected <NumberToken> or <OpenParenthesisToken>");
+                    return new LiteralExpressionSyntax(new SyntaxToken(SyntaxKind.BadToken, Current.Position, null), null);
+            }
+
+            var token = Match(SyntaxKind.NumberToken);
         }
 
         private SyntaxToken Match(SyntaxKind kind)
@@ -95,7 +110,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
             else
             {
                 ReportError($"ERROR: Unexpected token <{Current.Kind}>, expected <{kind}>");
-                return new SyntaxToken(kind, Current.Position, null, null);
+                return new SyntaxToken(kind, Current.Position, null);
             }
         }
 
