@@ -31,6 +31,10 @@ namespace IronVelocity.CodeAnalysis.Syntax
                                 return left + right;
                             case SyntaxKind.MinusToken:
                                 return left - right;
+                            case SyntaxKind.StarToken:
+                                return left * right;
+                            case SyntaxKind.SlashToken:
+                                return left / right;
                             default:
                                 throw new Exception($"Unexpected binary operator {b.OperatorToken.Kind}");
                         }

@@ -51,6 +51,8 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
         }
 
 
+
+
         public SyntaxToken Number(int value)
             => new SyntaxToken(SyntaxKind.NumberToken, 0, value.ToString(), value);
 
