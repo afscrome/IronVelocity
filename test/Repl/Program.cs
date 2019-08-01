@@ -23,7 +23,7 @@ namespace IronVelocity.Repl
                 }
 
                 var lexer = new Lexer(line);
-                var tokens = GetTokens(lexer);
+                var tokens = lexer.ReadAllTokens();
 
                 PrintTokens(tokens);
 
@@ -38,9 +38,14 @@ namespace IronVelocity.Repl
                     var parser = new IronVelocity.CodeAnalysis.Syntax.Parser(tokens);
                     var syntaxTree = parser.Parse();
                     PrintParseTree(syntaxTree);
-                    if (parser.Diagnostics.Any())
+                    if (syntaxTree.Diagnostics.Any())
                     {
-                        PrintErrors(parser.Diagnostics);
+                        PrintErrors(syntaxTree.Diagnostics);
+                    }
+                    else
+                    {
+                        var evaluator = new Evaluator(syntaxTree);
+                        Console.WriteLine(evaluator.Evaluate());
                     }
                 }
                 Console.WriteLine();
@@ -48,20 +53,6 @@ namespace IronVelocity.Repl
 
             }
 
-        }
-        private static ImmutableList<SyntaxToken> GetTokens(Lexer lexer)
-        {
-            var builder = ImmutableList.CreateBuilder<SyntaxToken>();
-
-            while (true)
-            {
-                var token = lexer.NextToken();
-                builder.Add(token);
-                if (token.Kind == SyntaxKind.EndOfFileToken)
-                    break;
-            }
-
-            return builder.ToImmutable();
         }
 
         private static void PrintErrors(IEnumerable<string> errors)
