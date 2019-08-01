@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26124.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29123.88
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{13B669BE-BB05-4DDF-9536-439F39A36129}") = "IronVelocity", "src\IronVelocity.csproj", "{B96450D2-B4D1-41EB-A2AC-80E32EDC076D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronVelocity", "src\IronVelocity.csproj", "{B96450D2-B4D1-41EB-A2AC-80E32EDC076D}"
 EndProject
-Project("{13B669BE-BB05-4DDF-9536-439F39A36129}") = "IronVelocity.Tests", "test\IronVelocity\IronVelocity.Tests.csproj", "{DD3B852A-C15B-4869-B7EF-0B2FC50EC884}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronVelocity.Tests", "test\IronVelocity\IronVelocity.Tests.csproj", "{DD3B852A-C15B-4869-B7EF-0B2FC50EC884}"
 EndProject
-Project("{13B669BE-BB05-4DDF-9536-439F39A36129}") = "IronVelocity.PerfPlayground", "test\PerfPlayground\IronVelocity.PerfPlayground.csproj", "{A271FD96-FBA9-4B40-AEB6-33609F92637C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IronVelocity.PerfPlayground", "test\PerfPlayground\IronVelocity.PerfPlayground.csproj", "{A271FD96-FBA9-4B40-AEB6-33609F92637C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{76E69A2A-F3F8-4E90-A400-29F0432157D4}"
 EndProject
