@@ -134,7 +134,10 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
             Assert.That(token.Kind, Is.EqualTo(expectedKind));
             Assert.That(token.Position, Is.EqualTo(expectedPosition));
             Assert.That(token.Text, Is.EqualTo(expectedTokenText));
-            Assert.That(token.Value, Is.EqualTo(expectedValue));
+            if (expectedValue != null)
+            {
+                Assert.That(token.Value, Is.EqualTo(expectedValue));
+            }
         }
 
     }
