@@ -22,34 +22,56 @@ namespace IronVelocity.Repl
                     return;
                 }
 
-                var tokens = Lex(line);
-                PrintTokens(tokens);
-                Console.WriteLine();
+                var lexer = new Lexer(line);
+                var tokens = GetTokens(lexer);
 
-                var parser = new IronVelocity.CodeAnalysis.Syntax.Parser(tokens);
-                var expression = parser.ParseExpression();
-                PrintParseTree(expression);
+                PrintTokens(tokens);
+
+                if (lexer.Diagnostics.Any())
+                {
+                    PrintErrors(lexer.Diagnostics);
+                }
+                else
+                {
+                    Console.WriteLine();
+
+                    var parser = new IronVelocity.CodeAnalysis.Syntax.Parser(tokens);
+                    var syntaxTree = parser.Parse();
+                    PrintParseTree(syntaxTree);
+                    if (parser.Diagnostics.Any())
+                    {
+                        PrintErrors(parser.Diagnostics);
+                    }
+                }
                 Console.WriteLine();
                 Console.WriteLine();
 
             }
 
         }
-        private static ImmutableList<SyntaxToken> Lex(string text)
+        private static ImmutableList<SyntaxToken> GetTokens(Lexer lexer)
         {
-            var lexer = new Lexer(text);
-
             var builder = ImmutableList.CreateBuilder<SyntaxToken>();
 
             while (true)
             {
                 var token = lexer.NextToken();
+                builder.Add(token);
                 if (token.Kind == SyntaxKind.EndOfFileToken)
                     break;
-                builder.Add(token);
             }
 
             return builder.ToImmutable();
+        }
+
+        private static void PrintErrors(IEnumerable<string> errors)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            foreach(var error in errors)
+            {
+                Console.WriteLine(error);
+            }
+            Console.ResetColor();
         }
 
         private static void PrintTokens(IEnumerable<SyntaxToken> tokens)
@@ -60,8 +82,8 @@ namespace IronVelocity.Repl
             foreach(var token in tokens)
             {
                 WriteToConsole(token.Position.ToString().PadLeft(3,' ') + ": ", ConsoleColor.DarkGray);
-                WriteToConsole(token.Kind, ConsoleColor.DarkCyan);
-                WriteToConsole(": ", ConsoleColor.Gray);
+                WriteToConsole("<" + token.Kind + ">", ConsoleColor.DarkCyan);
+                WriteToConsole(" ", ConsoleColor.DarkGray);
                 WriteToConsole("'" + token.Text + "'", ConsoleColor.DarkMagenta);
 
                 if (token.Value != null)
@@ -73,11 +95,11 @@ namespace IronVelocity.Repl
             Console.ResetColor();
         }
 
-        private static void PrintParseTree(ExpressionSyntax expression)
+        private static void PrintParseTree(SyntaxTree syntaxTree)
         {
             Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine("Parse Tree:");
-            ParseTreePrinter.PrettyPrint(expression, Console.Out, firstLinePrefix: "    ", furtherLinePrefix: "    ");
+            ParseTreePrinter.PrettyPrint(syntaxTree.Root, Console.Out, firstLinePrefix: "    ", furtherLinePrefix: "    ");
 
             Console.WriteLine();
             Console.ResetColor();

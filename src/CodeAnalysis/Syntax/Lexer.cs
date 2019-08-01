@@ -1,5 +1,6 @@
 
 using System;
+using System.Collections.Immutable;
 using IronVelocity.CodeAnalysis.Text;
 
 namespace IronVelocity.CodeAnalysis.Syntax
@@ -8,6 +9,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
     {
         private readonly SourceText _text;
         private int _position;
+        public IImmutableList<string> Diagnostics { get; private set; } = ImmutableList<string>.Empty;
 
         public Lexer(string text)
         {
@@ -70,6 +72,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
                     return Number();
 
                 default:
+                    ReportError($"ERROR: Unexpected character <{Current}>");
                     return BasicToken(SyntaxKind.BadToken, Current.ToString());
             }
         }
@@ -81,15 +84,11 @@ namespace IronVelocity.CodeAnalysis.Syntax
             return new SyntaxToken(kind, startPosition, text);
         }
 
-
         private SyntaxToken TokenSincePosition(SyntaxKind kind, int start)
-        {
-            var length = _position - start;
+            => new SyntaxToken(kind, start, TextSincePosition(start));
 
-            var commentText = _text.Substring(start, length);
-
-            return new SyntaxToken(kind, start, commentText);
-        }
+        private string TextSincePosition(int start)
+            => _text.Substring(start, _position - start);
 
         private SyntaxToken Number()
         {
@@ -100,7 +99,24 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 _position++;
             }
 
-            return TokenSincePosition(SyntaxKind.NumberToken, start);
+            var text = TextSincePosition(start);
+
+            object value = null;
+            if (int.TryParse(text, out int number))
+            {
+                value = number;
+            }
+            else
+            {
+                ReportError($"ERROR: Could not parse '{text}' as a number");
+            }
+
+            return new SyntaxToken(SyntaxKind.NumberToken, start, text, value);
+        }
+
+        private void ReportError(string message)
+        {
+            Diagnostics = Diagnostics.Add(message);
         }
 
         private SyntaxToken Literal()

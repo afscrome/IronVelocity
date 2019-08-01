@@ -5,14 +5,17 @@ using System.Linq;
 
 namespace IronVelocity.CodeAnalysis.Syntax
 {
-    public class Parser{
-        private readonly ImmutableArray<SyntaxToken> _tokens;
+    public class Parser
+    {
+        private readonly IImmutableList<SyntaxToken> _tokens;
         private int _position;
+
+        public IImmutableList<string> Diagnostics { get; private set; } = ImmutableList<string>.Empty;
 
         public Parser(IEnumerable<SyntaxToken> tokens)
             : this(tokens.ToImmutableArray()) { }
 
-        public Parser(ImmutableArray<SyntaxToken> tokens)
+        public Parser(IImmutableList<SyntaxToken> tokens)
         {
             _tokens = tokens;
         }
@@ -21,7 +24,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
         {
             var index = _position + offset;
 
-            if (index >= _tokens.Length)
+            if (index >= _tokens.Count)
                 return _tokens.Last();
 
             return _tokens[index];
@@ -36,17 +39,36 @@ namespace IronVelocity.CodeAnalysis.Syntax
             return current;
         }        
 
+        public SyntaxTree Parse()
+        {
+            var expression = ParseExpression();
+            Match(SyntaxKind.EndOfFileToken);
+            return new SyntaxTree(Diagnostics, expression);
+        }
+
         public ExpressionSyntax ParseExpression()
         {
-            switch(Current.Kind)
-            {
-                case SyntaxKind.NumberToken:
-                    var token = NextToken();
-                    return new LiteralExpressionSyntax(token, token.Value);
+            var token = Match(SyntaxKind.NumberToken);
+            return new LiteralExpressionSyntax(token, token.Value);
+        }
 
-                default:
-                    throw new Exception($"Unexpected Token {Current.Kind}");
+        private SyntaxToken Match(SyntaxKind kind)
+        {
+            if (Current.Kind == kind)
+            {
+                return NextToken();
+            }
+            else
+            {
+                ReportError($"ERROR: Unexpected token <{Current.Kind}>, expected <{kind}>");
+                return new SyntaxToken(kind, Current.Position, null, null);
             }
         }
+
+        private void ReportError(string message)
+        {
+            Diagnostics = Diagnostics.Add(message);
+        }
+
     }
 }
