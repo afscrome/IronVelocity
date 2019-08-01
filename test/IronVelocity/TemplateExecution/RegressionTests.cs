@@ -14,7 +14,7 @@ namespace IronVelocity.Tests.TemplateExecution
         }
 
         private static readonly string _base = Path.Combine(typeof(RegressionTests).Assembly.Location, "..\\..\\..\\..\\TemplateExecution\\Regression\\");
-        private static readonly string _failureResultsDir = "Failures";
+        private static readonly string _failureResultsDir = Path.Combine(typeof(RegressionTests).Assembly.Location, "..\\Failures");
 
         [SetUp]
         public void SetUpFixture()
