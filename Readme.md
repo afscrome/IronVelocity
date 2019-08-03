@@ -1,6 +1,6 @@
 # IronVelocity
 
-[![Build Status](https://dev.azure.com/afscrome/IronVelocity/_apis/build/status/IronVelocity%20-%20CI?branchName=master)](https://dev.azure.com/afscrome/IronVelocity/_build/latest?definitionId=7?branchName=master)
+[![Build Status](https://dev.azure.com/afscrome/IronVelocity/_apis/build/status/IronVelocity%20-%20CI?branchName=master)](https://dev.azure.com/afscrome/IronVelocity/_build/latest?definitionId=7&branchName=master)
 
 IronVelocity is an implementation of the Velocity Templating Language (VTL) for .Net.
 
