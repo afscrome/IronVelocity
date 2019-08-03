@@ -82,8 +82,16 @@ namespace IronVelocity.Repl
                         PrintParseTree(syntaxTree);
                     }
 
-                    var evaluator = new Evaluator(syntaxTree);
-                    WriteLineToConsole(ConsoleColor.DarkGreen, evaluator.Evaluate());
+                    try
+                    {
+                        var evaluator = new Evaluator(syntaxTree);
+                        WriteLineToConsole(ConsoleColor.DarkGreen, evaluator.Evaluate());
+                    }
+                    catch(Exception ex)
+                    {
+                        WriteLineToConsole(ConsoleColor.Red, "Failed to Evaluate:");
+                        WriteLineToConsole(ConsoleColor.Red, ex);
+                    }
                 }
             }
         }
