@@ -6,7 +6,19 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
     public class EvaluatorTests
     {
         [TestCase("0", 0)]
-        [TestCase("2147483647", 2147483647)]
+        [TestCase("+3", 3)]
+        [TestCase("-97", -97)]
+        [TestCase("2147483647", int.MaxValue)]
+        [TestCase("-2147483647", int.MinValue + 1)]
+        [TestCase("--7", 7)]
+        [TestCase("++3", 3)]
+        [TestCase("-+6", -6)]
+        [TestCase("-+-+-+1", -1)]
+        public void NumberTest(string input, int expectedValue)
+        {
+            Assert.That(EvaluateString(input), Is.EqualTo(expectedValue));
+        }
+
         [TestCase("1+3", 4)]
         [TestCase("4-9", -5)]
         [TestCase("8*9", 72)]
@@ -21,7 +33,12 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
         [TestCase("3*7+1", 22)]
         [TestCase("(0)", 0)]
         [TestCase("3*(4+5)", 27)]
-        public void BasicTest(string input, int expectedValue)
+        public void ExpressionTests(string input, int expectedValue)
+        {
+            Assert.That(EvaluateString(input), Is.EqualTo(expectedValue));
+        }
+
+        private int EvaluateString(string input)
         {
             var lexer = new Lexer(input);
 
@@ -34,8 +51,7 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
             Warn.If(syntaxTree.Diagnostics, Is.Not.Empty);
 
             var evaluator = new Evaluator(syntaxTree);
-
-            Assert.That(evaluator.Evaluate(), Is.EqualTo(expectedValue));
+            return evaluator.Evaluate();
         }
     }
 }

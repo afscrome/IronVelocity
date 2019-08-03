@@ -23,5 +23,6 @@ namespace IronVelocity.CodeAnalysis.Syntax
         LiteralExpression,
         BinaryExpression,
         ParenthesisedExpression,
+        UnaryExpression,
     }
 }
