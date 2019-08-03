@@ -13,12 +13,13 @@ namespace IronVelocity.CodeAnalysis.Syntax
         public IImmutableList<string> Diagnostics { get; private set; } = ImmutableList<string>.Empty;
 
         public Parser(IEnumerable<SyntaxToken> tokens)
-            : this(tokens.ToImmutableArray()) { }
-
-        public Parser(IImmutableList<SyntaxToken> tokens)
         {
-            _tokens = tokens;
+            //This is an ugly hack - need a better long term solution for handling whitespace like this
+            _tokens = tokens
+                .Where(x => x.Kind != SyntaxKind.HorizontalWhitespaceToken)
+                .ToImmutableArray();
         }
+
 
         private SyntaxToken Peek(int offset)
         {
@@ -48,7 +49,22 @@ namespace IronVelocity.CodeAnalysis.Syntax
 
         public ExpressionSyntax ParseExpression()
         {
-            var token = Match(SyntaxKind.NumberToken);
+            var left = ParsePrimaryExpression();
+
+            while(Current.Kind == SyntaxKind.PlusToken
+                || Current.Kind == SyntaxKind.MinusToken)
+            {
+                var operatorToken = NextToken();
+                var right = ParseExpression();
+                left = new BinaryExpressionSyntax(left, operatorToken, right);
+            }
+
+            return left;
+        }
+
+        public ExpressionSyntax ParsePrimaryExpression()
+        {
+            var token = Match(SyntaxKind.LiteralToken);
             return new LiteralExpressionSyntax(token, token.Value);
         }
 
