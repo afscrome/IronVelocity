@@ -50,7 +50,17 @@ namespace IronVelocity.CodeAnalysis.Syntax
 
         public ExpressionSyntax ParseExpression(int parentPrecedence = 0)
         {
-            var left = ParsePrimaryExpression();
+            ExpressionSyntax left;
+            var unaryOperatorPrecedence = SyntaxFacts.GetUnaryOperatorPrecedence(Current.Kind);
+            if (unaryOperatorPrecedence != 0 && unaryOperatorPrecedence >= parentPrecedence )
+            {
+                left = new UnaryExpressionSyntax(operatorToken: NextToken(),
+                    operand: ParseExpression(unaryOperatorPrecedence));
+            }
+            else
+            {
+                left = ParsePrimaryExpression();
+            }
 
             while (true)
             {
