@@ -47,38 +47,26 @@ namespace IronVelocity.CodeAnalysis.Syntax
             return new SyntaxTree(Diagnostics, expression);
         }
 
-        public ExpressionSyntax ParseExpression() => ParseAdditiveExpression();
 
-        public ExpressionSyntax ParseMultiplicativeExpression()
+        public ExpressionSyntax ParseExpression(int parentPrecedence = 0)
         {
             var left = ParsePrimaryExpression();
 
-            while(Current.Kind == SyntaxKind.StarToken
-                || Current.Kind == SyntaxKind.SlashToken)
+            while (true)
             {
+                var precedence = SyntaxFacts.GetBinaryOperatorPrecedence(Current.Kind);
+
+                if (precedence == 0 || precedence <= parentPrecedence)
+                {
+                    break;
+                }
                 var operatorToken = NextToken();
-                var right = ParsePrimaryExpression();
+                var right = ParseExpression(precedence);
                 left = new BinaryExpressionSyntax(left, operatorToken, right);
             }
-
             return left;
         }
 
-
-        public ExpressionSyntax ParseAdditiveExpression()
-        {
-            var left = ParseMultiplicativeExpression();
-
-            while (Current.Kind == SyntaxKind.PlusToken
-                || Current.Kind == SyntaxKind.MinusToken)
-            {
-                var operatorToken = NextToken();
-                var right = ParseMultiplicativeExpression();
-                left = new BinaryExpressionSyntax(left, operatorToken, right);
-            }
-
-            return left;
-        }
 
         public ExpressionSyntax ParsePrimaryExpression()
         {
