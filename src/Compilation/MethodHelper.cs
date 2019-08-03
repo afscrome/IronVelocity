@@ -1,6 +1,7 @@
 ﻿using IronVelocity.Runtime;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Numerics;
 using System.Reflection;
 
@@ -10,6 +11,8 @@ namespace IronVelocity.Compilation
     {
 		internal const BindingFlags PublicStatic = BindingFlags.Public | BindingFlags.Static;
 		internal const BindingFlags PublicInstance = BindingFlags.Public | BindingFlags.Instance;
+
+        public static readonly ConstructorInfo OutputConstructor = typeof(VelocityOutput).GetConstructor(new[] { typeof(StringWriter) });
 
 		public static readonly MethodInfo OutputObjectMethodInfo = typeof(VelocityOutput).GetMethod(nameof(VelocityOutput.Write), new[] { typeof(object) });
         public static readonly MethodInfo OutputStringMethodInfo = typeof(VelocityOutput).GetMethod(nameof(VelocityOutput.Write), new[] { typeof(string) });

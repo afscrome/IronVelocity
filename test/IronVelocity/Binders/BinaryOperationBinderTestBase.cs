@@ -28,7 +28,7 @@ namespace IronVelocity.Tests.Binders
 
 		}
 
-		public class OverloadedMaths
+		public class OverloadedMaths : IEquatable<OverloadedMaths>
 		{
 			public int Value { get; }
 			public OverloadedMaths(int value)
@@ -55,10 +55,11 @@ namespace IronVelocity.Tests.Binders
 			public override string ToString()
 				=> "OverloadedMath " + Value;
 
-			public override bool Equals(object obj)
-				=> ((OverloadedMaths)obj)?.Value == Value;
-
-		}
+            public bool Equals(OverloadedMaths other)
+            {
+                return Value == other.Value;
+            }
+        }
 
 		public enum Test
 		{

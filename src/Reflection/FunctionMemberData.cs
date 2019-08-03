@@ -17,7 +17,6 @@ namespace IronVelocity.Reflection
 			Parameters = argumentTypes;
 		}
 
-		[Obsolete]
 		public FunctionMemberData(T function, ParameterInfo[] parameters)
 			: this(function, parameters.Select(x => x.ParameterType).ToArray())
 		{

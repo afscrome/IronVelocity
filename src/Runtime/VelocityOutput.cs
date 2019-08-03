@@ -7,13 +7,6 @@ namespace IronVelocity.Runtime
     {
         private readonly TextWriter _writer;
 
-        [Obsolete("TODO: REmove")]
-        public VelocityOutput()
-            : this(new StringWriter())
-        {
-
-        }
-
         public VelocityOutput(TextWriter writer)
         {
             _writer = writer;
@@ -47,17 +40,5 @@ namespace IronVelocity.Runtime
         {
             Write(value ?? outputIfNull);
         }
-
-        public void Write(VelocityOutput value)
-        {
-            //TODO: Implement this so we can output from nested templates to the 
-            // main template without having to allocate an intermediate string
-            // Once this is implemented, remove the default constructor and ToString()
-            throw new NotImplementedException();
-        }
-
-
-        [Obsolete("TODO: REmove")]
-        public override string ToString() => _writer.ToString();
     }
 }

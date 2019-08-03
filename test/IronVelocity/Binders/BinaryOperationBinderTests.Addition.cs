@@ -45,8 +45,8 @@ namespace IronVelocity.Tests.Binders
 		}
 
 
-		[TestCase(2147483647, 1, 2147483648l)]
-		[TestCase(-2147483648, -1, -2147483649l)]
+		[TestCase(2147483647, 1, 2147483648L)]
+		[TestCase(-2147483648, -1, -2147483649L)]
 		[TestCase(9223372036854775807, 1, 9223372036854775808f)]
 		[TestCase(-9223372036854775808, -1, -9223372036854775809f)]
 		public void AdditionOverflowTests(object left, object right, object expectedValue)

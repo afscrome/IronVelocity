@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -30,7 +31,7 @@ namespace IronVelocity.Compilation.AST
                 {
                     Expression nullValue = null;
                     var reference = element as ReferenceExpression;
-                    if (reference !=  null && !reference.IsSilent)
+                    if (reference != null && !reference.IsSilent)
                         nullValue = Expression.Constant(reference.Raw);
 
                     if (element.Type == typeof(string))
@@ -60,13 +61,18 @@ namespace IronVelocity.Compilation.AST
             //Create a new scope, in which the Output parameter points to a different StringBuilder
             //So we can get the result, without writing it to the output stream.
             var outputParam = Constants.OutputParameter;
+            var stringWriter = Expression.Parameter(typeof(StringWriter), "interpolatedStringWriter");
 
             return new TemporaryVariableScopeExpression(
-                    outputParam,
-                    Expression.Block(
-                        Expression.Assign(outputParam, Expression.New(Constants.OutputParameter.Type)),
-                        new RenderedBlock(Parts),
-                        Expression.Call(outputParam, "ToString", Type.EmptyTypes)
+                stringWriter,
+                    new TemporaryVariableScopeExpression(
+                        outputParam,
+                        Expression.Block(
+                            Expression.Assign(stringWriter, Expression.New(stringWriter.Type)),
+                            Expression.Assign(outputParam, Expression.New(MethodHelpers.OutputConstructor, stringWriter)),
+                            new RenderedBlock(Parts),
+                            Expression.Call(stringWriter, MethodHelpers.ToStringMethodInfo)
+                        )
                     )
                 );
         }
