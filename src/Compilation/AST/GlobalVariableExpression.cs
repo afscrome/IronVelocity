@@ -22,6 +22,6 @@ namespace IronVelocity.Compilation.AST
             Value = value;
         }
 
-        public override Expression Reduce() => Expression.Constant(Value);
+        public override Expression Reduce() => VelocityExpressions.ConvertIfNeeded(new VariableExpression(Name), Type);
     }
 }

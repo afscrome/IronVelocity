@@ -1,4 +1,5 @@
-﻿using IronVelocity.Compilation.AST;
+﻿#if NETFRAMEWORK
+using IronVelocity.Compilation.AST;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -156,3 +157,4 @@ namespace IronVelocity.Compilation
 
     }
 }
+#endif
