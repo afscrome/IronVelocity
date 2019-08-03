@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if NETFRAMEWORK
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -54,3 +55,4 @@ namespace IronVelocity.Compilation
         }
     }
 }
+#endif

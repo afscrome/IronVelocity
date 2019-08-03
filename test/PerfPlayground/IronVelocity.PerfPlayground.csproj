@@ -1,4 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFrameworks>net461</TargetFrameworks>
+  </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../../src/IronVelocity.csproj" />
   </ItemGroup>

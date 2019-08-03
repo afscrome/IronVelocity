@@ -1,4 +1,5 @@
-﻿using IronVelocity.Runtime;
+﻿#if NETFRAMEWORK
+using IronVelocity.Runtime;
 using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
@@ -8,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace IronVelocity.Compilation
 {
-    public delegate void VelocityTemplateMethod(VelocityContext context, VelocityOutput output);
+
     public class VelocityCompiler
     {
         private const string _methodName = "Execute";
@@ -102,3 +103,4 @@ namespace IronVelocity.Compilation
         }
     }
 }
+#endif

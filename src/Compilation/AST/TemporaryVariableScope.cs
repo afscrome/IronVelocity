@@ -22,7 +22,7 @@ namespace IronVelocity.Compilation.AST
             Body = body;
         }
 
-        public override Expression Reduce() => Body;
+        public override Expression Reduce() => Expression.Block(new[] { Variable }, Body);
 
         public TemporaryVariableScopeExpression Update(ParameterExpression variable, Expression body)
         {
