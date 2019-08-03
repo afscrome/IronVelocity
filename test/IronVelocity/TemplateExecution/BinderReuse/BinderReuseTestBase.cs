@@ -1,30 +1,29 @@
 ﻿using IronVelocity.Binders;
 using IronVelocity.Reflection;
-using NUnit.Framework;
 using System.Dynamic;
 using System;
-using System.Linq.Expressions;
+using System.Threading;
 
 namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 {
     public class BinderReuseTestBase : TemplateExeuctionBase
     {
+        private static readonly ThreadLocal<int> _callSiteBindCount = new ThreadLocal<int>();
+
         //With globals, binders may not be used, so only test in AsProvided Mode
         protected BinderReuseTestBase() : base(StaticTypingMode.AsProvided) { }
 
-        public int CallSiteBindCount => DuplcateBinderDetectionBinderFactory.CallSiteBindCount;
+        public static int CallSiteBindCount => _callSiteBindCount.Value;
 
         protected override IBinderFactory CreateBinderFactory()
-            => new ReusableBinderFactory(new DuplcateBinderDetectionBinderFactory());
+            => new ReusableBinderFactory(new DuplicateBinderDetectionBinderFactory());
 
-        private class DuplcateBinderDetectionBinderFactory : IBinderFactory
+        private class DuplicateBinderDetectionBinderFactory : IBinderFactory
         {
-            public static int CallSiteBindCount { get; set; }
-            private readonly ReusableBinderFactory _factory = new ReusableBinderFactory(new BinderFactory());
 
-            public DuplcateBinderDetectionBinderFactory()
+            public DuplicateBinderDetectionBinderFactory()
             {
-                CallSiteBindCount = 0;
+                _callSiteBindCount.Value = 0;
             }
 
             public GetMemberBinder GetGetMemberBinder(string memberName) => new DupDetectionGetMemberBinder(memberName);
@@ -56,7 +55,7 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 
                 public override DynamicMetaObject FallbackGetMember(DynamicMetaObject target, DynamicMetaObject errorSuggestion)
                 {
-                    CallSiteBindCount++;
+                    _callSiteBindCount.Value++;
                     return base.FallbackGetMember(target, errorSuggestion);
                 }
             }
@@ -71,7 +70,7 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 
                 public override DynamicMetaObject FallbackSetMember(DynamicMetaObject target, DynamicMetaObject value, DynamicMetaObject errorSuggestion)
                 {
-                    CallSiteBindCount++;
+                    _callSiteBindCount.Value++;
                     return base.FallbackSetMember(target, value, errorSuggestion);
                 }
             }
@@ -86,7 +85,7 @@ namespace IronVelocity.Tests.TemplateExecution.BinderReuse
 
                 public override DynamicMetaObject FallbackInvokeMember(DynamicMetaObject target, DynamicMetaObject[] args, DynamicMetaObject errorSuggestion)
                 {
-                    CallSiteBindCount++;
+                    _callSiteBindCount.Value++;
                     return base.FallbackInvokeMember(target, args, errorSuggestion);
                 }
             }
