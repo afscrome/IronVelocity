@@ -1,4 +1,6 @@
-﻿using IronVelocity.CodeAnalysis.Syntax;
+﻿using IronVelocity.CodeAnalysis;
+using IronVelocity.CodeAnalysis.Binding;
+using IronVelocity.CodeAnalysis.Syntax;
 using NUnit.Framework;
 
 namespace IronVelocity.Tests.CodeAnalysis.Syntax
@@ -50,7 +52,11 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
 
             Warn.If(syntaxTree.Diagnostics, Is.Not.Empty);
 
-            var evaluator = new Evaluator(syntaxTree);
+            var binder = new Binder();
+            var boundExpression = binder.BindExpression(syntaxTree.Root);
+            Warn.If(binder.Diagnostics, Is.Not.Empty);
+
+            var evaluator = new Evaluator(boundExpression);
             return evaluator.Evaluate();
         }
     }

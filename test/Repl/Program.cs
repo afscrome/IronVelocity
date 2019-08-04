@@ -1,4 +1,6 @@
-﻿using IronVelocity.CodeAnalysis.Syntax;
+﻿using IronVelocity.CodeAnalysis;
+using IronVelocity.CodeAnalysis.Binding;
+using IronVelocity.CodeAnalysis.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -26,27 +28,36 @@ namespace IronVelocity.Repl
                     return;
                 }
 
-                switch(line.ToLower())
+                try
                 {
-                    case "#showtokens":
-                        _printTokens = !_printTokens;
-                        WriteLineToConsole(ConsoleColor.DarkGray, "Print Tokens: " + _printTokens);
-                        break;
+                    switch (line.ToLower())
+                    {
+                        case "#showtokens":
+                            _printTokens = !_printTokens;
+                            WriteLineToConsole(ConsoleColor.DarkGray, "Print Tokens: " + _printTokens);
+                            break;
 
-                    case "#showtree":
-                        _printTree = !_printTree;
-                        WriteLineToConsole(ConsoleColor.DarkGray, "Print Tree: " + _printTree);
-                        break;
+                        case "#showtree":
+                            _printTree = !_printTree;
+                            WriteLineToConsole(ConsoleColor.DarkGray, "Print Tree: " + _printTree);
+                            break;
 
-                    case var x when string.IsNullOrWhiteSpace(line):
-                        return;
+                        case var x when string.IsNullOrWhiteSpace(line):
+                            return;
 
-                    default:
-                        EvaluateLine(line);
-                        break;
+                        default:
+                            EvaluateLine(line);
+                            break;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    WriteLineToConsole(ConsoleColor.Red, "Failed to Evaluate:");
+                    WriteLineToConsole(ConsoleColor.Red, ex);
                 }
                 Console.WriteLine();
             }
+
 
         }
 
@@ -82,23 +93,28 @@ namespace IronVelocity.Repl
                         PrintParseTree(syntaxTree);
                     }
 
-                    try
+                    var binder = new Binder();
+
+                    var boundExpression = binder.BindExpression(syntaxTree.Root);
+
+                    if (binder.Diagnostics.Any())
                     {
-                        var evaluator = new Evaluator(syntaxTree);
+                        PrintErrors(syntaxTree.Diagnostics);
+                    }
+                    else
+                    {
+                        var evaluator = new Evaluator(boundExpression);
                         WriteLineToConsole(ConsoleColor.DarkGreen, evaluator.Evaluate());
                     }
-                    catch(Exception ex)
-                    {
-                        WriteLineToConsole(ConsoleColor.Red, "Failed to Evaluate:");
-                        WriteLineToConsole(ConsoleColor.Red, ex);
-                    }
+
+
                 }
             }
         }
 
         private static void PrintErrors(IEnumerable<string> errors)
         {
-            foreach(var error in errors)
+            foreach (var error in errors)
             {
                 WriteLineToConsole(ConsoleColor.Red, error);
             }
