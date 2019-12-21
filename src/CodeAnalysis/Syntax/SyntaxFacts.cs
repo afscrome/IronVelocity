@@ -12,13 +12,18 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 // Multiplicative
                 case SyntaxKind.StarToken:
                 case SyntaxKind.SlashToken:
-                    return 2;
+                    return 4;
 
                 //Additive
                 case SyntaxKind.PlusToken:
                 case SyntaxKind.MinusToken:
-                    return 1;
+                    return 3;
 
+                case SyntaxKind.AmpersandAmpersand:
+                    return 2;
+
+                case SyntaxKind.PipePipe:
+                    return 1;
                 //Not Binary Operator
                 default:
                     return 0;
@@ -32,7 +37,8 @@ namespace IronVelocity.CodeAnalysis.Syntax
             {
                 case SyntaxKind.PlusToken:
                 case SyntaxKind.MinusToken:
-                    return 3;
+                case SyntaxKind.BangToken:
+                    return 1;
 
                 default:
                     return 0;
