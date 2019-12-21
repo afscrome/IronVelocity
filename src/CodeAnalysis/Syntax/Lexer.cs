@@ -87,13 +87,17 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 case '%':
                     return BasicToken(SyntaxKind.ModuloToken, "%");
 
+                case '=' when LookAhead == '=':
+                    return BasicToken(SyntaxKind.EqualsEqualsToken, "==");
+                case '!' when LookAhead == '=':
+                    return BasicToken(SyntaxKind.BangEqualsToken, "!=");
+
                 case '!':
                     return BasicToken(SyntaxKind.BangToken, "!");
                 case '&' when LookAhead == '&':
                     return BasicToken(SyntaxKind.AmpersandAmpersand, "&&");
                 case '|' when LookAhead == '|':
                     return BasicToken(SyntaxKind.PipePipe, "||");
-
 
                 case '0': case '1': case '2': case '3': case '4':
                 case '5': case '6': case '7': case '8': case '9':

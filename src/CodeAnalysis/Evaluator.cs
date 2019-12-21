@@ -64,10 +64,16 @@ namespace IronVelocity.CodeAnalysis
                     return (int)left * (int)right;
                 case BoundBinaryOperatorKind.Division:
                     return (int)left / (int)right;
+
                 case BoundBinaryOperatorKind.LogicalAnd:
                     return (bool)left && (bool)right;
                 case BoundBinaryOperatorKind.LogicalOr:
                     return (bool)left || (bool)right;
+
+                case BoundBinaryOperatorKind.Equality:
+                    return Equals(left, right);
+                case BoundBinaryOperatorKind.Inequality:
+                    return !Equals(left, right);
 
                 default:
                     throw new Exception($"Unexpected binary operator {expression.Operator.Kind}");
