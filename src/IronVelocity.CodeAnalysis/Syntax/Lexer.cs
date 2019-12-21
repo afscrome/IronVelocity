@@ -136,7 +136,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
 
             var text = TextSincePosition(start);
 
-            object value = null;
+            object? value = null;
             if (int.TryParse(text, out int number))
             {
                 value = number;

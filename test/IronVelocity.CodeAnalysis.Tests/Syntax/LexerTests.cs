@@ -129,7 +129,7 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
         }
 
         private static void AssertFirstToken(string input, SyntaxKind expectedKind) => AssertFirstToken(input, expectedKind, input);
-        private static void AssertFirstToken(string input, SyntaxKind expectedKind, string expectedTokenText, object expectedValue = null)
+        private static void AssertFirstToken(string input, SyntaxKind expectedKind, string expectedTokenText, object? expectedValue = null)
         {
             var lexer = new Lexer(input);
 
@@ -138,7 +138,7 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
             AssertToken(token, expectedKind, 0, expectedTokenText, expectedValue);
         }
 
-        private static void AssertToken(SyntaxToken token, SyntaxKind expectedKind, int expectedPosition, string expectedTokenText, object expectedValue = null)
+        private static void AssertToken(SyntaxToken token, SyntaxKind expectedKind, int expectedPosition, string expectedTokenText, object? expectedValue = null)
         {
             Assert.That(token.Kind, Is.EqualTo(expectedKind));
             Assert.That(token.Position, Is.EqualTo(expectedPosition));
