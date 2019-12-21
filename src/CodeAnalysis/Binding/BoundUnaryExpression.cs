@@ -4,16 +4,16 @@ namespace IronVelocity.CodeAnalysis.Binding
 {
     public class BoundUnaryExpression : BoundExpression
     {
-        public BoundUnaryExpression(BoundUnaryOperatorKind operatorKind, BoundExpression operand)
+        public BoundUnaryExpression(BoundUnaryOperator op, BoundExpression operand)
         {
-            OperatorKind = operatorKind;
+            Operator = op;
             Operand = operand;
         }
 
         public override Type Type => Operand.Type;
 
         public override BoundNodeKind Kind => BoundNodeKind.UnaryExpression;
-        public BoundUnaryOperatorKind OperatorKind { get; }
+        public BoundUnaryOperator Operator { get; }
         public BoundExpression Operand { get; }
     }
 }

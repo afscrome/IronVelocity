@@ -36,16 +36,16 @@ namespace IronVelocity.CodeAnalysis
         private object EvaluateUnaryExpression(BoundUnaryExpression expression)
         {
             var operandValue = EvaluateExpression(expression.Operand);
-            switch (expression.OperatorKind)
+            switch (expression.Operator.Kind)
             {
                 case BoundUnaryOperatorKind.Identity:
                     return (int)operandValue;
-                case BoundUnaryOperatorKind.Subtraction:
+                case BoundUnaryOperatorKind.Negation:
                     return -(int)operandValue;
                 case BoundUnaryOperatorKind.LogicalNegation:
                     return !(bool)operandValue;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(expression.OperatorKind), expression.OperatorKind, "Unexpected Unary Operator kind");
+                    throw new ArgumentOutOfRangeException(nameof(expression.Operator.Kind), expression.Operator.Kind, "Unexpected Unary Operator kind");
             }
         }
 
@@ -54,7 +54,7 @@ namespace IronVelocity.CodeAnalysis
             var left = EvaluateExpression(expression.Left);
             var right = EvaluateExpression(expression.Right);
 
-            switch (expression.OperatorKind)
+            switch (expression.Operator.Kind)
             {
                 case BoundBinaryOperatorKind.Addition:
                     return (int)left + (int)right;
@@ -70,7 +70,7 @@ namespace IronVelocity.CodeAnalysis
                     return (bool)left || (bool)right;
 
                 default:
-                    throw new Exception($"Unexpected binary operator {expression.OperatorKind}");
+                    throw new Exception($"Unexpected binary operator {expression.Operator.Kind}");
             }
         }
     }
