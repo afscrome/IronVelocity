@@ -12,9 +12,9 @@ namespace IronVelocity.CodeAnalysis
             _root = root;
         }
 
-        public object Evaluate() => EvaluateExpression(_root);
+        public object? Evaluate() => EvaluateExpression(_root);
 
-        public object EvaluateExpression(BoundExpression expression)
+        public object? EvaluateExpression(BoundExpression expression)
         {
             switch (expression)
             {
@@ -39,11 +39,11 @@ namespace IronVelocity.CodeAnalysis
             switch (expression.Operator.Kind)
             {
                 case BoundUnaryOperatorKind.Identity:
-                    return (int)operandValue;
+                    return (int)operandValue!;
                 case BoundUnaryOperatorKind.Negation:
-                    return -(int)operandValue;
+                    return -(int)operandValue!;
                 case BoundUnaryOperatorKind.LogicalNegation:
-                    return !(bool)operandValue;
+                    return !(bool)operandValue!;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(expression.Operator.Kind), expression.Operator.Kind, "Unexpected Unary Operator kind");
             }
@@ -57,18 +57,18 @@ namespace IronVelocity.CodeAnalysis
             switch (expression.Operator.Kind)
             {
                 case BoundBinaryOperatorKind.Addition:
-                    return (int)left + (int)right;
+                    return (int)left! + (int)right!;
                 case BoundBinaryOperatorKind.Subtraction:
-                    return (int)left - (int)right;
+                    return (int)left! - (int)right!;
                 case BoundBinaryOperatorKind.Multiplication:
-                    return (int)left * (int)right;
+                    return (int)left! * (int)right!;
                 case BoundBinaryOperatorKind.Division:
-                    return (int)left / (int)right;
+                    return (int)left! / (int)right!;
 
                 case BoundBinaryOperatorKind.LogicalAnd:
-                    return (bool)left && (bool)right;
+                    return (bool)left! && (bool)right!;
                 case BoundBinaryOperatorKind.LogicalOr:
-                    return (bool)left || (bool)right;
+                    return (bool)left! || (bool)right!;
 
                 case BoundBinaryOperatorKind.Equality:
                     return Equals(left, right);

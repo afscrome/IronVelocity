@@ -47,7 +47,7 @@ namespace IronVelocity.Tests.CodeAnalysis
             Assert.That(EvaluateString(input), Is.EqualTo(expectedValue));
         }
 
-        private object EvaluateString(string input)
+        private object? EvaluateString(string input)
         {
             var lexer = new Lexer(input);
 

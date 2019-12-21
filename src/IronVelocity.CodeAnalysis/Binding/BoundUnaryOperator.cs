@@ -7,7 +7,12 @@ namespace IronVelocity.CodeAnalysis.Binding
 {
     public class BoundUnaryOperator
     {
-        private BoundUnaryOperator(SyntaxKind syntaxKind, BoundUnaryOperatorKind kind, Type operandType, Type resultType = null)
+        private BoundUnaryOperator(SyntaxKind syntaxKind, BoundUnaryOperatorKind kind, Type type):
+            this(syntaxKind, kind, type, type)
+        {
+        }
+
+        private BoundUnaryOperator(SyntaxKind syntaxKind, BoundUnaryOperatorKind kind, Type operandType, Type resultType)
         {
             SyntaxKind = syntaxKind;
             Kind = kind;

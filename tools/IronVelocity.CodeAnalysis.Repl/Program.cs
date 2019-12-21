@@ -154,7 +154,7 @@ namespace IronVelocity.Repl
             Console.ResetColor();
         }
 
-        private static void WriteLineToConsole(ConsoleColor color, object text)
+        private static void WriteLineToConsole(ConsoleColor color, object? text)
         {
             Console.ForegroundColor = color;
             Console.WriteLine(text);
