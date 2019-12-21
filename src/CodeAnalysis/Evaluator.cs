@@ -35,13 +35,15 @@ namespace IronVelocity.CodeAnalysis
 
         private object EvaluateUnaryExpression(BoundUnaryExpression expression)
         {
-            var operandValue = (int)EvaluateExpression(expression.Operand);
+            var operandValue = EvaluateExpression(expression.Operand);
             switch (expression.OperatorKind)
             {
                 case BoundUnaryOperatorKind.Identity:
-                    return operandValue;
+                    return (int)operandValue;
                 case BoundUnaryOperatorKind.Subtraction:
-                    return -operandValue;
+                    return -(int)operandValue;
+                case BoundUnaryOperatorKind.LogicalNegation:
+                    return !(bool)operandValue;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(expression.OperatorKind), expression.OperatorKind, "Unexpected Unary Operator kind");
             }
@@ -49,19 +51,24 @@ namespace IronVelocity.CodeAnalysis
 
         private object EvaluateBinaryExpression(BoundBinaryExpression expression)
         {
-            var left = (int)EvaluateExpression(expression.Left);
-            var right = (int)EvaluateExpression(expression.Right);
+            var left = EvaluateExpression(expression.Left);
+            var right = EvaluateExpression(expression.Right);
 
             switch (expression.OperatorKind)
             {
                 case BoundBinaryOperatorKind.Addition:
-                    return left + right;
+                    return (int)left + (int)right;
                 case BoundBinaryOperatorKind.Subtraction:
-                    return left - right;
+                    return (int)left - (int)right;
                 case BoundBinaryOperatorKind.Multiplication:
-                    return left * right;
+                    return (int)left * (int)right;
                 case BoundBinaryOperatorKind.Division:
-                    return left / right;
+                    return (int)left / (int)right;
+                case BoundBinaryOperatorKind.LogicalAnd:
+                    return (bool)left && (bool)right;
+                case BoundBinaryOperatorKind.LogicalOr:
+                    return (bool)left || (bool)right;
+
                 default:
                     throw new Exception($"Unexpected binary operator {expression.OperatorKind}");
             }

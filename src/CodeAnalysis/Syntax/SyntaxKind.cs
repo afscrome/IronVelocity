@@ -27,5 +27,8 @@ namespace IronVelocity.CodeAnalysis.Syntax
         TrueKeyword,
         FalseKeyword,
         IdentifierToken,
+        BangToken,
+        AmpersandAmpersand,
+        PipePipe,
     }
 }
