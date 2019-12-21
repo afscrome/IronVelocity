@@ -30,5 +30,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
         BangToken,
         AmpersandAmpersand,
         PipePipe,
+        EqualsEqualsToken,
+        BangEqualsToken,
     }
 }

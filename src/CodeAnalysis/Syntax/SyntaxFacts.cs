@@ -1,7 +1,4 @@
-﻿using IronVelocity.CodeAnalysis.Syntax;
-using System;
-
-namespace IronVelocity.CodeAnalysis.Syntax
+﻿namespace IronVelocity.CodeAnalysis.Syntax
 {
     public static class SyntaxFacts
     {
@@ -12,18 +9,26 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 // Multiplicative
                 case SyntaxKind.StarToken:
                 case SyntaxKind.SlashToken:
-                    return 4;
+                    return 5;
 
                 //Additive
                 case SyntaxKind.PlusToken:
                 case SyntaxKind.MinusToken:
+                    return 4;
+
+                //Equality
+                case SyntaxKind.EqualsEqualsToken:
+                case SyntaxKind.BangEqualsToken:
                     return 3;
 
+                //Logical And
                 case SyntaxKind.AmpersandAmpersand:
                     return 2;
 
+                //Logical Or
                 case SyntaxKind.PipePipe:
                     return 1;
+
                 //Not Binary Operator
                 default:
                     return 0;
