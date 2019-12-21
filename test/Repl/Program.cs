@@ -99,15 +99,13 @@ namespace IronVelocity.Repl
 
                     if (binder.Diagnostics.Any())
                     {
-                        PrintErrors(syntaxTree.Diagnostics);
+                        PrintErrors(binder.Diagnostics);
                     }
                     else
                     {
                         var evaluator = new Evaluator(boundExpression);
                         WriteLineToConsole(ConsoleColor.DarkGreen, evaluator.Evaluate());
                     }
-
-
                 }
             }
         }

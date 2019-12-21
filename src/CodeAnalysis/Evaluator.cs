@@ -12,9 +12,9 @@ namespace IronVelocity.CodeAnalysis
             _root = root;
         }
 
-        public int Evaluate() => EvaluateExpression(_root);
+        public object Evaluate() => EvaluateExpression(_root);
 
-        public int EvaluateExpression(BoundExpression expression)
+        public object EvaluateExpression(BoundExpression expression)
         {
             switch (expression)
             {
@@ -22,7 +22,7 @@ namespace IronVelocity.CodeAnalysis
                     return EvaluateUnaryExpression(u);
 
                 case BoundLiteralExpression n:
-                    return (int)n.Value;
+                    return n.Value;
 
                 case BoundBinaryExpression b:
                     return EvaluateBinaryExpression(b);
@@ -33,23 +33,24 @@ namespace IronVelocity.CodeAnalysis
             }
         }
 
-        private int EvaluateUnaryExpression(BoundUnaryExpression expression)
+        private object EvaluateUnaryExpression(BoundUnaryExpression expression)
         {
+            var operandValue = (int)EvaluateExpression(expression.Operand);
             switch (expression.OperatorKind)
             {
                 case BoundUnaryOperatorKind.Identity:
-                    return EvaluateExpression(expression.Operand);
+                    return operandValue;
                 case BoundUnaryOperatorKind.Subtraction:
-                    return -EvaluateExpression(expression.Operand);
+                    return -operandValue;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(expression.OperatorKind), expression.OperatorKind, "Unexpected Unary Operator kind");
             }
         }
 
-        private int EvaluateBinaryExpression(BoundBinaryExpression expression)
+        private object EvaluateBinaryExpression(BoundBinaryExpression expression)
         {
-            var left = EvaluateExpression(expression.Left);
-            var right = EvaluateExpression(expression.Right);
+            var left = (int)EvaluateExpression(expression.Left);
+            var right = (int)EvaluateExpression(expression.Right);
 
             switch (expression.OperatorKind)
             {

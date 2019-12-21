@@ -52,20 +52,28 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
                     return new[] { Slash };
                 case SyntaxKind.ModuloToken:
                     return new[] { Modulo };
+                case SyntaxKind.TrueKeyword:
+                    return new[] { True };
+                case SyntaxKind.FalseKeyword:
+                    return new[] { False };
+                case SyntaxKind.IdentifierToken:
+                    return Identifier;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, $"No samples defined for SyntaxKind.{kind}");
             }
         }
 
-        public static string Dollar = "$";
-        public static string Hash = "#";
-        public static string OpenParenthesis = "(";
-        public static string CloseParenthesis = ")";
-        public static string Plus = "+";
-        public static string Minus = "-";
-        public static string Star = "*";
-        public static string Slash = "/";
-        public static string Modulo = "%";
+        public static readonly string Dollar = "$";
+        public static readonly string Hash = "#";
+        public static readonly string OpenParenthesis = "(";
+        public static readonly string CloseParenthesis = ")";
+        public static readonly string Plus = "+";
+        public static readonly string Minus = "-";
+        public static readonly string Star = "*";
+        public static readonly string Slash = "/";
+        public static readonly string Modulo = "%";
+        public static readonly string True = "true";
+        public static readonly string False = "false";
 
         public static readonly IReadOnlyCollection<string> EndOfFile = ImmutableArray<string>.Empty; // End of File is not a real token that can be generated
         public static readonly IReadOnlyCollection<string> BadToken = new[] { "?" };
@@ -90,6 +98,11 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
             "0", "1", "2", "3", "4",
             "5", "6", "7", "8", "9",
             "0123456789",
+        };
+
+        public static readonly IReadOnlyCollection<string> Identifier = new[]
+        {
+            "A", "Z", "a", "z", "Identifier"
         };
 
         public static readonly IReadOnlyCollection<string> Literal = new[]
