@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+    <PackageReference Include="Nunit" Version="3.12.0" />
+    <PackageReference Include="Nunit3TestAdapter" Version="3.13.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\IronVelocity.CodeAnalysis\IronVelocity.CodeAnalysis.csproj" />
+  </ItemGroup>
+</Project>
