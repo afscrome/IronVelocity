@@ -91,6 +91,9 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 case '5': case '6': case '7': case '8': case '9':
                     return Number();
 
+                case var c when char.IsLetter(c):
+                    return Keyword();
+
                 default:
                     ReportError($"ERROR: Unexpected character <{Current}>");
                     return BasicToken(SyntaxKind.BadToken, Current.ToString());
@@ -132,6 +135,21 @@ namespace IronVelocity.CodeAnalysis.Syntax
             }
 
             return new SyntaxToken(SyntaxKind.NumberToken, start, text, value);
+        }
+
+        private SyntaxToken Keyword()
+        {
+            int start = _position;
+
+            while (char.IsLetter(Current))
+            {
+                _position++;
+            }
+
+            var text = TextSincePosition(start);
+            var kind = SyntaxFacts.GetKeywordKind(text);
+
+            return new SyntaxToken(kind, start, text);
         }
 
         private void ReportError(string message)

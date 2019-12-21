@@ -3,7 +3,7 @@ using IronVelocity.CodeAnalysis.Binding;
 using IronVelocity.CodeAnalysis.Syntax;
 using NUnit.Framework;
 
-namespace IronVelocity.Tests.CodeAnalysis.Syntax
+namespace IronVelocity.Tests.CodeAnalysis
 {
     public class EvaluatorTests
     {
@@ -35,12 +35,19 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
         [TestCase("3*7+1", 22)]
         [TestCase("(0)", 0)]
         [TestCase("3*(4+5)", 27)]
-        public void ExpressionTests(string input, int expectedValue)
+        public void NumericExpressionTests(string input, int expectedValue)
         {
             Assert.That(EvaluateString(input), Is.EqualTo(expectedValue));
         }
 
-        private int EvaluateString(string input)
+        [TestCase("true", true)]
+        [TestCase("false", false)]
+        public void BooleanTest(string input, bool expectedValue)
+        {
+            Assert.That(EvaluateString(input), Is.EqualTo(expectedValue));
+        }
+
+        private object EvaluateString(string input)
         {
             var lexer = new Lexer(input);
 

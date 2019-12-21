@@ -80,41 +80,50 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
 
         private static bool CanCombineTokenTypes(SyntaxKind left, SyntaxKind right)
         {
-            //Two numbers in a row are a single larger number
-            if (left == SyntaxKind.NumberToken && right == SyntaxKind.NumberToken)
-            {
-                return false;
-            }
-
-            //If the start is a single line comment, anything that isn't a new line becomes part of the comment
-            if (left == SyntaxKind.SingleLineComment)
-            {
-                return right == SyntaxKind.VerticalWhitespaceToken;
-            }
-
-            //If the left is a hash, any token on the right starting with a hash  or star will become a comment
-            if (left == SyntaxKind.HashToken)
-            {
-                return right != SyntaxKind.SingleLineComment
-                    && right != SyntaxKind.BlockComment
-                    && right != SyntaxKind.LiteralToken
-                    && right != SyntaxKind.HashToken
-                    && right != SyntaxKind.StarToken;
-            }
-
             //If left and right are the same kind, concatenating the input will
-            //sometimes result in one bigger token, rather than two seperate ones
+            //often result in one bigger token, rather than two seperate ones
             if (left == right)
             {
-                switch(left)
+                switch (left)
                 {
+                    case SyntaxKind.NumberToken:
                     case SyntaxKind.HorizontalWhitespaceToken:
                     case SyntaxKind.VerticalWhitespaceToken:
                     case SyntaxKind.SingleLineComment:
+                    case SyntaxKind.TrueKeyword:
+                    case SyntaxKind.FalseKeyword:
+                    case SyntaxKind.IdentifierToken:
                         return false;
                 }
             }
 
+            switch (left)
+            {
+                //If the start is a single line comment, anything that isn't a new line becomes part of the comment
+                case SyntaxKind.SingleLineComment when right != SyntaxKind.VerticalWhitespaceToken:
+                    return false;
+
+                //If the left is a hash, any token on the right starting with a hash or star will become some form of comment
+                case SyntaxKind.HashToken:
+                    if (right == SyntaxKind.SingleLineComment
+                        || right == SyntaxKind.BlockComment
+                        || right == SyntaxKind.LiteralToken
+                        || right == SyntaxKind.HashToken
+                        || right == SyntaxKind.StarToken)
+                    {
+                        return false;
+                    };
+                    break;
+
+                // Two keywords / identifiers will combine to a single large identifier
+                case SyntaxKind.TrueKeyword:
+                case SyntaxKind.FalseKeyword:
+                case SyntaxKind.IdentifierToken:
+                    if (right == SyntaxKind.TrueKeyword || right == SyntaxKind.FalseKeyword || right == SyntaxKind.IdentifierToken)
+                        return false;
+                    break;
+
+            }
 
             return true;
         }
