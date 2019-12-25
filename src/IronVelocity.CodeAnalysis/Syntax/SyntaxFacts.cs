@@ -38,7 +38,7 @@
 
         public static int GetUnaryOperatorPrecedence(SyntaxKind kind)
         {
-            switch(kind)
+            switch (kind)
             {
                 case SyntaxKind.PlusToken:
                 case SyntaxKind.MinusToken:
@@ -52,7 +52,7 @@
 
         public static SyntaxKind GetKeywordKind(string text)
         {
-            switch(text)
+            switch (text)
             {
                 case "true":
                     return SyntaxKind.TrueKeyword;
@@ -61,6 +61,30 @@
                 default:
                     return SyntaxKind.IdentifierToken;
             }
+        }
+
+        public static string? GetText(SyntaxKind kind)
+        {
+            return kind switch
+            {
+                SyntaxKind.DollarToken => "$",
+                SyntaxKind.HashToken => "#",
+                SyntaxKind.OpenParenthesisToken => "(",
+                SyntaxKind.CloseParenthesisToken => ")",
+                SyntaxKind.PlusToken => "+",
+                SyntaxKind.MinusToken => "-",
+                SyntaxKind.StarToken => "*",
+                SyntaxKind.SlashToken => "/",
+                SyntaxKind.ModuloToken => "%",
+                SyntaxKind.TrueKeyword => "true",
+                SyntaxKind.FalseKeyword => "false",
+                SyntaxKind.BangToken => "!",
+                SyntaxKind.BangEqualsToken => "!=",
+                SyntaxKind.EqualsEqualsToken => "==",
+                SyntaxKind.AmpersandAmpersand => "&&",
+                SyntaxKind.PipePipe => "||",
+                _ => null
+            };
         }
     }
 }
