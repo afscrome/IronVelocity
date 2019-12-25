@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -8,9 +7,8 @@ namespace IronVelocity.CodeAnalysis.Syntax
     public class Parser
     {
         private readonly IImmutableList<SyntaxToken> _tokens;
+        private readonly DiagnosticBag _diagnostics = new DiagnosticBag();
         private int _position;
-
-        public IImmutableList<string> Diagnostics { get; private set; } = ImmutableList<string>.Empty;
 
         public Parser(IEnumerable<SyntaxToken> tokens)
         {
@@ -44,7 +42,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
         {
             var expression = ParseExpression();
             Match(SyntaxKind.EndOfFileToken);
-            return new SyntaxTree(Diagnostics, expression);
+            return new SyntaxTree(_diagnostics.Diagnostics, expression);
         }
 
 
@@ -100,7 +98,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
 
                 default:
                     //TODO: Better error handling
-                    ReportError($"ERROR: Unexpected Token <{Current.Kind}>, expected <NumberToken> or <OpenParenthesisToken>");
+                    _diagnostics.ReportUnexpectedToken(Current, SyntaxKind.FalseKeyword, SyntaxKind.NumberToken, SyntaxKind.OpenParenthesisToken, SyntaxKind.TrueKeyword);
                     return new LiteralExpressionSyntax(new SyntaxToken(SyntaxKind.BadToken, Current.Position, Current.Text), null);
             }
 
@@ -119,15 +117,9 @@ namespace IronVelocity.CodeAnalysis.Syntax
             }
             else
             {
-                ReportError($"ERROR: Unexpected token <{Current.Kind}>, expected <{kind}>");
+                _diagnostics.ReportUnexpectedToken(Current, kind);
                 return new SyntaxToken(kind, Current.Position, Current.Text);
             }
         }
-
-        private void ReportError(string message)
-        {
-            Diagnostics = Diagnostics.Add(message);
-        }
-
     }
 }

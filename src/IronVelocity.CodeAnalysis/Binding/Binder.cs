@@ -6,7 +6,9 @@ namespace IronVelocity.CodeAnalysis.Binding
 {
     public class Binder
     {
-        public IImmutableList<string> Diagnostics { get; private set; } = ImmutableList<string>.Empty;
+        private readonly DiagnosticBag _diagnostics = new DiagnosticBag();
+
+        public IImmutableList<Diagnostic> Diagnostics => _diagnostics.Diagnostics;
 
         public BoundExpression BindExpression(ExpressionSyntax syntax)
         {
@@ -33,7 +35,7 @@ namespace IronVelocity.CodeAnalysis.Binding
 
             if (op == null)
             {
-                ReportError($"Binary operator '{syntax.OperatorToken.Text}' not defined for types {left.Type} and {right.Type}");
+                _diagnostics.ReportUndefinedBinaryOperator(syntax.OperatorToken, left.Type, right.Type);
                 return left;
             }
 
@@ -58,17 +60,12 @@ namespace IronVelocity.CodeAnalysis.Binding
 
             if (op == null)
             {
-                ReportError($"Unary operator '{syntax.OperatorToken.Text}' not defined for type {operand.Type}");
+                _diagnostics.ReportUndefinedUnaryOperator(syntax.OperatorToken, operand.Type);
                 return operand;
             }
 
 
             return new BoundUnaryExpression(op, operand);
-        }
-
-        private void ReportError(string message)
-        {
-            Diagnostics = Diagnostics.Add(message);
         }
     }
 }

@@ -68,7 +68,7 @@ namespace IronVelocity.Repl
 
             if (lexer.Diagnostics.Any())
             {
-                PrintErrors(lexer.Diagnostics);
+                PrintErrors(line, lexer.Diagnostics);
                 PrintTokens(tokens);
             }
             else
@@ -79,11 +79,11 @@ namespace IronVelocity.Repl
                 }
 
 
-                var parser = new IronVelocity.CodeAnalysis.Syntax.Parser(tokens);
+                var parser = new Parser(tokens);
                 var syntaxTree = parser.Parse();
                 if (syntaxTree.Diagnostics.Any())
                 {
-                    PrintErrors(syntaxTree.Diagnostics);
+                    PrintErrors(line, syntaxTree.Diagnostics);
                     PrintParseTree(syntaxTree);
                 }
                 else
@@ -99,7 +99,7 @@ namespace IronVelocity.Repl
 
                     if (binder.Diagnostics.Any())
                     {
-                        PrintErrors(binder.Diagnostics);
+                        PrintErrors(line, binder.Diagnostics);
                     }
                     else
                     {
@@ -110,12 +110,25 @@ namespace IronVelocity.Repl
             }
         }
 
-        private static void PrintErrors(IEnumerable<string> errors)
+        private static void PrintErrors(string line, IEnumerable<Diagnostic> diagnostics)
         {
-            foreach (var error in errors)
+            foreach (var diagnostic in diagnostics)
             {
-                WriteLineToConsole(ConsoleColor.Red, error);
+                Console.WriteLine();
+
+                WriteLineToConsole(ConsoleColor.Red, diagnostic.Message);
+
+                var prefix = line.Substring(0, diagnostic.Span.Start);
+                var problemText = line.Substring(diagnostic.Span.Start, diagnostic.Span.Length);
+                var suffix = line.Substring(diagnostic.Span.End, line.Length - diagnostic.Span.End);
+
+                Console.Write("    ");
+                Console.Write(prefix);
+                WriteToConsole(ConsoleColor.DarkRed, problemText);
+                Console.WriteLine(suffix);
             }
+
+            Console.WriteLine();
         }
 
         private static void PrintTokens(IEnumerable<SyntaxToken> tokens)

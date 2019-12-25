@@ -8,8 +8,10 @@ namespace IronVelocity.CodeAnalysis.Syntax
     public class Lexer
     {
         private readonly SourceText _text;
+        private readonly DiagnosticBag _diagnostics = new DiagnosticBag();
         private int _position;
-        public IImmutableList<string> Diagnostics { get; private set; } = ImmutableList<string>.Empty;
+
+        public IImmutableList<Diagnostic> Diagnostics => _diagnostics.Diagnostics;
 
         public Lexer(string text)
         {
@@ -50,7 +52,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
             switch (Current)
             {
                 case '\0':
-                    return BasicToken(SyntaxKind.EndOfFileToken, "\0");
+                    return new SyntaxToken(SyntaxKind.EndOfFileToken, _position, "");
 
                 case '$':
                     return BasicToken(SyntaxKind.DollarToken, "$");
@@ -107,7 +109,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
                     return Keyword();
 
                 default:
-                    ReportError($"ERROR: Unexpected character <{Current}>");
+                    _diagnostics.ReportBadCharacter(_position, Current);
                     return BasicToken(SyntaxKind.BadToken, Current.ToString());
             }
         }
@@ -143,7 +145,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
             }
             else
             {
-                ReportError($"ERROR: Could not parse '{text}' as a number");
+                _diagnostics.ReportInvalidNumber(start, text);
             }
 
             return new SyntaxToken(SyntaxKind.NumberToken, start, text, value);
@@ -162,11 +164,6 @@ namespace IronVelocity.CodeAnalysis.Syntax
             var kind = SyntaxFacts.GetKeywordKind(text);
 
             return new SyntaxToken(kind, start, text);
-        }
-
-        private void ReportError(string message)
-        {
-            Diagnostics = Diagnostics.Add(message);
         }
 
         private SyntaxToken Literal()
