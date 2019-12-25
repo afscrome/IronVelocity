@@ -1,8 +1,6 @@
 ﻿using IronVelocity.CodeAnalysis.Syntax;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace IronVelocity.Tests.CodeAnalysis.Syntax
 {
@@ -10,7 +8,7 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
     {
         [Test]
         public void Lexes_EndOfFile_At_End_Of_Input()
-            => AssertFirstToken("", SyntaxKind.EndOfFileToken, "\0");
+            => AssertFirstToken("", SyntaxKind.EndOfFileToken, "");
 
         [TestCaseSource(nameof(SingleTokens))]
         public void Lexes_Single_Token(SyntaxKind kind, string input)
@@ -41,8 +39,6 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
 
         private static IEnumerable<object[]> SingleTokens()
         {
-            var results = new List<object[]>();
-
             foreach (var kind in TokenSamples.LexerTokenKinds)
             {
                 foreach (var sample in TokenSamples.GetSamplesForKind(kind))
@@ -122,6 +118,9 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
                     if (right == SyntaxKind.TrueKeyword || right == SyntaxKind.FalseKeyword || right == SyntaxKind.IdentifierToken)
                         return false;
                     break;
+
+                case SyntaxKind.BangToken when right == SyntaxKind.EqualsEqualsToken:
+                    return false;
 
             }
 

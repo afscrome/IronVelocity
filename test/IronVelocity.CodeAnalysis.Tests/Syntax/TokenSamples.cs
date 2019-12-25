@@ -35,45 +35,45 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
                 case SyntaxKind.VerticalWhitespaceToken:
                     return VerticalWhitespace;
                 case SyntaxKind.DollarToken:
-                    return new[] { Dollar };
+                    return new[] { "$" };
                 case SyntaxKind.HashToken:
-                    return new[] { Hash };
+                    return new[] { "#" };
                 case SyntaxKind.OpenParenthesisToken:
-                    return new[] { OpenParenthesis };
+                    return new[] { "(" };
                 case SyntaxKind.CloseParenthesisToken:
-                    return new[] { CloseParenthesis };
+                    return new[] { ")" };
                 case SyntaxKind.PlusToken:
-                    return new[] { Plus };
+                    return new[] { "+" };
                 case SyntaxKind.MinusToken:
-                    return new[] { Minus };
+                    return new[] { "-" };
                 case SyntaxKind.StarToken:
-                    return new[] { Star };
+                    return new[] { "*" };
                 case SyntaxKind.SlashToken:
-                    return new[] { Slash };
+                    return new[] { "/" };
                 case SyntaxKind.ModuloToken:
-                    return new[] { Modulo };
+                    return new[] { "%" };
                 case SyntaxKind.TrueKeyword:
-                    return new[] { True };
+                    return new[] { "true" };
                 case SyntaxKind.FalseKeyword:
-                    return new[] { False };
+                    return new[] { "false" };
                 case SyntaxKind.IdentifierToken:
                     return Identifier;
+                case SyntaxKind.BangToken:
+                    return new[] { "!" };
+                case SyntaxKind.BangEqualsToken:
+                    return new[] { "!=" };
+                case SyntaxKind.EqualsEqualsToken:
+                    return new[] { "==" };
+                case SyntaxKind.AmpersandAmpersand:
+                    return new[] { "&&" };
+                case SyntaxKind.PipePipe:
+                    return new[] { "||" };
+
+
                 default:
                     throw new ArgumentOutOfRangeException(nameof(kind), kind, $"No samples defined for SyntaxKind.{kind}");
             }
         }
-
-        public static readonly string Dollar = "$";
-        public static readonly string Hash = "#";
-        public static readonly string OpenParenthesis = "(";
-        public static readonly string CloseParenthesis = ")";
-        public static readonly string Plus = "+";
-        public static readonly string Minus = "-";
-        public static readonly string Star = "*";
-        public static readonly string Slash = "/";
-        public static readonly string Modulo = "%";
-        public static readonly string True = "true";
-        public static readonly string False = "false";
 
         public static readonly IReadOnlyCollection<string> EndOfFile = ImmutableArray<string>.Empty; // End of File is not a real token that can be generated
         public static readonly IReadOnlyCollection<string> BadToken = new[] { "?" };
