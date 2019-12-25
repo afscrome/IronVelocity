@@ -12,12 +12,12 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
                 Number(1234)
             };
 
-            var parser = new IronVelocity.CodeAnalysis.Syntax.Parser(tokens);
+            var parser = new Parser(tokens);
 
-            var expression = parser.ParseExpression();
+            var expression = parser.Parse()?.Root;
 
             Assert.That(expression, Is.InstanceOf<LiteralExpressionSyntax>());
-            var literal = (LiteralExpressionSyntax)expression;
+            var literal = (LiteralExpressionSyntax)expression!;
             Assert.That(literal.Value, Is.EqualTo(1234));
             Assert.That(literal.LiteralToken, Is.EqualTo(tokens[0]));
         }
@@ -32,13 +32,13 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
                 Number(72),
             };
 
-            var parser = new IronVelocity.CodeAnalysis.Syntax.Parser(tokens);
+            var parser = new Parser(tokens);
 
-            var expression = parser.ParseExpression();
+            var expression = parser.Parse()?.Root;
 
             Assert.That(expression, Is.InstanceOf<BinaryExpressionSyntax>());
 
-            var binaryExpression = (BinaryExpressionSyntax)expression;
+            var binaryExpression = (BinaryExpressionSyntax)expression!;
             Assert.That(binaryExpression.Left, Is.InstanceOf<LiteralExpressionSyntax>());
             Assert.That(binaryExpression.Right, Is.InstanceOf<LiteralExpressionSyntax>());
 
