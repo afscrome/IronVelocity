@@ -70,44 +70,39 @@ namespace IronVelocity.Repl
             {
                 PrintErrors(line, lexer.Diagnostics);
                 PrintTokens(tokens);
+                return;
             }
-            else
+
+            if (_printTokens)
             {
-                if (_printTokens)
-                {
-                    PrintTokens(tokens);
-                }
-
-
-                var parser = new Parser(tokens);
-                var syntaxTree = parser.Parse();
-                if (syntaxTree.Diagnostics.Any())
-                {
-                    PrintErrors(line, syntaxTree.Diagnostics);
-                    PrintParseTree(syntaxTree);
-                }
-                else
-                {
-                    if (_printTree)
-                    {
-                        PrintParseTree(syntaxTree);
-                    }
-
-                    var binder = new Binder();
-
-                    var boundExpression = binder.BindExpression(syntaxTree.Root);
-
-                    if (binder.Diagnostics.Any())
-                    {
-                        PrintErrors(line, binder.Diagnostics);
-                    }
-                    else
-                    {
-                        var evaluator = new Evaluator(boundExpression);
-                        WriteLineToConsole(ConsoleColor.DarkGreen, evaluator.Evaluate());
-                    }
-                }
+                PrintTokens(tokens);
             }
+
+
+            var parser = new Parser(tokens);
+            var syntaxTree = parser.Parse();
+            if (syntaxTree.Diagnostics.Any())
+            {
+                PrintErrors(line, syntaxTree.Diagnostics);
+                PrintParseTree(syntaxTree);
+                return;
+            }
+
+            if (_printTree)
+            {
+                PrintParseTree(syntaxTree);
+            }
+
+            var compilation = new Compilation(syntaxTree);
+            var result = compilation.Evaluate();
+
+            if (result.Diagnostics.Any())
+            {
+                PrintErrors(line, result.Diagnostics);
+                return;
+            }
+
+            WriteLineToConsole(ConsoleColor.DarkGreen, result.Value);
         }
 
         private static void PrintErrors(string line, IEnumerable<Diagnostic> diagnostics)
