@@ -1,7 +1,17 @@
-﻿namespace IronVelocity.CodeAnalysis.Syntax
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+
+namespace IronVelocity.CodeAnalysis.Syntax
 {
     public static class SyntaxFacts
     {
+        private static readonly ImmutableArray<SyntaxKind> _kinds = Enum.GetValues(typeof(SyntaxKind)).Cast<SyntaxKind>().ToImmutableArray();
+
+        public static IEnumerable<SyntaxKind> GetUnaryOperatorKinds() => _kinds.Where(x => GetUnaryOperatorPrecedence(x) > 0);
+        public static IEnumerable<SyntaxKind> GetBinaryOperatorKinds() => _kinds.Where(x => GetBinaryOperatorPrecedence(x) > 0);
+
         public static int GetBinaryOperatorPrecedence(SyntaxKind kind)
         {
             switch (kind)
