@@ -1,4 +1,5 @@
 ﻿using IronVelocity.CodeAnalysis.Syntax;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -6,7 +7,7 @@ using System.Linq;
 
 namespace IronVelocity.Tests.CodeAnalysis.Syntax
 {
-    public static class TokenSamples
+    public class TokenSamples
     {
         public static ImmutableArray<SyntaxKind> LexerTokenKinds { get; } = Enum
             .GetValues(typeof(SyntaxKind))
@@ -21,33 +22,22 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
             if (text != null)
                 return new[] { text };
 
-            switch (kind)
+            return kind switch
             {
-                case SyntaxKind.BadToken:
-                    return BadToken;
-                case SyntaxKind.EndOfFileToken:
-                    return EndOfFile;
-                case SyntaxKind.SingleLineComment:
-                    return SingleLineComment;
-                case SyntaxKind.BlockComment:
-                    return BlockComment;
-                case SyntaxKind.NumberToken:
-                    return Number;
-                case SyntaxKind.LiteralToken:
-                    return Literal;
-                case SyntaxKind.HorizontalWhitespaceToken:
-                    return HorizontalWhitespace;
-                case SyntaxKind.VerticalWhitespaceToken:
-                    return VerticalWhitespace;
-                case SyntaxKind.IdentifierToken:
-                    return Identifier;
-
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(kind), kind, $"No samples defined for SyntaxKind.{kind}");
-            }
+                SyntaxKind.BadToken => BadToken,
+                SyntaxKind.EndOfFileToken => EndOfFile,
+                SyntaxKind.SingleLineComment => SingleLineComment,
+                SyntaxKind.BlockComment => BlockComment,
+                SyntaxKind.NumberToken => Number,
+                SyntaxKind.LiteralToken => Literal,
+                SyntaxKind.HorizontalWhitespaceToken => HorizontalWhitespace,
+                SyntaxKind.VerticalWhitespaceToken => VerticalWhitespace,
+                SyntaxKind.IdentifierToken => Identifier,
+                _ => ImmutableArray<string>.Empty
+            };
         }
 
-        public static readonly IReadOnlyCollection<string> EndOfFile = ImmutableArray<string>.Empty; // End of File is not a real token that can be generated
+        public static readonly IReadOnlyCollection<string> EndOfFile = ImmutableArray<string>.Empty;
         public static readonly IReadOnlyCollection<string> BadToken = new[] { "?" };
 
         public static readonly IReadOnlyCollection<string> SingleLineComment = new[]
@@ -104,5 +94,17 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
             "\n\n\n",
             "\r\n\r\n\r\n",
         };
+
+        [TestCaseSource(nameof(LexerTokenKinds))]
+        public void SamplesDefinedForTokenKind(SyntaxKind kind)
+        {
+            if (kind == SyntaxKind.EndOfFileToken)
+            {
+                Assert.Pass();
+            }
+
+            Assert.That(GetSamplesForKind(kind), Is.Not.Empty);
+        }
+
     }
 }
