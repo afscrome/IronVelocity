@@ -13,7 +13,7 @@ namespace IronVelocity.CodeAnalysis.Binding
 
         public override Type Type => Operator.Type;
 
-        public override BoundNodeKind Kind => BoundNodeKind.UnaryExpression;
+        public override BoundNodeKind Kind => BoundNodeKind.BinaryExpression;
 
         public BoundExpression Left { get; }
         public BoundBinaryOperator Operator { get; }
