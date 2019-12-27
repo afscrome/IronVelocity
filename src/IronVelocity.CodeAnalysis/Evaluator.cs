@@ -16,37 +16,25 @@ namespace IronVelocity.CodeAnalysis
 
         public object? EvaluateExpression(BoundExpression expression)
         {
-            switch (expression)
+            return expression.Kind switch
             {
-                case BoundUnaryExpression u:
-                    return EvaluateUnaryExpression(u);
-
-                case BoundLiteralExpression n:
-                    return n.Value;
-
-                case BoundBinaryExpression b:
-                    return EvaluateBinaryExpression(b);
-
-                default:
-                    throw new Exception($"Unexpected expression kind {expression.Kind}");
-
-            }
+                BoundNodeKind.UnaryExpression => EvaluateUnaryExpression((BoundUnaryExpression)expression),
+                BoundNodeKind.LiteralExpression => ((BoundLiteralExpression)expression).Value,
+                BoundNodeKind.BinaryExpression => EvaluateBinaryExpression((BoundBinaryExpression)expression),
+                _ => throw new Exception($"Unexpected expression kind {expression.Kind}"),
+            };
         }
 
         private object EvaluateUnaryExpression(BoundUnaryExpression expression)
         {
             var operandValue = EvaluateExpression(expression.Operand);
-            switch (expression.Operator.Kind)
+            return expression.Operator.Kind switch
             {
-                case BoundUnaryOperatorKind.Identity:
-                    return (int)operandValue!;
-                case BoundUnaryOperatorKind.Negation:
-                    return -(int)operandValue!;
-                case BoundUnaryOperatorKind.LogicalNegation:
-                    return !(bool)operandValue!;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(expression.Operator.Kind), expression.Operator.Kind, "Unexpected Unary Operator kind");
-            }
+                BoundUnaryOperatorKind.Identity => (int)operandValue!,
+                BoundUnaryOperatorKind.Negation => -(int)operandValue!,
+                BoundUnaryOperatorKind.LogicalNegation => !(bool)operandValue!,
+                _ => throw new ArgumentOutOfRangeException(nameof(expression.Operator.Kind), expression.Operator.Kind, "Unexpected Unary Operator kind"),
+            };
         }
 
         private object EvaluateBinaryExpression(BoundBinaryExpression expression)
