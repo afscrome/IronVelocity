@@ -36,7 +36,20 @@ namespace IronVelocity.CodeAnalysis.Syntax
             var current = Current;
             _position++;
             return current;
-        }        
+        }
+
+        private SyntaxToken Match(SyntaxKind kind)
+        {
+            if (Current.Kind == kind)
+            {
+                return NextToken();
+            }
+            else
+            {
+                _diagnostics.ReportUnexpectedToken(Current, kind);
+                return new SyntaxToken(kind, Current.Position, Current.Text);
+            }
+        }
 
         public SyntaxTree Parse()
         {
@@ -44,7 +57,6 @@ namespace IronVelocity.CodeAnalysis.Syntax
             Match(SyntaxKind.EndOfFileToken);
             return new SyntaxTree(_diagnostics.Diagnostics, expression);
         }
-
 
         public ExpressionSyntax ParseExpression(int parentPrecedence = 0)
         {
@@ -75,26 +87,21 @@ namespace IronVelocity.CodeAnalysis.Syntax
             return left;
         }
 
-
         public ExpressionSyntax ParsePrimaryExpression()
         {
             switch(Current.Kind)
             {
                 case SyntaxKind.FalseKeyword:
-                    return ParseBoolean(false);
+                    return ParseBooleanLiteral(false);
 
                 case SyntaxKind.NumberToken:
-                    var numberToken = NextToken();
-                    return new LiteralExpressionSyntax(numberToken, numberToken.Value);
+                    return ParseNumberLiteral();
 
                 case SyntaxKind.OpenParenthesisToken:
-                    var open = NextToken();
-                    var expression = ParseExpression();
-                    var close = Match(SyntaxKind.CloseParenthesisToken);
-                    return new ParenthesisedExpressionSyntax(open, expression, close);
+                    return ParseParenthesisedExpression();
 
                 case SyntaxKind.TrueKeyword:
-                    return ParseBoolean(true);
+                    return ParseBooleanLiteral(true);
 
                 default:
                     //TODO: Better error handling
@@ -103,23 +110,25 @@ namespace IronVelocity.CodeAnalysis.Syntax
             }
 
         }
-        private ExpressionSyntax ParseBoolean(bool value)
+
+        private ExpressionSyntax ParseNumberLiteral()
+        {
+            var numberToken = Match(SyntaxKind.NumberToken);
+            return new LiteralExpressionSyntax(numberToken, numberToken.Value);
+        }
+
+        private ExpressionSyntax ParseParenthesisedExpression()
+        {
+            var open = Match(SyntaxKind.OpenParenthesisToken);
+            var expression = ParseExpression();
+            var close = Match(SyntaxKind.CloseParenthesisToken);
+            return new ParenthesisedExpressionSyntax(open, expression, close);
+        }
+
+        private ExpressionSyntax ParseBooleanLiteral(bool value)
         {
             var keywordToken = NextToken();
             return new LiteralExpressionSyntax(keywordToken, value);
-        }
-
-        private SyntaxToken Match(SyntaxKind kind)
-        {
-            if (Current.Kind == kind)
-            {
-                return NextToken();
-            }
-            else
-            {
-                _diagnostics.ReportUnexpectedToken(Current, kind);
-                return new SyntaxToken(kind, Current.Position, Current.Text);
-            }
         }
     }
 }
