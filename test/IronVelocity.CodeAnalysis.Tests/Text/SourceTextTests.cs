@@ -78,6 +78,24 @@ namespace IronVelocity.CodeAnalysis.Tests.Text
             Assert.That(sourceText.GetLineIndex(position), Is.EqualTo(expectedLine));
         }
 
+        [TestCase(0, 0, 0)]
+        [TestCase(3, 0, 3)]
+        [TestCase(4, 1, 0)]
+        [TestCase(8, 1, 4)]
+        [TestCase(9, 2, 0)]
+        [TestCase(13, 2, 4)]
+        public void Calculates_LineAndCharacter_Correctly(int position, int expectedLine, int expectedCharacter)
+        {
+            var input = "One\nTwo\r\nThree";
+
+            var sourceText = new SourceText(input);
+
+            var lineAndCharacter = sourceText.GetLineAndCharacterPosition(position);
+
+            Assert.That(lineAndCharacter.Line, Is.EqualTo(expectedLine));
+            Assert.That(lineAndCharacter.Character, Is.EqualTo(expectedCharacter));
+        }
+
         private void AssertLine(TextLine line, int expectedLineNumber, int expectedStart, string expectedText, string expectedLineBreak = "")
         {
             int expectedLength = expectedText.Length;

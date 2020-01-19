@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections.Immutable;
 
@@ -20,7 +19,7 @@ namespace IronVelocity.CodeAnalysis.Text
 
         public int GetLineIndex(int position)
         {
-            if (position >= _text.Length)
+            if (position > _text.Length)
                 throw new ArgumentOutOfRangeException(nameof(position), position, $"Position {position} is longer than the text length {_text.Length}");
 
             int lowerBound = 0;
@@ -90,6 +89,14 @@ namespace IronVelocity.CodeAnalysis.Text
 
             return textLines.ToImmutable();
 
+        }
+
+        public (int Line, int Character) GetLineAndCharacterPosition(int position)
+        {
+            var lineIndex = GetLineIndex(position);
+            var characterIndex = position - Lines[lineIndex].Start;
+
+            return (lineIndex, characterIndex);
         }
 
         public string Substring(int start, int length) => _text.Substring(start, length);
