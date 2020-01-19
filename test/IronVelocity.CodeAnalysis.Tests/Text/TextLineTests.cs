@@ -1,7 +1,7 @@
 using IronVelocity.CodeAnalysis.Text;
 using NUnit.Framework;
 
-namespace IronVelocity.Tests.CodeAnalysis.Text
+namespace IronVelocity.CodeAnalysis.Tests.Text
 {
     public class TextLineTests
     {

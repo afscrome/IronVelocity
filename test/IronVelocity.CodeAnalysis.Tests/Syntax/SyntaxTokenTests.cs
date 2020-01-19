@@ -1,7 +1,7 @@
 ﻿using IronVelocity.CodeAnalysis.Syntax;
 using NUnit.Framework;
 
-namespace IronVelocity.Tests.CodeAnalysis.Syntax
+namespace IronVelocity.CodeAnalysis.Tests.Syntax
 {
     public class SyntaxTokenTests
     {

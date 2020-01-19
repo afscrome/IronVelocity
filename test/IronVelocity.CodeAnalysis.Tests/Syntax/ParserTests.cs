@@ -2,9 +2,9 @@ using IronVelocity.CodeAnalysis.Syntax;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
-using static IronVelocity.Tests.CodeAnalysis.Syntax.SyntaxTreeAssertions;
+using static IronVelocity.CodeAnalysis.Tests.Syntax.SyntaxTreeAssertions;
 
-namespace IronVelocity.Tests.CodeAnalysis.Syntax
+namespace IronVelocity.CodeAnalysis.Tests.Syntax
 {
     public partial class ParserTests
     {
@@ -91,16 +91,10 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
         }
 
 
-        private static IEnumerable<object[]> BinaryOperatorPairs()
-            => GetAllPairs(SyntaxFacts.GetBinaryOperatorKinds());
-        private static IEnumerable<object[]> UnaryOperatorPairs()
-            => GetAllPairs(SyntaxFacts.GetUnaryOperatorKinds());
-
-        public static IEnumerable<object[]> GetAllPairs<T>(IEnumerable<T> values)
+        private static IEnumerable<SyntaxKind[]> BinaryOperatorPairs()
         {
-            return from left in values
-                   from right in values
-                   select new object[] { left, right };
+            return Helper.GetAllPairs(SyntaxFacts.GetBinaryOperatorKinds())
+                .Select(x => new[] { x.left, x.right });
         }
 
     }

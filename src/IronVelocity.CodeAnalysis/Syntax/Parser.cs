@@ -24,7 +24,10 @@ namespace IronVelocity.CodeAnalysis.Syntax
             var index = _position + offset;
 
             if (index >= _tokens.Count)
-                return _tokens.Last();
+            {
+                var lastToken = _tokens.Last();
+                return new SyntaxToken(SyntaxKind.EndOfFileToken, lastToken.Span.End, "", null);
+            }
 
             return _tokens[index];
         }

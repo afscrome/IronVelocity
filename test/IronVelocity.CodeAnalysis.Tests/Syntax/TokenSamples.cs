@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 
-namespace IronVelocity.Tests.CodeAnalysis.Syntax
+namespace IronVelocity.CodeAnalysis.Tests.Syntax
 {
     public class TokenSamples
     {

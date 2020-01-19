@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using System.Linq;
 
-namespace IronVelocity.Tests.CodeAnalysis.Syntax
+namespace IronVelocity.CodeAnalysis.Tests.Syntax
 {
     public class SyntaxTreeAssertions
     {
@@ -96,7 +96,7 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
 
         public void AssertNode(SyntaxNode node)
         {
-            foreach(var assetion in _assertions)
+            foreach (var assetion in _assertions)
             {
                 assetion(node);
             }

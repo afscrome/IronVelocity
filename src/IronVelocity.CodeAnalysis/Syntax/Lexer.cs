@@ -25,9 +25,9 @@ namespace IronVelocity.CodeAnalysis.Syntax
             while (true)
             {
                 var token = NextToken();
-                builder.Add(token);
                 if (token.Kind == SyntaxKind.EndOfFileToken)
                     break;
+                builder.Add(token);
             }
 
             return builder.ToImmutable();
@@ -197,13 +197,17 @@ namespace IronVelocity.CodeAnalysis.Syntax
         {
             int start = _position;
             _position += 2;
-            while (!(Current == '*' && LookAhead == '#'))
+            while (!(Current == '*' && LookAhead == '#') && LookAhead != '\0')
             {
                 _position++;
             }
 
-            _position += 2;
+            if (LookAhead == '\0')
+            {
+                return TokenSincePosition(SyntaxKind.BadToken, start);
+            }
 
+            _position += 2;
             return TokenSincePosition(SyntaxKind.BlockComment, start);
         }
 
