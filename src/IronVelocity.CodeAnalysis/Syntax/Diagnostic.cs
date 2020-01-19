@@ -1,7 +1,9 @@
 ﻿using IronVelocity.CodeAnalysis.Text;
+using System.Diagnostics;
 
 namespace IronVelocity.CodeAnalysis.Syntax
 {
+    [DebuggerDisplay("{Message}")]
     public class Diagnostic
     {
         public Diagnostic(TextSpan span, string message)
@@ -12,5 +14,10 @@ namespace IronVelocity.CodeAnalysis.Syntax
 
         public TextSpan Span { get; }
         public string Message { get; }
+
+        public override string ToString()
+        {
+            return Message;
+        }
     }
 }

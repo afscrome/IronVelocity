@@ -1,9 +1,8 @@
-﻿using IronVelocity.CodeAnalysis;
-using IronVelocity.CodeAnalysis.Binding;
+﻿using IronVelocity.CodeAnalysis.Binding;
 using IronVelocity.CodeAnalysis.Syntax;
 using NUnit.Framework;
 
-namespace IronVelocity.Tests.CodeAnalysis
+namespace IronVelocity.CodeAnalysis.Tests
 {
     public class EvaluatorTests
     {
@@ -54,7 +53,7 @@ namespace IronVelocity.Tests.CodeAnalysis
             var tokens = lexer.ReadAllTokens();
             Warn.If(lexer.Diagnostics, Is.Not.Empty);
 
-            var parser = new IronVelocity.CodeAnalysis.Syntax.Parser(tokens);
+            var parser = new Parser(tokens);
             var syntaxTree = parser.Parse();
 
             Warn.If(syntaxTree.Diagnostics, Is.Not.Empty);

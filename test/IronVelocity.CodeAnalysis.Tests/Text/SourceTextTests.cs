@@ -2,7 +2,7 @@ using IronVelocity.CodeAnalysis.Text;
 using NUnit.Framework;
 using System.Linq;
 
-namespace IronVelocity.Tests.CodeAnalysis.Text
+namespace IronVelocity.CodeAnalysis.Tests.Text
 {
     public class SourceTextTests
     {

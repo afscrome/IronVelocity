@@ -2,7 +2,7 @@ using System.Collections.Immutable;
 using IronVelocity.CodeAnalysis.Syntax;
 using NUnit.Framework;
 
-namespace IronVelocity.Tests.CodeAnalysis.Syntax
+namespace IronVelocity.CodeAnalysis.Tests.Syntax
 {
     public class ParseTreePrinterTests
     {
@@ -26,7 +26,7 @@ namespace IronVelocity.Tests.CodeAnalysis.Syntax
             Assert.That(result, Is.EqualTo("BadToken: 123"));
         }
 
-       [Test]
+        [Test]
         public void PrintsNodeWithSingleChild()
         {
             var input = new SyntaxNodeWithChildren(
@@ -41,7 +41,7 @@ LiteralExpression
  └─NumberToken: 42".TrimStart()));
         }
 
-       [Test]
+        [Test]
         public void PrintsNodeWithMultipleChildren()
         {
             var input = new SyntaxNodeWithChildren(
