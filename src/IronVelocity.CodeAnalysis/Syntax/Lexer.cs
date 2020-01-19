@@ -1,5 +1,3 @@
-
-using System;
 using System.Collections.Immutable;
 using IronVelocity.CodeAnalysis.Text;
 
@@ -14,8 +12,13 @@ namespace IronVelocity.CodeAnalysis.Syntax
         public IImmutableList<Diagnostic> Diagnostics => _diagnostics.Diagnostics;
 
         public Lexer(string text)
+            : this(new SourceText(text))
         {
-            _text = new SourceText(text);
+        }
+
+        public Lexer(SourceText text)
+        {
+            _text = text;
         }
 
         public ImmutableArray<SyntaxToken> ReadAllTokens()

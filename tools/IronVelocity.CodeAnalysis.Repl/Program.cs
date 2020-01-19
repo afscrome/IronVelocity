@@ -1,12 +1,10 @@
 ﻿using IronVelocity.CodeAnalysis;
-using IronVelocity.CodeAnalysis.Binding;
 using IronVelocity.CodeAnalysis.Syntax;
+using IronVelocity.CodeAnalysis.Text;
 using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace IronVelocity.Repl
 {
@@ -63,12 +61,13 @@ namespace IronVelocity.Repl
 
         private static void EvaluateLine(string line)
         {
-            var lexer = new Lexer(line);
+            var text = new SourceText(line);
+            var lexer = new Lexer(text);
             var tokens = lexer.ReadAllTokens();
 
             if (lexer.Diagnostics.Any())
             {
-                PrintErrors(line, lexer.Diagnostics);
+                PrintErrors(text, lexer.Diagnostics);
                 PrintTokens(tokens);
                 return;
             }
@@ -83,7 +82,7 @@ namespace IronVelocity.Repl
             var syntaxTree = parser.Parse();
             if (syntaxTree.Diagnostics.Any())
             {
-                PrintErrors(line, syntaxTree.Diagnostics);
+                PrintErrors(text, syntaxTree.Diagnostics);
                 PrintParseTree(syntaxTree);
                 return;
             }
@@ -98,29 +97,30 @@ namespace IronVelocity.Repl
 
             if (result.Diagnostics.Any())
             {
-                PrintErrors(line, result.Diagnostics);
+                PrintErrors(text, result.Diagnostics);
                 return;
             }
 
             WriteLineToConsole(ConsoleColor.DarkGreen, result.Value);
         }
 
-        private static void PrintErrors(string line, IEnumerable<Diagnostic> diagnostics)
+        private static void PrintErrors(SourceText text, IEnumerable<Diagnostic> diagnostics)
         {
             foreach (var diagnostic in diagnostics)
             {
+                var startPosition = text.GetLineAndCharacterPosition(diagnostic.Span.Start);
+                var line = text.Lines[startPosition.Line];
+
+                var linePrefix = text.Substring(line.Start, startPosition.Character);
+                var lineProblem = text.Substring(diagnostic.Span.Start, diagnostic.Span.Length);
+                var lineSuffix = text.Substring(diagnostic.Span.End, line.Length - diagnostic.Span.End);
+
                 Console.WriteLine();
-
-                WriteLineToConsole(ConsoleColor.Red, diagnostic.Message);
-
-                var prefix = line.Substring(0, diagnostic.Span.Start);
-                var problemText = line.Substring(diagnostic.Span.Start, diagnostic.Span.Length);
-                var suffix = line.Substring(diagnostic.Span.End, line.Length - diagnostic.Span.End);
-
+                WriteLineToConsole(ConsoleColor.Red, $"Line: {startPosition.Line + 1} Char: {startPosition.Character + 1} {diagnostic.Message}");
                 Console.Write("    ");
-                Console.Write(prefix);
-                WriteToConsole(ConsoleColor.DarkRed, problemText);
-                Console.WriteLine(suffix);
+                Console.Write(linePrefix);
+                WriteToConsole(ConsoleColor.DarkRed, lineProblem);
+                Console.WriteLine(lineSuffix);
             }
 
             Console.WriteLine();
