@@ -1,21 +1,21 @@
 ﻿using IronVelocity.CodeAnalysis.Text;
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 
 namespace IronVelocity.CodeAnalysis.Syntax
 {
-    public class DiagnosticBag
+    public class DiagnosticBag : IEnumerable<Diagnostic>
     {
         private readonly List<Diagnostic> _diagnostics = new List<Diagnostic>();
 
-        public IImmutableList<Diagnostic> Diagnostics => _diagnostics.ToImmutableList();
-
         private void Report(TextSpan span, string message)
-        {
-            _diagnostics.Add(new Diagnostic(span, message));
-        }
+            => _diagnostics.Add(new Diagnostic(span, message));
+
+        public void AddRange(DiagnosticBag diagnostics)
+            => _diagnostics.AddRange(diagnostics);
+
 
         public void ReportBadCharacter(int position, char character)
             => Report(new TextSpan(position, 1), $"Unexpected Character: '{character}'");
@@ -37,6 +37,11 @@ namespace IronVelocity.CodeAnalysis.Syntax
             => Report(operatorToken.Span, $"Binary operator '{operatorToken.Text}' not defiend between types {leftType} and {rightType}");
 
 
+        public IEnumerator<Diagnostic> GetEnumerator()
+            => _diagnostics.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator()
+            => _diagnostics.GetEnumerator();
     }
 
 

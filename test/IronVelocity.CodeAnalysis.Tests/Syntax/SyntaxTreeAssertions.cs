@@ -10,9 +10,7 @@ namespace IronVelocity.CodeAnalysis.Tests.Syntax
     {
         public static void AssertParseTree(string text, SyntaxTreeAssertions assertions)
         {
-            var tokens = new Lexer(text).ReadAllTokens();
-            var parser = new Parser(tokens);
-            var syntaxTree = parser.Parse();
+            var syntaxTree = SyntaxTree.Parse(text);
 
             AssertParseTree(syntaxTree, assertions);
         }
@@ -20,7 +18,7 @@ namespace IronVelocity.CodeAnalysis.Tests.Syntax
         public static void AssertParseTree(SyntaxTree syntaxTree, SyntaxTreeAssertions assertions)
         {
             Assert.That(syntaxTree.Diagnostics, Is.Empty);
-            assertions.AssertNode(syntaxTree.Root);
+            assertions.AssertNode(syntaxTree.Root.Expression);
         }
 
         public static SyntaxTreeAssertions Literal(object value)

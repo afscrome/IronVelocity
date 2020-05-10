@@ -1,14 +1,11 @@
 ﻿using IronVelocity.CodeAnalysis.Syntax;
 using System;
-using System.Collections.Immutable;
 
 namespace IronVelocity.CodeAnalysis.Binding
 {
     public class Binder
     {
-        private readonly DiagnosticBag _diagnostics = new DiagnosticBag();
-
-        public IImmutableList<Diagnostic> Diagnostics => _diagnostics.Diagnostics;
+        public DiagnosticBag Diagnostics { get; } = new DiagnosticBag();
 
         public BoundExpression BindExpression(ExpressionSyntax syntax)
         {
@@ -35,7 +32,7 @@ namespace IronVelocity.CodeAnalysis.Binding
 
             if (op == null)
             {
-                _diagnostics.ReportUndefinedBinaryOperator(syntax.OperatorToken, left.Type, right.Type);
+                Diagnostics.ReportUndefinedBinaryOperator(syntax.OperatorToken, left.Type, right.Type);
                 return left;
             }
 
@@ -60,7 +57,7 @@ namespace IronVelocity.CodeAnalysis.Binding
 
             if (op == null)
             {
-                _diagnostics.ReportUndefinedUnaryOperator(syntax.OperatorToken, operand.Type);
+                Diagnostics.ReportUndefinedUnaryOperator(syntax.OperatorToken, operand.Type);
                 return operand;
             }
 

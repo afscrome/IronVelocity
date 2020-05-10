@@ -62,24 +62,13 @@ namespace IronVelocity.Repl
         private static void EvaluateLine(string line)
         {
             var text = new SourceText(line);
-            var lexer = new Lexer(text);
-            var tokens = lexer.ReadAllTokens();
-
-            if (lexer.Diagnostics.Any())
-            {
-                PrintErrors(text, lexer.Diagnostics);
-                PrintTokens(tokens);
-                return;
-            }
+            var syntaxTree = SyntaxTree.Parse(text);
 
             if (_printTokens)
             {
-                PrintTokens(tokens);
+                PrintTokens(SyntaxTree.ParseTokens(text));
             }
 
-
-            var parser = new Parser(tokens);
-            var syntaxTree = parser.Parse();
             if (syntaxTree.Diagnostics.Any())
             {
                 PrintErrors(text, syntaxTree.Diagnostics);

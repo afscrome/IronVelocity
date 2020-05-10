@@ -3,7 +3,6 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace IronVelocity.CodeAnalysis.Tests.Syntax
 {
@@ -14,8 +13,8 @@ namespace IronVelocity.CodeAnalysis.Tests.Syntax
         {
             var text = SyntaxFacts.GetText(kind);
 
-            var lexer = new Lexer(text);
-            var token = lexer.NextToken();
+            var tokens = SyntaxTree.ParseTokens(text!);
+            var token = tokens.Where(x => x.Kind != SyntaxKind.EndOfFileToken).Single();
 
             Assert.That(token.Kind, Is.EqualTo(kind));
             Assert.That(token.Text, Is.EqualTo(text));

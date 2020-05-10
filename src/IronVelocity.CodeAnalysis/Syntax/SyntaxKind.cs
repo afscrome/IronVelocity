@@ -32,5 +32,6 @@ namespace IronVelocity.CodeAnalysis.Syntax
         PipePipe,
         EqualsEqualsToken,
         BangEqualsToken,
+        CompilationUnit,
     }
 }

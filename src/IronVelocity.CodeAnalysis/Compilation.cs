@@ -17,7 +17,7 @@ namespace IronVelocity.CodeAnalysis
         public EvaluationResult Evaluate()
         {
             var binder = new Binder();
-            var boundExpression = binder.BindExpression(SyntaxTree.Root);
+            var boundExpression = binder.BindExpression(SyntaxTree.Root.Expression);
 
             var diagnostics = SyntaxTree.Diagnostics.Concat(binder.Diagnostics).ToImmutableArray();
 
