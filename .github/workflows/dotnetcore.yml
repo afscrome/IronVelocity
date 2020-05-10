@@ -15,10 +15,6 @@ jobs:
 
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
-      with:
-        source-url: https://nuget.pkg.github.com/afscrome/index.json
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}         
 
     - name: Install dependencies
       run: dotnet restore
@@ -33,4 +29,4 @@ jobs:
       run: dotnet pack --no-restore -o ${{ runner.temp }}
       
     - name: Publish Artifacts to internal feed
-      run: dotnet nuget push ${{ runner.temp }} --skip-duplicate --no-symbols true
+      run: dotnet nuget push ${{ runner.temp }} --skip-duplicate --no-symbols true -k ${{ secrets.GITHUB_TOKEN }}
