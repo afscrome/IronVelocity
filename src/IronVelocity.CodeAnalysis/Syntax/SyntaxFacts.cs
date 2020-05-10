@@ -32,11 +32,11 @@ namespace IronVelocity.CodeAnalysis.Syntax
                     return 3;
 
                 //Logical And
-                case SyntaxKind.AmpersandAmpersand:
+                case SyntaxKind.AmpersandAmpersandToken:
                     return 2;
 
                 //Logical Or
-                case SyntaxKind.PipePipe:
+                case SyntaxKind.PipePipeToken:
                     return 1;
 
                 //Not Binary Operator
@@ -91,8 +91,8 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 SyntaxKind.BangToken => "!",
                 SyntaxKind.BangEqualsToken => "!=",
                 SyntaxKind.EqualsEqualsToken => "==",
-                SyntaxKind.AmpersandAmpersand => "&&",
-                SyntaxKind.PipePipe => "||",
+                SyntaxKind.AmpersandAmpersandToken => "&&",
+                SyntaxKind.PipePipeToken => "||",
                 _ => null
             };
         }

@@ -100,9 +100,9 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 case '!':
                     return BasicToken(SyntaxKind.BangToken, "!");
                 case '&' when LookAhead == '&':
-                    return BasicToken(SyntaxKind.AmpersandAmpersand, "&&");
+                    return BasicToken(SyntaxKind.AmpersandAmpersandToken, "&&");
                 case '|' when LookAhead == '|':
-                    return BasicToken(SyntaxKind.PipePipe, "||");
+                    return BasicToken(SyntaxKind.PipePipeToken, "||");
 
                 case '0': case '1': case '2': case '3': case '4':
                 case '5': case '6': case '7': case '8': case '9':
@@ -192,7 +192,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
                 _position++;
             }
 
-            return TokenSincePosition(SyntaxKind.SingleLineComment, start);
+            return TokenSincePosition(SyntaxKind.SingleLineCommentToken, start);
         }
 
 
@@ -211,7 +211,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
             }
 
             _position += 2;
-            return TokenSincePosition(SyntaxKind.BlockComment, start);
+            return TokenSincePosition(SyntaxKind.BlockCommentToken, start);
         }
 
         private SyntaxToken HorizontalWhitesapce()
