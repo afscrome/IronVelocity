@@ -20,13 +20,13 @@ jobs:
       run: dotnet restore
       
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --configuration Release --no-restore -p:Version=0.0.{{ github.run_number }}
       
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test --no-build --verbosity normal
       
     - name: Pack
-      run: dotnet pack --no-restore -o ${{ runner.temp }}
+      run: dotnet pack --no-build -o ${{ runner.temp }} --include-symbols
       
     - name: Publish Artifacts to internal feed
-      run: dotnet nuget push ${{ runner.temp }} --skip-duplicate --no-symbols true -k ${{ secrets.GITHUB_TOKEN }}
+      run: dotnet nuget push ${{ runner.temp }} --skip-duplicate --no-symbols true --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/afscrome/index.json
