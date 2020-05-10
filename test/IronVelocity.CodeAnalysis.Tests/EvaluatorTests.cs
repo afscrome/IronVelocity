@@ -48,18 +48,12 @@ namespace IronVelocity.CodeAnalysis.Tests
 
         private object? EvaluateString(string input)
         {
-            var lexer = new Lexer(input);
-
-            var tokens = lexer.ReadAllTokens();
-            Warn.If(lexer.Diagnostics, Is.Not.Empty);
-
-            var parser = new Parser(tokens);
-            var syntaxTree = parser.Parse();
+            var syntaxTree = SyntaxTree.Parse(input);
 
             Warn.If(syntaxTree.Diagnostics, Is.Not.Empty);
 
             var binder = new Binder();
-            var boundExpression = binder.BindExpression(syntaxTree.Root);
+            var boundExpression = binder.BindExpression(syntaxTree.Root.Expression);
             Warn.If(binder.Diagnostics, Is.Not.Empty);
 
             var evaluator = new Evaluator(boundExpression);

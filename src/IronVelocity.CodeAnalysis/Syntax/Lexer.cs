@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using IronVelocity.CodeAnalysis.Text;
 
@@ -6,10 +7,9 @@ namespace IronVelocity.CodeAnalysis.Syntax
     public class Lexer
     {
         private readonly SourceText _text;
-        private readonly DiagnosticBag _diagnostics = new DiagnosticBag();
+        public DiagnosticBag Diagnostics { get; } = new DiagnosticBag();
         private int _position;
 
-        public IImmutableList<Diagnostic> Diagnostics => _diagnostics.Diagnostics;
 
         public Lexer(string text)
             : this(new SourceText(text))
@@ -112,7 +112,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
                     return Keyword();
 
                 default:
-                    _diagnostics.ReportBadCharacter(_position, Current);
+                    Diagnostics.ReportBadCharacter(_position, Current);
                     return BasicToken(SyntaxKind.BadToken, Current.ToString());
             }
         }
@@ -148,7 +148,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
             }
             else
             {
-                _diagnostics.ReportInvalidNumber(start, text);
+                Diagnostics.ReportInvalidNumber(start, text);
             }
 
             return new SyntaxToken(SyntaxKind.NumberToken, start, text, value);

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using IronVelocity.CodeAnalysis.Text;
 using System.Collections.Immutable;
 using System.Linq;
 
@@ -6,18 +6,33 @@ namespace IronVelocity.CodeAnalysis.Syntax
 {
     public class Parser
     {
-        private readonly IImmutableList<SyntaxToken> _tokens;
         private readonly DiagnosticBag _diagnostics = new DiagnosticBag();
+        private readonly IImmutableList<SyntaxToken> _tokens;
         private int _position;
 
-        public Parser(IEnumerable<SyntaxToken> tokens)
+        public Parser(SourceText text)
         {
-            //This is an ugly hack - need a better long term solution for handling whitespace like this
-            _tokens = tokens
-                .Where(x => x.Kind != SyntaxKind.HorizontalWhitespaceToken)
-                .ToImmutableArray();
+            var tokens = ImmutableArray.CreateBuilder<SyntaxToken>();
+
+            var lexer = new Lexer(text);
+            SyntaxToken token;
+            do
+            {
+                token = lexer.NextToken();
+
+                if (token.Kind != SyntaxKind.HorizontalWhitespaceToken &&
+                    token.Kind != SyntaxKind.BadToken)
+                {
+                    tokens.Add(token);
+                }
+            } while (token.Kind != SyntaxKind.EndOfFileToken);
+
+
+            _tokens = tokens.ToImmutable();
+            _diagnostics.AddRange(lexer.Diagnostics);
         }
 
+        public DiagnosticBag Diagnostics { get; } = new DiagnosticBag();
 
         private SyntaxToken Peek(int offset)
         {
@@ -49,16 +64,16 @@ namespace IronVelocity.CodeAnalysis.Syntax
             }
             else
             {
-                _diagnostics.ReportUnexpectedToken(Current, kind);
+                Diagnostics.ReportUnexpectedToken(Current, kind);
                 return new SyntaxToken(kind, Current.Position, Current.Text);
             }
         }
 
-        public SyntaxTree Parse()
+        public CompilationUnitSyntax ParseCompilationUnit()
         {
             var expression = ParseExpression();
             Match(SyntaxKind.EndOfFileToken);
-            return new SyntaxTree(_diagnostics.Diagnostics, expression);
+            return new CompilationUnitSyntax(expression);
         }
 
         public ExpressionSyntax ParseExpression(int parentPrecedence = 0)
@@ -108,7 +123,7 @@ namespace IronVelocity.CodeAnalysis.Syntax
 
                 default:
                     //TODO: Better error handling
-                    _diagnostics.ReportUnexpectedToken(Current, SyntaxKind.FalseKeyword, SyntaxKind.NumberToken, SyntaxKind.OpenParenthesisToken, SyntaxKind.TrueKeyword);
+                    Diagnostics.ReportUnexpectedToken(Current, SyntaxKind.FalseKeyword, SyntaxKind.NumberToken, SyntaxKind.OpenParenthesisToken, SyntaxKind.TrueKeyword);
                     return new LiteralExpressionSyntax(new SyntaxToken(SyntaxKind.BadToken, Current.Position, Current.Text), null);
             }
 
