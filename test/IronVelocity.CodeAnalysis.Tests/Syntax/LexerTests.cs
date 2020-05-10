@@ -88,8 +88,8 @@ namespace IronVelocity.CodeAnalysis.Tests.Syntax
                     {
                         // Block comments after a # are complicated as if the comment contains a newline, the bit
                         // after the new line is no longer inside a comment.
-                        if ((kinds.left == SyntaxKind.HashToken || kinds.left == SyntaxKind.SingleLineComment)
-                            && kinds.right == SyntaxKind.BlockComment
+                        if ((kinds.left == SyntaxKind.HashToken || kinds.left == SyntaxKind.SingleLineCommentToken)
+                            && kinds.right == SyntaxKind.BlockCommentToken
                             && (rightSample.Contains("\r") || rightSample.Contains("\n")))
                         {
                             continue;
@@ -113,7 +113,7 @@ namespace IronVelocity.CodeAnalysis.Tests.Syntax
                     case SyntaxKind.NumberToken:
                     case SyntaxKind.HorizontalWhitespaceToken:
                     case SyntaxKind.VerticalWhitespaceToken:
-                    case SyntaxKind.SingleLineComment:
+                    case SyntaxKind.SingleLineCommentToken:
                     case SyntaxKind.IdentifierToken:
                         return new[] { left };
                 }
@@ -122,17 +122,17 @@ namespace IronVelocity.CodeAnalysis.Tests.Syntax
             switch (left)
             {
                 //If the start is a single line comment, anything that isn't a new line becomes part of the comment
-                case SyntaxKind.SingleLineComment when right != SyntaxKind.VerticalWhitespaceToken:
-                    return new[] { SyntaxKind.SingleLineComment };
+                case SyntaxKind.SingleLineCommentToken when right != SyntaxKind.VerticalWhitespaceToken:
+                    return new[] { SyntaxKind.SingleLineCommentToken };
 
                 //If the left is a hash, any token on the right starting with a hash or star will become some form of comment
                 case SyntaxKind.HashToken:
-                    if (right == SyntaxKind.SingleLineComment
-                        || right == SyntaxKind.BlockComment
+                    if (right == SyntaxKind.SingleLineCommentToken
+                        || right == SyntaxKind.BlockCommentToken
                         || right == SyntaxKind.LiteralToken
                         || right == SyntaxKind.HashToken)
                     {
-                        return new[] { SyntaxKind.SingleLineComment };
+                        return new[] { SyntaxKind.SingleLineCommentToken };
                     }
                     else if (right == SyntaxKind.StarToken)
                     {

@@ -12,7 +12,7 @@ namespace IronVelocity.CodeAnalysis.Tests.Syntax
         public static ImmutableArray<SyntaxKind> LexerTokenKinds { get; } = Enum
             .GetValues(typeof(SyntaxKind))
             .Cast<SyntaxKind>()
-            .Where(x => !x.ToString().EndsWith("Expression"))
+            .Where(x => x.ToString().EndsWith("Token") || x.ToString().EndsWith("Keyword"))
             .ToImmutableArray();
 
         public static IReadOnlyCollection<string> GetSamplesForKind(SyntaxKind kind)
@@ -26,8 +26,8 @@ namespace IronVelocity.CodeAnalysis.Tests.Syntax
             {
                 SyntaxKind.BadToken => BadToken,
                 SyntaxKind.EndOfFileToken => EndOfFile,
-                SyntaxKind.SingleLineComment => SingleLineComment,
-                SyntaxKind.BlockComment => BlockComment,
+                SyntaxKind.SingleLineCommentToken => SingleLineComment,
+                SyntaxKind.BlockCommentToken => BlockComment,
                 SyntaxKind.NumberToken => Number,
                 SyntaxKind.LiteralToken => Literal,
                 SyntaxKind.HorizontalWhitespaceToken => HorizontalWhitespace,

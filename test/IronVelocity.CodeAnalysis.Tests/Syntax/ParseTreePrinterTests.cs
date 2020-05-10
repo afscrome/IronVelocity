@@ -86,7 +86,7 @@ LiteralExpression
                     SyntaxKind.LiteralExpression,
                     new SyntaxToken(SyntaxKind.LiteralToken, 0, "")
                 ),
-                new SyntaxToken(SyntaxKind.SingleLineComment, 0, "")
+                new SyntaxToken(SyntaxKind.SingleLineCommentToken, 0, "")
             );
 
             var result = ParseTreePrinter.PrettyPrint(input);
@@ -95,7 +95,7 @@ LiteralExpression
 LiteralExpression
  ├─LiteralExpression
  │  └─LiteralToken
- └─SingleLineComment".TrimStart()));
+ └─SingleLineCommentToken".TrimStart()));
         }
 
         [Test]
@@ -103,7 +103,7 @@ LiteralExpression
         {
             var input = new SyntaxNodeWithChildren(
                 SyntaxKind.LiteralExpression,
-                new SyntaxToken(SyntaxKind.SingleLineComment, 0, ""),
+                new SyntaxToken(SyntaxKind.SingleLineCommentToken, 0, ""),
                 new SyntaxNodeWithChildren(
                     SyntaxKind.LiteralExpression,
                     new SyntaxToken(SyntaxKind.LiteralToken, 0, "")
@@ -115,7 +115,7 @@ LiteralExpression
 
             Assert.That(result, Is.EqualTo(@"
 LiteralExpression
- ├─SingleLineComment
+ ├─SingleLineCommentToken
  └─LiteralExpression
     └─LiteralToken".TrimStart()));
         }
