@@ -20,7 +20,7 @@ jobs:
       run: dotnet restore
       
     - name: Build
-      run: dotnet build --configuration Release --no-restore -p:Version=0.0.{{ github.run_number }}
+      run: dotnet build --configuration Release --no-restore -p:Version=0.0.${{ github.run_number }}
       
     - name: Test
       run: dotnet test --no-build --verbosity normal
