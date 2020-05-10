@@ -63,12 +63,6 @@ namespace IronVelocity.Tests.Binders
 		}
 
 		[Test]
-		public void ModuloDecimalOverflowTest()
-		{
-			MathTest(decimal.MaxValue, 0.5m, null);
-		}
-
-		[Test]
 		public void ModuloUserDefinedOperators()
 		{
 			var left = new OverloadedMaths(5);
