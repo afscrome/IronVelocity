@@ -4,7 +4,7 @@ pool:
 variables:
   BuildConfiguration: Release
   TestProjects: test/**/*.[Tt]ests.csproj
-  PackProjects: src/IronVelocity.csproj
+  PackProjects: src/**/*.csproj
 
 steps:
 - task: DotNetCoreCLI@2 

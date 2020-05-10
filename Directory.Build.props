@@ -1,8 +1,8 @@
 <Project>
     <PropertyGroup>
-        <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
-        <LangVersion>7.3</LangVersion>
+        <LangVersion>8.0</LangVersion>
         <Deterministic>true</Deterministic>
+		<TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
     </PropertyGroup>
     <PropertyGroup>
         <Copyright>Copyright © AlexCrome 2013</Copyright>
