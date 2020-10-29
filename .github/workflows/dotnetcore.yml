@@ -8,8 +8,8 @@ on:
 
 env:
   Configuration: Release
-  VersionPrefix: 0.0.$GITHUB_RUN_NUMBER
-  VersionSuffix: alpha+$GITHUB_SHA
+  VersionPrefix: 0.0.${{env.GITHUB_RUN_NUMBER}}
+  VersionSuffix: alpha+${{env.GITHUB_SHA}}
 
 jobs:
   build:
