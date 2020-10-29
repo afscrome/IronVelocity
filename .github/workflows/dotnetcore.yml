@@ -8,8 +8,8 @@ on:
 
 env:
   Configuration: Release
-  VersionPrefix: 0.0.${{ github.run_number }}
-  VersionSuffix: alpha+${{ github.github.sha }}
+  VersionPrefix: 0.0.$GITHUB_RUN_NUMBER
+  VersionSuffix: alpha+$GITHUB_SHA
 
 jobs:
   build:
@@ -25,7 +25,7 @@ jobs:
       run: dotnet restore
       
     - name: Build
-      run: dotnet build --configuration Release --no-restore
+      run: dotnet build --no-restore
       
     - name: Test
       run: dotnet test --no-build
