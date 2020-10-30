@@ -5,9 +5,13 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-
 jobs:
   build:
+    env:
+      Configuration: Release
+      VersionPrefix: 0.0.${{ github.run_number }}
+      VersionSuffix: alpha+${{ github.sha }}
+    
     runs-on: windows-latest
 
     steps:
@@ -20,7 +24,13 @@ jobs:
       run: dotnet restore
       
     - name: Build
-      run: dotnet build --configuration Release --no-restore -p:Version=0.0.${{ github.run_number }} -p:VersionSuffix=alpha+${{ github.github.sha }}
+      run: dotnet build --no-restore
       
     - name: Test
-      run: dotnet test --no-build --configuration Release
+      run: dotnet test --no-build
+
+    - name: Pack
+      run: dotnet pack --no-build --output ${{ runner.temp }}\nuget
+
+    - name: Publish
+      run: dotnet nuget push "${{ runner.temp }}\nuget\*" --api-key ${{ secrets.GITHUB_TOKEN }} --source https://nuget.pkg.github.com/${{ github.repository_owner }}
