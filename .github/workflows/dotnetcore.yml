@@ -31,3 +31,9 @@ jobs:
 
     - name: Pack
       run: dotnet pack --no-build --include-symbols
+
+    - name: Publish
+      run: |
+        dotnet nuget push "*.nupkg" \
+          --api-key ${{ secrets.GITHUB_TOKEN }} \
+          --source https://nuget.pkg.github.com/${{ github.repository_owner }}
