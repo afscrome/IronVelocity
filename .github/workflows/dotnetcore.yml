@@ -5,14 +5,13 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
-
-env:
-  Configuration: Release
-  VersionPrefix: 0.0.${{env.GITHUB_RUN_NUMBER}}
-  VersionSuffix: alpha+${{env.GITHUB_SHA}}
-
 jobs:
   build:
+    env:
+      Configuration: Release
+      VersionPrefix: 0.0.${{ github.run_number }}
+      VersionSuffix: alpha+${{ github.sha }}
+    
     runs-on: windows-latest
 
     steps:
